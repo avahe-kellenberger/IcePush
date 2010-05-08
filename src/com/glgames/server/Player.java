@@ -76,7 +76,7 @@ public class Player implements Runnable {
 			Server.players[id] = this;
 			connected = true;
 			System.out.println("Player logged in: " + username + ", id: " + id);
-			
+
 			for (Player plr : Server.players) {
 				try {
 					if (plr == null)
@@ -98,7 +98,7 @@ public class Player implements Runnable {
 					plr.out.writeShort(area.x); // x
 					plr.out.writeShort(area.y); // y
 					plr.out.flush();
-				} catch(Exception e) {
+				} catch (Exception e) {
 					// TODO better error handling
 					continue;
 				}
@@ -244,7 +244,7 @@ public class Player implements Runnable {
 				plr.out.flush();
 			}
 			System.out.println("Logged out: " + id);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
