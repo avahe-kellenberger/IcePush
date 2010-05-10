@@ -14,6 +14,7 @@ public class Server {
 			Socket s;
 			while((s = ss.accept()) != null) {
 				System.out.println("Client accepted, socket: " + s.toString());
+				s.setTcpNoDelay(true);
 				new Thread(new Player(s)).start();
 			}
 		} catch(Exception e) {

@@ -18,6 +18,7 @@ public class NetworkHandler {
 	public static void login(String server, String username) {
 		try {
 			sock = new Socket(server, 2345);
+			sock.setTcpNoDelay(true);
 
 			in = new DataInputStream(sock.getInputStream());
 			out = new DataOutputStream(sock.getOutputStream());
