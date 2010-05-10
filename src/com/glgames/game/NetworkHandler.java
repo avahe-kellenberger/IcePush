@@ -96,6 +96,7 @@ public class NetworkHandler {
 				break;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			GraphicsMethods.message = e.toString();
 			GameEngine.state = GameEngine.WELCOME;
 		}

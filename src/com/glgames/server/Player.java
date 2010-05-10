@@ -132,40 +132,40 @@ public class Player implements Runnable {
 		if (moveDir != -1) {
 			switch (moveDir) {
 			case UP: // up
-				dy--;
+				area.y--;
 				break;
 			case DOWN: // down
-				dy++;
+				area.y++;
 				break;
 			case LEFT: // left
-				dx--;
+				area.x--;
 				break;
 			case RIGHT: // right
-				dx++;
+				area.x++;
 				break;
 			}
 
-			if (dx > 5)
-				dx = 5;
-			if (dy > 5)
-				dy = 5;
-			if (dx < -5)
-				dx = -5;
-			if (dy < -5)
-				dy = -5;
+		//	if (dx > 5)
+		//		dx = 5;
+		//	if (dy > 5)
+		//		dy = 5;
+		//	if (dx < -5)
+		//		dx = -5;
+		//	if (dy < -5)
+		//		dy = -5;
 		}
 
-		if (dx != 0 || dy != 0) {
-			if (moveDir == -1) {
-				if (dx > 0)
-					dx--;
-				if (dy > 0)
-					dy--;
-				if (dx < 0)
-					dx++;
-				if (dy < 0)
-					dy++;
-			}
+		//if (dx != 0 || dy != 0) {
+		//	if (moveDir == -1) {
+		//		if (dx > 0)
+		//			dx--;
+		//		if (dy > 0)
+		//			dy--;
+		//		if (dx < 0)
+		//			dx++;
+		//		if (dy < 0)
+		//			dy++;
+		//	}
 
 			Player p = getPlayerInWay();
 			if (p != null) {
@@ -177,8 +177,8 @@ public class Player implements Runnable {
 				return;
 			}
 
-			area.x += dx;
-			area.y += dy;
+			//area.x += dx;
+			//area.y += dy;
 
 			if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
 					|| area.y > 400 + 10)
@@ -194,7 +194,7 @@ public class Player implements Runnable {
 				plr.out.writeShort(area.y);
 				plr.out.flush();
 			}
-		}
+		//}
 	}
 
 	private void playerDied() throws Exception {
