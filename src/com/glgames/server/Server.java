@@ -12,13 +12,26 @@ public class Server {
 			ServerSocket ss = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
 			Socket s;
-			while((s = ss.accept()) != null) {
+			while((s = ss.accept()) != null) { // will never exit
 				System.out.println("Client accepted, socket: " + s.toString());
 				s.setTcpNoDelay(true);
-				new Thread(new Player(s)).start();
+				Player p = new Player(s); // ETC ETC
+				p.login();
 			}
+			
+			updatePlayers();
 		} catch(Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void updatePlayers() {
+		for (Player p : players) {
+			if (p == null || !p.connected)
+				continue;
+
+			p.processIncomingPackets();
+			p.handleMove();
 		}
 	}
 

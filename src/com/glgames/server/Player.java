@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
-public class Player implements Runnable {
+public class Player {
 	public static final int UP = 1 << 0;
 	public static final int DOWN = 1 << 1;
 	public static final int LEFT = 1 << 2;
@@ -23,7 +23,7 @@ public class Player implements Runnable {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private String username;
-	private boolean connected;
+	public boolean connected;
 	private int moveDir = -1;
 
 	public Player(Socket s) {
@@ -35,7 +35,7 @@ public class Player implements Runnable {
 		}
 	}
 
-	public void run() {
+	public void login() {
 		try {
 			int version = in.readShort();
 			if (version != Server.VERSION) {
@@ -103,16 +103,6 @@ public class Player implements Runnable {
 					continue;
 				}
 			}
-
-			while (connected) {
-				processIncomingPackets();
-				handleMove();
-				try {
-					Thread.sleep(20);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logout();
@@ -128,44 +118,45 @@ public class Player implements Runnable {
 		moveDir = -1;
 	}
 
-	private void handleMove() throws Exception {
-		if (moveDir != -1) {
-			switch (moveDir) {
-			case UP: // up
-				area.y--;
-				break;
-			case DOWN: // down
-				area.y++;
-				break;
-			case LEFT: // left
-				area.x--;
-				break;
-			case RIGHT: // right
-				area.x++;
-				break;
+	public void handleMove() {
+		try {
+			if (moveDir != -1) {
+				switch (moveDir) {
+				case UP: // up
+					area.y--;
+					break;
+				case DOWN: // down
+					area.y++;
+					break;
+				case LEFT: // left
+					area.x--;
+					break;
+				case RIGHT: // right
+					area.x++;
+					break;
+				}
+
+				// if (dx > 5)
+				// dx = 5;
+				// if (dy > 5)
+				// dy = 5;
+				// if (dx < -5)
+				// dx = -5;
+				// if (dy < -5)
+				// dy = -5;
 			}
 
-		//	if (dx > 5)
-		//		dx = 5;
-		//	if (dy > 5)
-		//		dy = 5;
-		//	if (dx < -5)
-		//		dx = -5;
-		//	if (dy < -5)
-		//		dy = -5;
-		}
-
-		//if (dx != 0 || dy != 0) {
-		//	if (moveDir == -1) {
-		//		if (dx > 0)
-		//			dx--;
-		//		if (dy > 0)
-		//			dy--;
-		//		if (dx < 0)
-		//			dx++;
-		//		if (dy < 0)
-		//			dy++;
-		//	}
+			// if (dx != 0 || dy != 0) {
+			// if (moveDir == -1) {
+			// if (dx > 0)
+			// dx--;
+			// if (dy > 0)
+			// dy--;
+			// if (dx < 0)
+			// dx++;
+			// if (dy < 0)
+			// dy++;
+			// }
 
 			Player p = getPlayerInWay();
 			if (p != null) {
@@ -177,8 +168,8 @@ public class Player implements Runnable {
 				return;
 			}
 
-			//area.x += dx;
-			//area.y += dy;
+			// area.x += dx;
+			// area.y += dy;
 
 			if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
 					|| area.y > 400 + 10)
@@ -194,39 +185,50 @@ public class Player implements Runnable {
 				plr.out.writeShort(area.y);
 				plr.out.flush();
 			}
-		//}
-	}
-
-	private void playerDied() throws Exception {
-		deaths++;
-		initPosition();
-		for (Player plr : Server.players) {
-			if (plr == null)
-				continue;
-			plr.out.writeByte(PLAYER_DIED); // died
-			plr.out.writeShort(id);
-			plr.out.writeByte(deaths);
-			plr.out.writeShort(area.x); // new location
-			plr.out.writeShort(area.y);
-			plr.out.flush();
+			// }
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	private void processIncomingPackets() throws Exception {
-		if (in.available() == 0)
-			return;
+	private void playerDied() {
+		try {
+			deaths++;
+			initPosition();
+			for (Player plr : Server.players) {
+				if (plr == null)
+					continue;
+				plr.out.writeByte(PLAYER_DIED); // died
+				plr.out.writeShort(id);
+				plr.out.writeByte(deaths);
+				plr.out.writeShort(area.x); // new location
+				plr.out.writeShort(area.y);
+				plr.out.flush();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-		int opcode = in.readByte();
-		switch (opcode) {
-		case MOVE_REQUEST:
-			moveDir = in.readByte();
-			break;
-		case END_MOVE:
-			moveDir = -1;
-			break;
-		case LOGOUT:
-			logout();
-			break;
+	public void processIncomingPackets() {
+		try {
+			if (in.available() == 0)
+				return;
+
+			int opcode = in.readByte();
+			switch (opcode) {
+			case MOVE_REQUEST:
+				moveDir = in.readByte();
+				break;
+			case END_MOVE:
+				moveDir = -1;
+				break;
+			case LOGOUT:
+				logout();
+				break;
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -250,14 +252,14 @@ public class Player implements Runnable {
 	}
 
 	public Player getPlayerInWay() {
-		Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
-		for (Player pl : Server.players) {
-			if (pl == null || pl == this)
-				continue;
+		//Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
+		//for (Player pl : Server.players) {
+		//	if (pl == null || pl == this)
+		//		continue;
 
-			if (pl.area.intersects(newArea))
-				return pl;
-		}
+		//	if (pl.area.intersects(newArea))
+		//		return pl;
+		//}
 		return null;
 	}
 }
