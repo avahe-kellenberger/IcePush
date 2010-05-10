@@ -30,13 +30,6 @@ public class Player {
 		try {
 			in = new DataInputStream(s.getInputStream());
 			out = new DataOutputStream(s.getOutputStream());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void login() {
-		try {
 			int version = in.readShort();
 			if (version != Server.VERSION) {
 				out.writeByte(BAD_VERSION); // bad version
@@ -105,7 +98,6 @@ public class Player {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			logout();
 		}
 	}
 

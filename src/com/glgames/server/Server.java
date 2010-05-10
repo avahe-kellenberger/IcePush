@@ -10,24 +10,30 @@ public class Server implements Runnable {
 	public static Player[] players;
 	boolean run = true;
 	ServerSocket listener;
-	
+
 	public Server(int port) {
 		try {
 			listener = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
 			(new Thread(this)).start();
 
-			while(run) {
+			while (run) {
 				Socket s = SocketWrapper.pull();
-				if(s != null) {
-					System.out.println("Client accepted, socket: " + s.toString());
+				if (s != null) {
+					System.out.println("Client accepted, socket: "
+							+ s.toString());
 					s.setTcpNoDelay(true);
-					Player p = new Player(s); // ETC ETC
-					p.login();
+					new Player(s); // ETC ETC
 				}
 				updatePlayers();
+
+				try {
+					Thread.sleep(30);
+				} catch (Exception e) {
+
+				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -36,7 +42,8 @@ public class Server implements Runnable {
 		while (run)
 			try {
 				SocketWrapper.push(listener.accept());
-			} catch (IOException ioe) {
+				Thread.sleep(30);
+			} catch (Exception ioe) {
 				System.out.println("Error accepting connections!");
 				ioe.printStackTrace();
 				run = false;
