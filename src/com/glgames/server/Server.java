@@ -3,26 +3,44 @@ package com.glgames.server;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server {
+import java.io.IOException;
+
+public class Server implements Runnable {
 	public static final int VERSION = 100;
 	public static Player[] players;
+	boolean run = true;
+	ServerSocket listener;
 	
 	public Server(int port) {
 		try {
-			ServerSocket ss = new ServerSocket(port);
+			listener = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
-			Socket s;
-			while((s = ss.accept()) != null) { // will never exit
-				System.out.println("Client accepted, socket: " + s.toString());
-				s.setTcpNoDelay(true);
-				Player p = new Player(s); // ETC ETC
-				p.login();
+			(new Thread(this)).start();
+
+			while(run) {
+				Socket s = SocketWrapper.pull();
+				if(s != null) {
+					System.out.println("Client accepted, socket: " + s.toString());
+					s.setTcpNoDelay(true);
+					Player p = new Player(s); // ETC ETC
+					p.login();
+				}
+				updatePlayers();
 			}
-			
-			updatePlayers();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void run() {
+		while (run)
+			try {
+				SocketWrapper.push(listener.accept());
+			} catch (IOException ioe) {
+				System.out.println("Error accepting connections!");
+				ioe.printStackTrace();
+				run = false;
+			}
 	}
 
 	private void updatePlayers() {
