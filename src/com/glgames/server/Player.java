@@ -211,6 +211,7 @@ public class Player {
 			switch (opcode) {
 			case MOVE_REQUEST:
 				moveDir = in.readByte();
+				System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + ", TIME: " + System.currentTimeMillis());
 				break;
 			case END_MOVE:
 				moveDir = -1;
