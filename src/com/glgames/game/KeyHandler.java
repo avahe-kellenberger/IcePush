@@ -1,18 +1,18 @@
 package com.glgames.game;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import com.glgames.server.Player;
 
 
-public class KeyHandler implements KeyListener {
+public class KeyHandler extends BugfixKeyListener {
 	private boolean isMoving;
 	
 	public void keyPressed(KeyEvent e) {
+		super.keyPressed(e);
 		if(!GameObjects.loaded)
 			return;
-		
+		System.out.println("pressed");
 		int moveDir = -1;
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_ESCAPE:
@@ -53,13 +53,16 @@ public class KeyHandler implements KeyListener {
 			if(isMoving)
 				return;
 			
-			// checks collision too
 			NetworkHandler.sendMoveRequest(moveDir);
 			isMoving = true;
 		}
 	}
 
 	public void keyReleased(KeyEvent e) {
+		super.keyReleased(e);
+		if (!getReleased())
+			return;
+		System.out.println("released");
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_UP:
 			case KeyEvent.VK_DOWN:
@@ -70,9 +73,4 @@ public class KeyHandler implements KeyListener {
 				break;
 		}
 	}
-
-	public void keyTyped(KeyEvent e) {
-
-	}
-
 }

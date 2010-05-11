@@ -127,57 +127,32 @@ public class Player {
 					area.x++;
 					break;
 				}
+				
+				Player p = getPlayerInWay();
+				if (p != null) {
+					p.moveDir = moveDir;
+					dx = dy = 0;
+					moveDir = -1;
+					// TODO make better
+					p.handleMove();
+					return;
+				}
 
-				// if (dx > 5)
-				// dx = 5;
-				// if (dy > 5)
-				// dy = 5;
-				// if (dx < -5)
-				// dx = -5;
-				// if (dy < -5)
-				// dy = -5;
+				if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
+						|| area.y > 400 + 10)
+					playerDied();
+
+				for (Player plr : Server.players) {
+					if (plr == null)
+						continue;
+
+					plr.out.writeByte(PLAYER_MOVED); // player moved
+					plr.out.writeShort(id);
+					plr.out.writeShort(area.x);
+					plr.out.writeShort(area.y);
+					plr.out.flush();
+				}
 			}
-
-			// if (dx != 0 || dy != 0) {
-			// if (moveDir == -1) {
-			// if (dx > 0)
-			// dx--;
-			// if (dy > 0)
-			// dy--;
-			// if (dx < 0)
-			// dx++;
-			// if (dy < 0)
-			// dy++;
-			// }
-
-			Player p = getPlayerInWay();
-			if (p != null) {
-				p.moveDir = moveDir;
-				dx = dy = 0;
-				moveDir = -1;
-				// TODO make better
-				p.handleMove();
-				return;
-			}
-
-			// area.x += dx;
-			// area.y += dy;
-
-			if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
-					|| area.y > 400 + 10)
-				playerDied();
-
-			for (Player plr : Server.players) {
-				if (plr == null)
-					continue;
-
-				plr.out.writeByte(PLAYER_MOVED); // player moved
-				plr.out.writeShort(id);
-				plr.out.writeShort(area.x);
-				plr.out.writeShort(area.y);
-				plr.out.flush();
-			}
-			// }
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -211,7 +186,7 @@ public class Player {
 			switch (opcode) {
 			case MOVE_REQUEST:
 				moveDir = in.readByte();
-				System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + ", TIME: " + System.currentTimeMillis());
+				// System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + ", TIME: " + System.currentTimeMillis());
 				break;
 			case END_MOVE:
 				moveDir = -1;
@@ -245,14 +220,6 @@ public class Player {
 	}
 
 	public Player getPlayerInWay() {
-		//Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
-		//for (Player pl : Server.players) {
-		//	if (pl == null || pl == this)
-		//		continue;
-
-		//	if (pl.area.intersects(newArea))
-		//		return pl;
-		//}
 		return null;
 	}
 }

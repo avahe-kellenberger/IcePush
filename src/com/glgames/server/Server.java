@@ -3,8 +3,6 @@ package com.glgames.server;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import java.io.IOException;
-
 public class Server implements Runnable {
 	public static final int VERSION = 100;
 	public static Player[] players;

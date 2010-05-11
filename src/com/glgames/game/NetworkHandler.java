@@ -106,7 +106,7 @@ public class NetworkHandler {
 		if (GameEngine.state != GameEngine.PLAY)
 			return;
 		try {
-			System.out.println("SENDING MOVE REQUEST - DIR: " + dir + ", TIME: " + System.currentTimeMillis());
+			// System.out.println("SENDING MOVE REQUEST - DIR: " + dir + ", TIME: " + System.currentTimeMillis());
 			out.writeByte(MOVE_REQUEST);
 			out.writeByte(dir);
 			out.flush();
