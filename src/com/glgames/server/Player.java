@@ -186,10 +186,12 @@ public class Player {
 			switch (opcode) {
 			case MOVE_REQUEST:
 				moveDir = in.readByte();
-				// System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + ", TIME: " + System.currentTimeMillis());
+				int moveid = in.readByte();
+				System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveid + " , TIME: " + System.currentTimeMillis());
 				break;
 			case END_MOVE:
 				moveDir = -1;
+				System.out.println("END MOVE REQUEST - ID = " + in.readByte() + " - TIME = " + System.currentTimeMillis());
 				break;
 			case LOGOUT:
 				logout();

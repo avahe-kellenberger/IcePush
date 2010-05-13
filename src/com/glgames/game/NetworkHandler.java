@@ -102,13 +102,16 @@ public class NetworkHandler {
 		}
 	}
 
+	public static int moveID;
+
 	public static void sendMoveRequest(int dir) {
 		if (GameEngine.state != GameEngine.PLAY)
 			return;
 		try {
-			// System.out.println("SENDING MOVE REQUEST - DIR: " + dir + ", TIME: " + System.currentTimeMillis());
+			System.out.println("SENDING MOVE REQUEST - ID: " + moveID + " - DIR: " + dir + ", TIME: " + System.currentTimeMillis());
 			out.writeByte(MOVE_REQUEST);
 			out.writeByte(dir);
+			out.writeByte(moveID);
 			out.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,8 +122,11 @@ public class NetworkHandler {
 		if (GameEngine.state != GameEngine.PLAY)
 			return;
 		try {
+			System.out.println("ENDING MOVE REQUEST - ID: " + moveID + " - TIME: " + System.currentTimeMillis());
 			out.writeByte(END_MOVE);
+			out.writeByte(moveID);
 			out.flush();
+			moveID = (moveID + 1) & 255;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
