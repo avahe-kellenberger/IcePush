@@ -145,6 +145,7 @@ public class Player {
 				for (Player plr : Server.players) {
 					if (plr == null)
 						continue;
+					System.out.println("SENDING MOVE - " + id + " : " + area.x + ", " + area.y);
 
 					plr.out.writeByte(PLAYER_MOVED); // player moved
 					plr.out.writeShort(id);
