@@ -64,8 +64,14 @@ public class NetworkHandler {
 	}
 
 	public static void handlePackets() {
-		if (GameEngine.state == GameEngine.WELCOME || !pbuf.synch())
+		if (GameEngine.state == GameEngine.WELCOME)
 			return;
+
+		if(!pbuf.synch()) {
+			GameEngine.state = GameEngine.WELCOME;
+			GraphicsMethods.message = "Connection with server was lost";
+			return;
+		}
 
 		int opcode;
 		int id, type, x, y;
