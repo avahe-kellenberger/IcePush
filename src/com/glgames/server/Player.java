@@ -197,8 +197,10 @@ public class Player {
 
 	public void processIncomingPackets() {
 		try {
-			if (!pbuf.synch())
+			if (!pbuf.synch()) {
+				logout();		// Log out player if connection has been lost
 				return;
+			}
             int opcode;
             while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
