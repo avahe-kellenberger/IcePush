@@ -12,7 +12,7 @@ public class KeyHandler extends BugfixKeyListener {
 		super.keyPressed(e);
 		if(!GameObjects.loaded)
 			return;
-		System.out.println("pressed");
+		// System.out.println("pressed");
 		int moveDir = -1;
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_ESCAPE:
@@ -62,7 +62,7 @@ public class KeyHandler extends BugfixKeyListener {
 		super.keyReleased(e);
 		if (!getReleased())
 			return;
-		System.out.println("released");
+		// System.out.println("released");
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_UP:
 			case KeyEvent.VK_DOWN:

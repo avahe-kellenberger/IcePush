@@ -1,11 +1,23 @@
 package com.glgames.server;
 
-import static com.glgames.shared.Opcodes.*;
+import static com.glgames.shared.Opcodes.BAD_VERSION;
+import static com.glgames.shared.Opcodes.END_MOVE;
+import static com.glgames.shared.Opcodes.LOGOUT;
+import static com.glgames.shared.Opcodes.MOVE_REQUEST;
+import static com.glgames.shared.Opcodes.NEW_PLAYER;
+import static com.glgames.shared.Opcodes.PLAYER_DIED;
+import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
+import static com.glgames.shared.Opcodes.PLAYER_MOVED;
+import static com.glgames.shared.Opcodes.SUCCESS_LOG;
+import static com.glgames.shared.Opcodes.TOO_MANY_PL;
+import static com.glgames.shared.Opcodes.USER_IN_USE;
 
 import java.awt.Rectangle;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+
+import com.glgames.shared.PacketBuffer;
 
 public class Player {
 	public static final int UP = 1 << 0;
@@ -19,29 +31,33 @@ public class Player {
 	public int deaths;
 
 	public Rectangle area;
+	public PacketBuffer pbuf;
 
-	private DataInputStream in;
-	private DataOutputStream out;
 	private String username;
 	public boolean connected;
 	private int moveDir = -1;
 
 	public Player(Socket s) {
 		try {
-			in = new DataInputStream(s.getInputStream());
-			out = new DataOutputStream(s.getOutputStream());
-			int version = in.readShort();
+			InputStream in = s.getInputStream();
+			OutputStream out = s.getOutputStream();
+			int version = in.read();
 			if (version != Server.VERSION) {
-				out.writeByte(BAD_VERSION); // bad version
+				out.write(BAD_VERSION); // bad version
 				out.flush();
 				return;
 			}
-			username = in.readUTF();
+			int len = in.read();
+			byte[] strb = new byte[len];
+			in.read(strb);
+
+			username = new String(strb);
+			
 			for (int k = 0; k < Server.players.length; k++)
 				if (Server.players[k] != null) {
 					String user = Server.players[k].username;
 					if (user != null && user.equals(username)) {
-						out.writeByte(USER_IN_USE); // name in use
+						out.write(USER_IN_USE); // name in use
 						out.flush();
 						return;
 					}
@@ -53,7 +69,7 @@ public class Player {
 					break;
 				}
 			if (index == -1) {
-				out.writeByte(TOO_MANY_PL);
+				out.write(TOO_MANY_PL);
 				out.flush();
 				return;
 			}
@@ -62,10 +78,11 @@ public class Player {
 			type = index % 2;
 
 			initPosition();
-			out.writeByte(SUCCESS_LOG); // success
-			out.writeShort(id);
+			out.write(SUCCESS_LOG); // success
+			out.write(id);
 			out.flush();
-
+			
+			pbuf = new PacketBuffer(s);
 			Server.players[id] = this;
 			connected = true;
 			System.out.println("Player logged in: " + username + ", id: " + id);
@@ -75,22 +92,22 @@ public class Player {
 					if (plr == null)
 						continue;
 					// Tell this client about that player...
-					out.writeByte(NEW_PLAYER);
-					out.writeShort(plr.id);
-					out.writeByte(plr.type);
-					out.writeUTF(plr.username);
-					out.writeShort(plr.area.x);
-					out.writeShort(plr.area.y);
-					out.flush();
+					pbuf.beginPacket(NEW_PLAYER);
+					pbuf.writeShort(plr.id);
+					pbuf.writeByte(plr.type);
+					pbuf.writeString(plr.username);
+					pbuf.writeShort(plr.area.x);
+					pbuf.writeShort(plr.area.y);
+					pbuf.endPacket();
 
 					// Tell that client about this player
-					plr.out.writeByte(NEW_PLAYER); // new player has entered
-					plr.out.writeShort(id);
-					plr.out.writeByte(type);
-					plr.out.writeUTF(username);
-					plr.out.writeShort(area.x); // x
-					plr.out.writeShort(area.y); // y
-					plr.out.flush();
+					plr.pbuf.beginPacket(NEW_PLAYER); // new player has entered
+					plr.pbuf.writeShort(id);
+					plr.pbuf.writeByte(type);
+					plr.pbuf.writeString(username);
+					plr.pbuf.writeShort(area.x); // x
+					plr.pbuf.writeShort(area.y); // y
+					plr.pbuf.endPacket();
 				} catch (Exception e) {
 					// TODO better error handling
 					continue;
@@ -147,11 +164,11 @@ public class Player {
 						continue;
 					System.out.println("SENDING MOVE - " + id + " : " + area.x + ", " + area.y);
 
-					plr.out.writeByte(PLAYER_MOVED); // player moved
-					plr.out.writeShort(id);
-					plr.out.writeShort(area.x);
-					plr.out.writeShort(area.y);
-					plr.out.flush();
+					plr.pbuf.beginPacket(PLAYER_MOVED); // player moved
+					plr.pbuf.writeShort(id);
+					plr.pbuf.writeShort(area.x);
+					plr.pbuf.writeShort(area.y);
+					plr.pbuf.endPacket();
 				}
 			}
 		} catch(Exception e) {
@@ -166,12 +183,12 @@ public class Player {
 			for (Player plr : Server.players) {
 				if (plr == null)
 					continue;
-				plr.out.writeByte(PLAYER_DIED); // died
-				plr.out.writeShort(id);
-				plr.out.writeByte(deaths);
-				plr.out.writeShort(area.x); // new location
-				plr.out.writeShort(area.y);
-				plr.out.flush();
+				plr.pbuf.beginPacket(PLAYER_DIED);
+				plr.pbuf.writeShort(id);
+				plr.pbuf.writeByte(deaths);
+				plr.pbuf.writeShort(area.x); // new location
+				plr.pbuf.writeShort(area.y);
+				plr.pbuf.endPacket();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -180,24 +197,30 @@ public class Player {
 
 	public void processIncomingPackets() {
 		try {
-			if (in.available() == 0)
+			if (!pbuf.synch())
 				return;
-
-			int opcode = in.readByte();
-			switch (opcode) {
-			case MOVE_REQUEST:
-				moveDir = in.readByte();
-				int moveid = in.readByte();
-				System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveid + " , TIME: " + System.currentTimeMillis());
-				break;
-			case END_MOVE:
-				moveDir = -1;
-				System.out.println("END MOVE REQUEST - ID = " + in.readByte() + " - TIME = " + System.currentTimeMillis());
-				break;
-			case LOGOUT:
-				logout();
-				break;
-			}
+            int opcode;
+            while ((opcode = pbuf.openPacket()) != -1) {
+				switch (opcode) {
+					case MOVE_REQUEST:
+						moveDir = pbuf.readByte();
+						int moveid = pbuf.readByte();
+						System.out.println("GOT MOVE REQUEST - DIR: " + moveDir
+								+ " - ID = " + moveid + " , TIME: "
+								+ System.currentTimeMillis());
+						break;
+					case END_MOVE:
+						moveDir = -1;
+						System.out.println("END MOVE REQUEST - ID = "
+								+ pbuf.readByte() + " - TIME = "
+								+ System.currentTimeMillis());
+						break;
+					case LOGOUT:
+						logout();
+						break;
+				}
+				pbuf.closePacket();
+            }
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -212,9 +235,9 @@ public class Player {
 				if (plr == null || plr == this)
 					continue;
 
-				plr.out.writeByte(PLAYER_LOGGED_OUT);
-				plr.out.writeShort(id);
-				plr.out.flush();
+				plr.pbuf.beginPacket(PLAYER_LOGGED_OUT);
+				plr.pbuf.writeShort(id);
+				plr.pbuf.endPacket();
 			}
 			System.out.println("Logged out: " + id);
 		} catch (Exception e) {

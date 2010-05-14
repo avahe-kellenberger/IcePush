@@ -43,7 +43,7 @@ public class PacketBuffer {
 		debug("PacketBuffer::beginPacket[0]");
 		pktStart = writePtr;
 		writePtr += 2; // Reserve a byte of space at the beginning for the size
-						// byte; which can't be computed until EndPacket()
+		// byte; which can't be computed until EndPacket()
 		writeByte(opcode);
 		debug("PacketBuffer::beginPacket[1]");
 	}
@@ -53,7 +53,7 @@ public class PacketBuffer {
 		int saveWritePtr = writePtr;
 		writePtr = pktStart;
 		writeShort(saveWritePtr - pktStart); // Write the size to the reserved
-												// space: size = curent - start.
+		// space: size = curent - start.
 		writePtr = saveWritePtr;
 		debug("PacketBuffer::endPacket[1]");
 	}
@@ -108,7 +108,7 @@ public class PacketBuffer {
 
 	public int openPacket() {
 		debug("PacketBuffer::openPacket[0]");
-	//	new Exception().printStackTrace();
+		// new Exception().printStackTrace();
 		if ((readPtr + 3) > dataEnd) {
 			debug("PacketBuffer::openPacket[1]");
 			return -1; // Smallest valid packet size is 3
@@ -131,7 +131,8 @@ public class PacketBuffer {
 	}
 
 	public void closePacket() {
-		if(debug) System.out.println("PacketBuffer::closePacket");
+		if (debug)
+			System.out.println("PacketBuffer::closePacket");
 		readPtr = pktEnd;
 	}
 
@@ -141,7 +142,9 @@ public class PacketBuffer {
 			if (writePtr != 0) {
 				out.write(outBuf, 0, writePtr);
 				out.flush();
-				if(debug) System.out.println("[[[ PACKET DATA HAS BEEN SENT TO PEER ]]]");
+				if (debug)
+					System.out
+							.println("[[[ PACKET DATA HAS BEEN SENT TO PEER ]]]");
 			}
 			// System.out.println("writePtr = " + writePtr);
 			writePtr = 0;
@@ -151,16 +154,18 @@ public class PacketBuffer {
 		}
 		try {
 			int numBytesUnread = dataEnd - readPtr;
-		//	if(numBytesUnread < 0) {
-		//		System.out.println("Something broke: " + dataEnd + ", " + readPtr);
-		//		numBytesUnread = 0;
-		//	}
+			// if(numBytesUnread < 0) {
+			// System.out.println("Something broke: " + dataEnd + ", " +
+			// readPtr);
+			// numBytesUnread = 0;
+			// }
 			int available = in.available();
-			//System.out.println("available = " + available);
+			// System.out.println("available = " + available);
 			byte[] newInBuf = new byte[numBytesUnread + available];
 			if (numBytesUnread != 0) {
-				if(debug) System.out.println("Unread bytes in read buffer: "
-						+ numBytesUnread);
+				if (debug)
+					System.out.println("Unread bytes in read buffer: "
+							+ numBytesUnread);
 				System.arraycopy(inBuf, readPtr, newInBuf, 0, numBytesUnread);
 			}
 			dataEnd = numBytesUnread;
@@ -168,10 +173,12 @@ public class PacketBuffer {
 				lastReadTime = System.currentTimeMillis();
 				int bytesRead = in.read(newInBuf, numBytesUnread, available);
 				dataEnd += bytesRead;
-				if(debug) System.out.println(" SYNCH bytesRead = " + bytesRead);
-			/* ALL CODE IN COMMENTS HAS BEEN COMMENTED OUT */
+				if (debug)
+					System.out.println(" SYNCH bytesRead = " + bytesRead);
+				/* ALL CODE IN COMMENTS HAS BEEN COMMENTED OUT */
 			} else {
-				if(debug) System.out.println("[SYNCH] NO BYTES SENT FROM PEER");
+				if (debug)
+					System.out.println("[SYNCH] NO BYTES SENT FROM PEER");
 				long time = System.currentTimeMillis();
 				if ((time - lastReadTime) >= 4000) {
 					System.out
@@ -202,23 +209,28 @@ public class PacketBuffer {
 	}
 
 	public void debug(String blah) {
-		if(debug) {
+		if (debug) {
 			System.out.println(blah);
-			System.out.println("--- readPtr=" + readPtr + " pktEnd="
-			+ pktEnd + " writePtr=" + writePtr + " pktStart=" + pktStart
-			+ " remaining=" + remaining() + " dataEnd=" + dataEnd);
+			System.out.println("--- readPtr=" + readPtr + " pktEnd=" + pktEnd
+					+ " writePtr=" + writePtr + " pktStart=" + pktStart
+					+ " remaining=" + remaining() + " dataEnd=" + dataEnd);
 			System.out.println(" --- OUTGOING PACKET DATA --- ");
 			System.out.print("{");
-			for(int i = 0; i < writePtr; i++) System.out.print(outBuf[i]+",");
+			for (int i = 0; i < writePtr; i++)
+				System.out.print(outBuf[i] + ",");
 			System.out.println("}");
 
-			if(inBuf.length < 5000) {
+			if (inBuf.length < 5000) {
 				System.out.println(" --- RECIEVED PACKET DATA --- ");
-				System.out.print("{"); for(int i : inBuf) System.out.print(i + ",");
+				System.out.print("{");
+				for (int i : inBuf)
+					System.out.print(i + ",");
 				System.out.println("}");
 			}
 
-			if(pktEnd < readPtr) System.out.println(" **** PKTEND IS LESS THEN READPTR EVERYTHING IS FUCKEDD UP **** ");
+			if (pktEnd < readPtr)
+				System.out
+						.println(" **** PKTEND IS LESS THEN READPTR **** ");
 		}
 	}
 
