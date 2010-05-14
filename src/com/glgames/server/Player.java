@@ -252,6 +252,14 @@ public class Player {
 	}
 
 	public Player getPlayerInWay() {
+		Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
+		for(Player pl : Server.players) {
+			if(pl == null || pl == this)
+				continue;
+			
+			if(pl.area.intersects(newArea))
+				return pl;
+		}
 		return null;
 	}
 }
