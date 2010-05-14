@@ -52,7 +52,7 @@ public class Player {
 			in.read(strb);
 
 			username = new String(strb);
-			
+
 			for (int k = 0; k < Server.players.length; k++)
 				if (Server.players[k] != null) {
 					String user = Server.players[k].username;
@@ -81,7 +81,7 @@ public class Player {
 			out.write(SUCCESS_LOG); // success
 			out.write(id);
 			out.flush();
-			
+
 			pbuf = new PacketBuffer(s);
 			Server.players[id] = this;
 			connected = true;
@@ -131,20 +131,20 @@ public class Player {
 		try {
 			if (moveDir != -1) {
 				switch (moveDir) {
-				case UP: // up
-					area.y--;
-					break;
-				case DOWN: // down
-					area.y++;
-					break;
-				case LEFT: // left
-					area.x--;
-					break;
-				case RIGHT: // right
-					area.x++;
-					break;
+					case UP: // up
+						area.y--;
+						break;
+					case DOWN: // down
+						area.y++;
+						break;
+					case LEFT: // left
+						area.x--;
+						break;
+					case RIGHT: // right
+						area.x++;
+						break;
 				}
-				
+
 				Player p = getPlayerInWay();
 				if (p != null) {
 					p.moveDir = moveDir;
@@ -162,7 +162,9 @@ public class Player {
 				for (Player plr : Server.players) {
 					if (plr == null)
 						continue;
-					System.out.println("SENDING MOVE - " + id + " : " + area.x + ", " + area.y);
+					if (Server.DEBUG)
+						System.out.println("SENDING MOVE - " + id + " : "
+								+ area.x + ", " + area.y);
 
 					plr.pbuf.beginPacket(PLAYER_MOVED); // player moved
 					plr.pbuf.writeShort(id);
@@ -171,7 +173,7 @@ public class Player {
 					plr.pbuf.endPacket();
 				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -190,7 +192,7 @@ public class Player {
 				plr.pbuf.writeShort(area.y);
 				plr.pbuf.endPacket();
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -198,32 +200,34 @@ public class Player {
 	public void processIncomingPackets() {
 		try {
 			if (!pbuf.synch()) {
-				logout();		// Log out player if connection has been lost
+				logout(); // Log out player if connection has been lost
 				return;
 			}
-            int opcode;
-            while ((opcode = pbuf.openPacket()) != -1) {
+			int opcode;
+			while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
 					case MOVE_REQUEST:
 						moveDir = pbuf.readByte();
 						int moveid = pbuf.readByte();
-						System.out.println("GOT MOVE REQUEST - DIR: " + moveDir
-								+ " - ID = " + moveid + " , TIME: "
-								+ System.currentTimeMillis());
+						if (Server.DEBUG)
+							System.out.println("GOT MOVE REQUEST - DIR: "
+									+ moveDir + " - ID = " + moveid
+									+ " , TIME: " + System.currentTimeMillis());
 						break;
 					case END_MOVE:
 						moveDir = -1;
-						System.out.println("END MOVE REQUEST - ID = "
-								+ pbuf.readByte() + " - TIME = "
-								+ System.currentTimeMillis());
+						if (Server.DEBUG)
+							System.out.println("END MOVE REQUEST - ID = "
+									+ pbuf.readByte() + " - TIME = "
+									+ System.currentTimeMillis());
 						break;
 					case LOGOUT:
 						logout();
 						break;
 				}
 				pbuf.closePacket();
-            }
-		} catch(Exception e) {
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -128,9 +128,10 @@ public class NetworkHandler {
 		if (GameEngine.state != GameEngine.PLAY)
 			return;
 		try {
-			System.out.println("SENDING MOVE REQUEST - ID: " + moveID
-					+ " - DIR: " + dir + ", TIME: "
-					+ System.currentTimeMillis());
+			if (IcePush.DEBUG)
+				System.out.println("SENDING MOVE REQUEST - ID: " + moveID
+						+ " - DIR: " + dir + ", TIME: "
+						+ System.currentTimeMillis());
 			pbuf.beginPacket(MOVE_REQUEST);
 			pbuf.writeByte(dir);
 			pbuf.writeByte(moveID);
@@ -144,8 +145,9 @@ public class NetworkHandler {
 		if (GameEngine.state != GameEngine.PLAY)
 			return;
 		try {
-			System.out.println("ENDING MOVE REQUEST - ID: " + moveID
-					+ " - TIME: " + System.currentTimeMillis());
+			if (IcePush.DEBUG)
+				System.out.println("ENDING MOVE REQUEST - ID: " + moveID
+						+ " - TIME: " + System.currentTimeMillis());
 			pbuf.beginPacket(END_MOVE);
 			pbuf.writeByte(moveID);
 			pbuf.endPacket();

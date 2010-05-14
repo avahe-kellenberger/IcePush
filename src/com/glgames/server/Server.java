@@ -5,6 +5,7 @@ import java.net.Socket;
 
 public class Server implements Runnable {
 	public static final int VERSION = 100;
+	public static boolean DEBUG = false;
 	public static Player[] players;
 	boolean run = true;
 	ServerSocket listener;
