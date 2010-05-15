@@ -146,19 +146,19 @@ public class Player {
 			if (moveDir != -1) {
 				switch (moveDir) {
 					case UP: // up
-						area.y--;
+						dy--;
 						break;
 					case DOWN: // down
-						area.y++;
+						dy++;
 						break;
 					case LEFT: // left
-						area.x--;
+						dx--;
 						break;
 					case RIGHT: // right
-						area.x++;
+						dx++;
 						break;
 				}
-
+				
 				Player p = getPlayerInWay();
 				if (p != null) {
 					p.moveDir = moveDir;
@@ -168,11 +168,30 @@ public class Player {
 					p.handleMove();
 					return;
 				}
+				
+				if(dx > 5)
+					dx = 5;
+				if(dy > 5)
+					dy = 5;
+				if(dx < -5)
+					dx = -5;
+				if(dy < -5)
+					dy = -5;
+			} else {
+				// moveDir == -1
+				if (dx != 0)
+					dx += (dx < 0) ? 1 : -1;
+				if (dy != 0)
+					dy += (dy < 0) ? 1 : -1;
+			}
+			if(dx != 0 || dy != 0) {
+				area.x += dx;
+				area.y += dy;
 
 				if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
 						|| area.y > 400 + 10)
 					playerDied();
-
+				
 				for (Player plr : Server.players) {
 					if (plr == null)
 						continue;
