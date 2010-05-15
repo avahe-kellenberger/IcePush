@@ -2,7 +2,7 @@ package com.glgames.shared;
 
 public class Opcodes {
 	// Login protocol
-	public static final int VERSION = 100;
+	public static final int VERSION = 101;
 	public static final int BAD_VERSION = 1;
 	public static final int USER_IN_USE = 2;
 	public static final int TOO_MANY_PL = 3;
