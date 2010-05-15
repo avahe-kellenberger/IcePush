@@ -180,9 +180,9 @@ public class PacketBuffer {
 				if (debug)
 					System.out.println("[SYNCH] NO BYTES SENT FROM PEER");
 				long time = System.currentTimeMillis();
-				if ((time - lastReadTime) >= 4000) {
+				if ((time - lastReadTime) >= 7000) {
 					System.out
-							.println("Over three seconds since data was send: "
+							.println("Over seven seconds since data was send: "
 									+ (time - lastReadTime));
 					return false;
 				}

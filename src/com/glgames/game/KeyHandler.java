@@ -6,7 +6,7 @@ import com.glgames.server.Player;
 
 
 public class KeyHandler extends BugfixKeyListener {
-	private boolean isMoving;
+	static boolean isMoving;
 	
 	public void keyPressed(KeyEvent e) {
 		super.keyPressed(e);

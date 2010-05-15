@@ -70,6 +70,8 @@ public class NetworkHandler {
 		if(!pbuf.synch()) {
 			GameEngine.state = GameEngine.WELCOME;
 			GraphicsMethods.message = "Connection with server was lost";
+			GameObjects.players = new GamePlayer[50];
+			KeyHandler.isMoving = false;
 			return;
 		}
 
@@ -99,6 +101,10 @@ public class NetworkHandler {
 					y = pbuf.readShort();
 
 					plr = GameObjects.players[id];
+					if(plr == null) {	// ???????????????
+						System.out.println("null player tried to move??? " + id);
+						break;
+					}
 					plr.area.x = x;
 					plr.area.y = y;
 					break;
