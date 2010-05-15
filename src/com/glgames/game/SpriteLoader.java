@@ -27,7 +27,7 @@ public class SpriteLoader {
 	
 	private static BufferedImage loadSprite(String name) {
 		try {
-			return ImageIO.read(new File(name));
+			return ImageIO.read(GameObjects.class.getResource("/" + name));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
