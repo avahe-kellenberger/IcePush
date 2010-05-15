@@ -6,8 +6,9 @@ import java.net.Socket;
 public class Server implements Runnable {
 	public static boolean DEBUG = false;
 	public static Player[] players;
-	boolean run = true;
-	ServerSocket listener;
+	
+	private boolean run = true;
+	private ServerSocket listener;
 
 	public Server(int port) {
 		try {
