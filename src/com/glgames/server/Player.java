@@ -139,7 +139,7 @@ public class Player {
 	public void handleMove() {
 		if(inHandleCall) {
 			System.out.println("Deferred infinite recursion in handler for " + username);
-			return;
+			//return;
 		}
 		inHandleCall = true;
 		try {
@@ -162,21 +162,21 @@ public class Player {
 				Player p = getPlayerInWay();
 				if (p != null) {
 					p.moveDir = moveDir;
-					dx = dy = 0;
-					moveDir = -1;
+					//dx = dy = 0;
+					//moveDir = -1;
 					// TODO make better
 					p.handleMove();
 					return;
 				}
 				
-				if(dx > 5)
-					dx = 5;
-				if(dy > 5)
-					dy = 5;
-				if(dx < -5)
-					dx = -5;
-				if(dy < -5)
-					dy = -5;
+				if(dx > 4)
+					dx = 4;
+				if(dy > 4)
+					dy = 4;
+				if(dx < -4)
+					dx = -4;
+				if(dy < -4)
+					dy = -4;
 			} else {
 				// moveDir == -1
 				if (dx != 0)

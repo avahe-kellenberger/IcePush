@@ -52,6 +52,8 @@ public class NetworkHandler {
 				// Successful login
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
+				KeyHandler.isMoving = false;
+				GameObjects.players = new GamePlayer[50];
 				GameEngine.state = GameEngine.PLAY;
 			} else {
 				GraphicsMethods.message = "Invalid response from server.";
@@ -70,8 +72,6 @@ public class NetworkHandler {
 		if(!pbuf.synch()) {
 			GameEngine.state = GameEngine.WELCOME;
 			GraphicsMethods.message = "Connection with server was lost";
-			GameObjects.players = new GamePlayer[50];
-			KeyHandler.isMoving = false;
 			return;
 		}
 
@@ -94,6 +94,7 @@ public class NetworkHandler {
 					GameObjects.players[id].area.x = x;
 					GameObjects.players[id].area.y = y;
 					GameObjects.players[id].username = username;
+					// Arrays.sort(GameObjects.players);
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();

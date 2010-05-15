@@ -37,11 +37,10 @@ public class GraphicsMethods {
 	public static void drawWelcomeScreen(Graphics g, int cycle) {
 		int w;
 		double frequency = 0.01d;
-		int red = 0;
-		int green = (int) (Math.sin(frequency * cycle % 32 + 2) * 127 + 128);
-		int blue = (int) (Math.sin(frequency * cycle % 32 + 4) * 127 + 128);
+		int green = (int) (Math.sin(frequency * cycle % 32 + 2) * 63 + 160);
+		int blue = (int) (Math.sin(frequency * cycle % 32 + 4) * 63 + 160);
 		
-		Color col = new Color(red, green, blue, 150);
+		Color col = new Color(0, green, blue);
 		g.setColor(col);
 		g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
 		g.drawImage(GameObjects.logo, 0, 0, null);
@@ -89,7 +88,7 @@ public class GraphicsMethods {
 		g.setColor(Color.white);
 		g.setFont(new Font("Arial", Font.PLAIN, 24));
 		int x = 30, y = 480;
-		g.drawString("Scores", x, y);
+		g.drawString("Deaths", x, y);
 		g.drawRect(x, y += 5, 400, 100);
 		for(GamePlayer plr : GameObjects.players) {
 			if(plr == null)

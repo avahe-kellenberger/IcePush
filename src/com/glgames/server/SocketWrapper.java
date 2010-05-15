@@ -3,32 +3,29 @@ package com.glgames.server;
 import java.net.Socket;
 
 final class SocketWrapper {
-
-	static void push(Socket s) {
-		SocketWrapper nh = new SocketWrapper();
-		nh.sock = s;
-
-		head.prev = nh;
-
-		head = nh;
-	}
+	private static SocketWrapper head, tail;
+	private SocketWrapper prev;
+	private Socket sock;
 
 	private SocketWrapper() {
 
 	}
 
-	static Socket pull() {
+	public static Socket pull() {
 		SocketWrapper tt = tail.prev;
 		if (tt == null)
 			return null; // If this is non-null, we know that tail != head
 		tail = tt;
 		return tt.sock;
 	}
-
-	private static SocketWrapper head, tail;
-	private SocketWrapper prev;
-	private Socket sock;
-
+	
+	public static void push(Socket s) {
+		SocketWrapper nh = new SocketWrapper();
+		nh.sock = s;
+		head.prev = nh;
+		head = nh;
+	}
+	
 	static {
 		head = tail = new SocketWrapper();
 	}
