@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
 
 public class Player {
@@ -42,7 +43,7 @@ public class Player {
 			InputStream in = s.getInputStream();
 			OutputStream out = s.getOutputStream();
 			int version = in.read();
-			if (version != Server.VERSION) {
+			if (version != Opcodes.VERSION) {
 				out.write(BAD_VERSION); // bad version
 				out.flush();
 				return;
