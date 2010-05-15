@@ -164,8 +164,6 @@ public class NetworkHandler {
 	}
 
 	public static void logOut() {
-		if (GameEngine.state != GameEngine.PLAY)
-			return;
 		try {
 			pbuf.beginPacket(LOGOUT);
 			pbuf.endPacket();

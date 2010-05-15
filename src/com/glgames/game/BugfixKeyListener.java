@@ -46,7 +46,8 @@ public class BugfixKeyListener implements KeyListener, ActionListener {
 	}
 
 	public void keyTyped(KeyEvent e) {
-		System.out.println("KeyTyped");
+		if(IcePush.DEBUG)
+			System.out.println("KeyTyped");
 	}
 
 	public void actionPerformed(ActionEvent e) {

@@ -1,7 +1,6 @@
 package com.glgames.game;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
