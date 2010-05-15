@@ -32,35 +32,30 @@ public class Player {
 	private int moveDir = -1;
 
 	public Player() {
-		try{
-			for (Player plr : Server.players) {
-				try {
-					if (plr == null)
-						continue;
-					// Tell this client about that player...
-					pbuf.beginPacket(NEW_PLAYER);
-					pbuf.writeShort(plr.id);
-					pbuf.writeByte(plr.type);
-					pbuf.writeString(plr.username);
-					pbuf.writeShort(plr.area.x);
-					pbuf.writeShort(plr.area.y);
-					pbuf.endPacket();
 
-					// Tell that client about this player
-					plr.pbuf.beginPacket(NEW_PLAYER); // new player has entered
-					plr.pbuf.writeShort(id);
-					plr.pbuf.writeByte(type);
-					plr.pbuf.writeString(username);
-					plr.pbuf.writeShort(area.x); // x
-					plr.pbuf.writeShort(area.y); // y
-					plr.pbuf.endPacket();
-				} catch (Exception e) {
-					// TODO better error handling
-					continue;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+	}
+	
+	public void notifyLogin() {
+		for (Player plr : Server.players) {
+			if (plr == null)
+				continue;
+			// Tell this client about that player...
+			pbuf.beginPacket(NEW_PLAYER);
+			pbuf.writeShort(plr.id);
+			pbuf.writeByte(plr.type);
+			pbuf.writeString(plr.username);
+			pbuf.writeShort(plr.area.x);
+			pbuf.writeShort(plr.area.y);
+			pbuf.endPacket();
+
+			// Tell that client about this player
+			plr.pbuf.beginPacket(NEW_PLAYER); // new player has entered
+			plr.pbuf.writeShort(id);
+			plr.pbuf.writeByte(type);
+			plr.pbuf.writeString(username);
+			plr.pbuf.writeShort(area.x); // x
+			plr.pbuf.writeShort(area.y); // y
+			plr.pbuf.endPacket();
 		}
 	}
 

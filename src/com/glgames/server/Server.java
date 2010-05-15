@@ -96,6 +96,7 @@ public class Server implements Runnable {
 			p.pbuf = new PacketBuffer(s);
 			p.connected = true;
 			players[p.id] = p;
+			p.notifyLogin();
 			System.out.println("Player logged in: " + p.username + ", id: " + p.id);
 		} catch(Exception e) {
 			e.printStackTrace();
