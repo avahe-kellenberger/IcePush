@@ -127,7 +127,14 @@ public class Player {
 		moveDir = -1;
 	}
 
+	private boolean inHandleCall = false;
+
 	public void handleMove() {
+		if(inHandleCall) {
+			System.out.println("Deferred infinite recursion in handler for " + username);
+			return;
+		}
+		inHandleCall = true;
 		try {
 			if (moveDir != -1) {
 				switch (moveDir) {
@@ -175,6 +182,8 @@ public class Player {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			inHandleCall = false;
 		}
 	}
 
