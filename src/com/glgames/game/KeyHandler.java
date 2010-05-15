@@ -15,17 +15,23 @@ public class KeyHandler extends BugfixKeyListener {
 		if(IcePush.DEBUG)
 			System.out.println("key pressed");
 		int moveDir = -1;
-		switch (e.getKeyCode()) {
-			case KeyEvent.VK_ESCAPE:
-				GameEngine.running = false;
-				break;
-			case KeyEvent.VK_ENTER:
-			case KeyEvent.VK_TAB:
-				if(GameEngine.state != GameEngine.WELCOME)
-					break;
-				
+
+		if(GameEngine.state == GameEngine.WELCOME) {
+			int code = e.getKeyCode();
+			if(code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
 				GameObjects.serverBox.toggleFocused();
 				GameObjects.usernameBox.toggleFocused();
+			} else if(code == KeyEvent.VK_ESCAPE) {
+				GameEngine.running = false;
+			} else {
+				if(GameObjects.serverBox.isFocused())
+					GameObjects.serverBox.append(e.getKeyChar());
+				else
+					GameObjects.usernameBox.append(e.getKeyChar());
+			}
+		} else switch (e.getKeyCode()) {
+			case KeyEvent.VK_ESCAPE:
+				GameEngine.running = false;
 				break;
 			case KeyEvent.VK_Q:
 				NetworkHandler.logOut();
@@ -42,15 +48,7 @@ public class KeyHandler extends BugfixKeyListener {
 			case KeyEvent.VK_RIGHT:
 				moveDir = Player.RIGHT;
 				break;
-			default:
-				if(GameEngine.state == GameEngine.WELCOME) {
-					if(GameObjects.serverBox.isFocused())
-						GameObjects.serverBox.append(e.getKeyChar());
-					else
-						GameObjects.usernameBox.append(e.getKeyChar());
-				}
-				
-				break;
+
 		}
 		
 		if(moveDir != -1) {
