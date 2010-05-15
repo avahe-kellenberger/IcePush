@@ -8,10 +8,11 @@ public class TextBox {
 	private boolean isFocused;
 	private String caption, text = "";
 
-	public TextBox(int x, int y, boolean focus, String c) {
+	public TextBox(int x, int y, boolean focus, String c, String text) {
 		this.x = x;
 		this.y = y;
 		this.caption = c;
+		this.text = text;
 		this.isFocused = focus;
 	}
 

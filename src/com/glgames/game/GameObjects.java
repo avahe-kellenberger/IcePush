@@ -30,9 +30,9 @@ public class GameObjects {
 					"Try not to fall off!" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
-			serverBox = new TextBox(GameFrame.WIDTH / 2 - 85, 450, true, "Server: ");
+			serverBox = new TextBox(GameFrame.WIDTH / 2 - 85, 450, true, "Server: ", "strictfp.com");
 			usernameBox = new TextBox(GameFrame.WIDTH / 2 - 85, 480, false,
-					"Username: ");
+					"Username:", "");
 			loginButton = new Rectangle(GameFrame.WIDTH / 2 - 50, 520, 100, 25);
 			
 			trySleep(300);
