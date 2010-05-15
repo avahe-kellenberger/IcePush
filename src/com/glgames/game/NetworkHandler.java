@@ -175,6 +175,7 @@ public class NetworkHandler {
 				return;
 			pbuf.beginPacket(LOGOUT);
 			pbuf.endPacket();
+			pbuf.synch();
 			GameEngine.state = GameEngine.WELCOME;
 		} catch (Exception e) {
 			e.printStackTrace();
