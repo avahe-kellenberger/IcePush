@@ -11,6 +11,7 @@ import static com.glgames.shared.Opcodes.PLAYER_MOVED;
 import static com.glgames.shared.Opcodes.SUCCESS_LOG;
 import static com.glgames.shared.Opcodes.TOO_MANY_PL;
 import static com.glgames.shared.Opcodes.USER_IN_USE;
+import static com.glgames.shared.Opcodes.KEEP_ALIVE;
 
 import java.awt.Rectangle;
 import java.io.InputStream;
@@ -117,6 +118,11 @@ public class Player {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void keepAlive() {
+		pbuf.beginPacket(KEEP_ALIVE);
+		pbuf.endPacket();
 	}
 
 	private void initPosition() {
@@ -233,6 +239,8 @@ public class Player {
 						break;
 					case LOGOUT:
 						logout();
+						break;
+					case KEEP_ALIVE:
 						break;
 				}
 				pbuf.closePacket();

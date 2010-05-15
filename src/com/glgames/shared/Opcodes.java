@@ -22,4 +22,5 @@ public class Opcodes {
 	// Player types
 	public static final int TREE = 0;
 	public static final int SNOWMAN = 1;
+
 }

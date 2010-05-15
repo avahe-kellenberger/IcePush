@@ -147,6 +147,12 @@ public class NetworkHandler {
 		}
 	}
 
+	public static void keepAlive() {
+		if(pbuf == null) return;
+		pbuf.beginPacket(KEEP_ALIVE);
+		pbuf.endPacket();
+	}
+
 	public static void endMoveRequest() {
 		if (GameEngine.state != GameEngine.PLAY)
 			return;

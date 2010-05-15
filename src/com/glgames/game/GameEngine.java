@@ -29,6 +29,7 @@ public class GameEngine {
 	public static void run() {
 		while(running) {
 			gameLoop();
+			NetworkHandler.keepAlive();
 			NetworkHandler.handlePackets();
 			render();
 			cycle++;

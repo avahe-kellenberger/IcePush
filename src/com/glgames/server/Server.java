@@ -52,7 +52,7 @@ public class Server implements Runnable {
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
-
+			p.keepAlive();
 			p.processIncomingPackets();
 			p.handleMove();
 		}
