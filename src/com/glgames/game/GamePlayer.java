@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
  * Implementation of movement is mostly serverside.
  * @author
  */
-public class GamePlayer implements Comparable<GamePlayer> {
+public class GamePlayer {
 	public String username;
 	public int deaths;
 	public Rectangle area;
@@ -38,9 +38,5 @@ public class GamePlayer implements Comparable<GamePlayer> {
 		g.setFont(new Font("Arial", Font.PLAIN, 14));
 		g.drawString(username, screenX, screenY);
 		g.drawImage(sprite, screenX, screenY, null);
-	}
-
-	public int compareTo(GamePlayer that) {
-		return this.deaths > that.deaths ? 1 : -1;
 	}
 }

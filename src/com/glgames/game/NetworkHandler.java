@@ -94,7 +94,6 @@ public class NetworkHandler {
 					GameObjects.players[id].area.x = x;
 					GameObjects.players[id].area.y = y;
 					GameObjects.players[id].username = username;
-					// Arrays.sort(GameObjects.players);
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();
