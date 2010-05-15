@@ -27,6 +27,9 @@ public class KeyHandler extends BugfixKeyListener {
 				GameObjects.serverBox.toggleFocused();
 				GameObjects.usernameBox.toggleFocused();
 				break;
+			case KeyEvent.VK_Q:
+				NetworkHandler.logOut();
+				break;
 			case KeyEvent.VK_UP:
 				moveDir = Player.UP;
 				break;
