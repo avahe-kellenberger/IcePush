@@ -148,7 +148,10 @@ public class NetworkHandler {
 	}
 
 	public static void keepAlive() {
-		if(pbuf == null) return;
+		if (GameEngine.state != GameEngine.PLAY)
+			return;
+		if (pbuf == null)
+			return;
 		pbuf.beginPacket(KEEP_ALIVE);
 		pbuf.endPacket();
 	}
