@@ -122,6 +122,8 @@ public class NetworkHandler {
 					plr.deaths = pbuf.readByte();
 					plr.area.x = pbuf.readShort();
 					plr.area.y = pbuf.readShort();
+					if(id == NetworkHandler.id)
+						GameEngine.state = GameEngine.DIED;
 					break;
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();

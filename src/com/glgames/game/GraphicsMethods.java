@@ -102,7 +102,7 @@ public class GraphicsMethods {
 	}
 
 	public static void drawDiedScreen(Graphics g, int l) {
-		int alpha = (int) ((l / 100.0d) * 255.0d);
+		int alpha = (int) ((l / 50.0d) * 255.0d);
 		g.setColor(new Color(0, 0, 0, alpha));
 		g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
 		((Graphics2D) g).setPaint(new GradientPaint(200, 200, new Color(0, 255,

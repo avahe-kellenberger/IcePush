@@ -69,7 +69,7 @@ public class GameEngine {
 				case DIED:
 					if(lastDied == 0)
 						lastDied = cycle;
-					else if(cycle - lastDied >= 100) {
+					else if(cycle - lastDied >= 50) {
 						lastDied = 0;
 						state = PLAY;
 					} else
