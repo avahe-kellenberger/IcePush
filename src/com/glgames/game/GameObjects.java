@@ -45,12 +45,9 @@ public class GameObjects {
 			trySleep(300);
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
-			try {
-				serverList = new ServerList(350, NetworkHandler.getWorlds());
-				serverMode = LIST_FROM_SERVER;
-			} catch(Exception e) {
-				loadingMessage = "Error getting server list";
-			}
+
+			serverList = new ServerList(350);
+
 			players = new GamePlayer[50];
 			int width = 400, height = 400;
 			int x = GameFrame.WIDTH / 2 - width / 2;

@@ -83,5 +83,6 @@ public class GameEngine {
 	public static void cleanup() {
 		NetworkHandler.logOut();
 		frame.dispose();
+		System.exit(0);
 	}
 }

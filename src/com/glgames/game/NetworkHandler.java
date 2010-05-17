@@ -164,18 +164,24 @@ public class NetworkHandler {
 		}
 	}
 	
-	public static Map<String, Integer> getWorlds() throws Exception {
+	public static Map<String, Integer> getWorlds() {
 		Map<String, Integer> ret = new HashMap<String, Integer>();
-		Socket s = new Socket(Opcodes.WORLDSERVER, 2346);
-		InputStream in = s.getInputStream();
-		int numWorlds = in.read();
-		for (int i = 0; i < numWorlds; i++) {
-			int strlen = in.read();
-			byte[] strb = new byte[strlen];
-			in.read(strb);
-			String server = new String(strb);
-			int num = in.read(); // num players
-			ret.put(server, num);
+		try {
+			Socket s = new Socket(Opcodes.WORLDSERVER, 2346);
+			InputStream in = s.getInputStream();
+			int numWorlds = in.read();
+			for (int i = 0; i < numWorlds; i++) {
+				int strlen = in.read();
+				byte[] strb = new byte[strlen];
+				in.read(strb);
+				String server = new String(strb);
+				int num = in.read(); // num players
+				ret.put(server, num);
+			}
+			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
+		} catch(Exception e) {
+			GameObjects.loadingMessage = "Error getting server list";
+			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
 		}
 		ret.put("localhost", 0);
 		return ret;

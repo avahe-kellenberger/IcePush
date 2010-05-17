@@ -29,8 +29,6 @@ public class GamePlayer {
 		area.width = sprite.getWidth();
 		area.height = sprite.getHeight();
 	}
-
-
 	
 	public void draw(Graphics g) {
 		// generate proper coordinates for drawing

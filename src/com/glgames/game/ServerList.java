@@ -6,23 +6,31 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ServerList {
 	private int y, width, fontheight;
 	private List<String> servers;
 	private String selected;
 	
-	public ServerList(int y, Map<String, Integer> map) {
+	public ServerList(int y) {
 		this.y = y;
 		servers = new ArrayList<String>();
-		for (String ser : map.keySet()) {
-			int num = map.get(ser);
-			servers.add(ser
-					+ " - "
-					+ (num == 255 ? "offline" : num
-							+ (num != 1 ? " players" : " player")));
-		}
-		selected = servers.get(0);
+		new Timer().schedule(new TimerTask() {
+			public void run() {
+				servers.clear();
+				Map<String, Integer> map = NetworkHandler.getWorlds();
+				for (String ser : map.keySet()) {
+					int num = map.get(ser);
+					servers.add(ser
+							+ " - "
+							+ (num == 255 ? "offline" : num
+									+ (num != 1 ? " players" : " player")));
+				}
+				selected = servers.get(0);
+			}
+		}, 0, 10000);
 	}
 	
 	public void draw(Graphics g) {
