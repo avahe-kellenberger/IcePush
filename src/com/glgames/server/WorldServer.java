@@ -16,7 +16,8 @@ public class WorldServer implements Runnable {
 	public WorldServer(int p) {
 		port = p;
 		servers = new HashMap<String, Integer>();
-		
+		for(String s : LIST)
+			servers.put(s, -1);
 		// every 10 seconds, refresh numbers
 		new Timer().schedule(new TimerTask() {
 			public void run() {
@@ -27,8 +28,12 @@ public class WorldServer implements Runnable {
 						check.getOutputStream().write(1); // get num players
 						num = check.getInputStream().read();
 					} catch (Exception e) {
+						System.out
+								.println("Error getting number of players from "
+										+ s + ": " + e.toString());
 						num = -1;
 					}
+					System.out.print("Players on " + s + ": " + num);
 					servers.put(s, num);
 				}
 			}
