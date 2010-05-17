@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -42,7 +43,9 @@ public class ServerList {
 		g.setColor(Color.gray);
 		g.fill3DRect(x, y, width, servers.size() * fontheight + 15, true);
 		int y = this.y + 10;
-		for(String serv : servers) {
+		Iterator<String> it = servers.iterator();
+		while(it.hasNext()) {
+			String serv = it.next();
 			if(serv.equals(selected)) {
 				g.setColor(Color.green);
 				g.fill3DRect(x + 10, y, 15, 15, false);
@@ -62,9 +65,12 @@ public class ServerList {
 	private int getLongestStringWidth(Graphics g) {
 		FontMetrics m = g.getFontMetrics();
 		int max = -1;
-		for(String s : servers)
-			if(m.stringWidth(s) > max)
-				max = m.stringWidth(s);
+		Iterator<String> it = servers.iterator();
+		while(it.hasNext()) {
+			String serv = it.next();
+			if(m.stringWidth(serv) > max)
+				max = m.stringWidth(serv);
+		}
 		return max;
 	}
 	
