@@ -104,6 +104,9 @@ public class Player {
 				// TODO make better
 				p.handleMove();
 				return;
+			} else if(p != null && !p.canMove) {
+				dx = dy = 0;
+				moveDir = -1;
 			}
 			
 			if(dx > 4)
