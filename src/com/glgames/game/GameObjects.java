@@ -49,8 +49,7 @@ public class GameObjects {
 				serverList = new ServerList(GameFrame.WIDTH / 2 - 85, 380, NetworkHandler.getWorlds());
 				serverMode = LIST_FROM_SERVER;
 			} catch(Exception e) {
-				loadingMessage = "Error getting servers";
-				loadingPercent = -1;
+				loadingMessage = "Error getting server list";
 			}
 			players = new GamePlayer[50];
 			int width = 400, height = 400;

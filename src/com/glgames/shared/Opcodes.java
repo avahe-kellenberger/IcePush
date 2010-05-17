@@ -5,7 +5,7 @@ public class Opcodes {
 	public static final String WORLDSERVER = "127.0.0.1";
 	public static final int WORLDPORT = 2346;
 	// Login protocol
-	public static final int VERSION = 101;
+	public static final int VERSION = 102;
 	public static final int BAD_VERSION = 1;
 	public static final int USER_IN_USE = 2;
 	public static final int TOO_MANY_PL = 3;
