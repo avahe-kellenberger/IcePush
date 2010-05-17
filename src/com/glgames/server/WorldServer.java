@@ -33,7 +33,7 @@ public class WorldServer implements Runnable {
 										+ s + ": " + e.toString());
 						num = -1;
 					}
-					System.out.print("Players on " + s + ": " + num);
+					System.out.println("Players on " + s + ": " + num);
 					servers.put(s, num);
 				}
 			}
