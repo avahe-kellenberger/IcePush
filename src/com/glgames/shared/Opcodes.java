@@ -2,7 +2,7 @@ package com.glgames.shared;
 
 public class Opcodes {
 	// World server
-	public static final String WORLDSERVER = "99.198.122.53";
+	public static final String WORLDSERVER = "strictfp.com"; //"99.198.122.53";
 	public static final int WORLDPORT = 2346;
 	// Login protocol
 	public static final int VERSION = 102;

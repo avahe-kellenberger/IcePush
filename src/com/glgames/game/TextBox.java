@@ -5,6 +5,7 @@ import java.awt.Graphics;
 
 public class TextBox {
 	private int x, y;
+	private int count;
 	private boolean isFocused;
 	private String caption, text = "";
 
@@ -39,14 +40,19 @@ public class TextBox {
 	}
 
 	public void draw(Graphics g) {
-		if (isFocused)
-			g.setColor(Color.white);
+		if(isFocused)
+			g.setColor(Color.gray);
 		else
 			g.setColor(Color.darkGray);
-		g.drawRect(x, y, 170, 20);
+		g.fill3DRect(x, y, 170, 20, false);
 
 		g.setColor(Color.white);
-		g.drawString(caption, x - g.getFontMetrics().stringWidth(caption), y + 16);
+		g.drawString(caption, x - g.getFontMetrics().stringWidth(caption) - 5, y + 15);
 		g.drawString(text, x + 3, y + 17);
+		
+		if(isFocused && count++ % 50 > 25) {
+			int width = g.getFontMetrics().stringWidth(text) + 5;
+			g.drawLine(x + width, y + 1, x + width, y + 17);
+		}
 	}
 }

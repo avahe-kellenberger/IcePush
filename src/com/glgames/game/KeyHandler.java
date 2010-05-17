@@ -19,8 +19,10 @@ public class KeyHandler extends BugfixKeyListener {
 		if(GameEngine.state == GameEngine.WELCOME) {
 			int code = e.getKeyCode();
 			if(code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
-				GameObjects.serverBox.toggleFocused();
-				GameObjects.usernameBox.toggleFocused();
+				if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
+					GameObjects.serverBox.toggleFocused();
+					GameObjects.usernameBox.toggleFocused();
+				}
 			} else if(code == KeyEvent.VK_ESCAPE) {
 				GameEngine.running = false;
 			} else {

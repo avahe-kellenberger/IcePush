@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 public class MouseHandler extends MouseAdapter {
 
 	public void mouseClicked(MouseEvent e) {
-		if(GameEngine.state != GameEngine.WELCOME)
+		if(GameEngine.state != GameEngine.WELCOME || !GameObjects.loaded)
 			return;
 		
 		if(GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)

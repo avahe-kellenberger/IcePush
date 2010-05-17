@@ -65,8 +65,8 @@ public class GraphicsMethods {
 		GameObjects.usernameBox.draw(g);
 
 		Rectangle login = GameObjects.loginButton;
-		g.setColor(Color.green);
-		g.drawRect(login.x, login.y, login.width, login.height);
+		g.setColor(Color.gray);
+		g.fill3DRect(login.x, login.y, login.width, login.height, true);
 		g.setColor(Color.white);
 		w = g.getFontMetrics().stringWidth("Login");
 		g.drawString("Login", login.x + login.width / 2 - w / 2, login.y + 18);

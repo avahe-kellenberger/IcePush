@@ -46,7 +46,7 @@ public class GameObjects {
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
 			try {
-				serverList = new ServerList(GameFrame.WIDTH / 2 - 85, 380, NetworkHandler.getWorlds());
+				serverList = new ServerList(350, NetworkHandler.getWorlds());
 				serverMode = LIST_FROM_SERVER;
 			} catch(Exception e) {
 				loadingMessage = "Error getting server list";

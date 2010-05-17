@@ -1,47 +1,70 @@
 package com.glgames.game;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ServerList {
-	private int x, y;
+	private int y, width, fontheight;
 	private List<String> servers;
 	private String selected;
 	
-	public ServerList(int x, int y, Map<String, Integer> s) {
-		this.x = x;
+	public ServerList(int y, Map<String, Integer> map) {
 		this.y = y;
 		servers = new ArrayList<String>();
-		for(String ser : s.keySet()) {
-			int num = s.get(ser);
-			servers.add(ser + " - " + (num == 255 ? "offline" : num + (num != 1 ? " players" : " player")));
+		for (String ser : map.keySet()) {
+			int num = map.get(ser);
+			servers.add(ser
+					+ " - "
+					+ (num == 255 ? "offline" : num
+							+ (num != 1 ? " players" : " player")));
 		}
 		selected = servers.get(0);
 	}
 	
 	public void draw(Graphics g) {
-		int y = this.y;
+		if(width == 0)
+			width = getLongestStringWidth(g) + 50;
+		if(fontheight == 0)
+			fontheight = g.getFontMetrics().getHeight();
+		int x = GameFrame.WIDTH / 2 - width / 2;
+		g.setColor(Color.lightGray);
+		g.fill3DRect(x, y, width, servers.size() * fontheight + 15, true);
+		int y = this.y + 10;
 		for(String serv : servers) {
+			if(serv.equals(selected)) {
+				g.setColor(Color.green);
+				g.fill3DRect(x + 10, y, 15, 15, false);
+			} else {
+				g.setColor(Color.gray);
+				g.fill3DRect(x + 10, y, 15, 15, true);
+			}
+			
 			g.setColor(Color.white);
 			if(serv.contains("offline"))
 				g.setColor(Color.red);
-			g.drawRect(x, y - 15, 15, 15);
-			if(serv.equals(selected)) {
-				g.drawLine(x, y - 15, x + 15, y);
-				g.drawLine(x + 15, y - 15, x, y);
-			}
-			g.drawString(serv, x + 20, y);
+			g.drawString(serv, x + 30, y + 15);
 			y += 25;
 		}
 	}
 	
+	private int getLongestStringWidth(Graphics g) {
+		FontMetrics m = g.getFontMetrics();
+		int max = -1;
+		for(String s : servers)
+			if(m.stringWidth(s) > max)
+				max = m.stringWidth(s);
+		return max;
+	}
+	
 	public void processClick(int x, int y) {
-		x -= this.x;
+		int compx = GameFrame.WIDTH / 2 - width / 2;
+		x -= compx;
 		y -= this.y;
-		int index = y / 15;
+		int index = y / fontheight;
 		if(index < 0 || index > servers.size() - 1)
 			return;
 		selected = servers.get(index);
