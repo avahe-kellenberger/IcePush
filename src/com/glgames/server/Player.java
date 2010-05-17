@@ -97,7 +97,7 @@ public class Player {
 			}
 			
 			Player p = getPlayerInWay();
-			if (p != null) {
+			if (p != null && p.canMove) {
 				p.moveDir = moveDir;
 				//dx = dy = 0;
 				//moveDir = -1;

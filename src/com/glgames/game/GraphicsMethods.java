@@ -43,7 +43,7 @@ public class GraphicsMethods {
 		Color col = new Color(0, green, blue);
 		g.setColor(col);
 		g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
-		g.drawImage(GameObjects.logo, 0, 0, null);
+		g.drawImage(GameObjects.logo, 50, 50, null);
 
 		g.setColor(Color.white);
 		g.setFont(new Font("Arial", Font.PLAIN, 20));
