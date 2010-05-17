@@ -31,7 +31,7 @@ public class ServerList {
 		if(fontheight == 0)
 			fontheight = g.getFontMetrics().getHeight();
 		int x = GameFrame.WIDTH / 2 - width / 2;
-		g.setColor(Color.lightGray);
+		g.setColor(Color.gray);
 		g.fill3DRect(x, y, width, servers.size() * fontheight + 15, true);
 		int y = this.y + 10;
 		for(String serv : servers) {
