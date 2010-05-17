@@ -50,6 +50,7 @@ public class Player {
 			pbuf.writeString(plr.username);
 			pbuf.writeShort(plr.area.x);
 			pbuf.writeShort(plr.area.y);
+			pbuf.writeShort(plr.deaths);
 			pbuf.endPacket();
 
 			// Tell that client about this player
@@ -59,6 +60,7 @@ public class Player {
 			plr.pbuf.writeString(username);
 			plr.pbuf.writeShort(area.x); // x
 			plr.pbuf.writeShort(area.y); // y
+			plr.pbuf.writeShort(plr.deaths);
 			plr.pbuf.endPacket();
 		}
 	}

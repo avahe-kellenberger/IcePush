@@ -92,6 +92,7 @@ public class NetworkHandler {
 					username = pbuf.readString();
 					x = pbuf.readShort();
 					y = pbuf.readShort();
+					int deaths = pbuf.readShort();
 
 					GameObjects.players[id] = new GamePlayer(
 							type == TREE ? "images/tree.png"
@@ -99,6 +100,7 @@ public class NetworkHandler {
 					GameObjects.players[id].area.x = x;
 					GameObjects.players[id].area.y = y;
 					GameObjects.players[id].username = username;
+					GameObjects.players[id].deaths = deaths;
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();
@@ -217,7 +219,7 @@ public class NetworkHandler {
 			if(pbuf == null)
 				return;
 			pbuf.beginPacket(LOGOUT);
-			pbuf.endPacket();
+			pbuf.closePacket();
 			pbuf.synch();
 			GameEngine.state = GameEngine.WELCOME;
 			GraphicsMethods.message = "Select a server and username.";
