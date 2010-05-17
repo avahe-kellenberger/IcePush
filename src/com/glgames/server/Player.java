@@ -69,9 +69,22 @@ public class Player {
 	}
 
 	void initPosition() {
-		area = new Rectangle(0, 0, 48, 48);
-		area.x = (int) (Math.random() * (400 - 48));
-		area.y = (int) (Math.random() * (400 - 48));
+		Rectangle r;
+		boolean good = false;
+		while(true) {
+			good = true;
+			r = new Rectangle((int) (Math.random() * (400 - 48)), (int) (Math
+					.random() * (400 - 48)), 48, 48);
+			for(Player p : Server.players) {
+				if(p == null)
+					continue;
+				if(p.area.intersects(r))
+					good = false;
+			}
+			if(good)
+				break;
+		}
+		area = r;
 
 		dx = dy = 0;
 		moveDir = -1;
