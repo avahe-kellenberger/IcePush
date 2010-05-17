@@ -8,9 +8,17 @@ public class MouseHandler extends MouseAdapter {
 	public void mouseClicked(MouseEvent e) {
 		if(GameEngine.state != GameEngine.WELCOME)
 			return;
+		
+		if(GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
+			GameObjects.serverList.processClick(e.getX(), e.getY());
+		
 		if (GameObjects.loginButton.contains(e.getPoint())) {
-			NetworkHandler.login(GameObjects.serverBox.getText(),
-					GameObjects.usernameBox.getText());
+			String server;
+			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
+				server = GameObjects.serverList.getSelected();
+			else
+				server = GameObjects.serverBox.getText();
+			NetworkHandler.login(server, GameObjects.usernameBox.getText());
 		}
 	}
 }

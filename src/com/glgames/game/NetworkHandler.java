@@ -9,6 +9,7 @@ import static com.glgames.shared.Opcodes.NEW_PLAYER;
 import static com.glgames.shared.Opcodes.PLAYER_DIED;
 import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
 import static com.glgames.shared.Opcodes.PLAYER_MOVED;
+import static com.glgames.shared.Opcodes.SET_CAN_MOVE;
 import static com.glgames.shared.Opcodes.SUCCESS_LOG;
 import static com.glgames.shared.Opcodes.TOO_MANY_PL;
 import static com.glgames.shared.Opcodes.TREE;
@@ -18,7 +19,10 @@ import static com.glgames.shared.Opcodes.VERSION;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
 
 public class NetworkHandler {
@@ -36,6 +40,7 @@ public class NetworkHandler {
 			OutputStream out = sock.getOutputStream();
 			InputStream in = sock.getInputStream();
 
+			out.write(0); // connecting client
 			out.write(VERSION);
 			out.write(username.length());
 			out.write(username.getBytes());
@@ -105,17 +110,23 @@ public class NetworkHandler {
 						System.out.println("null player tried to move??? " + id);
 						break;
 					}
+					if(!plr.canMove) // just in case packet was dropped
+						plr.canMove = true;
 					plr.area.x = x;
 					plr.area.y = y;
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
-					if (id == NetworkHandler.id)
-						GameEngine.state = GameEngine.DIED;
+					plr.canMove = false;
 					plr.deaths = pbuf.readByte();
 					plr.area.x = pbuf.readShort();
 					plr.area.y = pbuf.readShort();
+					break;
+				case SET_CAN_MOVE:
+					id = pbuf.readShort();
+					plr = GameObjects.players[id];
+					plr.canMove = pbuf.readByte() > 0 ? true : false;
 					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
@@ -145,6 +156,22 @@ public class NetworkHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static Map<String, Integer> getWorlds() throws Exception {
+		Map<String, Integer> ret = new HashMap<String, Integer>();
+		Socket s = new Socket(Opcodes.WORLDSERVER, 2346);
+		InputStream in = s.getInputStream();
+		int numWorlds = in.read();
+		for (int i = 0; i < numWorlds; i++) {
+			int strlen = in.read();
+			byte[] strb = new byte[strlen];
+			in.read(strb);
+			String server = new String(strb);
+			int num = in.read(); // num players
+			ret.put(server, num);
+		}
+		return ret;
 	}
 
 	public static void keepAlive() {
@@ -180,6 +207,7 @@ public class NetworkHandler {
 			pbuf.endPacket();
 			pbuf.synch();
 			GameEngine.state = GameEngine.WELCOME;
+			GraphicsMethods.message = "Select a server and username.";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

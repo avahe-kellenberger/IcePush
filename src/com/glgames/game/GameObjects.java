@@ -12,11 +12,18 @@ public class GameObjects {
 	public static TexturePaint background, foreground;
 
 	public static TextBox serverBox, usernameBox;
+	public static ServerList serverList;
 	public static Rectangle loginButton;
 
 	public static Rectangle playingArea;
 	public static GamePlayer[] players;
+	
+	// World list stuff
+	public static final int TYPE_IN_BOX = 0;
+	public static final int LIST_FROM_SERVER = 1;
+	public static int serverMode = TYPE_IN_BOX;
 
+	// Loading bar stuff
 	public static String loadingMessage = "Loading title screen...";
 	public static int loadingPercent = 10;
 
@@ -38,7 +45,13 @@ public class GameObjects {
 			trySleep(300);
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
-
+			try {
+				serverList = new ServerList(GameFrame.WIDTH / 2 - 85, 380, NetworkHandler.getWorlds());
+				serverMode = LIST_FROM_SERVER;
+			} catch(Exception e) {
+				loadingMessage = "Error getting servers";
+				loadingPercent = -1;
+			}
 			players = new GamePlayer[50];
 			int width = 400, height = 400;
 			int x = GameFrame.WIDTH / 2 - width / 2;

@@ -8,8 +8,11 @@ import static com.glgames.shared.Opcodes.NEW_PLAYER;
 import static com.glgames.shared.Opcodes.PLAYER_DIED;
 import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
 import static com.glgames.shared.Opcodes.PLAYER_MOVED;
+import static com.glgames.shared.Opcodes.SET_CAN_MOVE;
 
 import java.awt.Rectangle;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.glgames.shared.PacketBuffer;
 
@@ -29,6 +32,7 @@ public class Player {
 
 	public String username;
 	public boolean connected;
+	public boolean canMove = true;
 	private int moveDir = -1;
 
 	public Player() {
@@ -74,72 +78,72 @@ public class Player {
 	}
 
 	public void handleMove() {
-		try {
-			if (moveDir != -1) {
-				switch (moveDir) {
-					case UP: // up
-						dy--;
-						break;
-					case DOWN: // down
-						dy++;
-						break;
-					case LEFT: // left
-						dx--;
-						break;
-					case RIGHT: // right
-						dx++;
-						break;
-				}
-				
-				Player p = getPlayerInWay();
-				if (p != null) {
-					p.moveDir = moveDir;
-					//dx = dy = 0;
-					//moveDir = -1;
-					// TODO make better
-					p.handleMove();
-					return;
-				}
-				
-				if(dx > 4)
-					dx = 4;
-				if(dy > 4)
-					dy = 4;
-				if(dx < -4)
-					dx = -4;
-				if(dy < -4)
-					dy = -4;
-			} else {
-				// moveDir == -1
-				if (dx != 0)
-					dx += (dx < 0) ? 1 : -1;
-				if (dy != 0)
-					dy += (dy < 0) ? 1 : -1;
+		if (moveDir != -1) {
+			if(!canMove)
+				return;
+			switch (moveDir) {
+				case UP: // up
+					dy--;
+					break;
+				case DOWN: // down
+					dy++;
+					break;
+				case LEFT: // left
+					dx--;
+					break;
+				case RIGHT: // right
+					dx++;
+					break;
 			}
-			if(dx != 0 || dy != 0) {
-				area.x += dx;
-				area.y += dy;
-
-				if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
-						|| area.y > 400 + 10)
-					playerDied();
-				
-				for (Player plr : Server.players) {
-					if (plr == null)
-						continue;
-					if (Server.DEBUG)
-						System.out.println("SENDING MOVE - " + id + " : "
-								+ area.x + ", " + area.y);
-
-					plr.pbuf.beginPacket(PLAYER_MOVED); // player moved
-					plr.pbuf.writeShort(id);
-					plr.pbuf.writeShort(area.x);
-					plr.pbuf.writeShort(area.y);
-					plr.pbuf.endPacket();
-				}
+			
+			Player p = getPlayerInWay();
+			if (p != null) {
+				p.moveDir = moveDir;
+				//dx = dy = 0;
+				//moveDir = -1;
+				// TODO make better
+				p.handleMove();
+				return;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			
+			if(dx > 4)
+				dx = 4;
+			if(dy > 4)
+				dy = 4;
+			if(dx < -4)
+				dx = -4;
+			if(dy < -4)
+				dy = -4;
+		} else {
+			// moveDir == -1
+			if (dx != 0)
+				dx += (dx < 0) ? 1 : -1;
+			if (dy != 0)
+				dy += (dy < 0) ? 1 : -1;
+		}
+		if(dx != 0 || dy != 0) {
+			area.x += dx;
+			area.y += dy;
+
+			if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
+					|| area.y > 400 + 10) {
+				playerDied();
+				return;
+			}
+			
+			for (Player plr : Server.players) {
+				if (plr == null)
+					continue;
+				if (Server.DEBUG)
+					System.out.println("SENDING MOVE - " + id + " : "
+							+ area.x + ", " + area.y);
+
+				plr.pbuf.beginPacket(PLAYER_MOVED); // player moved
+				plr.pbuf.writeShort(id);
+				plr.pbuf.writeShort(area.x);
+				plr.pbuf.writeShort(area.y);
+				plr.pbuf.endPacket();
+			}
 		}
 	}
 
@@ -147,6 +151,7 @@ public class Player {
 		try {
 			deaths++;
 			initPosition();
+			delayCanMove();
 			for (Player plr : Server.players) {
 				if (plr == null)
 					continue;
@@ -159,6 +164,29 @@ public class Player {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private void delayCanMove() {
+		setCanMove(false);
+		final Timer t = new Timer();
+		t.schedule(new TimerTask() {
+			public void run() {
+				setCanMove(true);
+				t.cancel();
+			}
+		}, 3000, 1000);
+	}
+
+	private void setCanMove(boolean can) {
+		canMove = can;
+		for (Player plr : Server.players) {
+			if (plr == null)
+				continue;
+			plr.pbuf.beginPacket(SET_CAN_MOVE);
+			plr.pbuf.writeShort(id);
+			plr.pbuf.writeByte(canMove ? 1 : 0);
+			plr.pbuf.endPacket();
 		}
 	}
 

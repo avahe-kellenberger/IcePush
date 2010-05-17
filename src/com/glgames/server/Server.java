@@ -32,7 +32,19 @@ public class Server implements Runnable {
 					System.out.println("Client accepted, socket: "
 							+ s.toString());
 					s.setTcpNoDelay(true);
-					loginPlayer(s);
+					int type = s.getInputStream().read();
+					if(type == 0) // connecting client
+						loginPlayer(s);
+					else if(type == 1) { // list players
+						int count = 0;
+						for(Player p : players)
+							if(p != null)
+								count++;
+						System.out.println("Number of players requested: sending " + count);
+						s.getOutputStream().write(count);
+						s.getOutputStream().flush();
+						s.close();
+					}
 				}
 				updatePlayers();
 

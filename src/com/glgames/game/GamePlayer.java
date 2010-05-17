@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 public class GamePlayer {
 	public String username;
 	public int deaths;
+	public boolean canMove = true;
 	public Rectangle area;
 	
 	private BufferedImage sprite;
@@ -38,5 +39,9 @@ public class GamePlayer {
 		g.setFont(new Font("Arial", Font.PLAIN, 14));
 		g.drawString(username, screenX, screenY);
 		g.drawImage(sprite, screenX, screenY, null);
+		if(!canMove) {
+			g.setColor(new Color(0, 100, 255, 100));
+			g.fillOval(screenX, screenY, area.width, area.height);
+		}
 	}
 }

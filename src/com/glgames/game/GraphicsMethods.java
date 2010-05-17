@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 public class GraphicsMethods {
-	public static String message = "Enter a server and username.";
+	public static String message = "Select a server and username.";
 
 	public static void drawLoadingBar(Graphics g, String s, int p) {
 		int width = 400, height = 30, x = GameFrame.WIDTH / 2 - width / 2;
@@ -56,9 +56,12 @@ public class GraphicsMethods {
 
 		g.setColor(Color.white);
 		w = g.getFontMetrics().stringWidth(message);
-		g.drawString(message, GameFrame.WIDTH / 2 - w / 2, 430);
+		g.drawString(message, GameFrame.WIDTH / 2 - w / 2, 310);
 
-		GameObjects.serverBox.draw(g);
+		if(GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
+			GameObjects.serverBox.draw(g);
+		else
+			GameObjects.serverList.draw(g);
 		GameObjects.usernameBox.draw(g);
 
 		Rectangle login = GameObjects.loginButton;
