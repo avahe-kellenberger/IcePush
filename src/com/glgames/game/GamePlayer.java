@@ -21,6 +21,7 @@ public class GamePlayer {
 	public Rectangle area;
 	
 	private BufferedImage sprite;
+	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
 	
 	public GamePlayer(String spriteName) {
 		sprite = SpriteLoader.getSprite(spriteName);
@@ -28,6 +29,8 @@ public class GamePlayer {
 		area.width = sprite.getWidth();
 		area.height = sprite.getHeight();
 	}
+
+
 	
 	public void draw(Graphics g) {
 		// generate proper coordinates for drawing
@@ -40,8 +43,8 @@ public class GamePlayer {
 		g.drawString(username, screenX, screenY);
 		g.drawImage(sprite, screenX, screenY, null);
 		if(!canMove) {
-			g.setColor(new Color(0, 100, 255, 100));
-			g.fillOval(screenX, screenY, area.width, area.height);
+			//g.setColor(new Color(0, 100, 255, 100));
+			g.drawImage(bubble, screenX, screenY, null);
 		}
 	}
 }

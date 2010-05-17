@@ -128,6 +128,10 @@ public class NetworkHandler {
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
+					if(plr == null) {	// ???????????????
+						System.out.println("null player tried to set can move ??? " + id);
+						break;
+					}
 					plr.canMove = pbuf.readByte() > 0 ? true : false;
 					break;
 				case PLAYER_LOGGED_OUT:
@@ -173,6 +177,7 @@ public class NetworkHandler {
 			int num = in.read(); // num players
 			ret.put(server, num);
 		}
+		ret.put("localhost", 0);
 		return ret;
 	}
 
