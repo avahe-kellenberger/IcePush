@@ -14,8 +14,9 @@ public class GameEngine {
 	public static boolean running = true;
 
 	private static GameFrame frame;
-	private static int cycle, lastDied;
 	private static Graphics buffGraphics;
+	public static int cycle;
+	public static int lastDied;
 
 	public static void init() {
 		frame = new GameFrame();

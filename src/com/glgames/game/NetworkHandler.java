@@ -112,15 +112,13 @@ public class NetworkHandler {
 						System.out.println("null player tried to move??? " + id);
 						break;
 					}
-					if(!plr.canMove) // just in case packet was dropped
-						plr.canMove = true;
 					plr.area.x = x;
 					plr.area.y = y;
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
-					plr.canMove = false;
+					plr.bubbleAlpha = 1.0f;
 					plr.deaths = pbuf.readByte();
 					plr.area.x = pbuf.readShort();
 					plr.area.y = pbuf.readShort();
@@ -134,7 +132,7 @@ public class NetworkHandler {
 						System.out.println("null player tried to set can move ??? " + id);
 						break;
 					}
-					plr.canMove = pbuf.readByte() > 0 ? true : false;
+					plr.bubbleAlpha = pbuf.readByte() > 0 ? 0.0f : 1.0f;
 					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
