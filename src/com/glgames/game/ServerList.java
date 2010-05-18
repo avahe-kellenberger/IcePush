@@ -3,33 +3,31 @@ package com.glgames.game;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ServerList {
 	private int y, width, fontheight;
-	private List<String> servers;
-	private String selected;
+	private String[] servers;
+	private String selected = "";
 	
 	public ServerList(int y) {
 		this.y = y;
-		servers = new ArrayList<String>();
 		new Timer().schedule(new TimerTask() {
 			public void run() {
-				servers.clear();
 				Map<String, Integer> map = NetworkHandler.getWorlds();
+				servers = new String[map.size()];
+				int i = 0;
 				for (String ser : map.keySet()) {
 					int num = map.get(ser);
-					servers.add(ser
+					servers[i] = ser
 							+ " - "
 							+ (num == 255 ? "offline" : num
-									+ (num != 1 ? " players" : " player")));
+									+ (num != 1 ? " players" : " player"));
+					i++;
 				}
-				selected = servers.get(0);
+				// selected = servers[0];
 			}
 		}, 0, 10000);
 	}
@@ -41,11 +39,10 @@ public class ServerList {
 			fontheight = g.getFontMetrics().getHeight();
 		int x = GameFrame.WIDTH / 2 - width / 2;
 		g.setColor(Color.gray);
-		g.fill3DRect(x, y, width, servers.size() * fontheight + 15, true);
+		g.fill3DRect(x, y, width, servers.length * fontheight + 15, true);
 		int y = this.y + 10;
-		Iterator<String> it = servers.iterator();
-		while(it.hasNext()) {
-			String serv = it.next();
+		for(int i = 0; i < servers.length; i++) {
+			String serv = servers[i];
 			if(serv.equals(selected)) {
 				g.setColor(Color.green);
 				g.fill3DRect(x + 10, y, 15, 15, false);
@@ -65,9 +62,8 @@ public class ServerList {
 	private int getLongestStringWidth(Graphics g) {
 		FontMetrics m = g.getFontMetrics();
 		int max = -1;
-		Iterator<String> it = servers.iterator();
-		while(it.hasNext()) {
-			String serv = it.next();
+		for(int i = 0; i < servers.length; i++) {
+			String serv = servers[i];
 			if(m.stringWidth(serv) > max)
 				max = m.stringWidth(serv);
 		}
@@ -77,14 +73,17 @@ public class ServerList {
 	public void processClick(int x, int y) {
 		int compx = GameFrame.WIDTH / 2 - width / 2;
 		x -= compx;
-		y -= this.y;
+		y -= this.y + 10;
 		int index = y / fontheight;
-		if(index < 0 || index > servers.size() - 1)
+		System.out.println(index);
+		if(index < 0 || index > servers.length - 1)
 			return;
-		selected = servers.get(index);
+		selected = servers[index];
 	}
 	
 	public String getSelected() {
-		return selected.substring(0, selected.indexOf(' '));
+		if(!selected.isEmpty())
+			return selected.substring(0, selected.indexOf(' '));
+		else return "";
 	}
 }

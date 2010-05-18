@@ -18,7 +18,8 @@ public class MouseHandler extends MouseAdapter {
 				server = GameObjects.serverList.getSelected();
 			else
 				server = GameObjects.serverBox.getText();
-			NetworkHandler.login(server, GameObjects.usernameBox.getText());
+			if (!server.isEmpty())
+				NetworkHandler.login(server, GameObjects.usernameBox.getText());
 		}
 	}
 }
