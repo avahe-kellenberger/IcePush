@@ -16,9 +16,11 @@ public class GameEngine {
 	
 	private static GameFrame frame;
 	private static int cycle, lastDied;
+	private static Graphics buffGraphics;
 	
 	public static void init() {
 		frame = new GameFrame();
+		buffGraphics = frame.getBufferGraphics();
 		new Thread() {
 			public void run() {
 				GameObjects.load();
@@ -28,11 +30,24 @@ public class GameEngine {
 	
 	public static void run() {
 		while(running) {
-			gameLoop();
-			NetworkHandler.keepAlive();
-			NetworkHandler.handlePackets();
-			render();
+			if(!GameObjects.loaded) {
+				buffGraphics.setColor(Color.black);
+				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
+				GraphicsMethods.drawLoadingBar(buffGraphics, GameObjects.loadingMessage, GameObjects.loadingPercent);
+			} else {
+				buffGraphics.setColor(Color.white);
+				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
+				if(state == WELCOME) {
+					titleLoop();
+				} else if(state == PLAY) {
+					gameLoop();
+				} else if(state == DIED) {
+					diedLoop();
+				}
+			}
+			frame.repaint();
 			cycle++;
+
 			try {
 				Thread.sleep(20);
 			} catch(Exception e) {
@@ -41,43 +56,28 @@ public class GameEngine {
 		}
 	}
 
+	private static void titleLoop() {
+		GraphicsMethods.drawWelcomeScreen(buffGraphics, cycle);
+	}
+
 	private static void gameLoop() {
 		// update positions and such
+		NetworkHandler.keepAlive();
+		NetworkHandler.handlePackets();
+		GraphicsMethods.drawGameBackground(buffGraphics);
+		GraphicsMethods.drawGamePlayers(buffGraphics);
+		GraphicsMethods.drawPlayerStats(buffGraphics);
 	}
 	
-	private static void render() {
-		Graphics g = frame.getBufferGraphics();
-		if(!GameObjects.loaded) {
-			g.setColor(Color.black);
-			g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
-			
-			GraphicsMethods.drawLoadingBar(g, GameObjects.loadingMessage,
-					GameObjects.loadingPercent);
+	private static void diedLoop() {
+		if(lastDied == 0) {
+			lastDied = cycle;
+		} else if(cycle - lastDied >= 50) {
+			lastDied = 0;
+			state = PLAY;
 		} else {
-			// clear the screen
-			g.setColor(Color.white);
-			g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
-			switch(state) {
-				case WELCOME:
-					GraphicsMethods.drawWelcomeScreen(g, cycle);
-					break;
-				case PLAY:
-					GraphicsMethods.drawGameBackground(g);
-					GraphicsMethods.drawGamePlayers(g);
-					GraphicsMethods.drawPlayerStats(g);
-					break;
-				case DIED:
-					if(lastDied == 0)
-						lastDied = cycle;
-					else if(cycle - lastDied >= 50) {
-						lastDied = 0;
-						state = PLAY;
-					} else
-						GraphicsMethods.drawDiedScreen(g, cycle - lastDied);
-			}
-				
+			GraphicsMethods.drawDiedScreen(buffGraphics, cycle - lastDied);
 		}
-		frame.repaint();
 	}
 
 	public static void cleanup() {
