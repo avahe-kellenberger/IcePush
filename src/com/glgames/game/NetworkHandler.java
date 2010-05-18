@@ -15,6 +15,7 @@ import static com.glgames.shared.Opcodes.TOO_MANY_PL;
 import static com.glgames.shared.Opcodes.TREE;
 import static com.glgames.shared.Opcodes.USER_IN_USE;
 import static com.glgames.shared.Opcodes.VERSION;
+import static com.glgames.shared.Opcodes.PING;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,10 +32,13 @@ public class NetworkHandler {
 
 	private static Socket sock;
 	private static PacketBuffer pbuf;
+	private static long pingTime;
 
 	public static void login(String server, String username) {
 		try {
+			long start = System.currentTimeMillis();
 			sock = new Socket(server, 2345);
+			System.out.println("Time to establish socket: " + (System.currentTimeMillis() - start));
 			sock.setTcpNoDelay(true);
 
 			OutputStream out = sock.getOutputStream();
@@ -139,6 +143,9 @@ public class NetworkHandler {
 					GameObjects.players[id] = null;
 				case KEEP_ALIVE:
 					break;
+				case PING:
+					System.out.println("Ping response recieved: " + (System.currentTimeMillis() - pingTime));
+					break;
 			}
 			pbuf.closePacket();
 		}
@@ -193,6 +200,12 @@ public class NetworkHandler {
 		if (pbuf == null)
 			return;
 		pbuf.beginPacket(KEEP_ALIVE);
+		pbuf.endPacket();
+	}
+
+	public static void ping() {
+		pingTime = System.currentTimeMillis();
+		pbuf.beginPacket(PING);
 		pbuf.endPacket();
 	}
 

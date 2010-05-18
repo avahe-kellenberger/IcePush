@@ -5,7 +5,7 @@ public class Opcodes {
 	public static final String WORLDSERVER = "99.198.122.53";
 	public static final int WORLDPORT = 2346;
 	// Login protocol
-	public static final int VERSION = 102;
+	public static final int VERSION = 103;
 	public static final int BAD_VERSION = 1;
 	public static final int USER_IN_USE = 2;
 	public static final int TOO_MANY_PL = 3;
@@ -22,6 +22,7 @@ public class Opcodes {
 	public static final int MOVE_REQUEST = 8;
 	public static final int END_MOVE = 9;
 	public static final int LOGOUT = 10;
+	public static final int PING = 14;
 	
 	// Player types
 	public static final int TREE = 0;

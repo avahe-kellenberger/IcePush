@@ -9,6 +9,7 @@ import static com.glgames.shared.Opcodes.PLAYER_DIED;
 import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
 import static com.glgames.shared.Opcodes.PLAYER_MOVED;
 import static com.glgames.shared.Opcodes.SET_CAN_MOVE;
+import static com.glgames.shared.Opcodes.PING;
 
 import java.awt.Rectangle;
 import java.util.Timer;
@@ -236,6 +237,10 @@ public class Player {
 						logout();
 						break;
 					case KEEP_ALIVE:
+						break;
+					case PING:
+						pbuf.beginPacket(PING);
+						pbuf.endPacket();
 						break;
 				}
 				pbuf.closePacket();

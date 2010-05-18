@@ -50,7 +50,9 @@ public class KeyHandler extends BugfixKeyListener {
 			case KeyEvent.VK_RIGHT:
 				moveDir = Player.RIGHT;
 				break;
-
+			case KeyEvent.VK_P:
+				NetworkHandler.ping();
+				break;
 		}
 		
 		if(moveDir != -1) {
