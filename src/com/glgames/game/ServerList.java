@@ -10,6 +10,7 @@ import java.util.TimerTask;
 public class ServerList {
 	private int y, width, fontheight;
 	private String[] servers;
+	private String[] counts;
 	private String selected = "";
 	
 	public ServerList(int y) {
@@ -18,11 +19,12 @@ public class ServerList {
 			public void run() {
 				Map<String, Integer> map = NetworkHandler.getWorlds();
 				servers = new String[map.size()];
+				counts = new String[map.size()];
 				int i = 0;
 				for (String ser : map.keySet()) {
 					int num = map.get(ser);
-					servers[i] = ser
-							+ " - "
+					servers[i] = ser;
+					counts[i] = " - "
 							+ (num == 255 ? "offline" : num
 									+ (num != 1 ? " players" : " player"));
 					i++;
@@ -43,6 +45,7 @@ public class ServerList {
 		int y = this.y + 10;
 		for(int i = 0; i < servers.length; i++) {
 			String serv = servers[i];
+			String count = counts[i];
 			if(serv.equals(selected)) {
 				g.setColor(Color.green);
 				g.fill3DRect(x + 10, y, 15, 15, false);
@@ -54,7 +57,7 @@ public class ServerList {
 			g.setColor(Color.white);
 			if(serv.contains("offline"))
 				g.setColor(Color.red);
-			g.drawString(serv, x + 30, y + 15);
+			g.drawString(serv + count, x + 30, y + 15);
 			y += 25;
 		}
 	}
@@ -63,9 +66,9 @@ public class ServerList {
 		FontMetrics m = g.getFontMetrics();
 		int max = -1;
 		for(int i = 0; i < servers.length; i++) {
-			String serv = servers[i];
+			String serv = servers[i], count = counts[i];
 			if(m.stringWidth(serv) > max)
-				max = m.stringWidth(serv);
+				max = m.stringWidth(serv + count);
 		}
 		return max;
 	}
@@ -82,8 +85,6 @@ public class ServerList {
 	}
 	
 	public String getSelected() {
-		if(!selected.isEmpty())
-			return selected.substring(0, selected.indexOf(' '));
-		else return "";
+		return selected;
 	}
 }

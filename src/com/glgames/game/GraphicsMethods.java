@@ -82,9 +82,12 @@ public class GraphicsMethods {
 	}
 
 	public static void drawGamePlayers(Graphics g) {
-		for (int k = 0; k < GameObjects.players.length; k++)
-			if (GameObjects.players[k] != null)
-				GameObjects.players[k].draw(g);
+		for (int k = 0; k < GameObjects.players.length; k++) {
+			GamePlayer p = GameObjects.players[k];
+			if (p == null)
+				continue;
+			p.draw(g);
+		}
 	}
 	
 	public static void drawPlayerStats(Graphics g) {

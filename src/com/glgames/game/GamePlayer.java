@@ -41,7 +41,6 @@ public class GamePlayer {
 		g.drawString(username, screenX, screenY);
 		g.drawImage(sprite, screenX, screenY, null);
 		if(!canMove) {
-			//g.setColor(new Color(0, 100, 255, 100));
 			g.drawImage(bubble, screenX, screenY, null);
 		}
 	}
