@@ -16,7 +16,7 @@ public class GameObjects {
 	public static Rectangle loginButton;
 
 	public static Rectangle playingArea;
-	public static GamePlayer[] players;
+	public static Player2D[] players;
 	
 	// World list stuff
 	public static final int TYPE_IN_BOX = 0;
@@ -48,7 +48,7 @@ public class GameObjects {
 
 			serverList = new ServerList(350);
 
-			players = new GamePlayer[50];
+			players = new Player2D[50];
 			int width = 400, height = 400;
 			int x = GameFrame.WIDTH / 2 - width / 2;
 			int y = GameFrame.HEIGHT / 2 - height / 2 - 45;

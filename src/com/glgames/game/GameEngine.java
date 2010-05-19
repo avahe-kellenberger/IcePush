@@ -20,7 +20,7 @@ public class GameEngine {
 
 	public static void init() {
 		frame = new GameFrame();
-		buffGraphics = frame.getBufferGraphics();
+		buffGraphics = frame.getRenderer().getBufferGraphics();
 		new Thread() {
 			public void run() {
 				GameObjects.load();
@@ -33,8 +33,8 @@ public class GameEngine {
 			if (!GameObjects.loaded) {
 				buffGraphics.setColor(Color.black);
 				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
-				GraphicsMethods.drawLoadingBar(buffGraphics,
-						GameObjects.loadingMessage, GameObjects.loadingPercent);
+				frame.getRenderer().drawLoadingBar(GameObjects.loadingMessage,
+						GameObjects.loadingPercent);
 			} else {
 				buffGraphics.setColor(Color.white);
 				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
@@ -46,7 +46,7 @@ public class GameEngine {
 					diedLoop();
 				}
 			}
-			frame.repaint();
+			frame.getRenderer().swapBuffers();
 			cycle++;
 
 			try {
@@ -58,16 +58,14 @@ public class GameEngine {
 	}
 
 	private static void titleLoop() {
-		GraphicsMethods.drawWelcomeScreen(buffGraphics, cycle);
+		frame.getRenderer().drawWelcomeScreen(cycle);
 	}
 
 	private static void gameLoop() {
 		// update positions and such
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
-		GraphicsMethods.drawGameBackground(buffGraphics);
-		GraphicsMethods.drawGamePlayers(buffGraphics);
-		GraphicsMethods.drawPlayerStats(buffGraphics);
+		frame.getRenderer().renderScene(GameObjects.players);
 	}
 
 	private static void diedLoop() {
@@ -77,7 +75,7 @@ public class GameEngine {
 			lastDied = 0;
 			state = PLAY;
 		} else {
-			GraphicsMethods.drawDiedScreen(buffGraphics, cycle - lastDied);
+			frame.getRenderer().drawDiedScreen(cycle - lastDied);
 		}
 	}
 

@@ -1,0 +1,177 @@
+package com.glgames.game;
+
+import java.awt.Color;
+
+public class Renderer3D extends Renderer {
+	private static final long serialVersionUID = 1L;
+	
+	public Renderer3D() {
+		faceArray = new Face[5000];
+	}
+
+	public void renderScene(Object objArray[]) {
+		double objBaseX, objBaseY, objBaseZ;
+
+		faceIndex = 0;
+
+		for (Object _obj : objArray) {
+			if (_obj == null)
+				continue;
+			Object3D obj = (Object3D) _obj;
+			
+			objBaseX = obj.baseX;
+			objBaseY = obj.baseY;
+			objBaseZ = obj.baseZ;
+
+			double yawRad = Math.toRadians(((double) yaw) + obj.rotationY);
+			yawSin = Math.sin(yawRad);
+			yawCos = Math.cos(yawRad);
+
+			double pitchRad = Math.toRadians(((double) pitch) + obj.rotationX);
+			pitchSin = Math.sin(pitchRad);
+			pitchCos = Math.cos(pitchRad);
+
+			for (int i = 0; i < obj.vertexCount; i++) {
+				double[] transformed = transformPoint(objBaseX, objBaseY,
+						objBaseZ, obj.vertX[i], obj.vertY[i], obj.vertZ[i]);
+
+				obj.vertXRelCam[i] = transformed[0];
+				obj.vertYRelCam[i] = transformed[1];
+				obj.vertZRelCam[i] = transformed[2];
+
+				int[] screen = worldToScreen(obj.vertXRelCam[i],
+						obj.vertYRelCam[i], obj.vertZRelCam[i]);
+				obj.screenX[i] = screen[0];
+				obj.screenY[i] = screen[1];
+			}
+
+			int vertexCount;
+
+			faceLoop:
+			// Number of faces this object has
+			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
+				boolean withinViewport = false;
+
+				if (obj.faceVertices[currentFace] == null)
+					continue;
+
+				vertexCount = obj.faceVertices[currentFace].length;
+
+				double faceCenterX = 0;
+				double faceCenterY = 0;
+				double faceCenterZ = 0;
+
+				// Will be discarded if this face is culled
+				int drawXBuf[] = new int[vertexCount];
+				int drawYBuf[] = new int[vertexCount];
+
+				for (int currentVertex = 0; currentVertex < vertexCount; currentVertex++) {
+					int vertexID = obj.faceVertices[currentFace][currentVertex];
+
+					faceCenterX += obj.vertXRelCam[vertexID];
+					faceCenterY += obj.vertYRelCam[vertexID];
+					faceCenterZ += obj.vertZRelCam[vertexID];
+
+					if (obj.vertZRelCam[vertexID] <= 0)
+						continue faceLoop;
+
+					int drawX = obj.screenX[vertexID];
+					int drawY = obj.screenY[vertexID];
+
+					if (drawX >= 0 && drawX <= GameFrame.WIDTH && drawY >= 0
+							&& drawY <= GameFrame.HEIGHT)
+						withinViewport = true;
+
+					drawXBuf[currentVertex] = drawX;
+					drawYBuf[currentVertex] = drawY;
+
+				}
+
+				if (!withinViewport)
+					continue;
+
+				faceCenterX /= vertexCount;
+				faceCenterY /= vertexCount;
+				faceCenterZ /= vertexCount;
+
+				double distance = faceCenterX * faceCenterX + faceCenterY
+						* faceCenterY + faceCenterZ * faceCenterZ;
+
+				if (faceIndex > 4998)
+					faceIndex = 4998;
+				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
+						vertexCount, distance, obj.faceColors[currentFace]);
+			}
+		}
+
+		java.util.Arrays.sort(faceArray, 0, faceIndex);
+
+		for (int i = faceIndex - 1; i >= 0; i--) {
+			faceArray[i].draw(bg);
+		}
+
+	}
+
+	public void drawDebug() {
+		bg.setColor(Color.white);
+		bg.drawString("Camera X: " + cameraX, 15, 15);
+		bg.drawString(", Y: " + cameraY, 105, 15);
+		bg.drawString(", Z: " + cameraZ, 145, 15);
+		bg.drawString(", Pitch: " + pitch, 205, 15);
+		bg.drawString(", Yaw: " + yaw, 255, 15);
+	}
+
+	public double[] transformPoint(double objBaseX, double objBaseY,
+			double objBaseZ, double vertX, double vertY, double vertZ) {
+		double absVertX = objBaseX + vertX;
+		double absVertY = objBaseY + vertY;
+		double absVertZ = objBaseZ + vertZ;
+
+		absVertX -= focusX;
+		absVertY -= focusY;
+		absVertZ -= focusZ;
+
+		/* Rotation about Y axis -- Camera Yaw */
+
+		double rotated_Y_AbsVertX = (absVertX * yawCos - absVertZ * yawSin);
+		double rotated_Y_AbsVertZ = (absVertX * yawSin + absVertZ * yawCos);
+
+		/* Rotation about X axis -- Camera Pitch */
+
+		double rotatedAbsVertY = (absVertY * pitchCos - rotated_Y_AbsVertZ
+				* pitchSin);
+		double rotatedAbsVertZ = (absVertY * pitchSin + rotated_Y_AbsVertZ
+				* pitchCos);
+
+		rotated_Y_AbsVertX += focusX;
+		rotatedAbsVertY += focusY;
+		rotatedAbsVertZ += focusZ;
+
+		return new double[] { rotated_Y_AbsVertX - cameraX,
+				rotatedAbsVertY - cameraY, rotatedAbsVertZ - cameraZ };
+	}
+
+	public int[] worldToScreen(double transX, double transY, double transZ) {
+		int[] ret = new int[2];
+		int sW = GameFrame.WIDTH / 2, sH = GameFrame.HEIGHT / 2;
+		ret[0] = sW + (int) (sW * transX / transZ);
+		ret[1] = sH - (int) (sH * transY / transZ);
+
+		return ret;
+	}
+
+	public double cameraX;
+	public double cameraY;
+	public double cameraZ;
+
+	public int pitch, yaw;
+
+	public double focusX, focusY, focusZ;
+
+	private Face faceArray[];
+	private int faceIndex;
+
+	private double yawSin, yawCos, pitchSin, pitchCos;
+
+
+}
