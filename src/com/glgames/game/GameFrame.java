@@ -31,12 +31,18 @@ public class GameFrame extends Frame {
 		renderer.initGraphics();
 	}
 
-	public void setRenderer(final Renderer r) {
+	public void setRenderer(final int mode) {
 		IcePush.stable = false;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				if (renderer != null)
 					remove(renderer.getCanvas());
+				
+				Renderer r;
+				if(mode == GameObjects.SOFTWARE_2D)
+					r = new Renderer2D();
+				else
+					r = new Renderer3D();
 				
 				add(r.getCanvas());
 				validate();
@@ -44,6 +50,7 @@ public class GameFrame extends Frame {
 				renderer = r;
 				r.initGraphics();
 				IcePush.buffGraphics = r.getBufferGraphics();
+				GameObjects.GRAPHICS_MODE = mode;
 				IcePush.stable = true;
 			}
 		});
