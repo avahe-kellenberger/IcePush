@@ -116,6 +116,10 @@ public class NetworkHandler {
 						p3.username = username;
 						p3.deaths = deaths;
 						GameObjects.players[id] = p3;
+						
+						if (id == NetworkHandler.id)
+							((Renderer3D) GameEngine.frame.getRenderer())
+									.focusCamera(x, y);
 					}
 					break;
 				case PLAYER_MOVED:
@@ -141,6 +145,9 @@ public class NetworkHandler {
 						}
 						p3.baseX = x;
 						p3.baseZ = y;
+						if (id == NetworkHandler.id)
+							((Renderer3D) GameEngine.frame.getRenderer())
+									.focusCamera(x, y);
 					}
 					break;
 				case PLAYER_DIED:
@@ -153,9 +160,14 @@ public class NetworkHandler {
 						p2.y = pbuf.readShort();
 					} else {
 						p3 = (Player3D) GameObjects.players[id];
+						x = pbuf.readShort();
+						y = pbuf.readShort();
 						p3.deaths = pbuf.readByte();
-						p3.baseX = pbuf.readShort();
-						p3.baseZ = pbuf.readShort();
+						p3.baseX = x;
+						p3.baseZ = y;
+						if (id == NetworkHandler.id)
+							((Renderer3D) GameEngine.frame.getRenderer())
+									.focusCamera(x, y);
 					}
 					if (id == NetworkHandler.id)
 						GameEngine.state = GameEngine.DIED;

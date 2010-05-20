@@ -1,6 +1,7 @@
 package com.glgames.game;
 
 import java.awt.Color;
+import java.awt.Font;
 
 public class Renderer3D extends Renderer {
 	private static final long serialVersionUID = 1L;
@@ -124,6 +125,7 @@ public class Renderer3D extends Renderer {
 
 	public void drawDebug() {
 		bg.setColor(Color.white);
+		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
 		bg.drawString("Camera X: " + cameraX, 15, 15);
 		bg.drawString(", Y: " + cameraY, 105, 15);
 		bg.drawString(", Z: " + cameraZ, 145, 15);
@@ -170,6 +172,14 @@ public class Renderer3D extends Renderer {
 		return ret;
 	}
 
+	public void focusCamera(int x, int z) {
+		focusX = x;
+		focusZ = z;
+
+		cameraX = x;
+		cameraZ = z - 200;
+	}
+
 	public double cameraX;
 	public double cameraY;
 	public double cameraZ;
@@ -182,6 +192,4 @@ public class Renderer3D extends Renderer {
 	private int faceIndex;
 
 	private double yawSin, yawCos, pitchSin, pitchCos;
-
-
 }
