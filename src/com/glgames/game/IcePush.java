@@ -1,19 +1,15 @@
 package com.glgames.game;
 
-import java.awt.*;
-import java.applet.*;
-import java.awt.event.*;
+import java.applet.Applet;
+import java.awt.Color;
+import java.awt.Graphics;
 
 public class IcePush extends Applet {
-	public static boolean DEBUG = false;
-	
-	public static void main(String[] args) {
-		_init();
-		run();
-		cleanup();
-	}
+	private static final long serialVersionUID = 1L;
 
-	static IcePush instance;
+	public static boolean DEBUG = false;
+
+	public static IcePush instance;
 
 	// state stuff
 	public static final int WELCOME = 0;
@@ -30,6 +26,13 @@ public class IcePush extends Applet {
 	public static int cycle;
 	public static int lastDied;
 
+	
+	public static void main(String[] args) {
+		_init();
+		run();
+		cleanup();
+	}
+	
 	public static void _init() {							// AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		frame = new GameFrame();
 		instance = new IcePush();
@@ -107,5 +110,4 @@ public class IcePush extends Applet {
 		frame.dispose();
 		System.exit(0);
 	}
-
 }
