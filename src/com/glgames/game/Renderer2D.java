@@ -9,8 +9,9 @@ public class Renderer2D extends Renderer {
 	private static final long serialVersionUID = 1L;
 
 	public void drawDebug() {
-		// TODO Auto-generated method stub
-
+		bg.setColor(Color.white);
+		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
+		bg.drawString("2D Renderer", 15, 15);
 	}
 	
 	public void renderScene(Object2D[] objects) {

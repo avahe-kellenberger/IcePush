@@ -126,11 +126,8 @@ public class Renderer3D extends Renderer {
 	public void drawDebug() {
 		bg.setColor(Color.white);
 		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
-		bg.drawString("Camera X: " + cameraX, 15, 15);
-		bg.drawString(", Y: " + cameraY, 105, 15);
-		bg.drawString(", Z: " + cameraZ, 145, 15);
-		bg.drawString(", Pitch: " + pitch, 205, 15);
-		bg.drawString(", Yaw: " + yaw, 255, 15);
+		bg.drawString("3D Renderer - Camera X: " + cameraX + ", Y: " + cameraY + ", Z: "
+				+ cameraZ + ", Pitch: " + pitch + ", Yaw: " + yaw, 15, 15);
 	}
 
 	public double[] transformPoint(double objBaseX, double objBaseY,
