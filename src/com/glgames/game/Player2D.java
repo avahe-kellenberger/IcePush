@@ -22,8 +22,8 @@ public class Player2D extends Object2D {
 
 	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
 	
-	public Player2D(String spriteName) {
-		super(spriteName);
+	public Player2D(String spriteName, int type) {
+		super(spriteName, type);
 	}
 	
 	public void draw(Graphics g) {

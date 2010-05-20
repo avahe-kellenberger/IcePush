@@ -55,19 +55,25 @@ public class KeyHandler extends BugfixKeyListener {
 				break;
 			case KeyEvent.VK_W:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
-					((Renderer3D) GameEngine.frame.getRenderer()).pitch -= 5;
+					((Renderer3D) GameEngine.frame.renderer).pitch -= 5;
 				break;
 			case KeyEvent.VK_A:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
-					((Renderer3D) GameEngine.frame.getRenderer()).yaw -= 5;
+					((Renderer3D) GameEngine.frame.renderer).yaw -= 5;
 				break;
 			case KeyEvent.VK_S:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
-					((Renderer3D) GameEngine.frame.getRenderer()).pitch += 5;
+					((Renderer3D) GameEngine.frame.renderer).pitch += 5;
 				break;
 			case KeyEvent.VK_D:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
-					((Renderer3D) GameEngine.frame.getRenderer()).yaw += 5;
+					((Renderer3D) GameEngine.frame.renderer).yaw += 5;
+				break;
+			case KeyEvent.VK_2:
+				Renderer.switchMode(GameObjects.TWO_D);
+				break;
+			case KeyEvent.VK_3:
+				Renderer.switchMode(GameObjects.THREE_D);
 				break;
 		}
 		

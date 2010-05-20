@@ -103,7 +103,7 @@ public class NetworkHandler {
 					int deaths = pbuf.readShort();
 					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
 						p2 = new Player2D(type == TREE ? "images/tree.png"
-								: "images/snowman.png");
+								: "images/snowman.png", type);
 						p2.x = x;
 						p2.y = y;
 						p2.username = username;
@@ -116,9 +116,9 @@ public class NetworkHandler {
 						p3.username = username;
 						p3.deaths = deaths;
 						GameObjects.players[id] = p3;
-						
+
 						if (id == NetworkHandler.id)
-							((Renderer3D) GameEngine.frame.getRenderer())
+							((Renderer3D) GameEngine.frame.renderer)
 									.focusCamera(x, y);
 					}
 					break;
@@ -130,8 +130,8 @@ public class NetworkHandler {
 					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
 						p2 = (Player2D) GameObjects.players[id];
 						if (p2 == null) { // ???????????????
-							System.out
-									.println("null player tried to move??? " + id);
+							System.out.println("null player tried to move??? "
+									+ id);
 							break;
 						}
 						p2.x = x;
@@ -139,14 +139,14 @@ public class NetworkHandler {
 					} else {
 						p3 = (Player3D) GameObjects.players[id];
 						if (p3 == null) { // ???????????????
-							System.out
-									.println("null player tried to move??? " + id);
+							System.out.println("null player tried to move??? "
+									+ id);
 							break;
 						}
 						p3.baseX = x;
 						p3.baseZ = y;
 						if (id == NetworkHandler.id)
-							((Renderer3D) GameEngine.frame.getRenderer())
+							((Renderer3D) GameEngine.frame.renderer)
 									.focusCamera(x, y);
 					}
 					break;
@@ -160,13 +160,13 @@ public class NetworkHandler {
 						p2.y = pbuf.readShort();
 					} else {
 						p3 = (Player3D) GameObjects.players[id];
+						p3.deaths = pbuf.readByte();
 						x = pbuf.readShort();
 						y = pbuf.readShort();
-						p3.deaths = pbuf.readByte();
 						p3.baseX = x;
 						p3.baseZ = y;
 						if (id == NetworkHandler.id)
-							((Renderer3D) GameEngine.frame.getRenderer())
+							((Renderer3D) GameEngine.frame.renderer)
 									.focusCamera(x, y);
 					}
 					if (id == NetworkHandler.id)

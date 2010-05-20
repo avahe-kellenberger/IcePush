@@ -28,6 +28,7 @@ public class Object3D extends GameObject {
 	public static Object3D templates[];
 
 	public Object3D() {
+		super(-1);
 		vertexCount = 0;
 
 		vertX = new double[50];
@@ -54,6 +55,7 @@ public class Object3D extends GameObject {
 	
 
 	public Object3D(int vertices, int faces) {
+		super(-1);
 		vertexCount = vertices;
 
 		vertX = new double[vertexCount];
@@ -74,6 +76,7 @@ public class Object3D extends GameObject {
 
 	public Object3D(double layerHeights[], double layerScale[],
 			Color layerColors[], Color top, Color bottom, int baseSides) {
+		super(-1);
 		double basePointX[] = new double[baseSides], basePointZ[] = new double[baseSides];
 
 		for (int i = 0; i < baseSides; i++) {
@@ -144,6 +147,7 @@ public class Object3D extends GameObject {
 	}
 
 	public Object3D(int type) {
+		super(type);
 		Object3D orig = templates[type];
 		vertexCount = orig.vertexCount;
 

@@ -1,5 +1,7 @@
 package com.glgames.game;
 
+import static com.glgames.shared.Opcodes.TREE;
+
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
@@ -109,6 +111,81 @@ public abstract class Renderer extends Canvas {
 
 	public Graphics getBufferGraphics() {
 		return bg;
+	}
+	
+	public static void switchMode(int mode) {
+		if(mode == GameObjects.GRAPHICS_MODE)
+			return;
+		
+		if(mode == GameObjects.THREE_D) {
+			Player2D[] oldplayers = (Player2D[]) GameObjects.players;
+			Object2D[] oldscenery = (Object2D[]) GameObjects.scenery;
+			
+			Player3D[] newplayers = new Player3D[oldplayers.length];
+			Object3D[] newscenery = new Object3D[oldscenery.length];
+			
+			for(int k = 0; k < oldplayers.length; k++) {
+				if(oldplayers[k] == null)
+					continue;
+				
+				newplayers[k] = new Player3D(oldplayers[k].type);
+				newplayers[k].baseX = oldplayers[k].x;
+				newplayers[k].baseZ = oldplayers[k].y;
+				newplayers[k].username = oldplayers[k].username;
+				newplayers[k].deaths = oldplayers[k].deaths;
+			}
+			
+			for(int k = 0; k < oldscenery.length; k++) {
+				if(oldscenery[k] == null || oldscenery[k].type == -1)
+					continue;
+				
+				newscenery[k] = new Object3D(oldscenery[k].type);
+				newscenery[k].baseX = oldscenery[k].x;
+				newscenery[k].baseZ = oldscenery[k].y;
+			}
+			
+			GameObjects.players = newplayers;
+			GameObjects.scenery = newscenery;
+			
+			GameEngine.frame.setRenderer(new Renderer3D());
+			GameObjects.GRAPHICS_MODE = GameObjects.THREE_D;
+		} else if(mode == GameObjects.TWO_D) {
+			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
+			Object3D[] oldscenery = (Object3D[]) GameObjects.scenery;
+			
+			Player2D[] newplayers = new Player2D[oldplayers.length];
+			Object2D[] newscenery = new Object2D[oldscenery.length];
+			
+			for(int k = 0; k < oldplayers.length; k++) {
+				if(oldplayers[k] == null)
+					continue;
+				
+				newplayers[k] = new Player2D(
+						oldplayers[k].type == TREE ? "images/tree.png"
+								: "images/snowman.png", oldplayers[k].type);
+				newplayers[k].x = (int) oldplayers[k].baseX;
+				newplayers[k].y = (int) oldplayers[k].baseZ;
+				newplayers[k].username = oldplayers[k].username;
+				newplayers[k].deaths = oldplayers[k].deaths;
+			}
+			
+			for(int k = 0; k < oldscenery.length; k++) {
+				if(oldscenery[k] == null)
+					continue;
+				
+				newscenery[k] = new Object2D(
+						oldscenery[k].type == TREE ? "images/tree.png"
+								: "images/snowman.png", oldscenery[k].type);
+				newscenery[k].x = (int) oldscenery[k].baseX;
+				newscenery[k].y = (int) oldscenery[k].baseZ;
+			}
+			
+			GameObjects.players = newplayers;
+			GameObjects.scenery = newscenery;
+			
+			GameEngine.frame.setRenderer(new Renderer2D());
+			GameObjects.GRAPHICS_MODE = GameObjects.TWO_D;
+		} else throw new IllegalStateException("wtf");
 	}
 	
 	public abstract void drawDebug();

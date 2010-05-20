@@ -12,6 +12,7 @@ public class GameEngine {
 	public static int state = WELCOME;
 
 	public static boolean running = true;
+	public static transient boolean stable = true;
 
 	public static GameFrame frame;
 	private static Graphics buffGraphics;
@@ -20,7 +21,7 @@ public class GameEngine {
 
 	public static void init() {
 		frame = new GameFrame();
-		buffGraphics = frame.getRenderer().getBufferGraphics();
+		buffGraphics = frame.renderer.getBufferGraphics();
 		new Thread() {
 			public void run() {
 				GameObjects.load();
@@ -33,7 +34,7 @@ public class GameEngine {
 			if (!GameObjects.loaded) {
 				buffGraphics.setColor(Color.black);
 				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
-				frame.getRenderer().drawLoadingBar(GameObjects.loadingMessage,
+				frame.renderer.drawLoadingBar(GameObjects.loadingMessage,
 						GameObjects.loadingPercent);
 			} else {
 				buffGraphics.setColor(Color.black);
@@ -46,8 +47,8 @@ public class GameEngine {
 					diedLoop();
 				}
 			}
-			frame.getRenderer().drawDebug();
-			frame.getRenderer().swapBuffers();
+			frame.renderer.drawDebug();
+			frame.renderer.swapBuffers();
 			cycle++;
 
 			try {
@@ -59,18 +60,21 @@ public class GameEngine {
 	}
 
 	private static void titleLoop() {
-		frame.getRenderer().drawWelcomeScreen(cycle);
+		frame.renderer.drawWelcomeScreen(cycle);
 	}
 
 	private static void gameLoop() {
 		// update positions and such
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
+		if(!stable)
+			return;
+		
 		if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
-			((Renderer2D) frame.getRenderer())
+			((Renderer2D) frame.renderer)
 					.renderScene((Object2D[]) GameObjects.players);
 		else
-			((Renderer3D) frame.getRenderer())
+			((Renderer3D) frame.renderer)
 					.renderScene((Object3D[]) GameObjects.players);
 	}
 
@@ -81,7 +85,7 @@ public class GameEngine {
 			lastDied = 0;
 			state = PLAY;
 		} else {
-			frame.getRenderer().drawDiedScreen(cycle - lastDied);
+			frame.renderer.drawDiedScreen(cycle - lastDied);
 		}
 	}
 

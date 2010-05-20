@@ -8,7 +8,8 @@ public class Object2D extends GameObject {
 	
 	private BufferedImage sprite;
 	
-	public Object2D(String spriteName) {
+	public Object2D(String spriteName, int type) {
+		super(type);
 		sprite = SpriteLoader.getSprite(spriteName);
 		
 		width = sprite.getWidth();

@@ -9,7 +9,7 @@ public class GameObjects {
 	
 	public static final int TWO_D = 0;
 	public static final int THREE_D = 1;
-	public static int GRAPHICS_MODE = TWO_D;
+	public static int GRAPHICS_MODE = THREE_D;
 	
 	public static String[] instructions;
 	public static BufferedImage logo;
@@ -59,6 +59,7 @@ public class GameObjects {
 				scenery = new Object3D[10];
 				scenery[0] = new Object3D.Plane(400);
 			}
+			
 			int width = 400, height = 400;
 			int x = GameFrame.WIDTH / 2 - width / 2;
 			int y = GameFrame.HEIGHT / 2 - height / 2 - 45;
@@ -72,6 +73,7 @@ public class GameObjects {
 					.getSprite("images/water.jpg"), new Rectangle(0, 0, 512, 512));
 			foreground = new TexturePaint(SpriteLoader.getSprite("images/ice.jpg"),
 					new Rectangle(playingArea.x, playingArea.y, 400, 400));
+			System.out.println(background);
 			
 			trySleep(600);
 			loadingMessage = "Done";
