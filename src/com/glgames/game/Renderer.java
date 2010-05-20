@@ -147,7 +147,11 @@ public abstract class Renderer extends Canvas {
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
 			
-			GameEngine.frame.setRenderer(new Renderer3D());
+			Renderer3D r = new Renderer3D();
+			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
+					(int) newplayers[NetworkHandler.id].baseZ);
+			GameEngine.frame.setRenderer(r);
+			
 			GameObjects.GRAPHICS_MODE = GameObjects.THREE_D;
 		} else if(mode == GameObjects.TWO_D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
