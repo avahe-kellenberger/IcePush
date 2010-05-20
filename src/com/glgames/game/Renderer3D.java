@@ -7,17 +7,27 @@ public class Renderer3D extends Renderer {
 	
 	public Renderer3D() {
 		faceArray = new Face[5000];
+		
+		cameraY = 100;
 	}
 
-	public void renderScene(Object objArray[]) {
+	public void renderScene(Object3D objArray[]) {
+		Object3D[] total = new Object3D[objArray.length
+				+ GameObjects.scenery.length];
+		System.arraycopy(objArray, 0, total, 0, objArray.length - 1);
+		System.arraycopy(GameObjects.scenery, 0, total, objArray.length + 1,
+				GameObjects.scenery.length - 1);
+		doRender(total);
+	}
+	
+	private void doRender(Object3D[] objArray) {
 		double objBaseX, objBaseY, objBaseZ;
 
 		faceIndex = 0;
 
-		for (Object _obj : objArray) {
-			if (_obj == null)
+		for (Object3D obj : objArray) {
+			if (obj == null)
 				continue;
-			Object3D obj = (Object3D) _obj;
 			
 			objBaseX = obj.baseX;
 			objBaseY = obj.baseY;

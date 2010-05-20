@@ -2,7 +2,7 @@ package com.glgames.game;
 
 import java.awt.Color;
 
-public class Object3D {
+public class Object3D extends GameObject {
 	public double vertX[];
 	public double vertY[];
 	public double vertZ[];
@@ -212,11 +212,14 @@ public class Object3D {
 	}
 	
 	public static class Plane extends Object3D {
-		public Plane(int size) {
-			putVertex(0, 0, 0);
-			putVertex(size, 0, 0);
-			putVertex(size, 0, size);
-			putVertex(0, size, 0);
+		public Plane(int s) {
+            putVertex(-s, 0, -s);
+            putVertex(s, 0, -s);
+            putVertex(s, 0, s);
+            putVertex(-s, 0, s);
+            faceVertices = new int[][] { { 0, 1, 2, 3 } };
+            faceColors = new Color[] { new Color(200, 255, 255) };
+
 		}
 	}
 }

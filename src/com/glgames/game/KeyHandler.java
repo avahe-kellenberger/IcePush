@@ -53,6 +53,22 @@ public class KeyHandler extends BugfixKeyListener {
 			case KeyEvent.VK_P:
 				NetworkHandler.ping();
 				break;
+			case KeyEvent.VK_W:
+				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+					((Renderer3D) GameEngine.frame.getRenderer()).pitch--;
+				break;
+			case KeyEvent.VK_A:
+				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+					((Renderer3D) GameEngine.frame.getRenderer()).yaw--;
+				break;
+			case KeyEvent.VK_S:
+				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+					((Renderer3D) GameEngine.frame.getRenderer()).pitch++;
+				break;
+			case KeyEvent.VK_D:
+				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+					((Renderer3D) GameEngine.frame.getRenderer()).yaw++;
+				break;
 		}
 		
 		if(moveDir != -1) {

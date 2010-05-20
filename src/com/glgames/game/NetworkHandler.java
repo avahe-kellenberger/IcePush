@@ -38,7 +38,8 @@ public class NetworkHandler {
 		try {
 			long start = System.currentTimeMillis();
 			sock = new Socket(server, 2345);
-			System.out.println("Time to establish socket: " + (System.currentTimeMillis() - start));
+			System.out.println("Time to establish socket: "
+					+ (System.currentTimeMillis() - start));
 			sock.setTcpNoDelay(true);
 
 			OutputStream out = sock.getOutputStream();
@@ -62,15 +63,17 @@ public class NetworkHandler {
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
 				KeyHandler.isMoving = false;
-				GameObjects.players = new Player2D[50];
+				if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
+					GameObjects.players = new Player2D[50];
+				else
+					GameObjects.players = new Player3D[50];
 				GameEngine.state = GameEngine.PLAY;
 			} else {
 				Renderer.message = "Invalid response from server.";
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Renderer.message = "Error connecting to server: "
-					+ e.getMessage();
+			Renderer.message = "Error connecting to server: " + e.getMessage();
 		}
 	}
 
@@ -78,7 +81,7 @@ public class NetworkHandler {
 		if (GameEngine.state == GameEngine.WELCOME)
 			return;
 
-		if(!pbuf.synch()) {
+		if (!pbuf.synch()) {
 			GameEngine.state = GameEngine.WELCOME;
 			Renderer.message = "Connection with server was lost";
 			return;
@@ -87,7 +90,8 @@ public class NetworkHandler {
 		int opcode;
 		int id, type, x, y;
 		String username;
-		Player2D plr;
+		Player2D p2;
+		Player3D p3;
 		while ((opcode = pbuf.openPacket()) != -1) {
 			switch (opcode) {
 				case NEW_PLAYER:
@@ -97,46 +101,79 @@ public class NetworkHandler {
 					x = pbuf.readShort();
 					y = pbuf.readShort();
 					int deaths = pbuf.readShort();
-
-					GameObjects.players[id] = new Player2D(
-							type == TREE ? "images/tree.png"
-									: "images/snowman.png");
-					GameObjects.players[id].x = x;
-					GameObjects.players[id].y = y;
-					GameObjects.players[id].username = username;
-					GameObjects.players[id].deaths = deaths;
+					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+						p2 = new Player2D(type == TREE ? "images/tree.png"
+								: "images/snowman.png");
+						p2.x = x;
+						p2.y = y;
+						p2.username = username;
+						p2.deaths = deaths;
+						GameObjects.players[id] = p2;
+					} else {
+						p3 = new Player3D(type);
+						p3.baseX = x;
+						p3.baseZ = y;
+						p3.username = username;
+						p3.deaths = deaths;
+						GameObjects.players[id] = p3;
+					}
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();
 					x = pbuf.readShort();
 					y = pbuf.readShort();
 
-					plr = GameObjects.players[id];
-					if(plr == null) {	// ???????????????
-						System.out.println("null player tried to move??? " + id);
-						break;
+					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+						p2 = (Player2D) GameObjects.players[id];
+						if (p2 == null) { // ???????????????
+							System.out
+									.println("null player tried to move??? " + id);
+							break;
+						}
+						p2.x = x;
+						p2.y = y;
+					} else {
+						p3 = (Player3D) GameObjects.players[id];
+						if (p3 == null) { // ???????????????
+							System.out
+									.println("null player tried to move??? " + id);
+							break;
+						}
+						p3.baseX = x;
+						p3.baseZ = y;
 					}
-					plr.x = x;
-					plr.y = y;
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
-					plr = GameObjects.players[id];
-					plr.bubbleAlpha = 1.0f;
-					plr.deaths = pbuf.readByte();
-					plr.x = pbuf.readShort();
-					plr.y = pbuf.readShort();
-					if(id == NetworkHandler.id)
+					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+						p2 = (Player2D) GameObjects.players[id];
+						p2.bubbleAlpha = 1.0f;
+						p2.deaths = pbuf.readByte();
+						p2.x = pbuf.readShort();
+						p2.y = pbuf.readShort();
+					} else {
+						p3 = (Player3D) GameObjects.players[id];
+						p3.deaths = pbuf.readByte();
+						p3.baseX = pbuf.readShort();
+						p3.baseZ = pbuf.readShort();
+					}
+					if (id == NetworkHandler.id)
 						GameEngine.state = GameEngine.DIED;
 					break;
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();
-					plr = GameObjects.players[id];
-					if(plr == null) {	// ???????????????
-						System.out.println("null player tried to set can move ??? " + id);
-						break;
+					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+						p2 = (Player2D) GameObjects.players[id];
+						if (p2 == null) { // ???????????????
+							System.out
+									.println("null player tried to set can move ??? "
+											+ id);
+							break;
+						}
+						p2.bubbleAlpha = pbuf.readByte() > 0 ? 0.0f : 1.0f;
+					} else {
+						pbuf.readByte(); // bubble alpha not needed for 3d
 					}
-					plr.bubbleAlpha = pbuf.readByte() > 0 ? 0.0f : 1.0f;
 					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
@@ -144,7 +181,8 @@ public class NetworkHandler {
 				case KEEP_ALIVE:
 					break;
 				case PING:
-					System.out.println("Ping response recieved: " + (System.currentTimeMillis() - pingTime));
+					System.out.println("Ping response recieved: "
+							+ (System.currentTimeMillis() - pingTime));
 					break;
 			}
 			pbuf.closePacket();
@@ -170,7 +208,7 @@ public class NetworkHandler {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static Map<String, Integer> getWorlds() {
 		Map<String, Integer> ret = new HashMap<String, Integer>();
 		try {
@@ -186,7 +224,7 @@ public class NetworkHandler {
 				ret.put(server, num);
 			}
 			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			GameObjects.loadingMessage = "Error getting server list";
 			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
 		}
@@ -227,7 +265,7 @@ public class NetworkHandler {
 
 	public static void logOut() {
 		try {
-			if(pbuf == null)
+			if (pbuf == null)
 				return;
 			pbuf.beginPacket(LOGOUT);
 			pbuf.closePacket();

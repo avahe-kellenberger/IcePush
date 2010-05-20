@@ -25,7 +25,10 @@ public class GameFrame extends JFrame {
 			}
 		});
 		
-		renderer = new Renderer2D();
+		if(GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
+			renderer = new Renderer2D();
+		else
+			renderer = new Renderer3D();
 		renderer.setFocusTraversalKeysEnabled(false);
 		renderer.addKeyListener(new KeyHandler());
 		renderer.addMouseListener(new MouseHandler());

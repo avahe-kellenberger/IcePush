@@ -13,7 +13,7 @@ public class GameEngine {
 
 	public static boolean running = true;
 
-	private static GameFrame frame;
+	public static GameFrame frame;
 	private static Graphics buffGraphics;
 	public static int cycle;
 	public static int lastDied;
@@ -36,7 +36,7 @@ public class GameEngine {
 				frame.getRenderer().drawLoadingBar(GameObjects.loadingMessage,
 						GameObjects.loadingPercent);
 			} else {
-				buffGraphics.setColor(Color.white);
+				buffGraphics.setColor(Color.black);
 				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
 				if (state == WELCOME) {
 					titleLoop();
@@ -46,6 +46,7 @@ public class GameEngine {
 					diedLoop();
 				}
 			}
+			frame.getRenderer().drawDebug();
 			frame.getRenderer().swapBuffers();
 			cycle++;
 
@@ -65,7 +66,12 @@ public class GameEngine {
 		// update positions and such
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
-		frame.getRenderer().renderScene(GameObjects.players);
+		if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
+			((Renderer2D) frame.getRenderer())
+					.renderScene((Object2D[]) GameObjects.players);
+		else
+			((Renderer3D) frame.getRenderer())
+					.renderScene((Object3D[]) GameObjects.players);
 	}
 
 	private static void diedLoop() {

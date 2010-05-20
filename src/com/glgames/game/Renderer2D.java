@@ -13,7 +13,7 @@ public class Renderer2D extends Renderer {
 
 	}
 	
-	public void renderScene(Object[] objects) {
+	public void renderScene(Object2D[] objects) {
 		Graphics2D g = (Graphics2D) bg;
 		Rectangle rect = GameObjects.playingArea;
 		g.setPaint(GameObjects.background);
@@ -22,7 +22,7 @@ public class Renderer2D extends Renderer {
 		g.fillRect(rect.x, rect.y, rect.width, rect.height);
 		
 		for (int k = 0; k < objects.length; k++) {
-			Object2D p = (Object2D) objects[k];
+			Object2D p = objects[k];
 			if (p == null)
 				continue;
 			p.draw(g);

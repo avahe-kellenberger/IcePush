@@ -110,8 +110,6 @@ public abstract class Renderer extends Canvas {
 	public Graphics getBufferGraphics() {
 		return bg;
 	}
-
-	public abstract void renderScene(Object[] stuff);
-
+	
 	public abstract void drawDebug();
 }

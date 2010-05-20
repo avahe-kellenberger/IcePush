@@ -7,6 +7,10 @@ import java.awt.image.BufferedImage;
 public class GameObjects {
 	public static boolean loaded = false;
 	
+	public static final int TWO_D = 0;
+	public static final int THREE_D = 1;
+	public static int GRAPHICS_MODE = THREE_D;
+	
 	public static String[] instructions;
 	public static BufferedImage logo;
 	public static TexturePaint background, foreground;
@@ -16,7 +20,8 @@ public class GameObjects {
 	public static Rectangle loginButton;
 
 	public static Rectangle playingArea;
-	public static Player2D[] players;
+	public static GameObject[] players;
+	public static GameObject[] scenery;
 	
 	// World list stuff
 	public static final int TYPE_IN_BOX = 0;
@@ -47,8 +52,13 @@ public class GameObjects {
 			loadingPercent = 50;
 
 			serverList = new ServerList(350);
-
-			players = new Player2D[50];
+			
+			if(GRAPHICS_MODE == TWO_D)
+				scenery = new Object2D[10];
+			else {
+				scenery = new Object3D[10];
+				scenery[0] = new Object3D.Plane(400);
+			}
 			int width = 400, height = 400;
 			int x = GameFrame.WIDTH / 2 - width / 2;
 			int y = GameFrame.HEIGHT / 2 - height / 2 - 45;
