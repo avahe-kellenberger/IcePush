@@ -7,9 +7,10 @@ import java.awt.image.BufferedImage;
 public class GameObjects {
 	public static boolean loaded = false;
 	
-	public static final int TWO_D = 0;
-	public static final int THREE_D = 1;
-	public static int GRAPHICS_MODE = THREE_D;
+	public static final int SOFTWARE_2D = 0;
+	public static final int SOFTWARE_3D = 1;
+	public static final int HARDWARE_3D = 2;
+	public static int GRAPHICS_MODE = SOFTWARE_3D;
 	
 	public static String[] instructions;
 	public static BufferedImage logo;
@@ -53,7 +54,7 @@ public class GameObjects {
 
 			serverList = new ServerList(350);
 			
-			if(GRAPHICS_MODE == TWO_D)
+			if(GRAPHICS_MODE == SOFTWARE_2D)
 				scenery = new Object2D[10];
 			else {
 				scenery = new Object3D[10];

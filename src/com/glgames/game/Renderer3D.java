@@ -1,5 +1,6 @@
 package com.glgames.game;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
 
@@ -7,6 +8,7 @@ public class Renderer3D extends Renderer {
 	private static final long serialVersionUID = 1L;
 	
 	public Renderer3D() {
+		super(new Canvas());
 		faceArray = new Face[5000];
 		
 		cameraY = 100;
@@ -49,16 +51,17 @@ public class Renderer3D extends Renderer {
 				obj.vertXRelCam[i] = transformed[0];
 				obj.vertYRelCam[i] = transformed[1];
 				obj.vertZRelCam[i] = transformed[2];
-
+				
 				int[] screen = worldToScreen(obj.vertXRelCam[i],
 						obj.vertYRelCam[i], obj.vertZRelCam[i]);
+				
 				obj.screenX[i] = screen[0];
 				obj.screenY[i] = screen[1];
 			}
 
 			int vertexCount;
 
-			faceLoop:
+			// faceLoop:
 			// Number of faces this object has
 			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
 				boolean withinViewport = false;
@@ -84,18 +87,17 @@ public class Renderer3D extends Renderer {
 					faceCenterZ += obj.vertZRelCam[vertexID];
 
 					if (obj.vertZRelCam[vertexID] <= 0)
-						continue faceLoop;
-
+						continue;
+					
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
-
+					
 					if (drawX >= 0 && drawX <= GameFrame.WIDTH && drawY >= 0
 							&& drawY <= GameFrame.HEIGHT)
 						withinViewport = true;
 
 					drawXBuf[currentVertex] = drawX;
 					drawYBuf[currentVertex] = drawY;
-
 				}
 
 				if (!withinViewport)
@@ -110,6 +112,7 @@ public class Renderer3D extends Renderer {
 
 				if (faceIndex > 4998)
 					faceIndex = 4998;
+				
 				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
 						vertexCount, distance, obj.faceColors[currentFace]);
 			}
@@ -135,7 +138,7 @@ public class Renderer3D extends Renderer {
 		double absVertX = objBaseX + vertX;
 		double absVertY = objBaseY + vertY;
 		double absVertZ = objBaseZ + vertZ;
-
+		System.out.println(absVertX + " " + absVertY + " " + absVertZ);
 		absVertX -= focusX;
 		absVertY -= focusY;
 		absVertZ -= focusZ;
@@ -147,25 +150,25 @@ public class Renderer3D extends Renderer {
 
 		/* Rotation about X axis -- Camera Pitch */
 
-		double rotatedAbsVertY = (absVertY * pitchCos - rotated_Y_AbsVertZ
+		double rotated_X_AbsVertY = (absVertY * pitchCos - rotated_Y_AbsVertZ
 				* pitchSin);
-		double rotatedAbsVertZ = (absVertY * pitchSin + rotated_Y_AbsVertZ
+		double rotated_X_AbsVertZ = (absVertY * pitchSin + rotated_Y_AbsVertZ
 				* pitchCos);
 
 		rotated_Y_AbsVertX += focusX;
-		rotatedAbsVertY += focusY;
-		rotatedAbsVertZ += focusZ;
+		rotated_X_AbsVertY += focusY;
+		rotated_X_AbsVertZ += focusZ;
 
 		return new double[] { rotated_Y_AbsVertX - cameraX,
-				rotatedAbsVertY - cameraY, rotatedAbsVertZ - cameraZ };
+				rotated_X_AbsVertY - cameraY, rotated_X_AbsVertZ - cameraZ };
 	}
 
 	public int[] worldToScreen(double transX, double transY, double transZ) {
 		int[] ret = new int[2];
 		int sW = GameFrame.WIDTH / 2, sH = GameFrame.HEIGHT / 2;
+		
 		ret[0] = sW + (int) (sW * transX / transZ);
 		ret[1] = sH - (int) (sH * transY / transZ);
-
 		return ret;
 	}
 

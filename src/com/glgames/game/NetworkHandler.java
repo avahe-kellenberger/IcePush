@@ -63,7 +63,7 @@ public class NetworkHandler {
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
 				KeyHandler.isMoving = false;
-				if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
+				if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 					GameObjects.players = new Player2D[50];
 				else
 					GameObjects.players = new Player3D[50];
@@ -101,7 +101,7 @@ public class NetworkHandler {
 					x = pbuf.readShort();
 					y = pbuf.readShort();
 					int deaths = pbuf.readShort();
-					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
 						p2 = new Player2D(type == TREE ? "images/tree.png"
 								: "images/snowman.png", type);
 						p2.x = x;
@@ -127,7 +127,7 @@ public class NetworkHandler {
 					x = pbuf.readShort();
 					y = pbuf.readShort();
 
-					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
 						p2 = (Player2D) GameObjects.players[id];
 						if (p2 == null) { // ???????????????
 							System.out.println("null player tried to move??? "
@@ -152,7 +152,7 @@ public class NetworkHandler {
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
-					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
 						p2 = (Player2D) GameObjects.players[id];
 						p2.bubbleAlpha = 1.0f;
 						p2.deaths = pbuf.readByte();
@@ -174,7 +174,7 @@ public class NetworkHandler {
 					break;
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();
-					if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D) {
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
 						p2 = (Player2D) GameObjects.players[id];
 						if (p2 == null) { // ???????????????
 							System.out

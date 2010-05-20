@@ -70,12 +70,15 @@ public class GameEngine {
 		if(!stable)
 			return;
 		
-		if (GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
+		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			((Renderer2D) frame.renderer)
 					.renderScene((Object2D[]) GameObjects.players);
-		else
+		else if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 			((Renderer3D) frame.renderer)
 					.renderScene((Object3D[]) GameObjects.players);
+		//else
+		//	((RendererGL) frame.renderer)
+		//			.renderScene((Object3D[]) GameObjects.players);
 	}
 
 	private static void diedLoop() {

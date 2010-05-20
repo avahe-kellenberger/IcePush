@@ -11,19 +11,32 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 
-public abstract class Renderer extends Canvas {
+public abstract class Renderer {
 	private static final long serialVersionUID = 1L;
 
 	public static String message = "Select a server and username.";
 
+	protected Canvas canvas;
 	protected Image backbuffer;
 	protected Graphics outgfx;
 	protected Graphics bg;
-
+	
+	public Renderer(Canvas c) {
+		canvas = c;
+		canvas.setFocusTraversalKeysEnabled(false);
+		canvas.addKeyListener(new KeyHandler());
+		canvas.addMouseListener(new MouseHandler());
+	}
+	
 	public void initGraphics() {
-		backbuffer = createImage(getWidth(), getHeight());
-		outgfx = getGraphics();
+		backbuffer = canvas.createImage(canvas.getWidth(), canvas.getHeight());
+		outgfx = canvas.getGraphics();
 		bg = backbuffer.getGraphics();
+		canvas.requestFocus();
+	}
+	
+	public Canvas getCanvas() {
+		return canvas;
 	}
 
 	public void drawLoadingBar(String s, int p) {
@@ -102,7 +115,7 @@ public abstract class Renderer extends Canvas {
 
 	public void clearScreen() {
 		bg.setColor(Color.BLACK);
-		bg.fillRect(0, 0, getWidth(), getHeight());
+		bg.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 	}
 
 	public void swapBuffers() {
@@ -117,7 +130,7 @@ public abstract class Renderer extends Canvas {
 		if(mode == GameObjects.GRAPHICS_MODE)
 			return;
 		
-		if(mode == GameObjects.THREE_D) {
+		if(mode == GameObjects.SOFTWARE_3D || mode == GameObjects.HARDWARE_3D) {
 			Player2D[] oldplayers = (Player2D[]) GameObjects.players;
 			Object2D[] oldscenery = (Object2D[]) GameObjects.scenery;
 			
@@ -146,14 +159,22 @@ public abstract class Renderer extends Canvas {
 			
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
-			
-			Renderer3D r = new Renderer3D();
-			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
-					(int) newplayers[NetworkHandler.id].baseZ);
+			Renderer r;
+			if(mode == GameObjects.SOFTWARE_3D) {
+				r = new Renderer3D();
+				((Renderer3D) r).focusCamera((int) newplayers[NetworkHandler.id].baseX,
+						(int) newplayers[NetworkHandler.id].baseZ);
+			} else {
+				//try {
+				//	r = new RendererGL();
+				//} catch (Exception e) {
+					r = null;
+				//}
+			}
+
 			GameEngine.frame.setRenderer(r);
-			
-			GameObjects.GRAPHICS_MODE = GameObjects.THREE_D;
-		} else if(mode == GameObjects.TWO_D) {
+			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
+		} else if(mode == GameObjects.SOFTWARE_2D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
 			Object3D[] oldscenery = (Object3D[]) GameObjects.scenery;
 			
@@ -188,7 +209,7 @@ public abstract class Renderer extends Canvas {
 			GameObjects.scenery = newscenery;
 			
 			GameEngine.frame.setRenderer(new Renderer2D());
-			GameObjects.GRAPHICS_MODE = GameObjects.TWO_D;
+			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
 		} else throw new IllegalStateException("wtf");
 	}
 	

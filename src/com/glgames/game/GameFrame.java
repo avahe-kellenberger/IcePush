@@ -26,40 +26,33 @@ public class GameFrame extends JFrame {
 			}
 		});
 		
-		if(GameObjects.GRAPHICS_MODE == GameObjects.TWO_D)
+		if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			renderer = new Renderer2D();
 		else
 			renderer = new Renderer3D();
-
-		renderer.setFocusTraversalKeysEnabled(false);
-		renderer.addKeyListener(new KeyHandler());
-		renderer.addMouseListener(new MouseHandler());
 		
-		add(renderer);
+		add(renderer.getCanvas());
 		setSize(GameFrame.WIDTH, GameFrame.HEIGHT);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);
 		
 		renderer.initGraphics();
-		renderer.requestFocus();
 	}
 
 	public void setRenderer(final Renderer r) {
+		if(r == null)
+			throw new IllegalStateException("wtf");
 		GameEngine.stable = false;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				if(renderer != null)
-					remove(renderer);
-				r.setFocusTraversalKeysEnabled(false);
-				r.addKeyListener(new KeyHandler());
-				r.addMouseListener(new MouseHandler());
+					remove(renderer.getCanvas());
 				
-				add(r);
+				add(r.getCanvas());
 				validate();
 				
 				r.initGraphics();
-				r.requestFocus();
 				
 				renderer = r;
 				GameEngine.buffGraphics = r.getBufferGraphics();

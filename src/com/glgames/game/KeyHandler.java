@@ -54,26 +54,26 @@ public class KeyHandler extends BugfixKeyListener {
 				NetworkHandler.ping();
 				break;
 			case KeyEvent.VK_W:
-				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 					((Renderer3D) GameEngine.frame.renderer).pitch -= 5;
 				break;
 			case KeyEvent.VK_A:
-				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 					((Renderer3D) GameEngine.frame.renderer).yaw -= 5;
 				break;
 			case KeyEvent.VK_S:
-				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 					((Renderer3D) GameEngine.frame.renderer).pitch += 5;
 				break;
 			case KeyEvent.VK_D:
-				if(GameObjects.GRAPHICS_MODE == GameObjects.THREE_D)
+				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 					((Renderer3D) GameEngine.frame.renderer).yaw += 5;
 				break;
 			case KeyEvent.VK_2:
-				Renderer.switchMode(GameObjects.TWO_D);
+				Renderer.switchMode(GameObjects.SOFTWARE_2D);
 				break;
 			case KeyEvent.VK_3:
-				Renderer.switchMode(GameObjects.THREE_D);
+				Renderer.switchMode(GameObjects.SOFTWARE_3D);
 				break;
 		}
 		
