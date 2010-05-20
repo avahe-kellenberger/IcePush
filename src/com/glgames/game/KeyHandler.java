@@ -16,7 +16,7 @@ public class KeyHandler extends BugfixKeyListener {
 			System.out.println("key pressed");
 		int moveDir = -1;
 
-		if(GameEngine.state == GameEngine.WELCOME) {
+		if(IcePush.state == IcePush.WELCOME) {
 			int code = e.getKeyCode();
 			if(code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
 				if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
@@ -24,7 +24,7 @@ public class KeyHandler extends BugfixKeyListener {
 					GameObjects.usernameBox.toggleFocused();
 				}
 			} else if(code == KeyEvent.VK_ESCAPE) {
-				GameEngine.running = false;
+				IcePush.running = false;
 			} else {
 				if(GameObjects.serverBox.isFocused())
 					GameObjects.serverBox.append(e.getKeyChar());
@@ -33,7 +33,7 @@ public class KeyHandler extends BugfixKeyListener {
 			}
 		} else switch (e.getKeyCode()) {
 			case KeyEvent.VK_ESCAPE:
-				GameEngine.running = false;
+				IcePush.running = false;
 				break;
 			case KeyEvent.VK_Q:
 				NetworkHandler.logOut();
@@ -55,19 +55,19 @@ public class KeyHandler extends BugfixKeyListener {
 				break;
 			case KeyEvent.VK_W:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) GameEngine.frame.renderer).pitch -= 5;
+					((Renderer3D) IcePush.frame.renderer).pitch -= 5;
 				break;
 			case KeyEvent.VK_A:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) GameEngine.frame.renderer).yaw -= 5;
+					((Renderer3D) IcePush.frame.renderer).yaw -= 5;
 				break;
 			case KeyEvent.VK_S:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) GameEngine.frame.renderer).pitch += 5;
+					((Renderer3D) IcePush.frame.renderer).pitch += 5;
 				break;
 			case KeyEvent.VK_D:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) GameEngine.frame.renderer).yaw += 5;
+					((Renderer3D) IcePush.frame.renderer).yaw += 5;
 				break;
 			case KeyEvent.VK_2:
 				Renderer.switchMode(GameObjects.SOFTWARE_2D);

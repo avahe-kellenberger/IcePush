@@ -1,6 +1,6 @@
 package com.glgames.game;
 
-import static com.glgames.shared.Opcodes.BAD_VERSION;
+import static com.glgames.shared.Opcodes.*;/*BAD_VERSION;
 import static com.glgames.shared.Opcodes.END_MOVE;
 import static com.glgames.shared.Opcodes.KEEP_ALIVE;
 import static com.glgames.shared.Opcodes.LOGOUT;
@@ -15,7 +15,7 @@ import static com.glgames.shared.Opcodes.TOO_MANY_PL;
 import static com.glgames.shared.Opcodes.TREE;
 import static com.glgames.shared.Opcodes.USER_IN_USE;
 import static com.glgames.shared.Opcodes.VERSION;
-import static com.glgames.shared.Opcodes.PING;
+import static com.glgames.shared.Opcodes.PING;*/
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -67,7 +67,7 @@ public class NetworkHandler {
 					GameObjects.players = new Player2D[50];
 				else
 					GameObjects.players = new Player3D[50];
-				GameEngine.state = GameEngine.PLAY;
+				IcePush.state = IcePush.PLAY;
 			} else {
 				Renderer.message = "Invalid response from server.";
 			}
@@ -78,11 +78,11 @@ public class NetworkHandler {
 	}
 
 	public static void handlePackets() {
-		if (GameEngine.state == GameEngine.WELCOME)
+		if (IcePush.state == IcePush.WELCOME)
 			return;
 
 		if (!pbuf.synch()) {
-			GameEngine.state = GameEngine.WELCOME;
+			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Connection with server was lost";
 			return;
 		}
@@ -118,7 +118,7 @@ public class NetworkHandler {
 						GameObjects.players[id] = p3;
 
 						if (id == NetworkHandler.id)
-							((Renderer3D) GameEngine.frame.renderer)
+							((Renderer3D) IcePush.frame.renderer)
 									.focusCamera(x, y);
 					}
 					break;
@@ -146,7 +146,7 @@ public class NetworkHandler {
 						p3.baseX = x;
 						p3.baseZ = y;
 						if (id == NetworkHandler.id)
-							((Renderer3D) GameEngine.frame.renderer)
+							((Renderer3D) IcePush.frame.renderer)
 									.focusCamera(x, y);
 					}
 					break;
@@ -166,11 +166,11 @@ public class NetworkHandler {
 						p3.baseX = x;
 						p3.baseZ = y;
 						if (id == NetworkHandler.id)
-							((Renderer3D) GameEngine.frame.renderer)
+							((Renderer3D) IcePush.frame.renderer)
 									.focusCamera(x, y);
 					}
 					if (id == NetworkHandler.id)
-						GameEngine.state = GameEngine.DIED;
+						IcePush.state = IcePush.DIED;
 					break;
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();
@@ -205,7 +205,7 @@ public class NetworkHandler {
 	public static int moveID;
 
 	public static void sendMoveRequest(int dir) {
-		if (GameEngine.state != GameEngine.PLAY)
+		if (IcePush.state != IcePush.PLAY)
 			return;
 		try {
 			if (IcePush.DEBUG)
@@ -245,7 +245,7 @@ public class NetworkHandler {
 	}
 
 	public static void keepAlive() {
-		if (GameEngine.state == GameEngine.WELCOME)
+		if (IcePush.state == IcePush.WELCOME)
 			return;
 		if (pbuf == null)
 			return;
@@ -260,7 +260,7 @@ public class NetworkHandler {
 	}
 
 	public static void endMoveRequest() {
-		if (GameEngine.state != GameEngine.PLAY)
+		if (IcePush.state != IcePush.PLAY)
 			return;
 		try {
 			if (IcePush.DEBUG)
@@ -282,7 +282,7 @@ public class NetworkHandler {
 			pbuf.beginPacket(LOGOUT);
 			pbuf.closePacket();
 			pbuf.synch();
-			GameEngine.state = GameEngine.WELCOME;
+			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Select a server and username.";
 		} catch (Exception e) {
 			e.printStackTrace();
