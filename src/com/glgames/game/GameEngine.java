@@ -15,7 +15,7 @@ public class GameEngine {
 	public static transient boolean stable = true;
 
 	public static GameFrame frame;
-	private static Graphics buffGraphics;
+	public static Graphics buffGraphics;
 	public static int cycle;
 	public static int lastDied;
 

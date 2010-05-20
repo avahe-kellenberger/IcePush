@@ -62,6 +62,7 @@ public class GameFrame extends JFrame {
 				r.requestFocus();
 				
 				renderer = r;
+				GameEngine.buffGraphics = r.getBufferGraphics();
 				GameEngine.stable = true;
 				System.out.println("Graphics mode set to " + GameObjects.GRAPHICS_MODE);
 			}
