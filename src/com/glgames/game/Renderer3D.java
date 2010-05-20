@@ -10,7 +10,6 @@ public class Renderer3D extends Renderer {
 	public Renderer3D() {
 		super(new Canvas());
 		faceArray = new Face[5000];
-		
 		cameraY = 100;
 	}
 
@@ -138,7 +137,7 @@ public class Renderer3D extends Renderer {
 		double absVertX = objBaseX + vertX;
 		double absVertY = objBaseY + vertY;
 		double absVertZ = objBaseZ + vertZ;
-		System.out.println(absVertX + " " + absVertY + " " + absVertZ);
+		// System.out.println(absVertX + " " + absVertY + " " + absVertZ);
 		absVertX -= focusX;
 		absVertY -= focusY;
 		absVertZ -= focusZ;

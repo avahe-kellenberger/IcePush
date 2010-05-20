@@ -26,14 +26,13 @@ public class IcePush extends Applet {
 	public static int cycle;
 	public static int lastDied;
 
-	
 	public static void main(String[] args) {
 		_init();
 		run();
 		cleanup();
 	}
-	
-	public static void _init() {							// AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		frame = new GameFrame();
 		instance = new IcePush();
 		frame.add(instance);
@@ -83,9 +82,9 @@ public class IcePush extends Applet {
 		// update positions and such
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
-		if(!stable)
+		if (!stable)
 			return;
-		
+
 		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			((Renderer2D) frame.renderer)
 					.renderScene((Object2D[]) GameObjects.players);

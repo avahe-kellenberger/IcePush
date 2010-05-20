@@ -20,21 +20,21 @@ public abstract class Renderer {
 	protected Image backbuffer;
 	protected Graphics outgfx;
 	protected Graphics bg;
-	
+
 	public Renderer(Canvas c) {
 		canvas = c;
 		canvas.setFocusTraversalKeysEnabled(false);
 		canvas.addKeyListener(new KeyHandler());
 		canvas.addMouseListener(new MouseHandler());
 	}
-	
+
 	public void initGraphics() {
-		backbuffer = canvas.createImage(canvas.getWidth(), canvas.getHeight());
 		outgfx = canvas.getGraphics();
+		backbuffer = canvas.createImage(canvas.getWidth(), canvas.getHeight());
 		bg = backbuffer.getGraphics();
 		canvas.requestFocus();
 	}
-	
+
 	public Canvas getCanvas() {
 		return canvas;
 	}
@@ -125,66 +125,57 @@ public abstract class Renderer {
 	public Graphics getBufferGraphics() {
 		return bg;
 	}
-	
+
 	public static void switchMode(int mode) {
-		if(mode == GameObjects.GRAPHICS_MODE)
+		if (mode == GameObjects.GRAPHICS_MODE)
 			return;
-		
-		if(mode == GameObjects.SOFTWARE_3D || mode == GameObjects.HARDWARE_3D) {
+
+		if (mode == GameObjects.SOFTWARE_3D || mode == GameObjects.HARDWARE_3D) {
 			Player2D[] oldplayers = (Player2D[]) GameObjects.players;
 			Object2D[] oldscenery = (Object2D[]) GameObjects.scenery;
-			
+
 			Player3D[] newplayers = new Player3D[oldplayers.length];
 			Object3D[] newscenery = new Object3D[oldscenery.length];
-			
-			for(int k = 0; k < oldplayers.length; k++) {
-				if(oldplayers[k] == null)
+
+			for (int k = 0; k < oldplayers.length; k++) {
+				if (oldplayers[k] == null)
 					continue;
-				
+
 				newplayers[k] = new Player3D(oldplayers[k].type);
 				newplayers[k].baseX = oldplayers[k].x;
 				newplayers[k].baseZ = oldplayers[k].y;
 				newplayers[k].username = oldplayers[k].username;
 				newplayers[k].deaths = oldplayers[k].deaths;
 			}
-			
-			for(int k = 0; k < oldscenery.length; k++) {
-				if(oldscenery[k] == null || oldscenery[k].type == -1)
+
+			for (int k = 0; k < oldscenery.length; k++) {
+				if (oldscenery[k] == null || oldscenery[k].type == -1)
 					continue;
-				
+
 				newscenery[k] = new Object3D(oldscenery[k].type);
 				newscenery[k].baseX = oldscenery[k].x;
 				newscenery[k].baseZ = oldscenery[k].y;
 			}
-			
+
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
-			Renderer r;
-			if(mode == GameObjects.SOFTWARE_3D) {
-				r = new Renderer3D();
-				((Renderer3D) r).focusCamera((int) newplayers[NetworkHandler.id].baseX,
-						(int) newplayers[NetworkHandler.id].baseZ);
-			} else {
-				//try {
-				//	r = new RendererGL();
-				//} catch (Exception e) {
-					r = null;
-				//}
-			}
+			Renderer3D r = new Renderer3D();
+			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
+					(int) newplayers[NetworkHandler.id].baseZ);
 
-			GameEngine.frame.setRenderer(r);
+			IcePush.frame.setRenderer(r);
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
-		} else if(mode == GameObjects.SOFTWARE_2D) {
+		} else if (mode == GameObjects.SOFTWARE_2D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
 			Object3D[] oldscenery = (Object3D[]) GameObjects.scenery;
-			
+
 			Player2D[] newplayers = new Player2D[oldplayers.length];
 			Object2D[] newscenery = new Object2D[oldscenery.length];
-			
-			for(int k = 0; k < oldplayers.length; k++) {
-				if(oldplayers[k] == null)
+
+			for (int k = 0; k < oldplayers.length; k++) {
+				if (oldplayers[k] == null)
 					continue;
-				
+
 				newplayers[k] = new Player2D(
 						oldplayers[k].type == TREE ? "images/tree.png"
 								: "images/snowman.png", oldplayers[k].type);
@@ -193,25 +184,26 @@ public abstract class Renderer {
 				newplayers[k].username = oldplayers[k].username;
 				newplayers[k].deaths = oldplayers[k].deaths;
 			}
-			
-			for(int k = 0; k < oldscenery.length; k++) {
-				if(oldscenery[k] == null)
+
+			for (int k = 0; k < oldscenery.length; k++) {
+				if (oldscenery[k] == null)
 					continue;
-				
+
 				newscenery[k] = new Object2D(
 						oldscenery[k].type == TREE ? "images/tree.png"
 								: "images/snowman.png", oldscenery[k].type);
 				newscenery[k].x = (int) oldscenery[k].baseX;
 				newscenery[k].y = (int) oldscenery[k].baseZ;
 			}
-			
+
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
-			
-			GameEngine.frame.setRenderer(new Renderer2D());
+
+			IcePush.frame.setRenderer(new Renderer2D());
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
 		} else throw new IllegalStateException("wtf");
+		System.out.println("Graphics mode set to " + GameObjects.GRAPHICS_MODE);
 	}
-	
+
 	public abstract void drawDebug();
 }

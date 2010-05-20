@@ -2,8 +2,9 @@ package com.glgames.game;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
+import java.awt.Frame;
 
-public class GameFrame extends java.awt.Frame {
+public class GameFrame extends Frame {
 	private static final long serialVersionUID = 1L;
 
 	public Renderer renderer;
@@ -24,7 +25,6 @@ public class GameFrame extends java.awt.Frame {
 
 		add(renderer.getCanvas());
 		setSize(GameFrame.WIDTH, GameFrame.HEIGHT);
-		// setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);
 
@@ -37,17 +37,14 @@ public class GameFrame extends java.awt.Frame {
 			public void run() {
 				if (renderer != null)
 					remove(renderer.getCanvas());
-
+				
 				add(r.getCanvas());
 				validate();
 
-				r.initGraphics();
-
 				renderer = r;
+				r.initGraphics();
 				IcePush.buffGraphics = r.getBufferGraphics();
 				IcePush.stable = true;
-				System.out.println("Graphics mode set to "
-						+ GameObjects.GRAPHICS_MODE);
 			}
 		});
 	}
