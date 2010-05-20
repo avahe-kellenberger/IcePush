@@ -9,7 +9,7 @@ public class GameObjects {
 	
 	public static final int TWO_D = 0;
 	public static final int THREE_D = 1;
-	public static int GRAPHICS_MODE = THREE_D;
+	public static int GRAPHICS_MODE = TWO_D;
 	
 	public static String[] instructions;
 	public static BufferedImage logo;
