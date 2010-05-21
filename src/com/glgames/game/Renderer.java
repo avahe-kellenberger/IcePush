@@ -29,9 +29,9 @@ public abstract class Renderer {
 	}
 
 	public void initGraphics() {
-		outgfx = canvas.getGraphics();
 		backbuffer = canvas.createImage(canvas.getWidth(), canvas.getHeight());
 		bg = backbuffer.getGraphics();
+		outgfx = canvas.getGraphics();
 		canvas.requestFocus();
 	}
 
@@ -119,6 +119,8 @@ public abstract class Renderer {
 	}
 
 	public void swapBuffers() {
+		if (outgfx == null || backbuffer == null)
+			return;
 		outgfx.drawImage(backbuffer, 0, 0, null);
 	}
 
@@ -163,7 +165,8 @@ public abstract class Renderer {
 			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
 					(int) newplayers[NetworkHandler.id].baseZ);
 
-			IcePush.frame.setRenderer(GameObjects.SOFTWARE_3D);
+			IcePush.frame.setRenderer(r);
+			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
 		} else if (mode == GameObjects.SOFTWARE_2D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
 			Object3D[] oldscenery = (Object3D[]) GameObjects.scenery;
@@ -198,8 +201,10 @@ public abstract class Renderer {
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
 
-			IcePush.frame.setRenderer(GameObjects.SOFTWARE_2D);
-		} else throw new IllegalStateException("wtf");
+			IcePush.frame.setRenderer(new Renderer2D());
+			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
+		} else
+			throw new IllegalStateException("wtf");
 		System.out.println("Graphics mode set to " + GameObjects.GRAPHICS_MODE);
 	}
 

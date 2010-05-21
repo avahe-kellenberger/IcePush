@@ -13,12 +13,11 @@ public class Renderer3D extends Renderer {
 		cameraY = 100;
 	}
 
-	public void renderScene(Object3D objArray[]) {
-		Object3D[] total = new Object3D[objArray.length
-				+ GameObjects.scenery.length];
+	public void renderScene(Object3D objArray[], Object3D[] scenery) {
+		Object3D[] total = new Object3D[objArray.length + scenery.length];
 		System.arraycopy(objArray, 0, total, 0, objArray.length - 1);
-		System.arraycopy(GameObjects.scenery, 0, total, objArray.length + 1,
-				GameObjects.scenery.length - 1);
+		System.arraycopy(scenery, 0, total, objArray.length + 1,
+				scenery.length - 1);
 		doRender(total);
 	}
 	
@@ -126,6 +125,8 @@ public class Renderer3D extends Renderer {
 	}
 
 	public void drawDebug() {
+		if(bg == null)
+			return;
 		bg.setColor(Color.white);
 		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
 		bg.drawString("3D Renderer - Camera X: " + cameraX + ", Y: " + cameraY + ", Z: "

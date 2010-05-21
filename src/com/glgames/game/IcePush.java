@@ -62,7 +62,6 @@ public class IcePush extends Applet {
 					diedLoop();
 				}
 			}
-			frame.renderer.drawDebug();
 			frame.renderer.swapBuffers();
 			cycle++;
 
@@ -89,8 +88,10 @@ public class IcePush extends Applet {
 			((Renderer2D) frame.renderer)
 					.renderScene((Object2D[]) GameObjects.players);
 		else
-			((Renderer3D) frame.renderer)
-					.renderScene((Object3D[]) GameObjects.players);
+			((Renderer3D) frame.renderer).renderScene(
+					(Object3D[]) GameObjects.players,
+					(Object3D[]) GameObjects.scenery);
+		frame.renderer.drawDebug();
 	}
 
 	private static void diedLoop() {

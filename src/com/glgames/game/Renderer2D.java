@@ -26,7 +26,7 @@ public class Renderer2D extends Renderer {
 		g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
 		g.setPaint(GameObjects.foreground);
 		g.fillRect(rect.x, rect.y, rect.width, rect.height);
-
+		
 		for (int k = 0; k < objects.length; k++) {
 			Object2D p = objects[k];
 			if (p == null)
