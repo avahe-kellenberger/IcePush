@@ -22,18 +22,10 @@ public class Renderer3D extends Renderer {
 	}
 	
 	private void doRender(Object3D[] objArray) {
-		double objBaseX, objBaseY, objBaseZ;
-
 		faceIndex = 0;
-
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
-			
-			objBaseX = obj.baseX;
-			objBaseY = obj.baseY;
-			objBaseZ = obj.baseZ;
-
 			double yawRad = Math.toRadians(((double) yaw) + obj.rotationY);
 			yawSin = Math.sin(yawRad);
 			yawCos = Math.cos(yawRad);
@@ -41,29 +33,11 @@ public class Renderer3D extends Renderer {
 			double pitchRad = Math.toRadians(((double) pitch) + obj.rotationX);
 			pitchSin = Math.sin(pitchRad);
 			pitchCos = Math.cos(pitchRad);
-
-			for (int i = 0; i < obj.vertexCount; i++) {
-				double[] transformed = transformPoint(objBaseX, objBaseY,
-						objBaseZ, obj.vertX[i], obj.vertY[i], obj.vertZ[i]);
-
-				obj.vertXRelCam[i] = transformed[0];
-				obj.vertYRelCam[i] = transformed[1];
-				obj.vertZRelCam[i] = transformed[2];
-				
-				int[] screen = worldToScreen(obj.vertXRelCam[i],
-						obj.vertYRelCam[i], obj.vertZRelCam[i]);
-				
-				obj.screenX[i] = screen[0];
-				obj.screenY[i] = screen[1];
-			}
-
+			
 			int vertexCount;
-
-			// faceLoop:
-			// Number of faces this object has
+			
 			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
 				boolean withinViewport = false;
-
 				if (obj.faceVertices[currentFace] == null)
 					continue;
 
@@ -80,12 +54,29 @@ public class Renderer3D extends Renderer {
 				for (int currentVertex = 0; currentVertex < vertexCount; currentVertex++) {
 					int vertexID = obj.faceVertices[currentFace][currentVertex];
 
+					double[] transformed = transformPoint(obj.baseX, obj.baseY,
+							obj.baseZ, obj.vertX[vertexID], obj.vertY[vertexID], obj.vertZ[vertexID]);
+
+					obj.vertXRelCam[vertexID] = transformed[0];
+					obj.vertYRelCam[vertexID] = transformed[1];
+					obj.vertZRelCam[vertexID] = transformed[2];
+					
+					int[] screen = worldToScreen(obj.vertXRelCam[vertexID],
+							obj.vertYRelCam[vertexID], obj.vertZRelCam[vertexID]);
+					
+					obj.screenX[vertexID] = screen[0];
+					obj.screenY[vertexID] = screen[1];
+					
 					faceCenterX += obj.vertXRelCam[vertexID];
 					faceCenterY += obj.vertYRelCam[vertexID];
 					faceCenterZ += obj.vertZRelCam[vertexID];
-
-					if (obj.vertZRelCam[vertexID] <= 0)
-						continue;
+					
+					if (obj.vertZRelCam[vertexID] <= 0) {
+						// clip the polygon
+						for (int k = 0; k < vertexCount; k++) {
+							
+						}
+					}
 					
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
@@ -163,12 +154,12 @@ public class Renderer3D extends Renderer {
 				rotated_X_AbsVertY - cameraY, rotated_X_AbsVertZ - cameraZ };
 	}
 
-	public int[] worldToScreen(double transX, double transY, double transZ) {
+	public int[] worldToScreen(double x, double y, double z) {
 		int[] ret = new int[2];
 		int sW = GameFrame.WIDTH / 2, sH = GameFrame.HEIGHT / 2;
 		
-		ret[0] = sW + (int) (sW * transX / transZ);
-		ret[1] = sH - (int) (sH * transY / transZ);
+		ret[0] = sW + (int) (sW * x / z);
+		ret[1] = sH - (int) (sH * y / z);
 		return ret;
 	}
 

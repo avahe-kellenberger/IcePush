@@ -21,6 +21,11 @@ public class Object3D extends GameObject {
 	public double vertXRelCam[];
 	public double vertYRelCam[];
 	public double vertZRelCam[];
+	
+	public double clippedX[];
+	public double clippedY[];
+	public double clippedZ[];
+	
 	public double rotationY;
 	public double rotationX;
 	
@@ -44,6 +49,10 @@ public class Object3D extends GameObject {
 		vertXRelCam = new double[50];
 		vertYRelCam = new double[50];
 		vertZRelCam = new double[50];
+		
+		clippedX = new double[50];
+		clippedY = new double[50];
+		clippedZ = new double[50];
 	}
 
 	public void putVertex(double x, double y, double z) {
@@ -71,6 +80,10 @@ public class Object3D extends GameObject {
 		vertXRelCam = new double[vertexCount];
 		vertYRelCam = new double[vertexCount];
 		vertZRelCam = new double[vertexCount];
+		
+		clippedX = new double[vertexCount];
+		clippedY = new double[vertexCount];
+		clippedZ = new double[vertexCount];
 	}
 	
 
@@ -144,6 +157,10 @@ public class Object3D extends GameObject {
 
 		screenX = new int[vertexCount];
 		screenY = new int[vertexCount];
+		
+		clippedX = new double[vertexCount];
+		clippedY = new double[vertexCount];
+		clippedZ = new double[vertexCount];
 	}
 
 	public Object3D(int type) {
@@ -164,6 +181,10 @@ public class Object3D extends GameObject {
 		vertXRelCam = new double[vertexCount];
 		vertYRelCam = new double[vertexCount];
 		vertZRelCam = new double[vertexCount];
+		
+		clippedX = new double[vertexCount];
+		clippedY = new double[vertexCount];
+		clippedZ = new double[vertexCount];
 	}
 
 	private static Color scaleColor(Color c, double scale) {
@@ -223,7 +244,6 @@ public class Object3D extends GameObject {
             putVertex(-s, 0, s);
             faceVertices = new int[][] { { 0, 1, 2, 3 } };
             faceColors = new Color[] { new Color(200, 255, 255) };
-
 		}
 	}
 }

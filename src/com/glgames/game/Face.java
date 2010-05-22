@@ -29,5 +29,4 @@ public class Face implements Comparable<Face> {
 	private final double distance;
 	private final Color color;
 	// private int centerDrawX, centerDrawY;
-
 }
