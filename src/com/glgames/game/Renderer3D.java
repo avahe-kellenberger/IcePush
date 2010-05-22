@@ -35,7 +35,7 @@ public class Renderer3D extends Renderer {
 			pitchCos = Math.cos(pitchRad);
 			
 			int vertexCount;
-			
+			face:
 			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
 				boolean withinViewport = false;
 				if (obj.faceVertices[currentFace] == null)
@@ -71,12 +71,8 @@ public class Renderer3D extends Renderer {
 					faceCenterY += obj.vertYRelCam[vertexID];
 					faceCenterZ += obj.vertZRelCam[vertexID];
 					
-					if (obj.vertZRelCam[vertexID] <= 0) {
-						// clip the polygon
-						for (int k = 0; k < vertexCount; k++) {
-							
-						}
-					}
+					if (obj.vertZRelCam[vertexID] <= 0)
+						continue face;
 					
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
