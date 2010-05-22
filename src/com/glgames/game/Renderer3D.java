@@ -65,6 +65,9 @@ public class Renderer3D extends Renderer {
 					obj.vertYRelCam[vertexID] = transformed[1];
 					obj.vertZRelCam[vertexID] = transformed[2];
 					
+					if(obj.vertZRelCam[vertexID] <= 0)
+						obj.vertZRelCam[vertexID] = 1;
+					
 					int[] screen = worldToScreen(obj.vertXRelCam[vertexID],
 							obj.vertYRelCam[vertexID], obj.vertZRelCam[vertexID]);
 					
@@ -75,8 +78,7 @@ public class Renderer3D extends Renderer {
 					faceCenterY += obj.vertYRelCam[vertexID];
 					faceCenterZ += obj.vertZRelCam[vertexID];
 					
-					if (obj.vertZRelCam[vertexID] <= 0)
-						continue face;
+					if (obj.vertZRelCam[vertexID] <= 0);
 					
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];

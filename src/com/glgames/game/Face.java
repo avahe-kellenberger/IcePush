@@ -20,7 +20,6 @@ public class Face implements Comparable<Face> {
 			((Graphics2D) g).setPaint(texture);
 		else
 			g.setColor(color);
-		System.out.println(((Graphics2D) g).getPaint());
 		g.fillPolygon(drawX, drawY, numPoints);
 		// Triangles.solidTriangle(drawX[0], drawY[0], drawX[1], drawY[1],
 		// 		drawX[2], drawY[2], color.getRGB());
