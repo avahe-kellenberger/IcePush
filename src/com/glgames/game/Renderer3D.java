@@ -161,7 +161,7 @@ public class Renderer3D extends Renderer {
 		int[] ret = new int[2];
 		int sW = GameFrame.WIDTH / 2, sH = GameFrame.HEIGHT / 2;
 		
-		ret[0] = sW + (int) (sW * x / z);
+		ret[0] = sW - (int) (sW * x / z);	// Fix for bug #433299297: Left and right are transposed
 		ret[1] = sH - (int) (sH * y / z);
 		return ret;
 	}
@@ -178,7 +178,7 @@ public class Renderer3D extends Renderer {
 	public double cameraY;
 	public double cameraZ;
 
-	public int pitch, yaw;
+	public int pitch = 325, yaw = 180;
 
 	public double focusX, focusY, focusZ;
 

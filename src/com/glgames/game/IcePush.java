@@ -4,7 +4,7 @@ import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class IcePush extends Applet {
+public class IcePush extends Applet implements Runnable {
 	private static final long serialVersionUID = 1L;
 
 	public static boolean DEBUG = false;
@@ -28,7 +28,7 @@ public class IcePush extends Applet {
 
 	public static void main(String[] args) {
 		_init();
-		run();
+		instance.run();
 		cleanup();
 	}
 
@@ -44,7 +44,8 @@ public class IcePush extends Applet {
 		}.start();
 	}
 
-	public static void run() {
+	public void run() {
+		Graphics g = getGraphics();
 		while (running) {
 			if (!GameObjects.loaded) {
 				buffGraphics.setColor(Color.black);
@@ -70,6 +71,7 @@ public class IcePush extends Applet {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			g.drawImage(frame.renderer.backbuffer, 0, 0, null);
 		}
 	}
 
