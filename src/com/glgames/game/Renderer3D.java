@@ -23,6 +23,10 @@ public class Renderer3D extends Renderer {
 	
 	private void doRender(Object3D[] objArray) {
 		faceIndex = 0;
+		while(pitch < 0) pitch += 360;
+		while(pitch > 360) pitch -= 360;
+		while(yaw < 0) yaw += 360;
+		while(yaw > 360) yaw -= 360;
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
@@ -99,7 +103,8 @@ public class Renderer3D extends Renderer {
 					faceIndex = 4998;
 				
 				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
-						vertexCount, distance, obj.faceColors[currentFace]);
+						vertexCount, distance, obj.faceColors[currentFace],
+						null);
 			}
 		}
 
