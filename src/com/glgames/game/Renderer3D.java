@@ -39,7 +39,6 @@ public class Renderer3D extends Renderer {
 			pitchCos = Math.cos(pitchRad);
 			
 			int vertexCount;
-			face:
 			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
 				boolean withinViewport = false;
 				if (obj.faceVertices[currentFace] == null)

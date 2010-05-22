@@ -19,6 +19,7 @@ public class Server implements Runnable {
 	
 	private boolean run = true;
 	private ServerSocket listener;
+	private Socket worldserver;
 
 	public Server(int port) {
 		try {
@@ -35,19 +36,13 @@ public class Server implements Runnable {
 					int type = s.getInputStream().read();
 					if(type == 0) // connecting client
 						loginPlayer(s);
-					else if(type == 1) { // list players
-						int count = 0;
-						for(Player p : players)
-							if(p != null)
-								count++;
-						System.out.println("Number of players requested: sending " + count);
-						s.getOutputStream().write(count);
-						s.getOutputStream().flush();
-						s.close();
+					else if(type == 1) { // connecting worldserver
+						worldserver = s;
 					}
 				}
 				updatePlayers();
-
+				if(worldserver != null)
+					checkPlayerCountRequest();
 				try {
 					Thread.sleep(30);
 				} catch (Exception e) {
@@ -56,6 +51,20 @@ public class Server implements Runnable {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void checkPlayerCountRequest() throws Exception {
+		InputStream in = worldserver.getInputStream();
+		OutputStream out = worldserver.getOutputStream();
+		if(in.available() > 0 && in.read() == 0) {
+			int count = 0;
+			for(Player p : players)
+				if(p != null)
+					count++;
+			System.out.println("Number of players requested: sending " + count);
+			out.write(count);
+			out.flush();
 		}
 	}
 

@@ -24,6 +24,8 @@ public class WorldServer implements Runnable {
 		for(String s : LIST) {
 			try {
 				Socket sock = new Socket(s, 2345);
+				sock.getOutputStream().write(1);
+				sock.getOutputStream().flush();
 				sockets.put(s, sock);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -35,7 +37,7 @@ public class WorldServer implements Runnable {
 					int num;
 					try {
 						Socket check = sockets.get(svr);
-						check.getOutputStream().write(1); // get num players
+						check.getOutputStream().write(0); // get num players
 						num = check.getInputStream().read();
 					} catch (Exception e) {
 						System.out
