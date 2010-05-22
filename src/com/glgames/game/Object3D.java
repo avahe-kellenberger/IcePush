@@ -238,10 +238,10 @@ public class Object3D extends GameObject {
 	
 	public static class Plane extends Object3D {
 		public Plane(int s) {
-            putVertex(-s, 0, -s);
-            putVertex(s, 0, -s);
-            putVertex(s, 0, s);
-            putVertex(-s, 0, s);
+			putVertex(0, 0, 0);
+			putVertex(s, 0, 0);
+			putVertex(s, 0, s);
+			putVertex(0, 0, s);
             faceVertices = new int[][] { { 0, 1, 2, 3 } };
             faceColors = new Color[] { new Color(200, 255, 255) };
 		}
