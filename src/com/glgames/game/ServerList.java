@@ -39,7 +39,7 @@ public class ServerList {
 			width = getLongestStringWidth(g) + 50;
 		if(fontheight == 0)
 			fontheight = g.getFontMetrics().getHeight();
-		int x = GameFrame.WIDTH / 2 - width / 2;
+		int x = IcePush.WIDTH / 2 - width / 2;
 		g.setColor(Color.gray);
 		g.fill3DRect(x, y, width, servers.length * fontheight + 15, true);
 		int y = this.y + 10;
@@ -74,7 +74,7 @@ public class ServerList {
 	}
 	
 	public void processClick(int x, int y) {
-		int compx = GameFrame.WIDTH / 2 - width / 2;
+		int compx = IcePush.WIDTH / 2 - width / 2;
 		x -= compx;
 		y -= this.y + 10;
 		int index = y / fontheight;

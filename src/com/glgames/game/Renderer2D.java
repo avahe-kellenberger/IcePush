@@ -1,6 +1,6 @@
 package com.glgames.game;
 
-import java.awt.Canvas;
+import java.awt.Component;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -9,8 +9,8 @@ import java.awt.Rectangle;
 public class Renderer2D extends Renderer {
 	private static final long serialVersionUID = 1L;
 	
-	public Renderer2D() {
-		super(new Canvas());
+	public Renderer2D(Component c) {
+		super(c);
 	}
 
 	public void drawDebug() {
@@ -23,7 +23,7 @@ public class Renderer2D extends Renderer {
 		Graphics2D g = (Graphics2D) bg;
 		Rectangle rect = GameObjects.playingArea;
 		g.setPaint(GameObjects.background);
-		g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
+		g.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 		g.setPaint(GameObjects.foreground);
 		g.fillRect(rect.x, rect.y, rect.width, rect.height);
 		

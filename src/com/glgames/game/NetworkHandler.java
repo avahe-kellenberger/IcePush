@@ -118,7 +118,7 @@ public class NetworkHandler {
 						GameObjects.players[id] = p3;
 
 						if (id == NetworkHandler.id)
-							((Renderer3D) IcePush.frame.renderer)
+							((Renderer3D) IcePush.renderer)
 									.focusCamera(x, y);
 					}
 					break;
@@ -146,7 +146,7 @@ public class NetworkHandler {
 						p3.baseX = x;
 						p3.baseZ = y;
 						if (id == NetworkHandler.id)
-							((Renderer3D) IcePush.frame.renderer)
+							((Renderer3D) IcePush.renderer)
 									.focusCamera(x, y);
 					}
 					break;
@@ -166,7 +166,7 @@ public class NetworkHandler {
 						p3.baseX = x;
 						p3.baseZ = y;
 						if (id == NetworkHandler.id)
-							((Renderer3D) IcePush.frame.renderer)
+							((Renderer3D) IcePush.renderer)
 									.focusCamera(x, y);
 					}
 					if (id == NetworkHandler.id)

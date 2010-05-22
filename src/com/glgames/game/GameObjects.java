@@ -43,10 +43,10 @@ public class GameObjects {
 					"Try not to fall off!" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
-			serverBox = new TextBox(GameFrame.WIDTH / 2 - 85, 450, false, "Server: ", "strictfp.com");
-			usernameBox = new TextBox(GameFrame.WIDTH / 2 - 85, 480, true,
+			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 450, false, "Server: ", "strictfp.com");
+			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 480, true,
 					"Username:", "");
-			loginButton = new Rectangle(GameFrame.WIDTH / 2 - 50, 520, 100, 25);
+			loginButton = new Rectangle(IcePush.WIDTH / 2 - 50, 520, 100, 25);
 			
 			trySleep(300);
 			loadingMessage = "Loading players...";
@@ -62,8 +62,8 @@ public class GameObjects {
 			}
 			
 			int width = 400, height = 400;
-			int x = GameFrame.WIDTH / 2 - width / 2;
-			int y = GameFrame.HEIGHT / 2 - height / 2 - 45;
+			int x = IcePush.WIDTH / 2 - width / 2;
+			int y = IcePush.HEIGHT / 2 - height / 2 - 45;
 			playingArea = new Rectangle(x, y, width, height);
 
 			trySleep(400);

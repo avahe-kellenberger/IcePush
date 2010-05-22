@@ -1,14 +1,14 @@
 package com.glgames.game;
 
-import java.awt.Canvas;
+import java.awt.Component;
 import java.awt.Color;
 import java.awt.Font;
 
 public class Renderer3D extends Renderer {
 	private static final long serialVersionUID = 1L;
 	
-	public Renderer3D() {
-		super(new Canvas());
+	public Renderer3D(Component c) {
+		super(c);
 		faceArray = new Face[5000];
 		cameraY = 100;
 	}
@@ -82,8 +82,8 @@ public class Renderer3D extends Renderer {
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
 					
-					if (drawX >= 0 && drawX <= GameFrame.WIDTH && drawY >= 0
-							&& drawY <= GameFrame.HEIGHT)
+					if (drawX >= 0 && drawX <= IcePush.WIDTH && drawY >= 0
+							&& drawY <= IcePush.HEIGHT)
 						withinViewport = true;
 
 					drawXBuf[currentVertex] = drawX;
@@ -158,7 +158,7 @@ public class Renderer3D extends Renderer {
 
 	public int[] worldToScreen(double x, double y, double z) {
 		int[] ret = new int[2];
-		int sW = GameFrame.WIDTH / 2, sH = GameFrame.HEIGHT / 2;
+		int sW = IcePush.WIDTH / 2, sH = IcePush.HEIGHT / 2;
 		
 		ret[0] = sW - (int) (sW * x / z);	// Fix for bug #433299297: Left and right are transposed
 		ret[1] = sH - (int) (sH * y / z);

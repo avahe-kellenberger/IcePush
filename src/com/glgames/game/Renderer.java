@@ -2,7 +2,7 @@ package com.glgames.game;
 
 import static com.glgames.shared.Opcodes.TREE;
 
-import java.awt.Canvas;
+import java.awt.Component;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
@@ -16,12 +16,12 @@ public abstract class Renderer {
 
 	public static String message = "Select a server and username.";
 
-	protected Canvas canvas;
+	protected Component canvas;
 	protected Image backbuffer;
 	protected Graphics outgfx;
 	protected Graphics bg;
 
-	public Renderer(Canvas c) {
+	public Renderer(Component c) {
 		canvas = c;
 		canvas.setFocusTraversalKeysEnabled(false);
 		canvas.addKeyListener(new KeyHandler());
@@ -29,21 +29,21 @@ public abstract class Renderer {
 	}
 
 	public void initGraphics() {
-		backbuffer = canvas.createImage(canvas.getWidth(), canvas.getHeight());
+		backbuffer = canvas.createImage(IcePush.WIDTH, IcePush.HEIGHT);
 		bg = backbuffer.getGraphics();
 		outgfx = canvas.getGraphics();
 		canvas.requestFocus();
 	}
 
-	public Canvas getCanvas() {
+	public Component getCanvas() {
 		return canvas;
 	}
 
 	public void drawLoadingBar(String s, int p) {
-		int width = 400, height = 30, x = GameFrame.WIDTH / 2 - width / 2;
+		int width = 400, height = 30, x = IcePush.WIDTH / 2 - width / 2;
 
 		bg.setColor(Color.cyan);
-		bg.drawRect(x, GameFrame.HEIGHT / 2 - height / 2, width, height);
+		bg.drawRect(x, IcePush.HEIGHT / 2 - height / 2, width, height);
 
 		x += 2;
 		if (p == -1)
@@ -56,11 +56,11 @@ public abstract class Renderer {
 			bg.setColor(new Color(150, 0, 0));
 		else
 			bg.setColor(new Color(0, 0, 150));
-		bg.fillRect(x, GameFrame.HEIGHT / 2 - height / 2, width, height);
+		bg.fillRect(x, IcePush.HEIGHT / 2 - height / 2, width, height);
 
-		x = GameFrame.WIDTH / 2 - bg.getFontMetrics().stringWidth(s) / 2;
+		x = IcePush.WIDTH / 2 - bg.getFontMetrics().stringWidth(s) / 2;
 		bg.setColor(Color.white);
-		bg.drawString(s, x, GameFrame.HEIGHT / 2
+		bg.drawString(s, x, IcePush.HEIGHT / 2
 				- bg.getFontMetrics().getHeight() / 2 + 12);
 	}
 
@@ -72,7 +72,7 @@ public abstract class Renderer {
 
 		Color col = new Color(0, green, blue);
 		bg.setColor(col);
-		bg.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
+		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 		bg.drawImage(GameObjects.logo, 50, 50, null);
 
 		bg.setColor(Color.white);
@@ -81,12 +81,12 @@ public abstract class Renderer {
 		int y = 190;
 		for (String s : GameObjects.instructions) {
 			w = bg.getFontMetrics().stringWidth(s);
-			bg.drawString(s, GameFrame.WIDTH / 2 - w / 2, y += 30);
+			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
 		}
 
 		bg.setColor(Color.white);
 		w = bg.getFontMetrics().stringWidth(message);
-		bg.drawString(message, GameFrame.WIDTH / 2 - w / 2, 310);
+		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, 310);
 
 		if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
 			GameObjects.serverBox.draw(bg);
@@ -105,12 +105,12 @@ public abstract class Renderer {
 	public void drawDiedScreen(int l) {
 		int alpha = (int) ((l / 50.0d) * 255.0d);
 		bg.setColor(new Color(0, 0, 0, alpha));
-		bg.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
+		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 		((Graphics2D) bg).setPaint(new GradientPaint(200, 200, new Color(0,
 				255, 0), 400, 400, new Color(0, 0, 255)));
 		bg.setFont(new Font("Arial Black", Font.PLAIN, 36));
-		bg.drawString("TRY AGAIN", GameFrame.WIDTH / 2 - 110,
-				GameFrame.HEIGHT / 2);
+		bg.drawString("TRY AGAIN", IcePush.WIDTH / 2 - 110,
+				IcePush.HEIGHT / 2);
 	}
 
 	public void clearScreen() {
@@ -128,7 +128,7 @@ public abstract class Renderer {
 		return bg;
 	}
 
-	public static void switchMode(int mode) {
+	public void switchMode(int mode) {
 		if (mode == GameObjects.GRAPHICS_MODE)
 			return;
 
@@ -161,11 +161,11 @@ public abstract class Renderer {
 
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
-			Renderer3D r = new Renderer3D();
+			Renderer3D r = new Renderer3D(canvas);
 			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
 					(int) newplayers[NetworkHandler.id].baseZ);
 
-			IcePush.frame.setRenderer(r);
+			IcePush.renderer = r;
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
 		} else if (mode == GameObjects.SOFTWARE_2D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
@@ -201,7 +201,7 @@ public abstract class Renderer {
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
 
-			IcePush.frame.setRenderer(new Renderer2D());
+			IcePush.renderer = new Renderer2D(canvas);
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
 		} else
 			throw new IllegalStateException("wtf");

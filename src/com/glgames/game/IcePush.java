@@ -3,6 +3,7 @@ package com.glgames.game;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Dimension;
 
 public class IcePush extends Applet implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -21,10 +22,15 @@ public class IcePush extends Applet implements Runnable {
 	public static boolean running = true;
 	public static transient boolean stable = true;
 
+	public static final int WIDTH = 450;
+	public static final int HEIGHT = 600;
+
 	public static GameFrame frame;
 	public static Graphics buffGraphics;
 	public static int cycle;
 	public static int lastDied;
+
+	public static Renderer renderer;
 
 	public static void main(String[] args) {
 		_init();
@@ -33,10 +39,17 @@ public class IcePush extends Applet implements Runnable {
 	}
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-		frame = new GameFrame();
 		instance = new IcePush();
+		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
+			renderer = new Renderer2D(instance);
+		else
+			renderer = new Renderer3D(instance);
+		frame = new GameFrame();
 		frame.add(instance);
-		buffGraphics = frame.renderer.getBufferGraphics();
+		buffGraphics = renderer.getBufferGraphics();
+		//instance.add(renderer.canvas);
+		renderer.initGraphics();
+		buffGraphics = renderer.bg;
 		new Thread() {
 			public void run() {
 				GameObjects.load();
@@ -49,12 +62,12 @@ public class IcePush extends Applet implements Runnable {
 		while (running) {
 			if (!GameObjects.loaded) {
 				buffGraphics.setColor(Color.black);
-				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
-				frame.renderer.drawLoadingBar(GameObjects.loadingMessage,
+				buffGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+				renderer.drawLoadingBar(GameObjects.loadingMessage,
 						GameObjects.loadingPercent);
 			} else {
 				buffGraphics.setColor(Color.black);
-				buffGraphics.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
+				buffGraphics.fillRect(0, 0, WIDTH, HEIGHT);
 				if (state == WELCOME) {
 					titleLoop();
 				} else if (state == PLAY) {
@@ -63,7 +76,7 @@ public class IcePush extends Applet implements Runnable {
 					diedLoop();
 				}
 			}
-			frame.renderer.swapBuffers();
+			renderer.swapBuffers();
 			cycle++;
 
 			try {
@@ -71,12 +84,12 @@ public class IcePush extends Applet implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			g.drawImage(frame.renderer.backbuffer, 0, 0, null);
+			g.drawImage(renderer.backbuffer, 0, 0, null);
 		}
 	}
 
 	private static void titleLoop() {
-		frame.renderer.drawWelcomeScreen(cycle);
+		renderer.drawWelcomeScreen(cycle);
 	}
 
 	private static void gameLoop() {
@@ -87,13 +100,13 @@ public class IcePush extends Applet implements Runnable {
 			return;
 
 		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
-			((Renderer2D) frame.renderer)
+			((Renderer2D) renderer)
 					.renderScene((Object2D[]) GameObjects.players);
 		else
-			((Renderer3D) frame.renderer).renderScene(
+			((Renderer3D) renderer).renderScene(
 					(Object3D[]) GameObjects.players,
 					(Object3D[]) GameObjects.scenery);
-		frame.renderer.drawDebug();
+		renderer.drawDebug();
 	}
 
 	private static void diedLoop() {
@@ -103,7 +116,7 @@ public class IcePush extends Applet implements Runnable {
 			lastDied = 0;
 			state = PLAY;
 		} else {
-			frame.renderer.drawDiedScreen(cycle - lastDied);
+			renderer.drawDiedScreen(cycle - lastDied);
 		}
 	}
 
@@ -111,5 +124,9 @@ public class IcePush extends Applet implements Runnable {
 		NetworkHandler.logOut();
 		frame.dispose();
 		System.exit(0);
+	}
+
+	public Dimension getPreferredSize() {
+		return new Dimension(WIDTH, HEIGHT);
 	}
 }

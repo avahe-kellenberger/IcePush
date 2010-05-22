@@ -55,25 +55,25 @@ public class KeyHandler extends BugfixKeyListener {
 				break;
 			case KeyEvent.VK_W:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) IcePush.frame.renderer).pitch -= 5;
+					((Renderer3D) IcePush.renderer).pitch -= 5;
 				break;
 			case KeyEvent.VK_A:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) IcePush.frame.renderer).yaw -= 5;
+					((Renderer3D) IcePush.renderer).yaw -= 5;
 				break;
 			case KeyEvent.VK_S:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) IcePush.frame.renderer).pitch += 5;
+					((Renderer3D) IcePush.renderer).pitch += 5;
 				break;
 			case KeyEvent.VK_D:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) IcePush.frame.renderer).yaw += 5;
+					((Renderer3D) IcePush.renderer).yaw += 5;
 				break;
 			case KeyEvent.VK_2:
-				Renderer.switchMode(GameObjects.SOFTWARE_2D);
+				IcePush.renderer.switchMode(GameObjects.SOFTWARE_2D);
 				break;
 			case KeyEvent.VK_3:
-				Renderer.switchMode(GameObjects.SOFTWARE_3D);
+				IcePush.renderer.switchMode(GameObjects.SOFTWARE_3D);
 				break;
 		}
 		
