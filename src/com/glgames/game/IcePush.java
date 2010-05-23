@@ -145,7 +145,8 @@ public class IcePush extends Applet implements Runnable {
 
 	public static void cleanup() {
 		NetworkHandler.logOut();
-		frame.dispose();
+		if (frame != null)
+			frame.dispose();
 		System.exit(0);
 	}
 
