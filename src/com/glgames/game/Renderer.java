@@ -148,24 +148,19 @@ public abstract class Renderer {
 				newplayers[k].baseZ = oldplayers[k].y;
 				newplayers[k].username = oldplayers[k].username;
 				newplayers[k].deaths = oldplayers[k].deaths;
+				newplayers[k].rotationY = oldplayers[k].rotation;
 			}
-
-			for (int k = 0; k < oldscenery.length; k++) {
-				if (oldscenery[k] == null || oldscenery[k].type == -1)
-					continue;
-
-				newscenery[k] = new Object3D(oldscenery[k].type);
-				newscenery[k].baseX = oldscenery[k].x;
-				newscenery[k].baseZ = oldscenery[k].y;
-			}
+			
+			newscenery[0] = new Object3D.Cube(800);
 
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
 			Renderer3D r = new Renderer3D(canvas);
 			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
 					(int) newplayers[NetworkHandler.id].baseZ);
+			r.yaw = newplayers[NetworkHandler.id].rotationY;
 
-			IcePush.setRenderer(new Renderer3D(canvas));
+			IcePush.setRenderer(r);
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
 		} else if (mode == GameObjects.SOFTWARE_2D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
@@ -185,6 +180,7 @@ public abstract class Renderer {
 				newplayers[k].y = (int) oldplayers[k].baseZ;
 				newplayers[k].username = oldplayers[k].username;
 				newplayers[k].deaths = oldplayers[k].deaths;
+				newplayers[k].rotation = oldplayers[k].rotationY;
 			}
 
 			for (int k = 0; k < oldscenery.length; k++) {

@@ -1,11 +1,10 @@
 package com.glgames.game;
 
-import java.awt.Component;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 
 public class Renderer2D extends Renderer {
 	private static final long serialVersionUID = 1L;
@@ -26,7 +25,6 @@ public class Renderer2D extends Renderer {
 		Graphics2D g = (Graphics2D) bg;
 		if(g == null)
 			return;
-		g.setTransform(AffineTransform.getRotateInstance(0));
 		Rectangle rect = GameObjects.playingArea;
 		g.setPaint(GameObjects.background);
 		g.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);

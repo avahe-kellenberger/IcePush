@@ -189,7 +189,7 @@ public class NetworkHandler {
 					break;
 				case PLAYER_ROTATED:
 					id = pbuf.readShort();
-					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
+					if (GameObjects.players[id] instanceof Player2D) {
 						p2 = (Player2D) GameObjects.players[id];
 						if (p2 == null) { // ???????????????
 							System.out
