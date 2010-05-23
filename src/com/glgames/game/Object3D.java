@@ -265,13 +265,12 @@ public class Object3D extends GameObject {
 					{ 4, 7, 6, 5 } // bottom
 			};
 			faceColors = new Color[] {
-				new Color(100, 0, 0),
-				new Color(0, 100, 0),
-				new Color(100, 0, 0),
-
-				new Color(0, 100, 0),
-				new Color(0, 0, 100),
-				new Color(0, 0, 100)
+				new Color(204, 255, 255),
+				Color.white,
+				Color.white,
+				Color.white,
+				Color.white,
+				Color.white,
 			};
 		}
 	}

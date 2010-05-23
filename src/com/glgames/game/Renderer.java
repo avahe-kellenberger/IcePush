@@ -165,7 +165,7 @@ public abstract class Renderer {
 			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
 					(int) newplayers[NetworkHandler.id].baseZ);
 
-			IcePush.renderer = r;
+			IcePush.setRenderer(new Renderer3D(canvas));
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
 		} else if (mode == GameObjects.SOFTWARE_2D) {
 			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
@@ -201,7 +201,7 @@ public abstract class Renderer {
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
 
-			IcePush.renderer = new Renderer2D(canvas);
+			IcePush.setRenderer(new Renderer2D(canvas));
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
 		} else
 			throw new IllegalStateException("wtf");

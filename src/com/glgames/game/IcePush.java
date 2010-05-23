@@ -40,20 +40,39 @@ public class IcePush extends Applet implements Runnable {
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
+		
 		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			renderer = new Renderer2D(instance);
 		else
 			renderer = new Renderer3D(instance);
+		
 		frame = new GameFrame();
-		frame.add(instance);
-		buffGraphics = renderer.getBufferGraphics();
 		renderer.initGraphics();
-		buffGraphics = renderer.bg;
+		buffGraphics = renderer.getBufferGraphics();
 		new Thread() {
 			public void run() {
 				GameObjects.load();
 			}
 		}.start();
+	}
+	
+	public static void setRenderer(Renderer r) {
+		renderer = r;
+		renderer.initGraphics();
+		buffGraphics = renderer.getBufferGraphics();
+	}
+	
+	public void start() {
+		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
+			renderer = new Renderer2D(this);
+		else
+			renderer = new Renderer3D(this);
+		
+		renderer.initGraphics();
+		buffGraphics = renderer.getBufferGraphics();
+		
+		run();
+		cleanup();
 	}
 
 	public void run() {
@@ -98,7 +117,7 @@ public class IcePush extends Applet implements Runnable {
 		if (!stable)
 			return;
 
-		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
+		if (renderer instanceof Renderer2D)
 			((Renderer2D) renderer)
 					.renderScene((Object2D[]) GameObjects.players);
 		else

@@ -58,7 +58,7 @@ public class GameObjects {
 				scenery = new Object2D[10];
 			else {
 				scenery = new Object3D[10];
-				scenery[0] = new Object3D.Cube(400);
+				scenery[0] = new Object3D.Cube(800);
 			}
 			
 			int width = 400, height = 400;

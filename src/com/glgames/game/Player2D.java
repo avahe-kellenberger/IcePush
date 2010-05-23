@@ -19,7 +19,6 @@ public class Player2D extends Object2D {
 	public String username;
 	public int deaths;
 	public float bubbleAlpha;
-	public int rotation;
 
 	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
 	
@@ -33,7 +32,6 @@ public class Player2D extends Object2D {
 		g.setColor(Color.red);
 		g.setFont(new Font("Arial", Font.PLAIN, 14));
 		g.drawString(username, screenX, screenY);
-		
 		if(bubbleAlpha > 0.0f) {
 			float[] scales = {
 					1f, 1f, 1f, bubbleAlpha -= 0.05f };

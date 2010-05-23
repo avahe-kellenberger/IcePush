@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 
 public class Renderer2D extends Renderer {
 	private static final long serialVersionUID = 1L;
@@ -14,6 +15,8 @@ public class Renderer2D extends Renderer {
 	}
 
 	public void drawDebug() {
+		if(bg == null)
+			return;
 		bg.setColor(Color.white);
 		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
 		bg.drawString("2D Renderer", 15, 15);
@@ -21,14 +24,16 @@ public class Renderer2D extends Renderer {
 
 	public void renderScene(Object2D[] objects) {
 		Graphics2D g = (Graphics2D) bg;
+		if(g == null)
+			return;
+		g.setTransform(AffineTransform.getRotateInstance(0));
 		Rectangle rect = GameObjects.playingArea;
 		g.setPaint(GameObjects.background);
 		g.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 		g.setPaint(GameObjects.foreground);
 		g.fillRect(rect.x, rect.y, rect.width, rect.height);
-		
 		for (int k = 0; k < objects.length; k++) {
-			Object2D p = objects[k];
+			Player2D p = (Player2D) objects[k];
 			if (p == null)
 				continue;
 			p.draw(g);

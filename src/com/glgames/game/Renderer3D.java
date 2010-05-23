@@ -101,7 +101,7 @@ public class Renderer3D extends Renderer {
 
 				if (faceIndex > 4998)
 					faceIndex = 4998;
-				
+
 				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
 						vertexCount, distance, obj.faceColors[currentFace],
 						null);
