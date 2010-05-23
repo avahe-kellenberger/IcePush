@@ -49,11 +49,6 @@ public class IcePush extends Applet implements Runnable {
 		frame = new GameFrame();
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
-		new Thread() {
-			public void run() {
-				GameObjects.load();
-			}
-		}.start();
 	}
 	
 	public static void setRenderer(Renderer r) {
@@ -76,6 +71,11 @@ public class IcePush extends Applet implements Runnable {
 	}
 
 	public void run() {
+		new Thread() {
+			public void run() {
+				GameObjects.load();
+			}
+		}.start();
 		Graphics g = getGraphics();
 		while (running) {
 			if (!GameObjects.loaded) {
