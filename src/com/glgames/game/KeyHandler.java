@@ -40,16 +40,28 @@ public class KeyHandler extends BugfixKeyListener {
 				NetworkHandler.logOut();
 				break;
 			case KeyEvent.VK_UP:
-				moveDir = Player.UP;
+				if (IcePush.renderer instanceof Renderer3D)
+					moveDir = Player.FORWARD;
+				else
+					moveDir = Player.UP;
 				break;
 			case KeyEvent.VK_DOWN:
-				moveDir = Player.DOWN;
+				if (IcePush.renderer instanceof Renderer3D)
+					moveDir = Player.BACKWARD;
+				else
+					moveDir = Player.DOWN;
 				break;
 			case KeyEvent.VK_LEFT:
-				rotDir = Player.LEFT;
+				if(IcePush.renderer instanceof Renderer3D)
+					rotDir = Player.LEFT;
+				else
+					moveDir = Player.LEFT;
 				break;
 			case KeyEvent.VK_RIGHT:
-				rotDir = Player.RIGHT;
+				if (IcePush.renderer instanceof Renderer3D)
+					rotDir = Player.RIGHT;
+				else
+					moveDir = Player.RIGHT;
 				break;
 			case KeyEvent.VK_P:
 				NetworkHandler.ping();
@@ -69,7 +81,7 @@ public class KeyHandler extends BugfixKeyListener {
 				IcePush.renderer.switchMode(GameObjects.SOFTWARE_3D);
 				break;
 		}
-		
+		System.out.println(isMoving);
 		if(moveDir != -1) {
 			if(isMoving)
 				return;
@@ -100,8 +112,13 @@ public class KeyHandler extends BugfixKeyListener {
 				break;
 			case KeyEvent.VK_LEFT:
 			case KeyEvent.VK_RIGHT:
-				NetworkHandler.endRotationRequest();
-				isRotating = false;
+				if (IcePush.renderer instanceof Renderer3D) {
+					NetworkHandler.endRotationRequest();
+					isRotating = false;
+				} else {
+					NetworkHandler.endMoveRequest();
+					isMoving = false;
+				}
 				break;
 		}
 	}

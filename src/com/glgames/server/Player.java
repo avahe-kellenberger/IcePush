@@ -9,10 +9,12 @@ import java.util.TimerTask;
 import com.glgames.shared.PacketBuffer;
 
 public class Player {
-	public static final int UP = 1 << 0;
-	public static final int DOWN = 1 << 1;
+	public static final int FORWARD = 1 << 0;
+	public static final int BACKWARD = 1 << 1;
 	public static final int LEFT = 1 << 2;
 	public static final int RIGHT = 1 << 3;
+	public static final int UP = 1 << 4;
+	public static final int DOWN = 1 << 5;
 
 	public int id;
 	public int type;
@@ -114,16 +116,28 @@ public class Player {
 			if(!canMove)
 				return;
 			switch (moveDir) {
-				case UP: // forward
+				case FORWARD: // forward
 					dx += Math.sin(Math.toRadians(rotation));
 					dy += Math.cos(Math.toRadians(rotation));
 					break;
-				case DOWN: // backward
+				case BACKWARD: // backward
 					dx -= Math.sin(Math.toRadians(rotation));
 					dy -= Math.cos(Math.toRadians(rotation));
 					break;
+				case UP:
+					dy--;
+					break;
+				case DOWN:
+					dy++;
+					break;
+				case LEFT:
+					dx--;
+					break;
+				case RIGHT:
+					dx++;
+					break;
 			}
-			
+
 			Player p = getPlayerInWay();
 			if (p != null && p.canMove) {
 				p.moveDir = moveDir;
