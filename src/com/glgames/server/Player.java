@@ -1,15 +1,6 @@
 package com.glgames.server;
 
-import static com.glgames.shared.Opcodes.END_MOVE;
-import static com.glgames.shared.Opcodes.KEEP_ALIVE;
-import static com.glgames.shared.Opcodes.LOGOUT;
-import static com.glgames.shared.Opcodes.MOVE_REQUEST;
-import static com.glgames.shared.Opcodes.NEW_PLAYER;
-import static com.glgames.shared.Opcodes.PLAYER_DIED;
-import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
-import static com.glgames.shared.Opcodes.PLAYER_MOVED;
-import static com.glgames.shared.Opcodes.SET_CAN_MOVE;
-import static com.glgames.shared.Opcodes.PING;
+import static com.glgames.shared.Opcodes.*;
 
 import java.awt.Rectangle;
 import java.util.Timer;
@@ -35,6 +26,9 @@ public class Player {
 	public boolean connected;
 	public boolean canMove = true;
 	private int moveDir = -1;
+	private int rotDir = -1;
+	
+	public int rotation;
 
 	public Player() {
 
@@ -94,21 +88,39 @@ public class Player {
 	}
 
 	public void handleMove() {
+		if(rotDir != -1) {
+			switch(rotDir) {
+				case LEFT:
+					rotation = (rotation - 5) % 360;
+					break;
+				case RIGHT:
+					rotation = (rotation + 5) % 360;
+					break;
+			}
+			for (Player plr : Server.players) {
+				if (plr == null)
+					continue;
+				if (Server.DEBUG)
+					System.out.println("SENDING ROTATE - " + id + " : "
+							+ rotation);
+
+				plr.pbuf.beginPacket(PLAYER_ROTATED); // player moved
+				plr.pbuf.writeShort(id);
+				plr.pbuf.writeShort(rotation);
+				plr.pbuf.endPacket();
+			}
+		}
 		if (moveDir != -1) {
 			if(!canMove)
 				return;
 			switch (moveDir) {
-				case UP: // up
-					dy--;
+				case UP: // forward
+					dx += Math.sin(Math.toRadians(rotation)) * 32.0;
+					dy += Math.cos(Math.toRadians(rotation)) * 32.0;
 					break;
-				case DOWN: // down
-					dy++;
-					break;
-				case LEFT: // left
-					dx--;
-					break;
-				case RIGHT: // right
-					dx++;
+				case DOWN: // backward
+					dx -= Math.sin(Math.toRadians(rotation)) * 32.0;
+					dy -= Math.cos(Math.toRadians(rotation)) * 32.0;
 					break;
 			}
 			
@@ -230,6 +242,21 @@ public class Player {
 						moveDir = -1;
 						if (Server.DEBUG)
 							System.out.println("END MOVE REQUEST - ID = "
+									+ pbuf.readByte() + " - TIME = "
+									+ System.currentTimeMillis());
+						break;
+					case ROTATE_REQUEST:
+						rotDir = pbuf.readByte();
+						int rotid = pbuf.readByte();
+						if (Server.DEBUG)
+							System.out.println("GOT ROTATE REQUEST - DIR: "
+									+ moveDir + " - ID = " + rotid
+									+ " , TIME: " + System.currentTimeMillis());
+						break;
+					case END_ROTATE:
+						rotDir = -1;
+						if (Server.DEBUG)
+							System.out.println("END ROTATE REQUEST - ID = "
 									+ pbuf.readByte() + " - TIME = "
 									+ System.currentTimeMillis());
 						break;

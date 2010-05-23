@@ -19,6 +19,7 @@ public class Player2D extends Object2D {
 	public String username;
 	public int deaths;
 	public float bubbleAlpha;
+	public int rotation;
 
 	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
 	

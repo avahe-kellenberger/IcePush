@@ -6,7 +6,7 @@ import com.glgames.server.Player;
 
 
 public class KeyHandler extends BugfixKeyListener {
-	static boolean isMoving;
+	static boolean isMoving, isRotating;
 	
 	public void keyPressed(KeyEvent e) {
 		super.keyPressed(e);
@@ -15,6 +15,7 @@ public class KeyHandler extends BugfixKeyListener {
 		if(IcePush.DEBUG)
 			System.out.println("key pressed");
 		int moveDir = -1;
+		int rotDir = -1;
 
 		if(IcePush.state == IcePush.WELCOME) {
 			int code = e.getKeyCode();
@@ -45,10 +46,10 @@ public class KeyHandler extends BugfixKeyListener {
 				moveDir = Player.DOWN;
 				break;
 			case KeyEvent.VK_LEFT:
-				moveDir = Player.LEFT;
+				rotDir = Player.LEFT;
 				break;
 			case KeyEvent.VK_RIGHT:
-				moveDir = Player.RIGHT;
+				rotDir = Player.RIGHT;
 				break;
 			case KeyEvent.VK_P:
 				NetworkHandler.ping();
@@ -57,17 +58,9 @@ public class KeyHandler extends BugfixKeyListener {
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 					((Renderer3D) IcePush.renderer).pitch -= 5;
 				break;
-			case KeyEvent.VK_A:
-				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) IcePush.renderer).yaw -= 5;
-				break;
 			case KeyEvent.VK_S:
 				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 					((Renderer3D) IcePush.renderer).pitch += 5;
-				break;
-			case KeyEvent.VK_D:
-				if(GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-					((Renderer3D) IcePush.renderer).yaw += 5;
 				break;
 			case KeyEvent.VK_2:
 				IcePush.renderer.switchMode(GameObjects.SOFTWARE_2D);
@@ -84,6 +77,13 @@ public class KeyHandler extends BugfixKeyListener {
 			NetworkHandler.sendMoveRequest(moveDir);
 			isMoving = true;
 		}
+		if(rotDir != -1) {
+			if(isRotating)
+				return;
+			
+			NetworkHandler.sendRotationRequest(rotDir);
+			isRotating = true;
+		}
 	}
 
 	public void keyReleased(KeyEvent e) {
@@ -95,10 +95,13 @@ public class KeyHandler extends BugfixKeyListener {
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_UP:
 			case KeyEvent.VK_DOWN:
-			case KeyEvent.VK_LEFT:
-			case KeyEvent.VK_RIGHT:
 				NetworkHandler.endMoveRequest();
 				isMoving = false;
+				break;
+			case KeyEvent.VK_LEFT:
+			case KeyEvent.VK_RIGHT:
+				NetworkHandler.endRotationRequest();
+				isRotating = false;
 				break;
 		}
 	}
