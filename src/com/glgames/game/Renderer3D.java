@@ -28,7 +28,7 @@ public class Renderer3D extends Renderer {
 			pitch += 360;
 		while (pitch > 360)
 			pitch -= 360;
-
+		
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
@@ -81,9 +81,6 @@ public class Renderer3D extends Renderer {
 					faceCenterY += obj.vertYRelCam[vertexID];
 					faceCenterZ += obj.vertZRelCam[vertexID];
 
-					if (obj.vertZRelCam[vertexID] <= 0)
-						;
-
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
 
@@ -112,19 +109,20 @@ public class Renderer3D extends Renderer {
 						vertexCount, distance, obj.faceColors[currentFace]);
 			}
 		}
-		Face[] tris = triangulatePolygons(faceArray, faceIndex);
+		Triangle[] tris = triangulatePolygons(faceArray, faceIndex);
 		java.util.Arrays.sort(tris, 0, triLen);
 		Triangles.setAllPixelsToZero();
 		for (int i = triLen - 1; i --> 0;) {
-			tris[i].draw();
+			Triangle t = tris[i];
+			Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
 		}
 		Triangles.pm.draw(0, 0, bg);
 	}
 	
 	static int triLen;
 
-	private Face[] triangulatePolygons(Face[] faces, int len) {
-		Face[] out = new Face[faceIndex * (6 - 2)];
+	private Triangle[] triangulatePolygons(Face[] faces, int len) {
+		Triangle[] out = new Triangle[faceIndex * (6 - 2)];
 		int num = 0;
 		for (int k = 0; k < len; k++) {
 			Face f = faces[k];
@@ -133,11 +131,16 @@ public class Renderer3D extends Renderer {
 
 			// Skip the adjacent vertices
 			for (int vertex = 2; vertex < f.drawX.length; vertex++) {
-				int[] newDrawX = { fanX, f.drawX[vertex - 1], f.drawX[vertex] };
-				int[] newDrawY = { fanY, f.drawY[vertex - 1], f.drawY[vertex] };
-
-				out[num++] = new Face(newDrawX, newDrawY, 3, f.distance,
-						f.color);
+				Triangle t = new Triangle();
+				t.x1 = fanX;
+				t.y1 = fanY;
+				t.x2 = f.drawX[vertex - 1];
+				t.y2 = f.drawY[vertex - 1];
+				t.x3 = f.drawX[vertex];
+				t.y3 = f.drawY[vertex];
+				t.distance = f.distance;
+				t.color = f.color;
+				out[num++] = t;
 			}
 		}
 		triLen = num;
@@ -206,7 +209,7 @@ public class Renderer3D extends Renderer {
 	public double cameraY;
 	public double cameraZ;
 
-	public int pitch = 325, yaw;
+	public int pitch, yaw;
 
 	public double focusX, focusY, focusZ;
 

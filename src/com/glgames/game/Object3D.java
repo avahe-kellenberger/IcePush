@@ -9,6 +9,7 @@ public class Object3D extends GameObject {
 
 	public int faceVertices[][];
 
+	public Color vertexColors[];
 	public Color faceColors[];
 
 	public int screenX[];
@@ -264,6 +265,9 @@ public class Object3D extends GameObject {
 					{ 0, 4, 5, 1 }, // front
 					{ 4, 7, 6, 5 } // bottom
 			};
+			vertexColors = new Color[] { new Color(0, 206, 209),
+					new Color(204, 255, 255), new Color(0, 206, 209),
+					new Color(204, 255, 255) };
 			faceColors = new Color[] {
 				new Color(0, 206, 209),
 				new Color(204, 255, 255),

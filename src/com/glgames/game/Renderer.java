@@ -148,7 +148,7 @@ public abstract class Renderer {
 				newplayers[k].rotationY = oldplayers[k].rotation;
 			}
 			
-			newscenery[0] = new Object3D.Cube(800);
+			newscenery[0] = new Object3D.Cube(400);
 
 			GameObjects.players = newplayers;
 			GameObjects.scenery = newscenery;
