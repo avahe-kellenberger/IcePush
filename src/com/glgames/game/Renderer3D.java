@@ -15,11 +15,8 @@ public class Renderer3D extends Renderer {
 	}
 
 	public void renderScene(Object3D objArray[], Object3D[] scenery) {
-		Object3D[] total = new Object3D[objArray.length + scenery.length];
-		System.arraycopy(objArray, 0, total, 0, objArray.length - 1);
-		System.arraycopy(scenery, 0, total, objArray.length + 1,
-				scenery.length - 1);
-		doRender(total);
+		doRender(scenery);
+		doRender(objArray);
 	}
 
 	private void doRender(Object3D[] objArray) {
