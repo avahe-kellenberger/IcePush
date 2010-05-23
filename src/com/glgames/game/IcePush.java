@@ -47,7 +47,6 @@ public class IcePush extends Applet implements Runnable {
 		frame = new GameFrame();
 		frame.add(instance);
 		buffGraphics = renderer.getBufferGraphics();
-		//instance.add(renderer.canvas);
 		renderer.initGraphics();
 		buffGraphics = renderer.bg;
 		new Thread() {

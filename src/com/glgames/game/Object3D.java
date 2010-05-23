@@ -246,4 +246,33 @@ public class Object3D extends GameObject {
             faceColors = new Color[] { new Color(200, 255, 255) };
 		}
 	}
+	
+	public static class Cube extends Object3D {
+		public Cube(int s) {
+			putVertex(0, 0, s); // left,top,front
+			putVertex(s, 0, s); // right,top,front
+			putVertex(s, 0, 0); // right,top,back
+			putVertex(0, 0, 0); // left, top,back
+			putVertex(0, -s, s); // left,bottom,front
+			putVertex(s, -s, s); // right,bottom,front
+			putVertex(s, -s, 0); // right,bottom,back
+			putVertex(0, -s, 0); // left,bottom,back
+			faceVertices = new int[][] { { 0, 1, 2, 3 }, // top
+					{ 0, 3, 7, 4 }, // left
+					{ 3, 2, 6, 7 }, // back
+					{ 2, 1, 5, 6 }, // right
+					{ 0, 4, 5, 1 }, // front
+					{ 4, 7, 6, 5 } // bottom
+			};
+			faceColors = new Color[] {
+				new Color(100, 0, 0),
+				new Color(0, 100, 0),
+				new Color(100, 0, 0),
+
+				new Color(0, 100, 0),
+				new Color(0, 0, 100),
+				new Color(0, 0, 100)
+			};
+		}
+	}
 }
