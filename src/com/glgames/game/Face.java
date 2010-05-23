@@ -16,6 +16,8 @@ public class Face implements Comparable<Face> {
 	}
 
 	public void draw(Graphics g) {
+		if(g == null)
+			return;
 		if(texture != null)
 			((Graphics2D) g).setPaint(texture);
 		else
