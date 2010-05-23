@@ -93,10 +93,10 @@ public class Player {
 		if(rotDir != -1) {
 			switch(rotDir) {
 				case LEFT:
-					rotation = (rotation + 5) % 360;
+					rotation = (rotation + 3) % 360;
 					break;
 				case RIGHT:
-					rotation = (rotation - 5) % 360;
+					rotation = (rotation - 3) % 360;
 					break;
 			}
 			for (Player plr : Server.players) {
@@ -115,14 +115,17 @@ public class Player {
 		if (moveDir != -1) {
 			if(!canMove)
 				return;
+			double rad;
 			switch (moveDir) {
 				case FORWARD: // forward
-					dx += Math.sin(Math.toRadians(rotation));
-					dy += Math.cos(Math.toRadians(rotation));
+					rad = rotation * Math.PI / 180;
+					dx += Math.sin(rad);
+					dy += Math.cos(rad);
 					break;
 				case BACKWARD: // backward
-					dx -= Math.sin(Math.toRadians(rotation));
-					dy -= Math.cos(Math.toRadians(rotation));
+					rad = rotation * Math.PI / 180;
+					dx -= Math.sin(rad);
+					dy -= Math.cos(rad);
 					break;
 				case UP:
 					dy--;

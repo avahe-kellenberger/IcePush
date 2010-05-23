@@ -81,7 +81,7 @@ public class KeyHandler extends BugfixKeyListener {
 				IcePush.renderer.switchMode(GameObjects.SOFTWARE_3D);
 				break;
 		}
-		System.out.println(isMoving);
+		
 		if(moveDir != -1) {
 			if(isMoving)
 				return;
