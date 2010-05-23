@@ -16,7 +16,7 @@ public class Player {
 
 	public int id;
 	public int type;
-	public int dx, dy;
+	public double dx, dy;
 	public int deaths;
 
 	public Rectangle area;
@@ -91,10 +91,10 @@ public class Player {
 		if(rotDir != -1) {
 			switch(rotDir) {
 				case LEFT:
-					rotation = (rotation - 5) % 360;
+					rotation = (rotation + 5) % 360;
 					break;
 				case RIGHT:
-					rotation = (rotation + 5) % 360;
+					rotation = (rotation - 5) % 360;
 					break;
 			}
 			for (Player plr : Server.players) {
@@ -115,12 +115,12 @@ public class Player {
 				return;
 			switch (moveDir) {
 				case UP: // forward
-					dx += Math.sin(Math.toRadians(rotation)) * 32.0;
-					dy += Math.cos(Math.toRadians(rotation)) * 32.0;
+					dx += Math.sin(Math.toRadians(rotation));
+					dy += Math.cos(Math.toRadians(rotation));
 					break;
 				case DOWN: // backward
-					dx -= Math.sin(Math.toRadians(rotation)) * 32.0;
-					dy -= Math.cos(Math.toRadians(rotation)) * 32.0;
+					dx -= Math.sin(Math.toRadians(rotation));
+					dy -= Math.cos(Math.toRadians(rotation));
 					break;
 			}
 			
@@ -148,9 +148,9 @@ public class Player {
 		} else {
 			// moveDir == -1
 			if (dx != 0)
-				dx += (dx < 0) ? 1 : -1;
+				dx = 0;
 			if (dy != 0)
-				dy += (dy < 0) ? 1 : -1;
+				dy = 0;
 		}
 		if(dx != 0 || dy != 0) {
 			area.x += dx;
@@ -297,7 +297,7 @@ public class Player {
 	}
 
 	public Player getPlayerInWay() {
-		Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
+		Rectangle newArea = new Rectangle(area.x + (int) dx, area.y + (int) dy, 48, 48);
 		for(Player pl : Server.players) {
 			if(pl == null || pl == this)
 				continue;

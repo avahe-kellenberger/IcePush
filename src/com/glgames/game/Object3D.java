@@ -26,8 +26,8 @@ public class Object3D extends GameObject {
 	public double clippedY[];
 	public double clippedZ[];
 	
-	public double rotationY;
-	public double rotationX;
+	public int rotationY;
+	public int rotationX;
 	
 	public static final double TWO_PI = 2 * Math.PI;
 	public static Object3D templates[];

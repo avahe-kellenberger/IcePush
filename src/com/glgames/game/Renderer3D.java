@@ -25,16 +25,15 @@ public class Renderer3D extends Renderer {
 		faceIndex = 0;
 		while(pitch < 0) pitch += 360;
 		while(pitch > 360) pitch -= 360;
-		while(yaw < 0) yaw += 360;
-		while(yaw > 360) yaw -= 360;
+		
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
-			double yawRad = Math.toRadians(((double) yaw) + obj.rotationY);
+			double yawRad = Math.toRadians(((double) yaw) - obj.rotationY);
 			yawSin = Math.sin(yawRad);
 			yawCos = Math.cos(yawRad);
 
-			double pitchRad = Math.toRadians(((double) pitch) + obj.rotationX);
+			double pitchRad = Math.toRadians(((double) pitch) - obj.rotationX);
 			pitchSin = Math.sin(pitchRad);
 			pitchCos = Math.cos(pitchRad);
 			
@@ -177,7 +176,7 @@ public class Renderer3D extends Renderer {
 	public double cameraY;
 	public double cameraZ;
 
-	public int pitch = 325, yaw = 180;
+	public int pitch = 325, yaw;
 
 	public double focusX, focusY, focusZ;
 
