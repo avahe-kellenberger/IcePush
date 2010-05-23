@@ -6,9 +6,10 @@ import java.awt.Font;
 
 public class Renderer3D extends Renderer {
 	private static final long serialVersionUID = 1L;
-	
+
 	public Renderer3D(Component c) {
 		super(c);
+		Triangles.init(IcePush.WIDTH, IcePush.HEIGHT, c);
 		faceArray = new Face[5000];
 		cameraY = 100;
 	}
@@ -20,12 +21,14 @@ public class Renderer3D extends Renderer {
 				scenery.length - 1);
 		doRender(total);
 	}
-	
+
 	private void doRender(Object3D[] objArray) {
 		faceIndex = 0;
-		while(pitch < 0) pitch += 360;
-		while(pitch > 360) pitch -= 360;
-		
+		while (pitch < 0)
+			pitch += 360;
+		while (pitch > 360)
+			pitch -= 360;
+
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
@@ -36,7 +39,7 @@ public class Renderer3D extends Renderer {
 			double pitchRad = Math.toRadians(((double) pitch) - obj.rotationX);
 			pitchSin = Math.sin(pitchRad);
 			pitchCos = Math.cos(pitchRad);
-			
+
 			int vertexCount;
 			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
 				boolean withinViewport = false;
@@ -57,30 +60,33 @@ public class Renderer3D extends Renderer {
 					int vertexID = obj.faceVertices[currentFace][currentVertex];
 
 					double[] transformed = transformPoint(obj.baseX, obj.baseY,
-							obj.baseZ, obj.vertX[vertexID], obj.vertY[vertexID], obj.vertZ[vertexID]);
+							obj.baseZ, obj.vertX[vertexID],
+							obj.vertY[vertexID], obj.vertZ[vertexID]);
 
 					obj.vertXRelCam[vertexID] = transformed[0];
 					obj.vertYRelCam[vertexID] = transformed[1];
 					obj.vertZRelCam[vertexID] = transformed[2];
-					
-					if(obj.vertZRelCam[vertexID] <= 0)
+
+					if (obj.vertZRelCam[vertexID] <= 0)
 						obj.vertZRelCam[vertexID] = 1;
-					
+
 					int[] screen = worldToScreen(obj.vertXRelCam[vertexID],
-							obj.vertYRelCam[vertexID], obj.vertZRelCam[vertexID]);
-					
+							obj.vertYRelCam[vertexID],
+							obj.vertZRelCam[vertexID]);
+
 					obj.screenX[vertexID] = screen[0];
 					obj.screenY[vertexID] = screen[1];
-					
+
 					faceCenterX += obj.vertXRelCam[vertexID];
 					faceCenterY += obj.vertYRelCam[vertexID];
 					faceCenterZ += obj.vertZRelCam[vertexID];
-					
-					if (obj.vertZRelCam[vertexID] <= 0);
-					
+
+					if (obj.vertZRelCam[vertexID] <= 0)
+						;
+
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
-					
+
 					if (drawX >= 0 && drawX <= IcePush.WIDTH && drawY >= 0
 							&& drawY <= IcePush.HEIGHT)
 						withinViewport = true;
@@ -103,26 +109,49 @@ public class Renderer3D extends Renderer {
 					faceIndex = 4998;
 
 				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
-						vertexCount, distance, obj.faceColors[currentFace],
-						null);
+						vertexCount, distance, obj.faceColors[currentFace]);
 			}
 		}
-
-		java.util.Arrays.sort(faceArray, 0, faceIndex);
-
-		for (int i = faceIndex - 1; i >= 0; i--) {
-			faceArray[i].draw(bg);
+		Face[] tris = triangulatePolygons(faceArray, faceIndex);
+		java.util.Arrays.sort(tris, 0, triLen);
+		Triangles.setAllPixelsToZero();
+		for (int i = triLen - 1; i --> 0;) {
+			tris[i].draw();
 		}
+		Triangles.pm.draw(0, 0, bg);
+	}
+	
+	static int triLen;
 
+	private Face[] triangulatePolygons(Face[] faces, int len) {
+		Face[] out = new Face[faceIndex * (6 - 2)];
+		int num = 0;
+		for (int k = 0; k < len; k++) {
+			Face f = faces[k];
+			int fanX = f.drawX[0];
+			int fanY = f.drawY[0];
+
+			// Skip the adjacent vertices
+			for (int vertex = 2; vertex < f.drawX.length; vertex++) {
+				int[] newDrawX = { fanX, f.drawX[vertex - 1], f.drawX[vertex] };
+				int[] newDrawY = { fanY, f.drawY[vertex - 1], f.drawY[vertex] };
+
+				out[num++] = new Face(newDrawX, newDrawY, 3, f.distance,
+						f.color);
+			}
+		}
+		triLen = num;
+		return out;
 	}
 
 	public void drawDebug() {
-		if(bg == null)
+		if (bg == null)
 			return;
 		bg.setColor(Color.white);
 		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
-		bg.drawString("3D Renderer - Camera X: " + cameraX + ", Y: " + cameraY + ", Z: "
-				+ cameraZ + ", Pitch: " + pitch + ", Yaw: " + yaw, 15, 15);
+		bg.drawString("3D Renderer - Camera X: " + cameraX + ", Y: " + cameraY
+				+ ", Z: " + cameraZ + ", Pitch: " + pitch + ", Yaw: " + yaw,
+				15, 15);
 	}
 
 	public double[] transformPoint(double objBaseX, double objBaseY,
@@ -158,8 +187,9 @@ public class Renderer3D extends Renderer {
 	public int[] worldToScreen(double x, double y, double z) {
 		int[] ret = new int[2];
 		int sW = IcePush.WIDTH / 2, sH = IcePush.HEIGHT / 2;
-		
-		ret[0] = sW - (int) (sW * x / z);	// Fix for bug #433299297: Left and right are transposed
+
+		ret[0] = sW - (int) (sW * x / z); // Fix for bug #433299297: Left and
+											// right are transposed
 		ret[1] = sH - (int) (sH * y / z);
 		return ret;
 	}
