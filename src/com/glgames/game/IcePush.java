@@ -40,7 +40,9 @@ public class IcePush extends Applet implements Runnable {
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
-		
+		instance.setFocusTraversalKeysEnabled(false);
+		instance.addKeyListener(new KeyHandler());
+		instance.addMouseListener(new MouseHandler());
 		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			renderer = new Renderer2D(instance);
 		else
@@ -58,6 +60,9 @@ public class IcePush extends Applet implements Runnable {
 	}
 	
 	public void start() {
+		setFocusTraversalKeysEnabled(false);
+		addKeyListener(new KeyHandler());
+		addMouseListener(new MouseHandler());
 		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			renderer = new Renderer2D(this);
 		else

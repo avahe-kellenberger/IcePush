@@ -23,9 +23,6 @@ public abstract class Renderer {
 
 	public Renderer(Component c) {
 		canvas = c;
-		canvas.setFocusTraversalKeysEnabled(false);
-		canvas.addKeyListener(new KeyHandler());
-		canvas.addMouseListener(new MouseHandler());
 	}
 
 	public void initGraphics() {
