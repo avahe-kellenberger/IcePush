@@ -210,6 +210,7 @@ public class NetworkHandler {
 						if(id == NetworkHandler.id)
 							((Renderer3D) IcePush.renderer).yaw = (int) p3.rotationY;
 					}
+					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
 					GameObjects.players[id] = null;
