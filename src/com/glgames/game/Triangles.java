@@ -2086,26 +2086,4 @@ public class Triangles {
 		db += fb;
 		return (dr << 16) + (dg << 8) + db;
 	}
-	
-	public static int iround(float f) {
-		return (int) (f > 0.0f ? f + 0.5f : f - 0.5f);
-	}
-	
-	public static int max(int a, int b, int c) {
-		if(a > b && a > c)
-			return a;
-		else if(b > a && b > c)
-			return b;
-		else
-			return c;
-	}
-	
-	public static int min(int a, int b, int c) {
-		if(a < b && a < c)
-			return a;
-		else if(b < a && b < c)
-			return b;
-		else
-			return c;
-	}
 }
