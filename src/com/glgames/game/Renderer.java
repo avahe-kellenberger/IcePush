@@ -155,7 +155,6 @@ public abstract class Renderer {
 			Renderer3D r = new Renderer3D(canvas);
 			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
 					(int) newplayers[NetworkHandler.id].baseZ);
-			r.yaw = newplayers[NetworkHandler.id].rotationY;
 
 			IcePush.setRenderer(r);
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
