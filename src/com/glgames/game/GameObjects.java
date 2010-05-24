@@ -12,13 +12,13 @@ public class GameObjects {
 	public static final int HARDWARE_3D = 2;
 	public static int GRAPHICS_MODE = SOFTWARE_3D;
 	
-	public static String[] instructions;
+	public static String[] instructions, help;
 	public static BufferedImage logo;
 	public static TexturePaint background, foreground;
 
 	public static TextBox serverBox, usernameBox;
 	public static ServerList serverList;
-	public static Rectangle loginButton;
+	public static Rectangle loginButton, helpButton, backButton;
 
 	public static Rectangle playingArea;
 	public static GameObject[] players;
@@ -41,12 +41,16 @@ public class GameObjects {
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
+			help = new String[] { "Arrow keys - move", "WASD - move camera",
+					"2 and 3 key - switch 2d and 3d" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
 			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 450, false, "Server: ", "strictfp.com");
 			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 480, true,
 					"Username:", "");
-			loginButton = new Rectangle(IcePush.WIDTH / 2 - 50, 520, 100, 25);
+			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 520, 100, 25);
+			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 520, 100, 25);
+			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 520, 100, 25);
 			
 			trySleep(300);
 			loadingMessage = "Loading players...";

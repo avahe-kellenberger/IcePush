@@ -60,9 +60,8 @@ public abstract class Renderer {
 		bg.drawString(s, x, IcePush.HEIGHT / 2
 				- bg.getFontMetrics().getHeight() / 2 + 12);
 	}
-
-	public void drawWelcomeScreen(int cycle) {
-		int w;
+	
+	public void background(int cycle) {
 		double frequency = 0.01d;
 		int green = (int) (Math.sin(frequency * cycle % 32 + 2) * 63 + 160);
 		int blue = (int) (Math.sin(frequency * cycle % 32 + 4) * 63 + 160);
@@ -72,6 +71,11 @@ public abstract class Renderer {
 		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 		bg.drawImage(GameObjects.logo, 50, 50, null);
 
+	}
+
+	public void drawWelcomeScreen(int cycle) {
+		background(cycle);
+		int w;
 		bg.setColor(Color.white);
 		bg.setFont(new Font("Arial", Font.PLAIN, 20));
 
@@ -91,17 +95,36 @@ public abstract class Renderer {
 			GameObjects.serverList.draw(bg);
 		GameObjects.usernameBox.draw(bg);
 
-		Rectangle login = GameObjects.loginButton;
+		button(GameObjects.loginButton, "Login");
+		button(GameObjects.helpButton, "Help");
+	}
+	
+	private void button(Rectangle r, String text) {
 		bg.setColor(Color.gray);
-		bg.fill3DRect(login.x, login.y, login.width, login.height, true);
+		bg.fill3DRect(r.x, r.y, r.width, r.height, true);
 		bg.setColor(Color.white);
-		w = bg.getFontMetrics().stringWidth("Login");
-		bg.drawString("Login", login.x + login.width / 2 - w / 2, login.y + 18);
+		int w = bg.getFontMetrics().stringWidth(text);
+		bg.drawString(text, r.x + r.width / 2 - w / 2, r.y + 18);
+	}
+
+	public void drawHelpScreen(int cycle) {
+		background(cycle);
+		int w;
+		bg.setColor(Color.white);
+		bg.setFont(new Font("Arial", Font.PLAIN, 20));
+
+		int y = 190;
+		for (String s : GameObjects.help) {
+			w = bg.getFontMetrics().stringWidth(s);
+			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
+		}
+
+		button(GameObjects.backButton, "Back");
 	}
 
 	public void drawDiedScreen(int l) {
 		int alpha = (int) ((l / 50.0d) * 255.0d);
-		bg.setColor(new Color(0, 0, 0, alpha));
+		bg.setColor(new Color(255, 255, 255, alpha));
 		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 		((Graphics2D) bg).setPaint(new GradientPaint(200, 200, new Color(0,
 				255, 0), 400, 400, new Color(0, 0, 255)));

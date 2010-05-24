@@ -33,7 +33,7 @@ public class KeyHandler extends BugfixKeyListener {
 			System.out.println("key pressed");
 
 		int moveDir = 0;
-		if (IcePush.state == IcePush.WELCOME) {
+		if (IcePush.state == IcePush.WELCOME || IcePush.state == IcePush.HELP) {
 			int code = e.getKeyCode();
 			if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
 				if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {

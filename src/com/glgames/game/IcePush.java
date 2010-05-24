@@ -14,8 +14,9 @@ public class IcePush extends Applet implements Runnable {
 
 	// state stuff
 	public static final int WELCOME = 0;
-	public static final int PLAY = 1;
-	public static final int DIED = 2;
+	public static final int HELP = 1;
+	public static final int PLAY = 2;
+	public static final int DIED = 3;
 
 	public static int state = WELCOME;
 
@@ -93,6 +94,8 @@ public class IcePush extends Applet implements Runnable {
 				buffGraphics.fillRect(0, 0, WIDTH, HEIGHT);
 				if (state == WELCOME) {
 					titleLoop();
+				} else if (state == HELP) {
+					helpLoop();
 				} else if (state == PLAY) {
 					gameLoop();
 				} else if (state == DIED) {
@@ -113,6 +116,10 @@ public class IcePush extends Applet implements Runnable {
 
 	private static void titleLoop() {
 		renderer.drawWelcomeScreen(cycle);
+	}
+
+	private static void helpLoop() {
+		renderer.drawHelpScreen(cycle);
 	}
 
 	private static void gameLoop() {
