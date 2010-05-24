@@ -12,6 +12,7 @@ public class Renderer3D extends Renderer {
 		Triangles.init(IcePush.WIDTH, IcePush.HEIGHT, c);
 		faceArray = new Face[5000];
 		cameraY = 100;
+		yaw = 180;
 	}
 
 	public void renderScene(Object3D objArray[], Object3D[] scenery) {
@@ -207,7 +208,7 @@ public class Renderer3D extends Renderer {
 	public double cameraY;
 	public double cameraZ;
 
-	public int pitch, yaw;
+	public int pitch = 0, yaw = 180;
 
 	public double focusX, focusY, focusZ;
 

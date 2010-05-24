@@ -79,6 +79,14 @@ public class KeyHandler extends BugfixKeyListener {
 					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
 						((Renderer3D) IcePush.renderer).pitch += 5;
 					break;
+				case KeyEvent.VK_A:
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
+						((Renderer3D) IcePush.renderer).yaw -= 5;
+					break;
+				case KeyEvent.VK_D:
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
+						((Renderer3D) IcePush.renderer).yaw += 5;
+					break;
 				case KeyEvent.VK_2:
 					IcePush.renderer.switchMode(GameObjects.SOFTWARE_2D);
 					break;
