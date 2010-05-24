@@ -48,7 +48,7 @@ public class NetworkHandler {
 				// Successful login
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
-				KeyHandler.moveFlags = KeyHandler.rotFlags = 0;
+				KeyHandler.moveFlags = 0;
 				if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 					GameObjects.players = new Player2D[50];
 				else
@@ -173,30 +173,6 @@ public class NetworkHandler {
 						pbuf.readByte(); // bubble alpha not needed for 3d
 					}
 					break;
-				case PLAYER_ROTATED:
-					id = pbuf.readShort();
-					if (GameObjects.players[id] instanceof Player2D) {
-						p2 = (Player2D) GameObjects.players[id];
-						if (p2 == null) { // ???????????????
-							System.out
-									.println("null player tried to set can move ??? "
-											+ id);
-							break;
-						}
-						p2.rotation = pbuf.readShort();
-					} else {
-						p3 = (Player3D) GameObjects.players[id];
-						if (p3 == null) { // ???????????????
-							System.out
-									.println("null player tried to set rotation ??? "
-											+ id);
-							break;
-						}
-						p3.rotationY = pbuf.readShort();
-						if(id == NetworkHandler.id)
-							((Renderer3D) IcePush.renderer).yaw = (int) p3.rotationY;
-					}
-					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
 					GameObjects.players[id] = null;
@@ -295,42 +271,6 @@ public class NetworkHandler {
 			pbuf.synch();
 			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Select a server and username.";
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static int rotID;
-	
-	public static void sendRotationRequest(int rotDir) {
-		if (IcePush.state != IcePush.PLAY)
-			return;
-		try {
-			if (IcePush.DEBUG)
-				System.out.println("SENDING ROTATE REQUEST - ID: " + rotID
-						+ " - DIR: " + rotDir + ", TIME: "
-						+ System.currentTimeMillis());
-			pbuf.beginPacket(ROTATE_REQUEST);
-			pbuf.writeByte(rotDir);
-			pbuf.writeByte(rotID);
-			pbuf.endPacket();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void endRotationRequest(int rotDir) {
-		if (IcePush.state != IcePush.PLAY)
-			return;
-		try {
-			if (IcePush.DEBUG)
-				System.out.println("ENDING ROTATE REQUEST - ID: " + rotID
-						+ " - TIME: " + System.currentTimeMillis());
-			pbuf.beginPacket(END_ROTATE);
-			pbuf.writeByte(rotDir);
-			pbuf.writeByte(rotID);
-			pbuf.endPacket();
-			moveID = (rotID + 1) & 255;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

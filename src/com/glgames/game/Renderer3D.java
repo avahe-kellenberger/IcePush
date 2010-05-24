@@ -31,11 +31,11 @@ public class Renderer3D extends Renderer {
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
-			double yawRad = Math.toRadians(((double) yaw) - obj.rotationY);
+			double yawRad = Math.toRadians(yaw);
 			yawSin = Math.sin(yawRad);
 			yawCos = Math.cos(yawRad);
 
-			double pitchRad = Math.toRadians(((double) pitch) - obj.rotationX);
+			double pitchRad = Math.toRadians(pitch);
 			pitchSin = Math.sin(pitchRad);
 			pitchCos = Math.cos(pitchRad);
 

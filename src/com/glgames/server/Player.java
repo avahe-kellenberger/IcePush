@@ -28,30 +28,21 @@ public class Player {
 	public boolean connected;
 	public boolean canMove = true;
 	private int moveDir = 0;
-	private int rotDir = 0;
-	
-	public int rotation;
 
 	public Player() {
 
 	}
-	
-	private void setBit(int flag, boolean rot) {
-		if (rot)
-			rotDir |= flag;
-		else
-			moveDir |= flag;
+
+	private void setBit(int flag) {
+		moveDir |= flag;
 	}
 
-	private void clearBit(int flag, boolean rot) {
-		if (rot)
-			rotDir &= ~flag;
-		else
-			moveDir &= ~flag;
+	private void clearBit(int flag) {
+		moveDir &= ~flag;
 	}
 
-	private boolean isSet(int var, int flag) {
-		return (var & flag) != 0;
+	private boolean isSet(int flag) {
+		return (moveDir & flag) != 0;
 	}
 	
 	public void notifyLogin() {
@@ -106,48 +97,17 @@ public class Player {
 		dx = dy = moveDir = 0;
 	}
 
-	public void handleMove() {
-		if(rotDir != 0) {
-			if(isSet(rotDir, LEFT))
-				rotation = (rotation + 3) % 360;
-			if(isSet(rotDir, RIGHT))
-				rotation = (rotation - 3) % 360;
-
-			for (Player plr : Server.players) {
-				if (plr == null)
-					continue;
-				if (Server.DEBUG)
-					System.out.println("SENDING ROTATE - " + id + " : "
-							+ rotation);
-
-				plr.pbuf.beginPacket(PLAYER_ROTATED); // player moved
-				plr.pbuf.writeShort(id);
-				plr.pbuf.writeShort(rotation);
-				plr.pbuf.endPacket();
-			}
-		}
-		
+	public void handleMove() {		
 		if (moveDir != 0) {
 			if(!canMove)
 				return;
-			double rad;
-			if(isSet(moveDir, FORWARD)) {
-				rad = rotation * Math.PI / 180;
-				dx += Math.sin(rad);
-				dy += Math.cos(rad);
-			}
-			if(isSet(moveDir, BACKWARD)) {
-				rad = rotation * Math.PI / 180;
-				dx -= Math.sin(rad);
-				dy -= Math.cos(rad);
-			}
-			if(isSet(moveDir, UP))
+			if(isSet(UP))
 				dy--;
-			if(isSet(moveDir, DOWN))
+			if(isSet(DOWN))
 				dy++;
-			if(isSet(moveDir, LEFT))
+			if(isSet(LEFT))
 				dx--;
-			if(isSet(moveDir, RIGHT))
+			if(isSet(RIGHT))
 				dx++;
 			
 			Player p = getPlayerInWay();
@@ -256,7 +216,7 @@ public class Player {
 			while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
 					case MOVE_REQUEST:
-						setBit(pbuf.readByte(), false);
+						setBit(pbuf.readByte());
 						int moveid = pbuf.readByte();
 						if (Server.DEBUG)
 							System.out.println("GOT MOVE REQUEST - DIR: "
@@ -264,24 +224,9 @@ public class Player {
 									+ " , TIME: " + System.currentTimeMillis());
 						break;
 					case END_MOVE:
-						clearBit(pbuf.readByte(), false);
+						clearBit(pbuf.readByte());
 						if (Server.DEBUG)
 							System.out.println("END MOVE REQUEST - ID = "
-									+ pbuf.readByte() + " - TIME = "
-									+ System.currentTimeMillis());
-						break;
-					case ROTATE_REQUEST:
-						setBit(pbuf.readByte(), true);
-						int rotid = pbuf.readByte();
-						if (Server.DEBUG)
-							System.out.println("GOT ROTATE REQUEST - DIR: "
-									+ moveDir + " - ID = " + rotid
-									+ " , TIME: " + System.currentTimeMillis());
-						break;
-					case END_ROTATE:
-						clearBit(pbuf.readByte(), true);
-						if (Server.DEBUG)
-							System.out.println("END ROTATE REQUEST - ID = "
 									+ pbuf.readByte() + " - TIME = "
 									+ System.currentTimeMillis());
 						break;
