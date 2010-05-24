@@ -74,7 +74,6 @@ public class GameObjects {
 					.getSprite("images/water.jpg"), new Rectangle(0, 0, 512, 512));
 			foreground = new TexturePaint(SpriteLoader.getSprite("images/ice.jpg"),
 					new Rectangle(playingArea.x, playingArea.y, 400, 400));
-			System.out.println(background);
 			
 			trySleep(600);
 			loadingMessage = "Done";

@@ -4,9 +4,32 @@ import java.awt.event.KeyEvent;
 
 import com.glgames.server.Player;
 
-
+/**
+ * Needs less instanceof.
+ * @author tekk
+ *
+ */
 public class KeyHandler extends BugfixKeyListener {
-	static boolean isMoving, isRotating;
+	static int moveFlags, rotFlags;
+	
+	private void setBit(int flag, boolean rot) {
+		if (rot)
+			rotFlags |= flag;
+		else
+			moveFlags |= flag;
+	}
+
+	private void clearBit(int flag, boolean rot) {
+		if (rot)
+			rotFlags &= ~flag;
+		else
+			moveFlags &= ~flag;
+	}
+
+	private boolean isSet(int var, int flag) {
+		return (var & flag) > 0;
+	}
+	
 	
 	public void keyPressed(KeyEvent e) {
 		super.keyPressed(e);
@@ -14,8 +37,8 @@ public class KeyHandler extends BugfixKeyListener {
 			return;
 		if(IcePush.DEBUG)
 			System.out.println("key pressed");
-		int moveDir = -1;
-		int rotDir = -1;
+		int moveDir = 0;
+		int rotDir = 0;
 
 		if(IcePush.state == IcePush.WELCOME) {
 			int code = e.getKeyCode();
@@ -82,19 +105,18 @@ public class KeyHandler extends BugfixKeyListener {
 				break;
 		}
 		
-		if(moveDir != -1) {
-			if(isMoving)
+		if(moveDir != 0) {
+			if(isSet(moveFlags, moveDir))
 				return;
-			
 			NetworkHandler.sendMoveRequest(moveDir);
-			isMoving = true;
+			setBit(moveDir, false);
 		}
-		if(rotDir != -1) {
-			if(isRotating)
+		if(rotDir != 0) {
+			if(isSet(rotFlags, rotDir))
 				return;
 			
 			NetworkHandler.sendRotationRequest(rotDir);
-			isRotating = true;
+			setBit(rotDir, true);
 		}
 	}
 
@@ -104,22 +126,48 @@ public class KeyHandler extends BugfixKeyListener {
 			return;
 		if (IcePush.DEBUG)
 			System.out.println("key released");
+		
+		int moveDir = 0;
+		int rotDir = 0;
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_UP:
+				if (IcePush.renderer instanceof Renderer3D)
+					moveDir = Player.FORWARD;
+				else
+					moveDir = Player.UP;
+				break;
 			case KeyEvent.VK_DOWN:
-				NetworkHandler.endMoveRequest();
-				isMoving = false;
+				if (IcePush.renderer instanceof Renderer3D)
+					moveDir = Player.BACKWARD;
+				else
+					moveDir = Player.DOWN;
 				break;
 			case KeyEvent.VK_LEFT:
-			case KeyEvent.VK_RIGHT:
-				if (IcePush.renderer instanceof Renderer3D) {
-					NetworkHandler.endRotationRequest();
-					isRotating = false;
-				} else {
-					NetworkHandler.endMoveRequest();
-					isMoving = false;
-				}
+				if(IcePush.renderer instanceof Renderer3D)
+					rotDir = Player.LEFT;
+				else
+					moveDir = Player.LEFT;
 				break;
+			case KeyEvent.VK_RIGHT:
+				if(IcePush.renderer instanceof Renderer3D)
+					rotDir = Player.RIGHT;
+				else
+					moveDir = Player.RIGHT;
+				break;
+		}
+		if(moveDir != 0) {
+			NetworkHandler.endMoveRequest(moveDir);
+			clearBit(moveDir, false);
+		}
+		
+		if(rotDir != 0) {
+			if (IcePush.renderer instanceof Renderer3D) {
+				NetworkHandler.endRotationRequest(rotDir);
+				clearBit(rotDir, true);
+			} else {
+				NetworkHandler.endMoveRequest(moveDir);
+				clearBit(moveDir, false);
+			}
 		}
 	}
 }

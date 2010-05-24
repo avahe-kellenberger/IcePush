@@ -78,7 +78,8 @@ public class ServerList {
 		x -= compx;
 		y -= this.y + 10;
 		int index = y / fontheight;
-		System.out.println(index);
+		if(IcePush.DEBUG)
+			System.out.println(index);
 		if(index < 0 || index > servers.length - 1)
 			return;
 		selected = servers[index];

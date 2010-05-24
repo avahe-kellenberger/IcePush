@@ -198,7 +198,8 @@ public abstract class Renderer {
 			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
 		} else
 			throw new IllegalStateException("wtf");
-		System.out.println("Graphics mode set to " + GameObjects.GRAPHICS_MODE);
+		if(IcePush.DEBUG)
+			System.out.println("Graphics mode set to " + GameObjects.GRAPHICS_MODE);
 	}
 
 	public abstract void drawDebug();

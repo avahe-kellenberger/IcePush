@@ -1,7 +1,7 @@
 package com.glgames.game;
 
-import java.awt.Component;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 
 public class Renderer3D extends Renderer {
@@ -15,8 +15,10 @@ public class Renderer3D extends Renderer {
 	}
 
 	public void renderScene(Object3D objArray[], Object3D[] scenery) {
+		Triangles.setAllPixelsToZero();
 		doRender(scenery);
 		doRender(objArray);
+		Triangles.pm.draw(0, 0, bg);
 	}
 
 	private void doRender(Object3D[] objArray) {
@@ -108,12 +110,11 @@ public class Renderer3D extends Renderer {
 		}
 		Triangle[] tris = triangulatePolygons(faceArray, faceIndex);
 		java.util.Arrays.sort(tris, 0, triLen);
-		Triangles.setAllPixelsToZero();
+
 		for (int i = triLen - 1; i --> 0;) {
 			Triangle t = tris[i];
 			Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
 		}
-		Triangles.pm.draw(0, 0, bg);
 	}
 	
 	static int triLen;

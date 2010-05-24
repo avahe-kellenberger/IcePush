@@ -27,13 +27,31 @@ public class Player {
 	public String username;
 	public boolean connected;
 	public boolean canMove = true;
-	private int moveDir = -1;
-	private int rotDir = -1;
+	private int moveDir = 0;
+	private int rotDir = 0;
 	
 	public int rotation;
 
 	public Player() {
 
+	}
+	
+	private void setBit(int flag, boolean rot) {
+		if (rot)
+			rotDir |= flag;
+		else
+			moveDir |= flag;
+	}
+
+	private void clearBit(int flag, boolean rot) {
+		if (rot)
+			rotDir &= ~flag;
+		else
+			moveDir &= ~flag;
+	}
+
+	private boolean isSet(int var, int flag) {
+		return (var & flag) != 0;
 	}
 	
 	public void notifyLogin() {
@@ -85,20 +103,16 @@ public class Player {
 		}
 		area = r;
 
-		dx = dy = 0;
-		moveDir = -1;
+		dx = dy = moveDir = 0;
 	}
 
 	public void handleMove() {
-		if(rotDir != -1) {
-			switch(rotDir) {
-				case LEFT:
-					rotation = (rotation + 3) % 360;
-					break;
-				case RIGHT:
-					rotation = (rotation - 3) % 360;
-					break;
-			}
+		if(rotDir != 0) {
+			if(isSet(rotDir, LEFT))
+				rotation = (rotation + 3) % 360;
+			if(isSet(rotDir, RIGHT))
+				rotation = (rotation - 3) % 360;
+
 			for (Player plr : Server.players) {
 				if (plr == null)
 					continue;
@@ -112,35 +126,30 @@ public class Player {
 				plr.pbuf.endPacket();
 			}
 		}
-		if (moveDir != -1) {
+		
+		if (moveDir != 0) {
 			if(!canMove)
 				return;
 			double rad;
-			switch (moveDir) {
-				case FORWARD: // forward
-					rad = rotation * Math.PI / 180;
-					dx += Math.sin(rad);
-					dy += Math.cos(rad);
-					break;
-				case BACKWARD: // backward
-					rad = rotation * Math.PI / 180;
-					dx -= Math.sin(rad);
-					dy -= Math.cos(rad);
-					break;
-				case UP:
-					dy--;
-					break;
-				case DOWN:
-					dy++;
-					break;
-				case LEFT:
-					dx--;
-					break;
-				case RIGHT:
-					dx++;
-					break;
+			if(isSet(moveDir, FORWARD)) {
+				rad = rotation * Math.PI / 180;
+				dx += Math.sin(rad);
+				dy += Math.cos(rad);
 			}
-
+			if(isSet(moveDir, BACKWARD)) {
+				rad = rotation * Math.PI / 180;
+				dx -= Math.sin(rad);
+				dy -= Math.cos(rad);
+			}
+			if(isSet(moveDir, UP))
+				dy--;
+			if(isSet(moveDir, DOWN))
+				dy++;
+			if(isSet(moveDir, LEFT))
+				dx--;
+			if(isSet(moveDir, RIGHT))
+				dx++;
+			
 			Player p = getPlayerInWay();
 			if (p != null && p.canMove) {
 				p.moveDir = moveDir;
@@ -150,8 +159,7 @@ public class Player {
 				p.handleMove();
 				return;
 			} else if(p != null && !p.canMove) {
-				dx = dy = 0;
-				moveDir = -1;
+				dx = dy = moveDir = 0;
 			}
 			
 			if(dx > 4)
@@ -248,7 +256,7 @@ public class Player {
 			while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
 					case MOVE_REQUEST:
-						moveDir = pbuf.readByte();
+						setBit(pbuf.readByte(), false);
 						int moveid = pbuf.readByte();
 						if (Server.DEBUG)
 							System.out.println("GOT MOVE REQUEST - DIR: "
@@ -256,14 +264,14 @@ public class Player {
 									+ " , TIME: " + System.currentTimeMillis());
 						break;
 					case END_MOVE:
-						moveDir = -1;
+						clearBit(pbuf.readByte(), false);
 						if (Server.DEBUG)
 							System.out.println("END MOVE REQUEST - ID = "
 									+ pbuf.readByte() + " - TIME = "
 									+ System.currentTimeMillis());
 						break;
 					case ROTATE_REQUEST:
-						rotDir = pbuf.readByte();
+						setBit(pbuf.readByte(), true);
 						int rotid = pbuf.readByte();
 						if (Server.DEBUG)
 							System.out.println("GOT ROTATE REQUEST - DIR: "
@@ -271,7 +279,7 @@ public class Player {
 									+ " , TIME: " + System.currentTimeMillis());
 						break;
 					case END_ROTATE:
-						rotDir = -1;
+						clearBit(pbuf.readByte(), true);
 						if (Server.DEBUG)
 							System.out.println("END ROTATE REQUEST - ID = "
 									+ pbuf.readByte() + " - TIME = "

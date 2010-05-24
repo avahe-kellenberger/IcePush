@@ -1,21 +1,6 @@
 package com.glgames.game;
 
-import static com.glgames.shared.Opcodes.*;/*BAD_VERSION;
-import static com.glgames.shared.Opcodes.END_MOVE;
-import static com.glgames.shared.Opcodes.KEEP_ALIVE;
-import static com.glgames.shared.Opcodes.LOGOUT;
-import static com.glgames.shared.Opcodes.MOVE_REQUEST;
-import static com.glgames.shared.Opcodes.NEW_PLAYER;
-import static com.glgames.shared.Opcodes.PLAYER_DIED;
-import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
-import static com.glgames.shared.Opcodes.PLAYER_MOVED;
-import static com.glgames.shared.Opcodes.SET_CAN_MOVE;
-import static com.glgames.shared.Opcodes.SUCCESS_LOG;
-import static com.glgames.shared.Opcodes.TOO_MANY_PL;
-import static com.glgames.shared.Opcodes.TREE;
-import static com.glgames.shared.Opcodes.USER_IN_USE;
-import static com.glgames.shared.Opcodes.VERSION;
-import static com.glgames.shared.Opcodes.PING;*/
+import static com.glgames.shared.Opcodes.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,8 +23,9 @@ public class NetworkHandler {
 		try {
 			long start = System.currentTimeMillis();
 			sock = new Socket(server, 2345);
-			System.out.println("Time to establish socket: "
-					+ (System.currentTimeMillis() - start));
+			if (IcePush.DEBUG)
+				System.out.println("Time to establish socket: "
+						+ (System.currentTimeMillis() - start));
 			sock.setTcpNoDelay(true);
 
 			OutputStream out = sock.getOutputStream();
@@ -62,7 +48,7 @@ public class NetworkHandler {
 				// Successful login
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
-				KeyHandler.isMoving = false;
+				KeyHandler.moveFlags = KeyHandler.rotFlags = 0;
 				if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 					GameObjects.players = new Player2D[50];
 				else
@@ -283,14 +269,15 @@ public class NetworkHandler {
 		pbuf.endPacket();
 	}
 
-	public static void endMoveRequest() {
+	public static void endMoveRequest(int moveDir) {
 		if (IcePush.state != IcePush.PLAY)
 			return;
 		try {
 			if (IcePush.DEBUG)
-				System.out.println("ENDING MOVE REQUEST - ID: " + moveID
+				System.out.println("ENDING MOVE REQUEST - DIR: " + moveDir + ", ID: " + moveID
 						+ " - TIME: " + System.currentTimeMillis());
 			pbuf.beginPacket(END_MOVE);
+			pbuf.writeByte(moveDir);
 			pbuf.writeByte(moveID);
 			pbuf.endPacket();
 			moveID = (moveID + 1) & 255;
@@ -332,7 +319,7 @@ public class NetworkHandler {
 		}
 	}
 	
-	public static void endRotationRequest() {
+	public static void endRotationRequest(int rotDir) {
 		if (IcePush.state != IcePush.PLAY)
 			return;
 		try {
@@ -340,6 +327,7 @@ public class NetworkHandler {
 				System.out.println("ENDING ROTATE REQUEST - ID: " + rotID
 						+ " - TIME: " + System.currentTimeMillis());
 			pbuf.beginPacket(END_ROTATE);
+			pbuf.writeByte(rotDir);
 			pbuf.writeByte(rotID);
 			pbuf.endPacket();
 			moveID = (rotID + 1) & 255;
