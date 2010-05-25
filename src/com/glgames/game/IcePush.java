@@ -33,7 +33,12 @@ public class IcePush extends Applet implements Runnable {
 
 	public static Renderer renderer;
 
+	private static KeyHandler klRef;
+
+	private static boolean anApplet = true;
+
 	public static void main(String[] args) {
+		anApplet = false;
 		_init();
 		instance.run();
 		cleanup();
@@ -42,7 +47,7 @@ public class IcePush extends Applet implements Runnable {
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
 		instance.setFocusTraversalKeysEnabled(false);
-		instance.addKeyListener(new KeyHandler());
+		instance.addKeyListener(klRef = new KeyHandler());
 		instance.addMouseListener(new MouseHandler());
 		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 			renderer = new Renderer2D(instance);
@@ -114,6 +119,10 @@ public class IcePush extends Applet implements Runnable {
 		}
 	}
 
+	public void stop() {
+		running = false;
+	}
+
 	private static void titleLoop() {
 		renderer.drawWelcomeScreen(cycle);
 	}
@@ -151,10 +160,13 @@ public class IcePush extends Applet implements Runnable {
 	}
 
 	public static void cleanup() {
+		running = false;
 		NetworkHandler.logOut();
-		if (frame != null)
-			frame.dispose();
-		System.exit(0);
+		klRef.quit();
+		klRef = null;
+		instance = null;
+		System.gc();
+		if(!anApplet) System.exit(0); // -- TEMPORARY SOLUTION FOR TIMER FIRING FAILURE FAGGOTRY //
 	}
 
 	public Dimension getPreferredSize() {

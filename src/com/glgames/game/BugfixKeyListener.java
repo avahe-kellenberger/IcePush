@@ -13,7 +13,7 @@ import javax.swing.Timer;
  *
  */
 public class BugfixKeyListener implements KeyListener, ActionListener {
-	private final Timer timer;
+	private Timer timer;
 
 	private boolean released = false;
 	private KeyEvent releaseEvent;
@@ -70,5 +70,12 @@ public class BugfixKeyListener implements KeyListener, ActionListener {
 	 */
 	protected boolean getReleased() {
 		return released;
+	}
+
+	public void quit() {
+		timer.removeActionListener(this);
+		timer.stop();
+		timer = null;
+		System.gc();
 	}
 }
