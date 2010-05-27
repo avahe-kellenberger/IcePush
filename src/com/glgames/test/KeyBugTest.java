@@ -18,6 +18,10 @@ public class KeyBugTest extends Frame {
 	THIS IS VERY BAD AND WE ARE THUSLY LOOKING FOR A LESS SHITTY SOLUTION, WHENCE THE CREATION OF THIS TEST.
 	*/
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private long lastKETime;
 
 	public static void main(String thusly[]) {

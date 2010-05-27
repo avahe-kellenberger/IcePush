@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ServerList {
 	private int y, width, fontheight;
@@ -46,6 +44,8 @@ public class ServerList {
 		for(int i = 0; i < servers.length; i++) {
 			String serv = servers[i];
 			String count = counts[i];
+			if(serv == null || count == null)
+				continue;
 			if(serv.equals(selected)) {
 				g.setColor(Color.green);
 				g.fill3DRect(x + 10, y, 15, 15, false);
@@ -66,6 +66,8 @@ public class ServerList {
 		FontMetrics m = g.getFontMetrics();
 		int max = -1;
 		for(int i = 0; i < servers.length; i++) {
+			if(servers[i] == null || counts[i] == null)
+				continue;
 			String serv = servers[i], count = counts[i];
 			if(m.stringWidth(serv) > max)
 				max = m.stringWidth(serv + count);
