@@ -26,9 +26,9 @@ public class InterthreadQueue<T> {
 		head = nh;
 	}
 
-	private class Node<T> {
-		private Node<T> prev;
-		private T item;
+	private class Node<NT> {
+		private Node<NT> prev;
+		private NT item;
 	}
 }
 

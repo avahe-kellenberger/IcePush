@@ -15,7 +15,7 @@ public class ServerList {
 	
 	public ServerList(int y) {
 		this.y = y;
-		new Timer().schedule(new TimerTask() {
+		new Thread() {
 			public void run() {
 				Map<String, Integer> map = NetworkHandler.getWorlds();
 				servers = new String[map.size()];
@@ -29,9 +29,9 @@ public class ServerList {
 									+ (num != 1 ? " players" : " player"));
 					i++;
 				}
-				// selected = servers[0];
+				try { Thread.sleep(10000); } catch(Exception e) { }
 			}
-		}, 0, 10000);
+		}.start();
 	}
 	
 	public void draw(Graphics g) {

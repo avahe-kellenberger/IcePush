@@ -39,13 +39,11 @@ public class IcePush extends Applet implements Runnable {
 	public static int lastDied;
 
 	public static Renderer renderer;
-	private static boolean anApplet = true;
 
 	private InterthreadQueue<KeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
 
 	public static void main(String[] args) {
-		anApplet = false;
 		_init();
 		instance.run();
 		cleanup();
