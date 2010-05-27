@@ -48,7 +48,7 @@ public class NetworkHandler {
 				// Successful login
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
-				KeyHandler.moveFlags = 0;
+				IcePush.moveFlags = 0;
 				if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
 					GameObjects.players = new Player2D[50];
 				else

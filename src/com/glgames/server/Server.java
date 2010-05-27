@@ -12,6 +12,7 @@ import java.net.Socket;
 
 import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
+import com.glgames.shared.InterthreadQueue;
 
 public class Server implements Runnable {
 	public static boolean DEBUG = false;
@@ -20,15 +21,17 @@ public class Server implements Runnable {
 	private boolean run = true;
 	private ServerSocket listener;
 	private Socket worldserver;
+	private InterthreadQueue<Socket> incomingConnections;
 
 	public Server(int port) {
 		try {
+			incomingConnections = new InterthreadQueue<Socket>();
 			listener = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
 			(new Thread(this)).start();
 
 			while (run) {
-				Socket s = SocketWrapper.pull();
+				Socket s = incomingConnections.pull();
 				if (s != null) {
 					System.out.println("Client accepted, socket: "
 							+ s.toString());
@@ -127,7 +130,7 @@ public class Server implements Runnable {
 	public void run() {
 		while (run)
 			try {
-				SocketWrapper.push(listener.accept());
+				incomingConnections.push(listener.accept());
 				Thread.sleep(30);
 			} catch (Exception ioe) {
 				System.out.println("Error accepting connections!");
