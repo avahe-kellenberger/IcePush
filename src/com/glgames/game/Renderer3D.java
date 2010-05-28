@@ -56,6 +56,7 @@ public class Renderer3D extends Renderer {
 				// Will be discarded if this face is culled
 				int drawXBuf[] = new int[vertexCount];
 				int drawYBuf[] = new int[vertexCount];
+				int drawZBuf[] = new int[vertexCount];
 
 				for (int currentVertex = 0; currentVertex < vertexCount; currentVertex++) {
 					int vertexID = obj.faceVertices[currentFace][currentVertex];
@@ -84,6 +85,7 @@ public class Renderer3D extends Renderer {
 
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
+					int drawZ = (int) (1 / obj.vertZRelCam[vertexID]);
 
 					if (drawX >= 0 && drawX <= IcePush.WIDTH && drawY >= 0
 							&& drawY <= IcePush.HEIGHT)
@@ -91,6 +93,7 @@ public class Renderer3D extends Renderer {
 
 					drawXBuf[currentVertex] = drawX;
 					drawYBuf[currentVertex] = drawY;
+					drawZBuf[currentVertex] = drawZ;
 				}
 
 				if (!withinViewport)
@@ -105,13 +108,13 @@ public class Renderer3D extends Renderer {
 
 				if (faceIndex > 4998)
 					faceIndex = 4998;
-				if(obj.faceColors != null) {
+				if (obj.faceColors != null) {
 					faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
-							vertexCount, distance, obj.faceColors[currentFace],
-							null);
+							drawZBuf, vertexCount, distance,
+							obj.faceColors[currentFace], null);
 				} else if (obj.faceTextures != null) {
 					faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
-							vertexCount, distance, null,
+							drawZBuf, vertexCount, distance, null,
 							obj.faceTextures[currentFace]);
 				}
 			}
@@ -124,8 +127,9 @@ public class Renderer3D extends Renderer {
 			if(t.color != null)
 				Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
 			else if(t.texture != null)
-				Triangles.fillGradientTriangle(t.x1, t.y1, t.x2, t.y2, t.x3,
-						t.y3, 0xff0000, 0xff00, 0xff);
+				Triangles.textureMappedTriangle(t.texture, t.x1, t.y1, t.x2,
+						t.y2, t.x3, t.y3, 0, 0, t.z1, 255, 0, t.z2, 255, 255,
+						t.z3);
 		}
 	}
 	
@@ -138,6 +142,7 @@ public class Renderer3D extends Renderer {
 			Face f = faces[k];
 			int fanX = f.drawX[0];
 			int fanY = f.drawY[0];
+			int fanZ = f.drawZ[0];
 
 			// Skip the adjacent vertices
 			for (int vertex = 2; vertex < f.drawX.length; vertex++) {
@@ -148,6 +153,11 @@ public class Renderer3D extends Renderer {
 				t.y2 = f.drawY[vertex - 1];
 				t.x3 = f.drawX[vertex];
 				t.y3 = f.drawY[vertex];
+				
+				t.z1 = fanZ;
+				t.z2 = f.drawZ[vertex - 1];
+				t.z3 = f.drawZ[vertex];
+				
 				t.distance = f.distance;
 				t.color = f.color;
 				t.texture = f.texture;

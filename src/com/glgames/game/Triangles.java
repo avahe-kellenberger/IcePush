@@ -130,8 +130,7 @@ public class Triangles {
 	}
 
 	public static int colorToInt(Color col) {
-		return (col.getAlpha() << 24) | (col.getRed() << 16)
-				| (col.getGreen() << 8) | col.getBlue();
+		return col.getRGB();
 	}
 
 	public static int brightenColor(int color, int brightness) {
@@ -297,7 +296,6 @@ public class Triangles {
 
 		pixels[width * y1 + x1] = pixels[width * y2 + x2] = pixels[width * y3
 				+ x3] = 0xffffff;
-
 	}
 
 	/**
@@ -305,7 +303,6 @@ public class Triangles {
 	 * perspective mapping.
 	 */
 	static int[] genTexture() {
-
 		int[] texture = new int[4096];
 
 		for (int i = 0; i < 64; i++)
@@ -324,7 +321,6 @@ public class Triangles {
 				// perspective mapping
 			}
 		return texture;
-
 	}
 
 	/*
@@ -1436,7 +1432,6 @@ public class Triangles {
 	 **/
 	static boolean solve(int x1, int y1, int z1, int x2, int y2, int z2,
 			int x3, int y3, int z3) {
-
 		int dx12 = x1 - x2;
 		int dx13 = x1 - x3;
 
@@ -1456,7 +1451,6 @@ public class Triangles {
 		c = z1 - (a * x1 + b * y1);
 
 		return true;
-
 	}
 
 	/**
@@ -1466,7 +1460,6 @@ public class Triangles {
 	 **/
 	static boolean solveLinear(int x1, int y1, int z1, int x2, int y2, int z2,
 			int x3, int y3, int z3) {
-
 		int dx12 = x1 - x2;
 		int dx13 = x1 - x3;
 
@@ -1486,7 +1479,6 @@ public class Triangles {
 		c = z1 - (a * x1 + b * y1);
 
 		return true;
-
 	}
 
 	private static void gradientLine(int pixels[], int index, int start,
