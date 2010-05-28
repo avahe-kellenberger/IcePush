@@ -124,9 +124,8 @@ public class Renderer3D extends Renderer {
 			if(t.color != null)
 				Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
 			else if(t.texture != null)
-				Triangles.texturemapRectTest(t.texture.pixels,
-						t.texture.sidelen, 0, 0, 255, 0, 255, 255, t.x1, t.y1,
-						t.x2, t.y2, t.x3, t.y3, 1, 1, 1);
+				Triangles.fillGradientTriangle(t.x1, t.y1, t.x2, t.y2, t.x3,
+						t.y3, 0xff0000, 0xff00, 0xff);
 		}
 	}
 	

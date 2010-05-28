@@ -341,14 +341,103 @@ public class Triangles {
 	 */
 
 	public static void textureMappedTriangle(Texture texture, int x1, int y1,
-			int x2, int y2, int x3, int y3) {
+			int x2, int y2, int x3, int y3, int u1, int v1, int z1, int u2,
+			int v2, int z2, int u3, int v3, int z3) {
 		textureMappedTriangle(texture.pixels, texture.sidelen, x1, y1, x2, y2,
-				x3, y3);
+				x3, y3, u1, v1, z1, u2, v2, z2, u3, v3, z3);
 	}
 	
 	public static void textureMappedTriangle(int[] texture, int sidelen,
-			int x1, int y1, int x2, int y2, int x3, int y3) {
-		
+			int x1, int y1, int x2, int y2, int x3, int y3, int u1, int v1,
+			int z1, int u2, int v2, int z2, int u3, int v3, int z3) {
+		triSort(x1, y1, x2, y2, x3, y3);
+		if (_y3 == _y1)
+			return;
+
+		int step31 = scaledWidth + ((_x3 - _x1) << 12) / (_y3 - _y1);
+
+		int right = _y1 * scaledWidth, left = right;
+		int boundLeft = 0, boundRight = 0;
+
+		if (_y1 != _y2) {
+			right += _x1 << 12;
+			left = right;
+			int step21 = scaledWidth + ((_x2 - _x1) << 12) / (_y2 - _y1);
+			// Top part, triangle is broadening. stepLeft < stepRight
+			int stepLeft = 0, stepRight = 0;
+			if (step21 > step31) {
+				stepLeft = step31;
+				stepRight = step21;
+			} else {
+				stepLeft = step21;
+				stepRight = step31;
+			}
+			while (_y1 != _y2) {
+				if (_y1 >= 0 && _y1 < height) {
+					int l = left >> 12;
+					int r = right >> 12;
+
+					boundLeft = lineOffs[_y1];
+					boundRight = boundLeft + width;
+
+					if (l < boundLeft)
+						l = boundLeft;
+					if (r > boundRight)
+						r = boundRight;
+
+					while (l < r)
+						pixels[l++] = 0xff;
+				}
+				left += stepLeft;
+				right += stepRight;
+				_y1++;
+			}
+		} else {
+			// Triangle is flat topped; adjust left & right accordingly + skip
+			// filling top half
+			if (_x1 > _x2) {
+				right += _x1 << 12;
+				left += _x2 << 12;
+			} else {
+				right += _x2 << 12;
+				left += _x1 << 12;
+			}
+		}
+
+		if (_y2 != _y3) {
+			int step23 = scaledWidth + ((_x2 - _x3) << 12) / (_y2 - _y3);
+			// Bottom part: Triangle is narrowing. stepLeft > stepRight.
+			int stepLeft = 0, stepRight = 0;
+			if (step23 > step31) {
+				stepLeft = step23;
+				stepRight = step31;
+			} else {
+				stepLeft = step31;
+				stepRight = step23;
+			}
+			while (_y2 != _y3) {
+				if (_y2 >= 0 && _y2 < height) {
+					int l = left >> 12;
+					int r = right >> 12;
+
+					boundLeft = lineOffs[_y2];
+					boundRight = boundLeft + width;
+
+					if (l < boundLeft)
+						l = boundLeft;
+					if (r > boundRight)
+						r = boundRight;
+
+					while (l < r)
+						pixels[l++] = 0xff;
+				}
+
+				left += stepLeft;
+				right += stepRight;
+				_y2++;
+			}
+		}
+
 	}
 
 	/**
