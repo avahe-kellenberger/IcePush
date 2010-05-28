@@ -32,6 +32,7 @@ public class Renderer3D extends Renderer {
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
+			
 			double yawRad = Math.toRadians(yaw);
 			yawSin = Math.sin(yawRad);
 			yawCos = Math.cos(yawRad);
@@ -104,9 +105,15 @@ public class Renderer3D extends Renderer {
 
 				if (faceIndex > 4998)
 					faceIndex = 4998;
-
-				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
-						vertexCount, distance, obj.faceColors[currentFace]);
+				if(obj.faceColors != null) {
+					faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
+							vertexCount, distance, obj.faceColors[currentFace],
+							null);
+				} else if (obj.faceTextures != null) {
+					faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
+							vertexCount, distance, null,
+							obj.faceTextures[currentFace]);
+				}
 			}
 		}
 		Triangle[] tris = triangulatePolygons(faceArray, faceIndex);
@@ -114,7 +121,12 @@ public class Renderer3D extends Renderer {
 
 		for (int i = triLen - 1; i --> 0;) {
 			Triangle t = tris[i];
-			Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
+			if(t.color != null)
+				Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
+			else if(t.texture != null)
+				Triangles.texturemapRectTest(t.texture.pixels,
+						t.texture.sidelen, 0, 0, 255, 0, 255, 255, t.x1, t.y1,
+						t.x2, t.y2, t.x3, t.y3, 1, 1, 1);
 		}
 	}
 	
@@ -139,6 +151,7 @@ public class Renderer3D extends Renderer {
 				t.y3 = f.drawY[vertex];
 				t.distance = f.distance;
 				t.color = f.color;
+				t.texture = f.texture;
 				out[num++] = t;
 			}
 		}

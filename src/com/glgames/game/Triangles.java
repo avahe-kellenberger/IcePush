@@ -340,327 +340,15 @@ public class Triangles {
 	 * scanoff += width; }
 	 */
 
-	/**
-	 * Tests perspective mapping the test texture.
-	 */
-	static void test() {
-		// new!!!
-		int texture[] = new Texture("assets/textures/2.png").pixels;
-
-		int x = 900, y = 30;
-
-		for (int i = 0; i < 128; i++)
-			for (int j = 0; j < 128; j++)
-				pixels[(x + i) + width * (y + j)] = texture[i + 128 * j];
-
-		try {
-			perspectiveMappedTriangle(150, 150, 500, 300, 300, 500, 0, 0, 1,
-					64, 0, 1, 0, 64, 1, texture, 128);
-			// texturemapRectTest(texture, 128, -32, -32, 128, 0, 0, 128, 150,
-			// 150, 500, 300, 300, 500, 21, 5, 5);
-		} catch (RuntimeException rte) {
-
-			rte.printStackTrace();
-
-		}
-	}
-
 	public static void textureMappedTriangle(Texture texture, int x1, int y1,
 			int x2, int y2, int x3, int y3) {
 		textureMappedTriangle(texture.pixels, texture.sidelen, x1, y1, x2, y2,
 				x3, y3);
 	}
-
-	/**
-	 * Texture maps a triangle. Only works with flat bottom triangles for now,
-	 * but can be easily adapted for any triangle.
-	 * 
-	 * @param texture
-	 * @param sidelen
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
-	 * @param x3
-	 * @param y3
-	 */
+	
 	public static void textureMappedTriangle(int[] texture, int sidelen,
 			int x1, int y1, int x2, int y2, int x3, int y3) {
-		float height = y2 - y1;
-		float changeXLeft = ((float) x3 - x1) / height, changeXRight = ((float) x2 - x1)
-				/ height;
-		float xleft = x1, xright = x1;
-		float ratioy = sidelen / height;
-
-		for (int y = y1; y <= y2; y++) {
-			for (float x = xleft; x <= xright; x++) {
-				float ratiox = sidelen / (xright - xleft);
-				int tindex = (int) (ratiox * (x - xleft)) * sidelen
-						+ (int) (ratioy * (y - y1 - 1));
-				int pindex = y * width + (int) x;
-				if (tindex > 0 && tindex < texture.length - 1 && pindex > 0
-						&& pindex < pixels.length - 1)
-					if ((texture[tindex] & 0xff00ff) != 0xff00ff
-							|| (texture[tindex] & 0xffffff) == 0xffffff)
-						pixels[pindex] = texture[tindex];
-			}
-
-			xleft += changeXLeft;
-			xright += changeXRight;
-		}
-	}
-
-	static float dizdx, duizdx, dvizdx, dizdy, duizdy, dvizdy;
-	static float xa, xb, iza, uiza, viza;
-	static float dxdya, dxdyb, dizdya, duizdya, dvizdya;
-
-	public static void perspectiveMappedTriangle(int _x1, int _y1, int _x2,
-			int _y2, int _x3, int _y3, int _u1, int _v1, int _z1, int _u2,
-			int _v2, int _z2, int _u3, int _v3, int _z3, int[] texture,
-			int sidelen) {
-		float x1, y1, x2, y2, x3, y3;
-		float iz1, uiz1, viz1, iz2, uiz2, viz2, iz3, uiz3, viz3;
-		float dxdy1 = 0, dxdy2 = 0, dxdy3 = 0;
-		float denom;
-		float dy;
-		int y1i, y2i, y3i;
-		boolean side;
-
-		x1 = ((float) _x1) + 0.5f;
-		y1 = ((float) _y1) + 0.5f;
-		x2 = ((float) _x2) + 0.5f;
-		y2 = ((float) _y2) + 0.5f;
-		x3 = ((float) _x3) + 0.5f;
-		y3 = ((float) _y3) + 0.5f;
-
-		iz1 = 1 / _z1;
-		iz2 = 1 / _z2;
-		iz3 = 1 / _z3;
-		uiz1 = _u1 * iz1;
-		viz1 = _v1 * iz1;
-		uiz2 = _u2 * iz2;
-		viz2 = _v2 * iz2;
-		uiz3 = _u3 * iz3;
-		viz3 = _v3 * iz3;
-		float temp;
-		if (y1 > y2) {
-			temp = x1;
-			x1 = x2;
-			x2 = temp;
-			temp = y1;
-			y1 = y2;
-			y2 = temp;
-			temp = iz1;
-			iz1 = iz2;
-			iz2 = temp;
-			temp = uiz1;
-			uiz1 = uiz2;
-			uiz2 = temp;
-			temp = viz1;
-			viz1 = viz2;
-			viz2 = temp;
-		}
-		if (y1 > y3) {
-			temp = x1;
-			x1 = x3;
-			x3 = temp;
-			temp = y1;
-			y1 = y3;
-			y3 = temp;
-			temp = iz1;
-			iz1 = iz3;
-			iz3 = temp;
-			temp = uiz1;
-			uiz1 = uiz3;
-			uiz3 = temp;
-			temp = viz1;
-			viz1 = viz3;
-			viz3 = temp;
-		}
-		if (y2 > y3) {
-			temp = x2;
-			x2 = x3;
-			x3 = temp;
-			temp = y2;
-			y2 = y3;
-			y3 = temp;
-			temp = iz2;
-			iz2 = iz3;
-			iz3 = temp;
-			temp = uiz2;
-			uiz2 = uiz3;
-			uiz3 = temp;
-			temp = viz2;
-			viz2 = viz3;
-			viz3 = temp;
-		}
-
-		y1i = (int) y1;
-		y2i = (int) y2;
-		y3i = (int) y3;
-
-		// Skip poly if it's too thin to cover any pixels at all
-
-		if ((y1i == y2i && y1i == y3i)
-				|| ((int) x1 == (int) x2 && (int) x1 == (int) x3)) {
-			// System.out.println("degenerate triangle");
-			return;
-		}
-
-		// Calculate horizontal and vertical increments for UV axes (these
-		// calcs are certainly not optimal, although they're stable
-		// (handles any dy being 0)
-
-		denom = ((x3 - x1) * (y2 - y1) - (x2 - x1) * (y3 - y1));
-
-		if (denom == 0) {
-			// System.out.println("degenerate triangle");
-			return;
-		}
-
-		denom = 1 / denom; // Reciprocal for speeding up
-		dizdx = ((iz3 - iz1) * (y2 - y1) - (iz2 - iz1) * (y3 - y1)) * denom;
-		duizdx = ((uiz3 - uiz1) * (y2 - y1) - (uiz2 - uiz1) * (y3 - y1))
-				* denom;
-		dvizdx = ((viz3 - viz1) * (y2 - y1) - (viz2 - viz1) * (y3 - y1))
-				* denom;
-		dizdy = ((iz2 - iz1) * (x3 - x1) - (iz3 - iz1) * (x2 - x1)) * denom;
-		duizdy = ((uiz2 - uiz1) * (x3 - x1) - (uiz3 - uiz1) * (x2 - x1))
-				* denom;
-		dvizdy = ((viz2 - viz1) * (x3 - x1) - (viz3 - viz1) * (x2 - x1))
-				* denom;
-
-		// Calculate X-slopes along the edges
-
-		if (y2 > y1)
-			dxdy1 = (x2 - x1) / (y2 - y1);
-		if (y3 > y1)
-			dxdy2 = (x3 - x1) / (y3 - y1);
-		if (y3 > y2)
-			dxdy3 = (x3 - x2) / (y3 - y2);
-
-		// Determine which side of the poly the longer edge is on
-
-		side = dxdy2 > dxdy1;
-
-		if (y1 == y2)
-			side = x1 > x2;
-		if (y2 == y3)
-			side = x3 > x2;
-
-		if (!side) {
-			// Calculate slopes along left edge
-
-			dxdya = dxdy2;
-			dizdya = dxdy2 * dizdx + dizdy;
-			duizdya = dxdy2 * duizdx + duizdy;
-			dvizdya = dxdy2 * dvizdx + dvizdy;
-
-			// Perform subpixel pre-stepping along left edge
-
-			dy = 1 - (y1 - y1i);
-			xa = x1 + dy * dxdya;
-			iza = iz1 + dy * dizdya;
-			uiza = uiz1 + dy * duizdya;
-			viza = viz1 + dy * dvizdya;
-
-			if (y1i < y2i) {
-				xb = x1 + dy * dxdy1;
-				dxdyb = dxdy1;
-
-				drawScanlinePerspective(y1i, y2i, texture);
-			}
-			if (y2i < y3i) {
-				// Set right edge X-slope and perform subpixel pre-
-				// stepping
-
-				xb = x2 + (1 - (y2 - y2i)) * dxdy3;
-				dxdyb = dxdy3;
-
-				drawScanlinePerspective(y2i, y3i, texture);
-			}
-		} else { // Longer edge is on the right side
-			dxdyb = dxdy2;
-			dy = 1 - (y1 - y1i);
-			xb = x1 + dy * dxdyb;
-
-			if (y1i < y2i) {
-				// Set slopes along left edge and perform subpixel
-				// pre-stepping
-
-				dxdya = dxdy1;
-				dizdya = dxdy1 * dizdx + dizdy;
-				duizdya = dxdy1 * duizdx + duizdy;
-				dvizdya = dxdy1 * dvizdx + dvizdy;
-				xa = x1 + dy * dxdya;
-				iza = iz1 + dy * dizdya;
-				uiza = uiz1 + dy * duizdya;
-				viza = viz1 + dy * dvizdya;
-
-				drawScanlinePerspective(y1i, y2i, texture);
-			}
-			if (y2i < y3i) {
-				// Set slopes along left edge and perform subpixel
-				// pre-stepping
-
-				dxdya = dxdy3;
-				dizdya = dxdy3 * dizdx + dizdy;
-				duizdya = dxdy3 * duizdx + duizdy;
-				dvizdya = dxdy3 * dvizdx + dvizdy;
-				dy = 1 - (y2 - y2i);
-				xa = x2 + dy * dxdya;
-				iza = iz2 + dy * dizdya;
-				uiza = uiz2 + dy * duizdya;
-				viza = viz2 + dy * dvizdya;
-
-				drawScanlinePerspective(y2i, y3i, texture);
-			}
-		}
-	}
-
-	public static void drawScanlinePerspective(int y1, int y2, int[] texture) {
-		int x1, x2;
-		float z, u, v, dx;
-		float iz, uiz, viz;
-
-		while (y1 < y2) {
-			x1 = (int) xa;
-			x2 = (int) xb;
-
-			dx = 1 - (xa - x1);
-			iz = iza + dx * dizdx;
-			uiz = uiza + dx * duizdx;
-			viz = viza + dx * dvizdx;
-
-			int baseIndex = y1 * Triangles.width + x1;
-
-			while (x1++ < x2) {
-				z = 1 / iz;
-				u = uiz * z;
-				v = viz * z;
-
-				int idx = ((((int) v) & 0xff) << 8) + (((int) u) & 0xff);
-				if (baseIndex > 0 && idx > 0 && baseIndex < pixels.length
-						&& idx < texture.length)
-					if ((texture[idx] & 0xff00ff) != 0xff00ff
-							|| (texture[idx] & 0xffffff) == 0xffffff)
-						pixels[baseIndex++] = texture[idx];
-
-				iz += dizdx;
-				uiz += duizdx;
-				viz += dvizdx;
-			}
-
-			// Step along both edges
-
-			xa += dxdya;
-			xb += dxdyb;
-			iza += dizdya;
-			uiza += duizdya;
-			viza += dvizdya;
-
-			y1++;
-		}
+		
 	}
 
 	/**
@@ -668,12 +356,8 @@ public class Triangles {
 	 * used for testing simplicity.
 	 */
 	public static void texturemapRectTest(int texture[], int texwidth, int u1,
-			int v1, int u2, int v2, int u3, int v3, int x1, /*
-															 * Note: x1 - y3 are
-															 * all screen
-															 * coordinates
-															 */
-			int y1, int x2, int y2, int x3, int y3, int z1, int z2, int z3) {
+			int v1, int u2, int v2, int u3, int v3, int x1, int y1, int x2,
+			int y2, int x3, int y3, int z1, int z2, int z3) {
 
 		int minx = x1, maxx = x1, miny = y1, maxy = y1;
 
@@ -743,14 +427,14 @@ public class Triangles {
 					if (u > 0 && u < texwidth && v > 0 && v < texheight)
 						pixel = texture[u + v * texwidth];
 				}
-
-				pixels[screenindex] = pixel;
+				if (screenindex >= 0 && screenindex < pixels.length)
+					pixels[screenindex] = pixel;
 
 			}
 		}
 
-		pixels[width * y1 + x1] = pixels[width * y2 + x2] = pixels[width * y3
-				+ x3] = 0xff00;
+		//pixels[width * y1 + x1] = pixels[width * y2 + x2] = pixels[width * y3
+		//		+ x3] = 0xff00;
 
 	}
 

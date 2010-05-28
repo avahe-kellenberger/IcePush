@@ -1,7 +1,6 @@
 package com.glgames.game;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 import javax.imageio.ImageIO;
 
@@ -11,7 +10,8 @@ public class Texture {
 
 	public Texture(String filename) {
 		try {
-			BufferedImage im = ImageIO.read(new File(filename));
+			BufferedImage im = ImageIO.read(GameObjects.class.getResource("/"
+					+ filename));
 			sidelen = im.getWidth();
 			if (sidelen != im.getHeight())
 				throw new IllegalStateException("non-square texture");

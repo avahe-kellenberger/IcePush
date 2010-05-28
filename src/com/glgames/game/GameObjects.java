@@ -24,6 +24,8 @@ public class GameObjects {
 	public static GameObject[] players;
 	public static GameObject[] scenery;
 	
+	public static Texture ice;
+	
 	// World list stuff
 	public static final int TYPE_IN_BOX = 0;
 	public static final int LIST_FROM_SERVER = 1;
@@ -62,6 +64,7 @@ public class GameObjects {
 			if(GRAPHICS_MODE == SOFTWARE_2D)
 				scenery = new Object2D[10];
 			else {
+				ice = new Texture("images/ice3d.jpg");
 				scenery = new Object3D[10];
 				scenery[0] = new Object3D.Cube(400);
 			}
