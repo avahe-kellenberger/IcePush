@@ -38,21 +38,41 @@ public class IcePush extends Applet implements Runnable {
 	public static int cycle;
 	public static int lastDied;
 
+	static int moveFlags;
+
 	public static Renderer renderer;
+
+	public static boolean isApplet = false;
 
 	private InterthreadQueue<KeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
 
 	public static void main(String[] args) {
 		_init();
+		for (String arg : args) { processCommandOption(arg); }
 		instance.run();
 		cleanup();
+	}
+
+	private static void processCommandOption(String option) {
+		if (option.equalsIgnoreCase("-applet")) {
+			instance.init();
+		} else if (option.equalsIgnoreCase("-debug")) {
+			DEBUG = true;
+		}
 	}
 
 	public IcePush() {
 		enableEvents(MOUSE_EVENT_MASK | KEY_EVENT_MASK);
 		keyEvents = new InterthreadQueue<KeyEvent>();
 		mouseEvents = new InterthreadQueue<MouseEvent>();
+	}
+
+	public void init() {
+		// SET ISAPPLET TO TRUE IF AN APPLET
+		isApplet = true;
+		GameObjects.serverMode = GameObjects.USE_DEFAULT;
+		Renderer.message = "Select a username.";
 	}
 
 	public void processMouseEvent(MouseEvent me) {
@@ -98,13 +118,18 @@ public class IcePush extends Applet implements Runnable {
 				GameObjects.serverList.processClick(e.getX(), e.getY());
 			
 			if (GameObjects.loginButton.contains(e.getPoint())) {
-				String server;
-				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
+				String server = "";
+				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 					server = GameObjects.serverList.getSelected();
-				else
+				} else if(GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 					server = GameObjects.serverBox.getText();
-				if (!server.isEmpty())
+				} else if(GameObjects.serverMode == GameObjects.USE_DEFAULT) {
+					server = "icepush.strictfp.com"; // getCodeBase();
+				}
+				if (!server.isEmpty()) {
+				//	new Exception("LOGGING IN NOW: " + server + "GAMESERVERTYPE " + GameObjects.serverMode).printStackTrace();
 					NetworkHandler.login(server, GameObjects.usernameBox.getText());
+				}
 			} else if (GameObjects.helpButton.contains(e.getPoint())) {
 				IcePush.state = IcePush.HELP;
 			}
@@ -115,7 +140,6 @@ public class IcePush extends Applet implements Runnable {
 		}
 	}
 
-	static int moveFlags;
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;

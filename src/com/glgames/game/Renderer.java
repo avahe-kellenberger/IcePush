@@ -89,10 +89,11 @@ public abstract class Renderer {
 		w = bg.getFontMetrics().stringWidth(message);
 		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, 310);
 
-		if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
+		if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 			GameObjects.serverBox.draw(bg);
-		else
+		} else if(GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 			GameObjects.serverList.draw(bg);
+		}
 		GameObjects.usernameBox.draw(bg);
 
 		button(GameObjects.loginButton, "Login");

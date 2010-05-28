@@ -27,6 +27,7 @@ public class GameObjects {
 	// World list stuff
 	public static final int TYPE_IN_BOX = 0;
 	public static final int LIST_FROM_SERVER = 1;
+	public static final int USE_DEFAULT = 3;
 	public static int serverMode = TYPE_IN_BOX;
 
 	// Loading bar stuff
@@ -56,7 +57,7 @@ public class GameObjects {
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
 
-			serverList = new ServerList(350);
+			if(!IcePush.isApplet) serverList = new ServerList(350);
 			
 			if(GRAPHICS_MODE == SOFTWARE_2D)
 				scenery = new Object2D[10];
