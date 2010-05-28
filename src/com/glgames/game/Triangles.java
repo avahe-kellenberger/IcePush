@@ -346,94 +346,36 @@ public class Triangles {
 	public static void textureMappedTriangle(int[] texture, int sidelen,
 			int x1, int y1, int x2, int y2, int x3, int y3, int u1, int v1,
 			int z1, int u2, int v2, int z2, int u3, int v3, int z3) {
+		long start = System.currentTimeMillis();
 		triSort(x1, y1, x2, y2, x3, y3);
 		if (_y3 == _y1)
 			return;
+		
+		float texture_dx = (float) (_x3 - _x1) / (float) sidelen;
+		float texture_dy = (float) (_y3 - _y1) / (float) sidelen;
 
-		int step31 = scaledWidth + ((_x3 - _x1) << 12) / (_y3 - _y1);
-
-		int right = _y1 * scaledWidth, left = right;
-		int boundLeft = 0, boundRight = 0;
-
-		if (_y1 != _y2) {
-			right += _x1 << 12;
-			left = right;
-			int step21 = scaledWidth + ((_x2 - _x1) << 12) / (_y2 - _y1);
-			// Top part, triangle is broadening. stepLeft < stepRight
-			int stepLeft = 0, stepRight = 0;
-			if (step21 > step31) {
-				stepLeft = step31;
-				stepRight = step21;
-			} else {
-				stepLeft = step21;
-				stepRight = step31;
-			}
-			while (_y1 != _y2) {
-				if (_y1 >= 0 && _y1 < height) {
-					int l = left >> 12;
-					int r = right >> 12;
-
-					boundLeft = lineOffs[_y1];
-					boundRight = boundLeft + width;
-
-					if (l < boundLeft)
-						l = boundLeft;
-					if (r > boundRight)
-						r = boundRight;
-
-					while (l < r)
-						pixels[l++] = 0xff;
+		if (_y1 < _y2) {
+			// Top part, triangle is broadening
+			for(int y = _y1; y < _y2; y++) {
+				int ty = (int) (y * texture_dy);
+				for(int x = _x1; x < _x2; x++) {
+					int tx = (int) (x * texture_dx);
+					int sindex = y * width + x;
+					int tindex = ty * sidelen + tx;
+					if (sindex > 0 && sindex < pixels.length && tindex > 0
+							&& tindex < texture.length)
+						pixels[sindex] = texture[tindex];
 				}
-				left += stepLeft;
-				right += stepRight;
-				_y1++;
 			}
 		} else {
-			// Triangle is flat topped; adjust left & right accordingly + skip
-			// filling top half
-			if (_x1 > _x2) {
-				right += _x1 << 12;
-				left += _x2 << 12;
-			} else {
-				right += _x2 << 12;
-				left += _x1 << 12;
-			}
+			// Triangle is flat topped
 		}
 
 		if (_y2 != _y3) {
-			int step23 = scaledWidth + ((_x2 - _x3) << 12) / (_y2 - _y3);
-			// Bottom part: Triangle is narrowing. stepLeft > stepRight.
-			int stepLeft = 0, stepRight = 0;
-			if (step23 > step31) {
-				stepLeft = step23;
-				stepRight = step31;
-			} else {
-				stepLeft = step31;
-				stepRight = step23;
-			}
-			while (_y2 != _y3) {
-				if (_y2 >= 0 && _y2 < height) {
-					int l = left >> 12;
-					int r = right >> 12;
 
-					boundLeft = lineOffs[_y2];
-					boundRight = boundLeft + width;
-
-					if (l < boundLeft)
-						l = boundLeft;
-					if (r > boundRight)
-						r = boundRight;
-
-					while (l < r)
-						pixels[l++] = 0xff;
-				}
-
-				left += stepLeft;
-				right += stepRight;
-				_y2++;
-			}
 		}
-
+		
+		System.out.println(System.currentTimeMillis() - start);
 	}
 
 	/**
