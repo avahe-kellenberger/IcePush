@@ -19,8 +19,6 @@ public class GameObjects {
 	public static Player2D[] players;
 	public static Object2D[] scenery;
 	
-	public static Texture ice;
-	
 	// World list stuff
 	public static final int TYPE_IN_BOX = 0;
 	public static final int LIST_FROM_SERVER = 1;
