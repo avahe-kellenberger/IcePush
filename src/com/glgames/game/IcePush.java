@@ -185,28 +185,6 @@ public class IcePush extends Applet implements Runnable {
 				case KeyEvent.VK_P:
 					NetworkHandler.ping();
 					break;
-				case KeyEvent.VK_W:
-					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-						((Renderer3D) IcePush.renderer).pitch -= 5;
-					break;
-				case KeyEvent.VK_S:
-					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-						((Renderer3D) IcePush.renderer).pitch += 5;
-					break;
-				case KeyEvent.VK_A:
-					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-						((Renderer3D) IcePush.renderer).yaw -= 5;
-					break;
-				case KeyEvent.VK_D:
-					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
-						((Renderer3D) IcePush.renderer).yaw += 5;
-					break;
-				case KeyEvent.VK_2:
-					IcePush.renderer.switchMode(GameObjects.SOFTWARE_2D);
-					break;
-				case KeyEvent.VK_3:
-					IcePush.renderer.switchMode(GameObjects.SOFTWARE_3D);
-					break;
 			}
 
 		if (moveDir != 0) {
@@ -263,29 +241,16 @@ public class IcePush extends Applet implements Runnable {
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
 		instance.setFocusTraversalKeysEnabled(false);
-		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
-			renderer = new Renderer2D(instance);
-		else
-			renderer = new Renderer3D(instance);
+		renderer = new Renderer(instance);
 		
 		frame = new GameFrame();
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
 	}
 	
-	public static void setRenderer(Renderer r) {
-		renderer = r;
-		renderer.initGraphics();
-		buffGraphics = renderer.getBufferGraphics();
-	}
-	
 	public void start() {
 		setFocusTraversalKeysEnabled(false);
-		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
-			renderer = new Renderer2D(this);
-		else
-			renderer = new Renderer3D(this);
-		
+		renderer = new Renderer(this);
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
 		
@@ -350,14 +315,7 @@ public class IcePush extends Applet implements Runnable {
 		if (!stable)
 			return;
 
-		if (renderer instanceof Renderer2D)
-			((Renderer2D) renderer)
-					.renderScene((Object2D[]) GameObjects.players);
-		else
-			((Renderer3D) renderer).renderScene(
-					(Object3D[]) GameObjects.players,
-					(Object3D[]) GameObjects.scenery);
-		renderer.drawDebug();
+		renderer.renderScene(GameObjects.players);
 	}
 
 	private static void diedLoop() {

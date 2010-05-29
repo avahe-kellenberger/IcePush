@@ -1,9 +1,7 @@
 package com.glgames.game;
 
-import static com.glgames.shared.Opcodes.TREE;
-
-import java.awt.Component;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -11,7 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 
-public abstract class Renderer {
+public class Renderer {
 	private static final long serialVersionUID = 1L;
 
 	public static String message = "Select a server and username.";
@@ -122,6 +120,37 @@ public abstract class Renderer {
 
 		button(GameObjects.backButton, "Back");
 	}
+	
+	public void renderScene(Object2D[] objects) {
+		Graphics2D g = (Graphics2D) bg;
+		if(g == null)
+			return;
+		Rectangle rect = GameObjects.playingArea;
+		g.setPaint(GameObjects.background);
+		g.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
+		g.setPaint(GameObjects.foreground);
+		g.fillRect(rect.x, rect.y, rect.width, rect.height);
+		for (int k = 0; k < objects.length; k++) {
+			Player2D p = (Player2D) objects[k];
+			if (p == null)
+				continue;
+			p.draw(g);
+		}
+
+		g.setColor(Color.white);
+		g.setFont(new Font("Arial", Font.PLAIN, 24));
+		int x = 30, y = 480;
+		g.drawString("Deaths", x, y);
+		g.drawRect(x, y += 5, 400, 100);
+		for (int k = 0; k < objects.length; k++) {
+			if (objects[k] == null || !(objects[k] instanceof Player2D))
+				continue;
+			Player2D plr = (Player2D) objects[k];
+
+			g.drawString(plr.username + " - " + plr.deaths, x + 15, y += 20);
+		}
+	}
+
 
 	public void drawDiedScreen(int l) {
 		int alpha = (int) ((l / 50.0d) * 255.0d);
@@ -148,82 +177,4 @@ public abstract class Renderer {
 	public Graphics getBufferGraphics() {
 		return bg;
 	}
-
-	public void switchMode(int mode) {
-		if (mode == GameObjects.GRAPHICS_MODE)
-			return;
-
-		if (mode == GameObjects.SOFTWARE_3D || mode == GameObjects.HARDWARE_3D) {
-			Player2D[] oldplayers = (Player2D[]) GameObjects.players;
-			Object2D[] oldscenery = (Object2D[]) GameObjects.scenery;
-
-			Player3D[] newplayers = new Player3D[oldplayers.length];
-			Object3D[] newscenery = new Object3D[oldscenery.length];
-
-			for (int k = 0; k < oldplayers.length; k++) {
-				if (oldplayers[k] == null)
-					continue;
-
-				newplayers[k] = new Player3D(oldplayers[k].type);
-				newplayers[k].baseX = oldplayers[k].x;
-				newplayers[k].baseZ = oldplayers[k].y;
-				newplayers[k].username = oldplayers[k].username;
-				newplayers[k].deaths = oldplayers[k].deaths;
-				newplayers[k].rotationY = oldplayers[k].rotation;
-			}
-			
-			newscenery[0] = new Object3D.Cube(400);
-
-			GameObjects.players = newplayers;
-			GameObjects.scenery = newscenery;
-			Renderer3D r = new Renderer3D(canvas);
-			r.focusCamera((int) newplayers[NetworkHandler.id].baseX,
-					(int) newplayers[NetworkHandler.id].baseZ);
-
-			IcePush.setRenderer(r);
-			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_3D;
-		} else if (mode == GameObjects.SOFTWARE_2D) {
-			Player3D[] oldplayers = (Player3D[]) GameObjects.players;
-			Object3D[] oldscenery = (Object3D[]) GameObjects.scenery;
-
-			Player2D[] newplayers = new Player2D[oldplayers.length];
-			Object2D[] newscenery = new Object2D[oldscenery.length];
-
-			for (int k = 0; k < oldplayers.length; k++) {
-				if (oldplayers[k] == null)
-					continue;
-
-				newplayers[k] = new Player2D(
-						oldplayers[k].type == TREE ? "images/tree.png"
-								: "images/snowman.png", oldplayers[k].type);
-				newplayers[k].x = (int) oldplayers[k].baseX;
-				newplayers[k].y = (int) oldplayers[k].baseZ;
-				newplayers[k].username = oldplayers[k].username;
-				newplayers[k].deaths = oldplayers[k].deaths;
-				newplayers[k].rotation = oldplayers[k].rotationY;
-			}
-
-			for (int k = 0; k < oldscenery.length; k++) {
-				if (oldscenery[k] == null)
-					continue;
-
-				newscenery[k] = new Object2D(
-						oldscenery[k].type == TREE ? "images/tree.png"
-								: "images/snowman.png", oldscenery[k].type);
-				newscenery[k].x = (int) oldscenery[k].baseX;
-				newscenery[k].y = (int) oldscenery[k].baseZ;
-			}
-
-			GameObjects.players = newplayers;
-			GameObjects.scenery = newscenery;
-
-			IcePush.setRenderer(new Renderer2D(canvas));
-			GameObjects.GRAPHICS_MODE = GameObjects.SOFTWARE_2D;
-		} else
-			throw new IllegalStateException("wtf");
-		if(IcePush.DEBUG)
-			System.out.println("Graphics mode set to " + GameObjects.GRAPHICS_MODE);
-	}
-
-	public abstract void drawDebug();
 }

@@ -7,11 +7,6 @@ import java.awt.image.BufferedImage;
 public class GameObjects {
 	public static boolean loaded = false;
 	
-	public static final int SOFTWARE_2D = 0;
-	public static final int SOFTWARE_3D = 1;
-	public static final int HARDWARE_3D = 2;
-	public static int GRAPHICS_MODE = SOFTWARE_3D;
-	
 	public static String[] instructions, help;
 	public static BufferedImage logo;
 	public static TexturePaint background, foreground;
@@ -21,8 +16,8 @@ public class GameObjects {
 	public static Rectangle loginButton, helpButton, backButton;
 
 	public static Rectangle playingArea;
-	public static GameObject[] players;
-	public static GameObject[] scenery;
+	public static Player2D[] players;
+	public static Object2D[] scenery;
 	
 	public static Texture ice;
 	
@@ -60,14 +55,8 @@ public class GameObjects {
 			loadingPercent = 50;
 
 			if(!IcePush.isApplet) serverList = new ServerList(350);
-			
-			if(GRAPHICS_MODE == SOFTWARE_2D)
-				scenery = new Object2D[10];
-			else {
-				ice = new Texture("images/ice3d.jpg");
-				scenery = new Object3D[10];
-				scenery[0] = new Object3D.Cube(400);
-			}
+
+			scenery = new Object2D[10];
 			
 			int width = 400, height = 400;
 			int x = IcePush.WIDTH / 2 - width / 2;

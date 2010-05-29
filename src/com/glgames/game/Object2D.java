@@ -3,13 +3,11 @@ package com.glgames.game;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Object2D extends GameObject {
+public class Object2D {
 	public int x, y, width, height;
-
 	private BufferedImage sprite;
 
-	public Object2D(String spriteName, int type) {
-		super(type);
+	public Object2D(String spriteName) {
 		sprite = SpriteLoader.getSprite(spriteName);
 
 		width = sprite.getWidth();
