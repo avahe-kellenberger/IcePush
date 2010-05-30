@@ -222,7 +222,7 @@ public class NetworkHandler {
 			pbuf.closePacket();
 			pbuf.synch();
 			IcePush.state = IcePush.WELCOME;
-			Renderer.message = "Select a server and username.";
+			Renderer.message = "Select a username.";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

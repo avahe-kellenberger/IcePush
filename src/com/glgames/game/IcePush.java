@@ -119,16 +119,15 @@ public class IcePush extends Applet implements Runnable {
 			
 			if (GameObjects.loginButton.contains(e.getPoint())) {
 				String server = "";
-				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
+				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
 					server = GameObjects.serverList.getSelected();
-				} else if(GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
+				else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
 					server = GameObjects.serverBox.getText();
-				} else if(GameObjects.serverMode == GameObjects.USE_DEFAULT) {
-					server = "icepush.strictfp.com"; // getCodeBase();
-				}
+				else if (GameObjects.serverMode == GameObjects.USE_DEFAULT)
+					server = "icepush.strictfp.com";
 				if (!server.isEmpty()) {
-				//	new Exception("LOGGING IN NOW: " + server + "GAMESERVERTYPE " + GameObjects.serverMode).printStackTrace();
-					NetworkHandler.login(server, GameObjects.usernameBox.getText());
+					NetworkHandler.login(server, GameObjects.usernameBox
+							.getText());
 				}
 			} else if (GameObjects.helpButton.contains(e.getPoint())) {
 				IcePush.state = IcePush.HELP;

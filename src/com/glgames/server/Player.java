@@ -84,7 +84,7 @@ public class Player {
 			r = new Rectangle((int) (Math.random() * (400 - 48)), (int) (Math
 					.random() * (400 - 48)), 48, 48);
 			for(Player p : Server.players) {
-				if(p == null)
+				if (p == null || p == this || p.area == null)
 					continue;
 				if(p.area.intersects(r))
 					good = false;
@@ -93,7 +93,6 @@ public class Player {
 				break;
 		}
 		area = r;
-
 		dx = dy = moveDir = 0;
 	}
 
@@ -113,9 +112,6 @@ public class Player {
 			Player p = getPlayerInWay();
 			if (p != null && p.canMove) {
 				p.moveDir = moveDir;
-				//dx = dy = 0;
-				//moveDir = -1;
-				// TODO make better
 				p.handleMove();
 				return;
 			} else if(p != null && !p.canMove) {
@@ -131,7 +127,6 @@ public class Player {
 			if(dy < -4)
 				dy = -4;
 		} else {
-			// moveDir == -1
 			if (dx != 0)
 				dx = 0;
 			if (dy != 0)
@@ -145,20 +140,6 @@ public class Player {
 					|| area.y > 400 + 10) {
 				playerDied();
 				return;
-			}
-			
-			for (Player plr : Server.players) {
-				if (plr == null)
-					continue;
-				if (Server.DEBUG)
-					System.out.println("SENDING MOVE - " + id + " : "
-							+ area.x + ", " + area.y);
-
-				plr.pbuf.beginPacket(PLAYER_MOVED); // player moved
-				plr.pbuf.writeShort(id);
-				plr.pbuf.writeShort(area.x);
-				plr.pbuf.writeShort(area.y);
-				plr.pbuf.endPacket();
 			}
 		}
 	}
@@ -222,6 +203,19 @@ public class Player {
 							System.out.println("GOT MOVE REQUEST - DIR: "
 									+ moveDir + " - ID = " + moveid
 									+ " , TIME: " + System.currentTimeMillis());
+						
+						for (Player plr : Server.players) {
+							if (plr == null)
+								continue;
+							if (Server.DEBUG)
+								System.out.println("SENDING MOVE - " + id + " : "
+										+ area.x + ", " + area.y);
+
+							plr.pbuf.beginPacket(PLAYER_MOVED);
+							plr.pbuf.writeShort(id);
+							plr.pbuf.writeShort(moveDir);
+							plr.pbuf.endPacket();
+						}
 						break;
 					case END_MOVE:
 						clearBit(pbuf.readByte());
@@ -229,6 +223,20 @@ public class Player {
 							System.out.println("END MOVE REQUEST - ID = "
 									+ pbuf.readByte() + " - TIME = "
 									+ System.currentTimeMillis());
+						for (Player plr : Server.players) {
+							if (plr == null)
+								continue;
+							if (Server.DEBUG)
+								System.out.println("SENDING MOVE - " + id + " : "
+										+ area.x + ", " + area.y);
+
+							plr.pbuf.beginPacket(PLAYER_STOPPED_MOVING);
+							plr.pbuf.writeShort(id);
+							plr.pbuf.writeShort(moveDir);
+							plr.pbuf.writeShort(area.x);
+							plr.pbuf.writeShort(area.y);
+							plr.pbuf.endPacket();
+						}
 						break;
 					case LOGOUT:
 						logout();

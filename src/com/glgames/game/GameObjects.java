@@ -37,8 +37,7 @@ public class GameObjects {
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
-			help = new String[] { "Arrow keys - move", "WASD - move camera",
-					"2 and 3 key - switch 2d and 3d" };
+			help = new String[] { "Arrow keys - move" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
 			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 450, false, "Server: ", "strictfp.com");
@@ -52,7 +51,8 @@ public class GameObjects {
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
 
-			if(!IcePush.isApplet) serverList = new ServerList(350);
+			if (!IcePush.isApplet)
+				serverList = new ServerList(350);
 
 			scenery = new Object2D[10];
 			
