@@ -1,6 +1,7 @@
 package com.glgames.game;
 
 import static com.glgames.shared.Opcodes.*;
+import static com.glgames.server.Player.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -109,7 +110,11 @@ public class NetworkHandler {
 								+ id);
 						break;
 					}
-					p2.clearBit(pbuf.readShort());
+					int bit = pbuf.readShort();
+					//if(bit == UP || bit == DOWN) p2.clearBit(UP | DOWN);
+					//if(bit == LEFT || bit == RIGHT) p2.clearBit(LEFT | RIGHT);
+					//System.out.println("STOPPED MOVING: " + Player2D.toString(p2.moveflags));
+					p2.moveflags = 0;
 					p2.x = pbuf.readShort();
 					p2.y = pbuf.readShort();
 					break;
@@ -120,8 +125,10 @@ public class NetworkHandler {
 					p2.deaths = pbuf.readByte();
 					p2.x = pbuf.readShort();
 					p2.y = pbuf.readShort();
-					if (id == NetworkHandler.id)
+					if (id == NetworkHandler.id) {
 						IcePush.state = IcePush.DIED;
+						p2.moveflags = 0;
+					}
 					break;
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();

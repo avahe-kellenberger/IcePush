@@ -298,6 +298,7 @@ public class IcePush extends Applet implements Runnable {
 		// update positions and such
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
+		updatePlayers();
 		if (!stable)
 			return;
 
@@ -320,6 +321,10 @@ public class IcePush extends Applet implements Runnable {
 		NetworkHandler.logOut();
 		instance = null;
 		System.gc();
+	}
+
+	private static void updatePlayers() {
+		for(Player2D p : GameObjects.players) { if(p != null) p.handleMove(); }
 	}
 
 	public Dimension getPreferredSize() {
