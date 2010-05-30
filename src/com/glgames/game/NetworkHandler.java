@@ -93,16 +93,25 @@ public class NetworkHandler {
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();
-					x = pbuf.readShort();
-					y = pbuf.readShort();
 					p2 = GameObjects.players[id];
 					if (p2 == null) { // ???????????????
 						System.out.println("null player tried to move??? "
 								+ id);
 						break;
 					}
-					p2.x = x;
-					p2.y = y;
+					p2.setBit(pbuf.readShort());
+					break;
+				case PLAYER_STOPPED_MOVING:
+					id = pbuf.readShort();
+					p2 = GameObjects.players[id];
+					if (p2 == null) { // ???????????????
+						System.out.println("null player tried to move??? "
+								+ id);
+						break;
+					}
+					p2.clearBit(pbuf.readShort());
+					p2.x = pbuf.readShort();
+					p2.y = pbuf.readShort();
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();

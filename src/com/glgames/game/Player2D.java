@@ -17,8 +17,9 @@ import java.awt.image.RescaleOp;
  */
 public class Player2D extends Object2D {
 	public String username;
+	public int moveflags;
+	public int dx, dy;
 	public int deaths;
-	public int rotation;
 	public float bubbleAlpha;
 
 	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
@@ -41,5 +42,17 @@ public class Player2D extends Object2D {
 			
 			((Graphics2D) g).drawImage(bubble, rop, screenX, screenY);
 		}
+	}
+	
+	public void setBit(int flag) {
+		moveflags |= flag;
+	}
+
+	public void clearBit(int flag) {
+		moveflags &= ~flag;
+	}
+
+	public boolean isSet(int flag) {
+		return (moveflags & flag) > 0;
 	}
 }

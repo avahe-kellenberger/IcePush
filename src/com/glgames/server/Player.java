@@ -18,7 +18,7 @@ public class Player {
 
 	public int id;
 	public int type;
-	public double dx, dy;
+	public int dx, dy;
 	public int deaths;
 
 	public Rectangle area;

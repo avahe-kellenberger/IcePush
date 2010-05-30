@@ -186,21 +186,21 @@ public class IcePush extends Applet implements Runnable {
 					break;
 			}
 
-		if (moveDir != 0) {
-			if (isSet(moveDir))
-				return;
+		if (moveDir != 0)
 			NetworkHandler.sendMoveRequest(moveDir);
-			setBit(moveDir);
-		}
 	}
 
 	private void keyTyped(KeyEvent ke) {
 		// STUB THAT TEKK MIGHT FIND USEFUL TO FIX THE KEYLINUX BUG
 	}
+	
+	static long last = System.currentTimeMillis();
 
 	private void keyReleased(KeyEvent e) {
-	//	if (!getReleased())
-	//		return;
+		if(System.currentTimeMillis() - last < 100) {
+			last = System.currentTimeMillis();
+			return;
+		}
 		if (IcePush.DEBUG)
 			System.out.println("key released");
 
@@ -219,22 +219,9 @@ public class IcePush extends Applet implements Runnable {
 				moveDir = Player.RIGHT;
 				break;
 		}
-		if (moveDir != 0) {
+		if (moveDir != 0)
 			NetworkHandler.endMoveRequest(moveDir);
-			clearBit(moveDir);
-		}
-	}
-
-	private void setBit(int flag) {
-		moveFlags |= flag;
-	}
-
-	private void clearBit(int flag) {
-		moveFlags &= ~flag;
-	}
-
-	private boolean isSet(int flag) {
-		return (moveFlags & flag) > 0;
+		last = System.currentTimeMillis();
 	}
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
@@ -333,7 +320,6 @@ public class IcePush extends Applet implements Runnable {
 		NetworkHandler.logOut();
 		instance = null;
 		System.gc();
-	//	if(!anApplet) System.exit(0); // -- TEMPORARY SOLUTION FOR TIMER FIRING FAILURE FAGGOTRY //
 	}
 
 	public Dimension getPreferredSize() {
