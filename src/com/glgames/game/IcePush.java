@@ -18,8 +18,10 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	public static boolean DEBUG = true;
-
 	public static IcePush instance;
+	public static Renderer renderer;
+	public static GameFrame frame;
+	public static Graphics buffGraphics;
 
 	// state stuff
 	public static final int WELCOME = 0;
@@ -28,23 +30,15 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	public static final int DIED = 3;
 
 	public static int state = WELCOME;
-
-	public static boolean running = true;
-	public static transient boolean stable = true;
-
+	
 	public static final int WIDTH = 450;
 	public static final int HEIGHT = 600;
 
-	public static GameFrame frame;
-	public static Graphics buffGraphics;
+	public static boolean running = true;
+	public static boolean isApplet = false;
+
 	public static int cycle;
 	public static int lastDied;
-
-	static int moveFlags;
-
-	public static Renderer renderer;
-
-	public static boolean isApplet = false;
 
 	private InterthreadQueue<KeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
@@ -303,9 +297,6 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
 		updatePlayers();
-		if (!stable)
-			return;
-
 		renderer.renderScene(GameObjects.players);
 	}
 

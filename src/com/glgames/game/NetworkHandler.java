@@ -48,7 +48,6 @@ public class NetworkHandler {
 				// Successful login
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
-				IcePush.moveFlags = 0;
 				GameObjects.players = new Player2D[50];
 				IcePush.state = IcePush.PLAY;
 			} else {
