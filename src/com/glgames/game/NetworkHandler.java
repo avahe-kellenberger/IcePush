@@ -1,7 +1,6 @@
 package com.glgames.game;
 
 import static com.glgames.shared.Opcodes.*;
-import static com.glgames.server.Player.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -110,9 +109,10 @@ public class NetworkHandler {
 								+ id);
 						break;
 					}
-					int bit = pbuf.readShort();
+					//int bit = 
+					pbuf.readShort();
 					//if(bit == UP || bit == DOWN) p2.clearBit(UP | DOWN);
-					//if(bit == LEFT || bit == RIGHT) p2.clearBit(LEFT | RIGHT);
+					///if(bit == LEFT || bit == RIGHT) p2.clearBit(LEFT | RIGHT);
 					//System.out.println("STOPPED MOVING: " + Player2D.toString(p2.moveflags));
 					p2.moveflags = 0;
 					p2.x = pbuf.readShort();
@@ -159,7 +159,7 @@ public class NetworkHandler {
 	public static int moveID;
 
 	public static void sendMoveRequest(int dir) {
-		if (IcePush.state != IcePush.PLAY)
+		if (IcePush.state != IcePush.PLAY || GameObjects.players[id].isSet(dir))
 			return;
 		try {
 			if (IcePush.DEBUG)

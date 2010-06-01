@@ -8,14 +8,16 @@ import java.awt.Dimension;
 import static java.awt.AWTEvent.*;
 import java.awt.event.*;
 
+import javax.swing.Timer;
+
 import com.glgames.server.Player;
 
 import com.glgames.shared.InterthreadQueue;
 
-public class IcePush extends Applet implements Runnable {
+public class IcePush extends Applet implements Runnable, ActionListener {
 	private static final long serialVersionUID = 1L;
 
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 
 	public static IcePush instance;
 
@@ -49,7 +51,9 @@ public class IcePush extends Applet implements Runnable {
 
 	public static void main(String[] args) {
 		_init();
-		for (String arg : args) { processCommandOption(arg); }
+		for (String arg : args) {
+			processCommandOption(arg);
+		}
 		instance.run();
 		cleanup();
 	}
@@ -90,20 +94,20 @@ public class IcePush extends Applet implements Runnable {
 		MouseEvent me = null;
 		int id;
 
-		while((ke = keyEvents.pull()) != null) {
+		while ((ke = keyEvents.pull()) != null) {
 			id = ke.getID();
-			if(id == KeyEvent.KEY_PRESSED) {
+			if (id == KeyEvent.KEY_PRESSED) {
 				keyPressed(ke);
-			} else if(id == KeyEvent.KEY_TYPED) {
+			} else if (id == KeyEvent.KEY_TYPED) {
 				keyTyped(ke);
-			} else if(id == KeyEvent.KEY_RELEASED) {
+			} else if (id == KeyEvent.KEY_RELEASED) {
 				keyReleased(ke);
 			}
 		}
 
-		while((me = mouseEvents.pull()) != null) {
+		while ((me = mouseEvents.pull()) != null) {
 			id = me.getID();
-			if(id == MouseEvent.MOUSE_CLICKED) {
+			if (id == MouseEvent.MOUSE_CLICKED) {
 				mouseClicked(me);
 			}
 		}
@@ -113,10 +117,10 @@ public class IcePush extends Applet implements Runnable {
 		if (!GameObjects.loaded)
 			return;
 
-		if(IcePush.state == IcePush.WELCOME) {
-			if(GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
+		if (IcePush.state == IcePush.WELCOME) {
+			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
 				GameObjects.serverList.processClick(e.getX(), e.getY());
-			
+
 			if (GameObjects.loginButton.contains(e.getPoint())) {
 				String server = "";
 				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
@@ -132,7 +136,7 @@ public class IcePush extends Applet implements Runnable {
 			} else if (GameObjects.helpButton.contains(e.getPoint())) {
 				IcePush.state = IcePush.HELP;
 			}
-		} else if(IcePush.state == IcePush.HELP) {
+		} else if (IcePush.state == IcePush.HELP) {
 			if (GameObjects.backButton.contains(e.getPoint())) {
 				IcePush.state = IcePush.WELCOME;
 			}
@@ -142,6 +146,9 @@ public class IcePush extends Applet implements Runnable {
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;
+		released = false;
+		timer.stop();
+
 		if (IcePush.DEBUG)
 			System.out.println("key pressed");
 
@@ -193,17 +200,15 @@ public class IcePush extends Applet implements Runnable {
 	private void keyTyped(KeyEvent ke) {
 		// STUB THAT TEKK MIGHT FIND USEFUL TO FIX THE KEYLINUX BUG
 	}
-	
-	static long last = System.currentTimeMillis();
 
 	private void keyReleased(KeyEvent e) {
-		if(System.currentTimeMillis() - last < 100) {
-			last = System.currentTimeMillis();
+		if (!released) {
+			releaseEvent = e;
+			timer.restart();
 			return;
 		}
 		if (IcePush.DEBUG)
 			System.out.println("key released");
-
 		int moveDir = 0;
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
@@ -221,25 +226,24 @@ public class IcePush extends Applet implements Runnable {
 		}
 		if (moveDir != 0)
 			NetworkHandler.endMoveRequest(moveDir);
-		last = System.currentTimeMillis();
 	}
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
 		instance.setFocusTraversalKeysEnabled(false);
 		renderer = new Renderer(instance);
-		
+		timer = new Timer(1, instance);
 		frame = new GameFrame();
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
 	}
-	
+
 	public void start() {
 		setFocusTraversalKeysEnabled(false);
 		renderer = new Renderer(this);
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
-		
+		timer = new Timer(1, this);
 		run();
 		cleanup();
 	}
@@ -318,16 +322,31 @@ public class IcePush extends Applet implements Runnable {
 
 	public static void cleanup() {
 		running = false;
+		timer.stop();
+		timer = null;
 		NetworkHandler.logOut();
 		instance = null;
 		System.gc();
 	}
 
 	private static void updatePlayers() {
-		for(Player2D p : GameObjects.players) { if(p != null) p.handleMove(); }
+		for (Player2D p : GameObjects.players) {
+			if (p != null)
+				p.handleMove();
+		}
 	}
 
 	public Dimension getPreferredSize() {
 		return new Dimension(WIDTH, HEIGHT);
+	}
+
+	static Timer timer;
+	private boolean released;
+	private KeyEvent releaseEvent;
+
+	public void actionPerformed(ActionEvent arg0) {
+		released = true;
+		timer.stop();
+		keyReleased(releaseEvent);
 	}
 }
