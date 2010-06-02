@@ -15,9 +15,9 @@ import com.glgames.server.Player;
 import com.glgames.shared.InterthreadQueue;
 
 public class IcePush extends Applet implements Runnable, ActionListener {
-	private static final long serialVersionUID = 1L;
 
 	public static boolean DEBUG = true;
+	
 	public static IcePush instance;
 	public static Renderer renderer;
 	public static GameFrame frame;
@@ -100,10 +100,11 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 				} catch(Exception e) { }
 				TimedKeyEvent tke2 = keyEvents.pull();
 				if(tke2 == null) {			// This is the final key release
+					System.out.println("final");
 					keyReleased(tke.event);
 				} else if((tke2.time - tke.time) > 1 || tke.event.getID() != KeyEvent.KEY_PRESSED) { // Tke2 is an event that was generated while waiting
-					keyReleased(tke.event);
-					sendKeyEventInternal(tke2.event);
+					//keyReleased(tke.event);
+					//sendKeyEventInternal(tke2.event);
 				}
 			} else {
 				sendKeyEventInternal(tke.event);
