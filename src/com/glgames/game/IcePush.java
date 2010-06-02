@@ -40,7 +40,7 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	public static int cycle;
 	public static int lastDied;
 
-	private InterthreadQueue<KeyEvent> keyEvents;
+	private InterthreadQueue<TimedKeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
 
 	public static void main(String[] args) {
@@ -62,7 +62,7 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 
 	public IcePush() {
 		enableEvents(MOUSE_EVENT_MASK | KEY_EVENT_MASK);
-		keyEvents = new InterthreadQueue<KeyEvent>();
+		keyEvents = new InterthreadQueue<TimedKeyEvent>();
 		mouseEvents = new InterthreadQueue<MouseEvent>();
 	}
 
@@ -73,29 +73,40 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 		Renderer.message = "Select a username.";
 	}
 
-	public void processMouseEvent(MouseEvent me) {
+	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
+
+	protected void processMouseEvent(MouseEvent me) {
 		mouseEvents.push(me);
-		super.processMouseEvent(me);
 	}
 
-	public void processKeyEvent(KeyEvent ke) {
-		keyEvents.push(ke);
-		super.processKeyEvent(ke);
+	protected void processKeyEvent(KeyEvent ke) {
+		keyEvents.push(new TimedKeyEvent(ke));
 	}
+
+	// --- --------------------------------------------- --- //
+
+	private boolean keyPressed = false;
 
 	private void processEvents() {
-		KeyEvent ke = null;
+		TimedKeyEvent tke = null;
 		MouseEvent me = null;
 		int id;
 
-		while ((ke = keyEvents.pull()) != null) {
-			id = ke.getID();
-			if (id == KeyEvent.KEY_PRESSED) {
-				keyPressed(ke);
-			} else if (id == KeyEvent.KEY_TYPED) {
-				keyTyped(ke);
-			} else if (id == KeyEvent.KEY_RELEASED) {
-				keyReleased(ke);
+		while ((tke = keyEvents.pull()) != null) {
+			id = tke.event.getID();
+			if(id == KeyEvent.KEY_RELEASED) {
+				try {
+					Thread.sleep(5);			// If this is a spurious released/pressed pair, allow time for the EDT to queue the pressed event
+				} catch(Exception e) { }
+				TimedKeyEvent tke2 = keyEvents.pull();
+				if(tke2 == null) {			// This is the final key release
+					keyReleased(tke.event);
+				} else if((tke2.time - tke.time) > 1 || tke.event.getID() != KeyEvent.KEY_PRESSED) { // Tke2 is an event that was generated while waiting
+					keyReleased(tke.event);
+					sendKeyEventInternal(tke2.event);
+				}
+			} else {
+				sendKeyEventInternal(tke.event);
 			}
 		}
 
@@ -104,6 +115,17 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 			if (id == MouseEvent.MOUSE_CLICKED) {
 				mouseClicked(me);
 			}
+		}
+	}
+
+	private void sendKeyEventInternal(KeyEvent ke) {
+		int id = ke.getID();
+		if (id == KeyEvent.KEY_PRESSED) {
+			keyPressed(ke);
+		} else if (id == KeyEvent.KEY_TYPED) {
+			keyTyped(ke);
+		} else if (id == KeyEvent.KEY_RELEASED) {
+			keyReleased(ke);
 		}
 	}
 
@@ -140,8 +162,6 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;
-		released = false;
-		timer.stop();
 
 		if (IcePush.DEBUG)
 			System.out.println("key pressed");
@@ -196,11 +216,6 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	}
 
 	private void keyReleased(KeyEvent e) {
-		if (!released) {
-			releaseEvent = e;
-			timer.restart();
-			return;
-		}
 		if (IcePush.DEBUG)
 			System.out.println("key released");
 		int moveDir = 0;
