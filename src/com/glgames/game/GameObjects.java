@@ -7,6 +7,11 @@ import java.awt.image.BufferedImage;
 public class GameObjects {
 	public static boolean loaded = false;
 	
+	public static final int SOFTWARE_2D = 0;
+	public static final int SOFTWARE_3D = 1;
+	public static final int HARDWARE_3D = 2;
+	public static int GRAPHICS_MODE = SOFTWARE_3D;
+	
 	public static String[] instructions, help;
 	public static BufferedImage logo;
 	public static TexturePaint background, foreground;
@@ -16,8 +21,10 @@ public class GameObjects {
 	public static Rectangle loginButton, helpButton, backButton;
 
 	public static Rectangle playingArea;
-	public static Player2D[] players;
-	public static Object2D[] scenery;
+	public static GameObject[] players;
+	public static GameObject[] scenery;
+	
+	public static Texture ice;
 	
 	// World list stuff
 	public static final int TYPE_IN_BOX = 0;
@@ -37,7 +44,8 @@ public class GameObjects {
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
-			help = new String[] { "Arrow keys - move" };
+			help = new String[] { "Arrow keys - move", "WASD - move camera",
+					"2 and 3 key - switch 2d and 3d" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
 			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 450, false, "Server: ", "strictfp.com");
@@ -51,10 +59,15 @@ public class GameObjects {
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
 
-			if (!IcePush.isApplet)
-				serverList = new ServerList(350);
-
-			scenery = new Object2D[10];
+			if(!IcePush.isApplet) serverList = new ServerList(350);
+			
+			if(GRAPHICS_MODE == SOFTWARE_2D)
+				scenery = new Object2D[10];
+			else {
+				ice = new Texture("images/ice3d.jpg");
+				scenery = new Object3D[10];
+				scenery[0] = new Object3D.Cube(400);
+			}
 			
 			int width = 400, height = 400;
 			int x = IcePush.WIDTH / 2 - width / 2;

@@ -18,7 +18,6 @@ public class Opcodes {
 	public static final int PLAYER_LOGGED_OUT = 11;
 	public static final int PLAYER_DIED = 12;
 	public static final int SET_CAN_MOVE = 13;
-	public static final int PLAYER_STOPPED_MOVING = 15;
 	// Client to Server
 	public static final int MOVE_REQUEST = 8;
 	public static final int END_MOVE = 9;

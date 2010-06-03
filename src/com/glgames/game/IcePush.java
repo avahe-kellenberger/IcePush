@@ -8,20 +8,16 @@ import java.awt.Dimension;
 import static java.awt.AWTEvent.*;
 import java.awt.event.*;
 
-import javax.swing.Timer;
-
 import com.glgames.server.Player;
 
 import com.glgames.shared.InterthreadQueue;
 
-public class IcePush extends Applet implements Runnable, ActionListener {
+public class IcePush extends Applet implements Runnable {
+	private static final long serialVersionUID = 1L;
 
-	public static boolean DEBUG = true;
-	
+	public static boolean DEBUG = false;
+
 	public static IcePush instance;
-	public static Renderer renderer;
-	public static GameFrame frame;
-	public static Graphics buffGraphics;
 
 	// state stuff
 	public static final int WELCOME = 0;
@@ -30,24 +26,30 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	public static final int DIED = 3;
 
 	public static int state = WELCOME;
-	
+
+	public static boolean running = true;
+	public static transient boolean stable = true;
+
 	public static final int WIDTH = 450;
 	public static final int HEIGHT = 600;
 
-	public static boolean running = true;
-	public static boolean isApplet = false;
-
+	public static GameFrame frame;
+	public static Graphics buffGraphics;
 	public static int cycle;
 	public static int lastDied;
 
-	private InterthreadQueue<TimedKeyEvent> keyEvents;
+	static int moveFlags;
+
+	public static Renderer renderer;
+
+	public static boolean isApplet = false;
+
+	private InterthreadQueue<KeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
 
 	public static void main(String[] args) {
 		_init();
-		for (String arg : args) {
-			processCommandOption(arg);
-		}
+		for (String arg : args) { processCommandOption(arg); }
 		instance.run();
 		cleanup();
 	}
@@ -62,7 +64,7 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 
 	public IcePush() {
 		enableEvents(MOUSE_EVENT_MASK | KEY_EVENT_MASK);
-		keyEvents = new InterthreadQueue<TimedKeyEvent>();
+		keyEvents = new InterthreadQueue<KeyEvent>();
 		mouseEvents = new InterthreadQueue<MouseEvent>();
 	}
 
@@ -73,60 +75,37 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 		Renderer.message = "Select a username.";
 	}
 
-	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
-
-	protected void processMouseEvent(MouseEvent me) {
+	public void processMouseEvent(MouseEvent me) {
 		mouseEvents.push(me);
+		super.processMouseEvent(me);
 	}
 
-	protected void processKeyEvent(KeyEvent ke) {
-		keyEvents.push(new TimedKeyEvent(ke));
+	public void processKeyEvent(KeyEvent ke) {
+		keyEvents.push(ke);
+		super.processKeyEvent(ke);
 	}
-
-	// --- --------------------------------------------- --- //
-
-	private boolean keyPressed = false;
 
 	private void processEvents() {
-		TimedKeyEvent tke = null;
+		KeyEvent ke = null;
 		MouseEvent me = null;
 		int id;
 
-		while ((tke = keyEvents.pull()) != null) {
-			id = tke.event.getID();
-			if(id == KeyEvent.KEY_RELEASED) {
-				try {
-					Thread.sleep(5);			// If this is a spurious released/pressed pair, allow time for the EDT to queue the pressed event
-				} catch(Exception e) { }
-				TimedKeyEvent tke2 = keyEvents.pull();
-				if(tke2 == null) {			// This is the final key release
-					System.out.println("final");
-					keyReleased(tke.event);
-				} else if((tke2.time - tke.time) > 1 || tke.event.getID() != KeyEvent.KEY_PRESSED) { // Tke2 is an event that was generated while waiting
-					//keyReleased(tke.event);
-					//sendKeyEventInternal(tke2.event);
-				}
-			} else {
-				sendKeyEventInternal(tke.event);
+		while((ke = keyEvents.pull()) != null) {
+			id = ke.getID();
+			if(id == KeyEvent.KEY_PRESSED) {
+				keyPressed(ke);
+			} else if(id == KeyEvent.KEY_TYPED) {
+				keyTyped(ke);
+			} else if(id == KeyEvent.KEY_RELEASED) {
+				keyReleased(ke);
 			}
 		}
 
-		while ((me = mouseEvents.pull()) != null) {
+		while((me = mouseEvents.pull()) != null) {
 			id = me.getID();
-			if (id == MouseEvent.MOUSE_CLICKED) {
+			if(id == MouseEvent.MOUSE_CLICKED) {
 				mouseClicked(me);
 			}
-		}
-	}
-
-	private void sendKeyEventInternal(KeyEvent ke) {
-		int id = ke.getID();
-		if (id == KeyEvent.KEY_PRESSED) {
-			keyPressed(ke);
-		} else if (id == KeyEvent.KEY_TYPED) {
-			keyTyped(ke);
-		} else if (id == KeyEvent.KEY_RELEASED) {
-			keyReleased(ke);
 		}
 	}
 
@@ -134,26 +113,27 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 		if (!GameObjects.loaded)
 			return;
 
-		if (IcePush.state == IcePush.WELCOME) {
-			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
+		if(IcePush.state == IcePush.WELCOME) {
+			if(GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
 				GameObjects.serverList.processClick(e.getX(), e.getY());
-
+			
 			if (GameObjects.loginButton.contains(e.getPoint())) {
 				String server = "";
-				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
+				if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 					server = GameObjects.serverList.getSelected();
-				else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
+				} else if(GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 					server = GameObjects.serverBox.getText();
-				else if (GameObjects.serverMode == GameObjects.USE_DEFAULT)
-					server = "icepush.strictfp.com";
+				} else if(GameObjects.serverMode == GameObjects.USE_DEFAULT) {
+					server = "icepush.strictfp.com"; // getCodeBase();
+				}
 				if (!server.isEmpty()) {
-					NetworkHandler.login(server, GameObjects.usernameBox
-							.getText());
+				//	new Exception("LOGGING IN NOW: " + server + "GAMESERVERTYPE " + GameObjects.serverMode).printStackTrace();
+					NetworkHandler.login(server, GameObjects.usernameBox.getText());
 				}
 			} else if (GameObjects.helpButton.contains(e.getPoint())) {
 				IcePush.state = IcePush.HELP;
 			}
-		} else if (IcePush.state == IcePush.HELP) {
+		} else if(IcePush.state == IcePush.HELP) {
 			if (GameObjects.backButton.contains(e.getPoint())) {
 				IcePush.state = IcePush.WELCOME;
 			}
@@ -163,7 +143,6 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;
-
 		if (IcePush.DEBUG)
 			System.out.println("key pressed");
 
@@ -206,10 +185,36 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 				case KeyEvent.VK_P:
 					NetworkHandler.ping();
 					break;
+				case KeyEvent.VK_W:
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
+						((Renderer3D) IcePush.renderer).pitch -= 5;
+					break;
+				case KeyEvent.VK_S:
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
+						((Renderer3D) IcePush.renderer).pitch += 5;
+					break;
+				case KeyEvent.VK_A:
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
+						((Renderer3D) IcePush.renderer).yaw -= 5;
+					break;
+				case KeyEvent.VK_D:
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_3D)
+						((Renderer3D) IcePush.renderer).yaw += 5;
+					break;
+				case KeyEvent.VK_2:
+					IcePush.renderer.switchMode(GameObjects.SOFTWARE_2D);
+					break;
+				case KeyEvent.VK_3:
+					IcePush.renderer.switchMode(GameObjects.SOFTWARE_3D);
+					break;
 			}
 
-		if (moveDir != 0)
+		if (moveDir != 0) {
+			if (isSet(moveDir))
+				return;
 			NetworkHandler.sendMoveRequest(moveDir);
+			setBit(moveDir);
+		}
 	}
 
 	private void keyTyped(KeyEvent ke) {
@@ -217,8 +222,11 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 	}
 
 	private void keyReleased(KeyEvent e) {
+	//	if (!getReleased())
+	//		return;
 		if (IcePush.DEBUG)
 			System.out.println("key released");
+
 		int moveDir = 0;
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
@@ -234,26 +242,53 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 				moveDir = Player.RIGHT;
 				break;
 		}
-		if (moveDir != 0)
+		if (moveDir != 0) {
 			NetworkHandler.endMoveRequest(moveDir);
+			clearBit(moveDir);
+		}
+	}
+
+	private void setBit(int flag) {
+		moveFlags |= flag;
+	}
+
+	private void clearBit(int flag) {
+		moveFlags &= ~flag;
+	}
+
+	private boolean isSet(int flag) {
+		return (moveFlags & flag) > 0;
 	}
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
 		instance.setFocusTraversalKeysEnabled(false);
-		renderer = new Renderer(instance);
-		timer = new Timer(1, instance);
+		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
+			renderer = new Renderer2D(instance);
+		else
+			renderer = new Renderer3D(instance);
+		
 		frame = new GameFrame();
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
 	}
-
-	public void start() {
-		setFocusTraversalKeysEnabled(false);
-		renderer = new Renderer(this);
+	
+	public static void setRenderer(Renderer r) {
+		renderer = r;
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
-		timer = new Timer(1, this);
+	}
+	
+	public void start() {
+		setFocusTraversalKeysEnabled(false);
+		if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
+			renderer = new Renderer2D(this);
+		else
+			renderer = new Renderer3D(this);
+		
+		renderer.initGraphics();
+		buffGraphics = renderer.getBufferGraphics();
+		
 		run();
 		cleanup();
 	}
@@ -312,8 +347,17 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 		// update positions and such
 		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
-		updatePlayers();
-		renderer.renderScene(GameObjects.players);
+		if (!stable)
+			return;
+
+		if (renderer instanceof Renderer2D)
+			((Renderer2D) renderer)
+					.renderScene((Object2D[]) GameObjects.players);
+		else
+			((Renderer3D) renderer).renderScene(
+					(Object3D[]) GameObjects.players,
+					(Object3D[]) GameObjects.scenery);
+		renderer.drawDebug();
 	}
 
 	private static void diedLoop() {
@@ -329,31 +373,13 @@ public class IcePush extends Applet implements Runnable, ActionListener {
 
 	public static void cleanup() {
 		running = false;
-		timer.stop();
-		timer = null;
 		NetworkHandler.logOut();
 		instance = null;
 		System.gc();
-	}
-
-	private static void updatePlayers() {
-		for (Player2D p : GameObjects.players) {
-			if (p != null)
-				p.handleMove();
-		}
+	//	if(!anApplet) System.exit(0); // -- TEMPORARY SOLUTION FOR TIMER FIRING FAILURE FAGGOTRY //
 	}
 
 	public Dimension getPreferredSize() {
 		return new Dimension(WIDTH, HEIGHT);
-	}
-
-	static Timer timer;
-	private boolean released;
-	private KeyEvent releaseEvent;
-
-	public void actionPerformed(ActionEvent arg0) {
-		released = true;
-		timer.stop();
-		keyReleased(releaseEvent);
 	}
 }

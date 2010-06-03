@@ -48,7 +48,11 @@ public class NetworkHandler {
 				// Successful login
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
-				GameObjects.players = new Player2D[50];
+				IcePush.moveFlags = 0;
+				if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D)
+					GameObjects.players = new Player2D[50];
+				else
+					GameObjects.players = new Player3D[50];
 				IcePush.state = IcePush.PLAY;
 			} else {
 				Renderer.message = "Invalid response from server.";
@@ -73,6 +77,7 @@ public class NetworkHandler {
 		int id, type, x, y;
 		String username;
 		Player2D p2;
+		Player3D p3;
 		while ((opcode = pbuf.openPacket()) != -1) {
 			switch (opcode) {
 				case NEW_PLAYER:
@@ -82,63 +87,91 @@ public class NetworkHandler {
 					x = pbuf.readShort();
 					y = pbuf.readShort();
 					int deaths = pbuf.readShort();
-					p2 = new Player2D(type == TREE ? "images/tree.png"
-							: "images/snowman.png");
-					p2.x = x;
-					p2.y = y;
-					p2.username = username;
-					p2.deaths = deaths;
-					GameObjects.players[id] = p2;
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
+						p2 = new Player2D(type == TREE ? "images/tree.png"
+								: "images/snowman.png", type);
+						p2.x = x;
+						p2.y = y;
+						p2.username = username;
+						p2.deaths = deaths;
+						GameObjects.players[id] = p2;
+					} else {
+						p3 = new Player3D(type);
+						p3.baseX = x;
+						p3.baseZ = y;
+						p3.username = username;
+						p3.deaths = deaths;
+						GameObjects.players[id] = p3;
+
+						if (id == NetworkHandler.id)
+							((Renderer3D) IcePush.renderer)
+									.focusCamera(x, y);
+					}
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();
-					p2 = GameObjects.players[id];
-					if (p2 == null) { // ???????????????
-						System.out.println("null player tried to move??? "
-								+ id);
-						break;
+					x = pbuf.readShort();
+					y = pbuf.readShort();
+
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
+						p2 = (Player2D) GameObjects.players[id];
+						if (p2 == null) { // ???????????????
+							System.out.println("null player tried to move??? "
+									+ id);
+							break;
+						}
+						p2.x = x;
+						p2.y = y;
+					} else {
+						p3 = (Player3D) GameObjects.players[id];
+						if (p3 == null) { // ???????????????
+							System.out.println("null player tried to move??? "
+									+ id);
+							break;
+						}
+						p3.baseX = x;
+						p3.baseZ = y;
+						if (id == NetworkHandler.id)
+							((Renderer3D) IcePush.renderer)
+									.focusCamera(x, y);
 					}
-					p2.setBit(pbuf.readShort());
-					break;
-				case PLAYER_STOPPED_MOVING:
-					id = pbuf.readShort();
-					p2 = GameObjects.players[id];
-					if (p2 == null) { // ???????????????
-						System.out.println("null player tried to move??? "
-								+ id);
-						break;
-					}
-					//int bit = 
-					pbuf.readShort();
-					//if(bit == UP || bit == DOWN) p2.clearBit(UP | DOWN);
-					///if(bit == LEFT || bit == RIGHT) p2.clearBit(LEFT | RIGHT);
-					//System.out.println("STOPPED MOVING: " + Player2D.toString(p2.moveflags));
-					p2.moveflags = 0;
-					p2.x = pbuf.readShort();
-					p2.y = pbuf.readShort();
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
-					p2 = GameObjects.players[id];
-					p2.bubbleAlpha = 1.0f;
-					p2.deaths = pbuf.readByte();
-					p2.x = pbuf.readShort();
-					p2.y = pbuf.readShort();
-					if (id == NetworkHandler.id) {
-						IcePush.state = IcePush.DIED;
-						p2.moveflags = 0;
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
+						p2 = (Player2D) GameObjects.players[id];
+						p2.bubbleAlpha = 1.0f;
+						p2.deaths = pbuf.readByte();
+						p2.x = pbuf.readShort();
+						p2.y = pbuf.readShort();
+					} else {
+						p3 = (Player3D) GameObjects.players[id];
+						p3.deaths = pbuf.readByte();
+						x = pbuf.readShort();
+						y = pbuf.readShort();
+						p3.baseX = x;
+						p3.baseZ = y;
+						if (id == NetworkHandler.id)
+							((Renderer3D) IcePush.renderer)
+									.focusCamera(x, y);
 					}
+					if (id == NetworkHandler.id)
+						IcePush.state = IcePush.DIED;
 					break;
 				case SET_CAN_MOVE:
 					id = pbuf.readShort();
-					p2 = GameObjects.players[id];
-					if (p2 == null) { // ???????????????
-						System.out
-								.println("null player tried to set can move ??? "
-										+ id);
-						break;
+					if (GameObjects.GRAPHICS_MODE == GameObjects.SOFTWARE_2D) {
+						p2 = (Player2D) GameObjects.players[id];
+						if (p2 == null) { // ???????????????
+							System.out
+									.println("null player tried to set can move ??? "
+											+ id);
+							break;
+						}
+						p2.bubbleAlpha = pbuf.readByte() > 0 ? 0.0f : 1.0f;
+					} else {
+						pbuf.readByte(); // bubble alpha not needed for 3d
 					}
-					p2.bubbleAlpha = pbuf.readByte() > 0 ? 0.0f : 1.0f;
 					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
@@ -158,7 +191,7 @@ public class NetworkHandler {
 	public static int moveID;
 
 	public static void sendMoveRequest(int dir) {
-		if (IcePush.state != IcePush.PLAY || GameObjects.players[id].isSet(dir))
+		if (IcePush.state != IcePush.PLAY)
 			return;
 		try {
 			if (IcePush.DEBUG)
@@ -237,7 +270,7 @@ public class NetworkHandler {
 			pbuf.closePacket();
 			pbuf.synch();
 			IcePush.state = IcePush.WELCOME;
-			Renderer.message = "Select a username.";
+			Renderer.message = "Select a server and username.";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
