@@ -1,6 +1,9 @@
 package com.glgames.game;
 
-import static com.glgames.server.Player.*;
+import static com.glgames.server.Player.DOWN;
+import static com.glgames.server.Player.LEFT;
+import static com.glgames.server.Player.RIGHT;
+import static com.glgames.server.Player.UP;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -9,12 +12,10 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
-import static com.glgames.shared.Opcodes.*;
-
 public class Player {
 	Object3D model;
 	Object2D sprite;
-	private int type;
+	public int type;
 	public String username;
 	public int moveflags;
 	public int x, y;

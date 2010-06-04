@@ -95,7 +95,7 @@ public class IcePush extends Applet implements Runnable {
 			id = tke.event.getID();
 			if(id == KeyEvent.KEY_RELEASED) {
 				try {
-					Thread.sleep(5);			// If this is a spurious released/pressed pair, allow time for the EDT to queue the pressed event
+					Thread.sleep(2);			// If this is a spurious released/pressed pair, allow time for the EDT to queue the pressed event
 				} catch(Exception e) { }
 				TimedKeyEvent tke2 = keyEvents.pull();
 				if(tke2 == null) {			// This is the final key release
@@ -222,10 +222,10 @@ public class IcePush extends Applet implements Runnable {
 						renderer.yaw += 5;
 					break;
 				case KeyEvent.VK_2:
-					renderer.GRAPHICS_MODE = renderer.SOFTWARE_2D;
+					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_2D;
 					break;
 				case KeyEvent.VK_3:
-					renderer.GRAPHICS_MODE = renderer.SOFTWARE_3D;
+					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_3D;
 					break;
 			}
 

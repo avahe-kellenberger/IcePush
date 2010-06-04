@@ -55,9 +55,7 @@ public class GameObjects {
 
 			if (!IcePush.isApplet)
 				serverList = new ServerList(350);
-
-
-			ice = new Texture("images/ice3d.jpg");
+			
 			scenery = new Object3D[10];
 			scenery[0] = new Object3D.Cube(400);
 									

@@ -124,6 +124,8 @@ public class Renderer {
 			renderScene2D(GameObjects.players);
 		}
 		if(GRAPHICS_MODE == SOFTWARE_3D) {
+			//if(focusX == 0 && focusY == 0 && focusZ == 0)
+				focusCamera();
 			Object3D objs[] = new Object3D[GameObjects.players.length];
 			for(int i = 0; i < objs.length; i++) {
 				if(GameObjects.players[i] != null) {
@@ -134,6 +136,19 @@ public class Renderer {
 		}
 	}
 	
+	private void focusCamera() {
+		Player p = GameObjects.players[NetworkHandler.id];
+		if(p == null)
+			return;
+		
+		//focusX = 50;
+		//focusY = 50;
+		//cameraZ = 50;
+		focusX = focusY = 0;
+		cameraZ = - 120;
+		System.out.println(p.y);
+	}
+
 	private void button(Rectangle r, String text) {
 		bg.setColor(Color.gray);
 		bg.fill3DRect(r.x, r.y, r.width, r.height, true);
