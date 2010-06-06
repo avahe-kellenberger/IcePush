@@ -90,31 +90,30 @@ public class NetworkHandler {
 					GameObjects.players[id] = plr;
 					break;
 				case PLAYER_MOVED:
-					id = pbuf.readShort();
+					id = pbuf.readShort();				// player ID
+					int destX = pbuf.readShort();			// x player will stop at
+					int destY = pbuf.readShort();			// y player will stop at
+					int timeFromNow = pbuf.readShort();		// time until they stop (< 0 for stoped moving)
+
 					plr = GameObjects.players[id];
 					if (plr == null) { // ???????????????
 						System.out.println("null player tried to move??? "
 								+ id);
 						break;
 					}
-					plr.setBit(pbuf.readShort());
+					plr.updatePos(destX, destY, timeFromNow);
 					break;
 				case PLAYER_STOPPED_MOVING:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
+					x = pbuf.readShort();
+					y = pbuf.readShort();
 					if (plr == null) { // ???????????????
 						System.out.println("null player tried to move??? "
 								+ id);
 						break;
 					}
-					//int bit = 
-					pbuf.readShort();
-					//if(bit == UP || bit == DOWN) p2.clearBit(UP | DOWN);
-					///if(bit == LEFT || bit == RIGHT) p2.clearBit(LEFT | RIGHT);
-					//System.out.println("STOPPED MOVING: " + Player2D.toString(p2.moveflags));
-					plr.moveflags = 0;
-					plr.x = pbuf.readShort();
-					plr.y = pbuf.readShort();
+					plr.updatePos(x, y, -1);
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
@@ -125,7 +124,6 @@ public class NetworkHandler {
 					plr.y = pbuf.readShort();
 					if (id == NetworkHandler.id) {
 						IcePush.state = IcePush.DIED;
-						plr.moveflags = 0;
 					}
 					break;
 				case SET_CAN_MOVE:
@@ -157,7 +155,7 @@ public class NetworkHandler {
 	public static int moveID;
 
 	public static void sendMoveRequest(int dir) {
-		if (IcePush.state != IcePush.PLAY || GameObjects.players[id].isSet(dir))
+		if (IcePush.state != IcePush.PLAY)
 			return;
 		try {
 			if (IcePush.DEBUG)

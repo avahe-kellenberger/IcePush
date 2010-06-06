@@ -17,9 +17,13 @@ public class Player {
 	Object2D sprite;
 	public int type;
 	public String username;
-	public int moveflags;
+
+	private int destX, destY;
+	private int startX, startY;
+	private long startTime;
+	private long endTime;
+
 	public int x, y;
-	public int dx, dy;
 	public int deaths;
 	public float bubbleAlpha;
 
@@ -32,14 +36,14 @@ public class Player {
 		this.username = username;
 	}
 
-	public static String toString(int flags) {
+/*	public static String toString(int flags) {
 		StringBuilder sb = new StringBuilder();
 		if((flags & UP)!= 0) sb.append("UP");
 		if((flags & DOWN) != 0) sb.append(" DOWN ");
 		if((flags & LEFT) != 0) sb.append(" LEFT ");
 		if((flags & RIGHT) != 0) sb.append(" RIGHT");
 		return sb.toString();
-	}
+	}*/
 
 	public void draw(Graphics g) {
 		if(sprite == null) return;
@@ -60,47 +64,36 @@ public class Player {
 		}
 	}
 
-	public void setBit(int flag) {
-		moveflags |= flag;
-	}
-
-	public void clearBit(int flag) {
-		moveflags &= ~flag;
-	}
-
-	public boolean isSet(int flag) {
-		return (moveflags & flag) > 0;
+	public void updatePos(int newX, int newY, int timeFromNow) {
+		startX = x;
+		startY = y;
+		startTime = System.currentTimeMillis();
+		if(timeFromNow < 0) {					// Time of < 0 is used to indicate unmotion
+			x = newX;
+			y = newY;
+		} else {
+			endTime = timeFromNow + startTime;
+		}
+		endTime = timeFromNow;
+		makeObjectModelAndSpriteCoordinatesConsistentWithPlayerCoordinates();
 	}
 
 	public void handleMove() {
-		if(isSet(UP)) {
-			dy--;
-		} if(isSet(DOWN)) {
-			dy++;
-		} else {
-			dy = 0;
+		if(endTime < 0) return;
+		long now = System.currentTimeMillis();
+		if(now >= endTime) {
+			endTime = -1;
+			return;
 		}
-
-		if(isSet(LEFT)) {
-			dx--;
-		} else if(isSet(RIGHT)) {
-			dx++;
-		} else {
-			dx = 0;
-		}
-		if(dx > 4)
-			dx = 4;
-		if(dy > 4)
-			dy = 4;
-		if(dx < -4)
-			dx = -4;
-		if(dy < -4)
-			dy = -4;
-
-		x += dx;
-		y += dy;
-
-		//System.out.println("dx = " + dx + " dy = " + dy);
+		x = (int)(startX + ((destX - startX) * (now - startTime)) / (endTime - startTime));
+		y = (int)(startY + ((destY - startY) * (now - startTime)) / (endTime - startTime));
+		makeObjectModelAndSpriteCoordinatesConsistentWithPlayerCoordinates();
 	}
 
+	private void makeObjectModelAndSpriteCoordinatesConsistentWithPlayerCoordinates() {
+		sprite.x = x;
+		sprite.y = y;
+		model.baseX = x;
+		model.baseZ = y;
+	}
 }

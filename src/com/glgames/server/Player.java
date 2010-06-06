@@ -18,7 +18,7 @@ public class Player {
 
 	public int id;
 	public int type;
-	public double dx, dy;
+	public int dx, dy;
 	public int deaths;
 
 	public Rectangle area;
@@ -27,13 +27,12 @@ public class Player {
 	public String username;
 	public boolean connected;
 	public boolean canMove = true;
-	private int moveDir = 0;
 
 	public Player() {
 
 	}
 
-	private void setBit(int flag) {
+/*	private void setBit(int flag) {
 		moveDir |= flag;
 	}
 
@@ -43,7 +42,8 @@ public class Player {
 
 	private boolean isSet(int flag) {
 		return (moveDir & flag) != 0;
-	}
+	}*/
+
 	
 	public void notifyLogin() {
 		for (Player plr : Server.players) {
@@ -94,50 +94,36 @@ public class Player {
 		}
 		area = r;
 
-		dx = dy = moveDir = 0;
+		dx = dy = 0;
 	}
 
-	public void handleMove() {		
-		if (moveDir != 0) {
-			if(!canMove)
-				return;
-			if(isSet(UP))
-				dy--;
-			if(isSet(DOWN))
-				dy++;
-			if(isSet(LEFT))
-				dx--;
-			if(isSet(RIGHT))
-				dx++;
-			
-			Player p = getPlayerInWay();
-			if (p != null && p.canMove) {
-				p.moveDir = moveDir;
-				//dx = dy = 0;
-				//moveDir = -1;
+	public void handleMove() {
+		if(!canMove)
+			return;			
+		Player p = getPlayerInWay();
+		if (p != null) {
+			if(p.canMove) {
+				p.dx = dx;
+				p.dy = dy;
 				// TODO make better
 				p.handleMove();
-				return;
-			} else if(p != null && !p.canMove) {
-				dx = dy = moveDir = 0;
+				p.updatePos();
+			} else {
+				dx = dy = 0;
+				updatePos();
 			}
-			
-			if(dx > 4)
-				dx = 4;
-			if(dy > 4)
-				dy = 4;
-			if(dx < -4)
-				dx = -4;
-			if(dy < -4)
-				dy = -4;
-		} else {
-			// moveDir == -1
-			if (dx != 0)
-				dx = 0;
-			if (dy != 0)
-				dy = 0;
 		}
-		if(dx != 0 || dy != 0) {
+			
+		if(dx > 4)
+			dx = 4;
+		if(dy > 4)
+			dy = 4;
+		if(dx < -4)
+			dx = -4;
+		if(dy < -4)
+				dy = -4;
+
+		if((dx | dy) != 0) {
 			area.x += dx;
 			area.y += dy;
 
@@ -146,18 +132,25 @@ public class Player {
 				playerDied();
 				return;
 			}
-			
-			for (Player plr : Server.players) {
-				if (plr == null)
-					continue;
-				if (Server.DEBUG)
-					System.out.println("SENDING MOVE - " + id + " : "
-							+ area.x + ", " + area.y);
+		}
+	}
 
-				plr.pbuf.beginPacket(PLAYER_MOVED); // player moved
+	private void updatePos() {
+		for(Player plr: Server.players) if(plr != null) {
+			if((dx | dy) == 0) {		// dx and dy are both zero
+				plr.pbuf.beginPacket(PLAYER_STOPPED_MOVING);
 				plr.pbuf.writeShort(id);
 				plr.pbuf.writeShort(area.x);
 				plr.pbuf.writeShort(area.y);
+				plr.pbuf.endPacket();
+			} else {
+				int destX = area.x + 100 * dx;
+				int destY = area.y + 100 * dy;
+				plr.pbuf.beginPacket(PLAYER_MOVED);
+				plr.pbuf.writeShort(id);
+				plr.pbuf.writeShort(destX);
+				plr.pbuf.writeShort(destY);
+				plr.pbuf.writeShort(3000);
 				plr.pbuf.endPacket();
 			}
 		}
@@ -216,19 +209,33 @@ public class Player {
 			while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
 					case MOVE_REQUEST:
-						setBit(pbuf.readByte());
+						int moveDir = pbuf.readByte();
 						int moveid = pbuf.readByte();
 						if (Server.DEBUG)
 							System.out.println("GOT MOVE REQUEST - DIR: "
 									+ moveDir + " - ID = " + moveid
 									+ " , TIME: " + System.currentTimeMillis());
+						if(moveDir == UP) {
+							dy = -2;
+						} else if(moveDir == DOWN) {
+							dy = 2;
+						} else if(moveDir == RIGHT) {
+							dx = 2;
+						} else if(moveDir == LEFT) {
+							dx = -2;
+						}
+						updatePos();
 						break;
 					case END_MOVE:
-						clearBit(pbuf.readByte());
+						int moveBit = pbuf.readByte();
+						int debugBullshit = pbuf.readByte();
 						if (Server.DEBUG)
 							System.out.println("END MOVE REQUEST - ID = "
-									+ pbuf.readByte() + " - TIME = "
+									+ debugBullshit + " - TIME = "
 									+ System.currentTimeMillis());
+						if(moveBit == UP || moveBit == DOWN) dy = 0;
+						if(moveBit == LEFT || moveBit == RIGHT) dx = 0;
+						updatePos();
 						break;
 					case LOGOUT:
 						logout();

@@ -263,7 +263,6 @@ public class IcePush extends Applet implements Runnable {
 		instance = new IcePush();
 		instance.setFocusTraversalKeysEnabled(false);
 		renderer = new Renderer(instance);
-//		timer = new Timer(1, instance);
 		frame = new GameFrame();
 		renderer.initGraphics();
 		buffGraphics = renderer.getBufferGraphics();
@@ -364,14 +363,4 @@ public class IcePush extends Applet implements Runnable {
 	public Dimension getPreferredSize() {
 		return new Dimension(WIDTH, HEIGHT);
 	}
-
-//	static Timer timer;
-//	private boolean released;
-//	private KeyEvent releaseEvent;
-//
-//	public void actionPerformed(ActionEvent arg0) {
-//		released = true;
-//		timer.stop();
-//		keyReleased(releaseEvent);
-//	}
 }
