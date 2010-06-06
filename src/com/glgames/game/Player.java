@@ -68,25 +68,34 @@ public class Player {
 		startX = x;
 		startY = y;
 		startTime = System.currentTimeMillis();
+		System.out.println("POS IS UPDATED: " + newX + " " + newY + " " + timeFromNow);
 		if(timeFromNow < 0) {					// Time of < 0 is used to indicate unmotion
 			x = newX;
 			y = newY;
 		} else {
 			endTime = timeFromNow + startTime;
+			System.out.println("updated endTime = " + endTime);
+			destX = newX;
+			destY = newY;
 		}
-		endTime = timeFromNow;
 		makeObjectModelAndSpriteCoordinatesConsistentWithPlayerCoordinates();
 	}
 
 	public void handleMove() {
-		if(endTime < 0) return;
+		//System.out.println("destX =" + destX  + " destY=" + destY);
+		if(endTime < 0) {
+			System.out.println("endtime < 0 returning: " + endTime);
+			return;
+		}
 		long now = System.currentTimeMillis();
 		if(now >= endTime) {
+			System.out.println("endtime already ended stopping: " + now + ", " + endTime);
 			endTime = -1;
 			return;
 		}
 		x = (int)(startX + ((destX - startX) * (now - startTime)) / (endTime - startTime));
 		y = (int)(startY + ((destY - startY) * (now - startTime)) / (endTime - startTime));
+		System.out.println("x=" + x + " y=" + y);
 		makeObjectModelAndSpriteCoordinatesConsistentWithPlayerCoordinates();
 	}
 
