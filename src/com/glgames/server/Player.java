@@ -145,14 +145,14 @@ public class Player {
 				plr.pbuf.writeShort(area.y);
 				plr.pbuf.endPacket();
 			} else {
-				int destX = area.x + 100 * dx;
-				int destY = area.y + 100 * dy;
+				int destX = area.x + 300 * dx;
+				int destY = area.y + 300 * dy;
 				System.out.println("SENDING PLAYER_MOVED: username = " + username + " destX=" + destX + " destY=" + destY);
 				plr.pbuf.beginPacket(PLAYER_MOVED);
 				plr.pbuf.writeShort(id);
 				plr.pbuf.writeShort(destX);
 				plr.pbuf.writeShort(destY);
-				plr.pbuf.writeShort(3000);
+				plr.pbuf.writeShort(9000);
 				plr.pbuf.endPacket();
 			}
 		}
@@ -218,13 +218,13 @@ public class Player {
 									+ moveDir + " - ID = " + moveid
 									+ " , TIME: " + System.currentTimeMillis());
 						if(moveDir == UP) {
-							dy = -2;
+							dy = -4;
 						} else if(moveDir == DOWN) {
-							dy = 2;
+							dy = 4;
 						} else if(moveDir == RIGHT) {
-							dx = 2;
+							dx = 4;
 						} else if(moveDir == LEFT) {
-							dx = -2;
+							dx = -4;
 						}
 						updatePos();
 						break;
