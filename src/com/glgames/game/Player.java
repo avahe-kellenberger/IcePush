@@ -68,13 +68,12 @@ public class Player {
 		startX = x;
 		startY = y;
 		startTime = System.currentTimeMillis();
-		System.out.println("POS IS UPDATED: " + newX + " " + newY + " " + timeFromNow);
 		if(timeFromNow < 0) {					// Time of < 0 is used to indicate unmotion
 			x = newX;
 			y = newY;
+			endTime = timeFromNow;
 		} else {
 			endTime = timeFromNow + startTime;
-			System.out.println("updated endTime = " + endTime);
 			destX = newX;
 			destY = newY;
 		}
@@ -82,14 +81,12 @@ public class Player {
 	}
 
 	public void handleMove() {
-		//System.out.println("destX =" + destX  + " destY=" + destY);
 		if(endTime < 0) {
-			System.out.println("endtime < 0 returning: " + endTime);
 			return;
 		}
 		long now = System.currentTimeMillis();
 		if(now >= endTime) {
-			System.out.println("endtime already ended stopping: " + now + ", " + endTime);
+			System.out.println("endtime has arrive, stopping: " + now + ", " + endTime);
 			endTime = -1;
 			return;
 		}

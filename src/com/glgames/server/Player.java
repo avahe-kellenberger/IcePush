@@ -138,6 +138,7 @@ public class Player {
 	private void updatePos() {
 		for(Player plr: Server.players) if(plr != null) {
 			if((dx | dy) == 0) {		// dx and dy are both zero
+				System.out.println("STOPPING PLAYER AT " + area.x + ", " + area.y);
 				plr.pbuf.beginPacket(PLAYER_STOPPED_MOVING);
 				plr.pbuf.writeShort(id);
 				plr.pbuf.writeShort(area.x);
@@ -146,6 +147,7 @@ public class Player {
 			} else {
 				int destX = area.x + 100 * dx;
 				int destY = area.y + 100 * dy;
+				System.out.println("SENDING PLAYER_MOVED: username = " + username + " destX=" + destX + " destY=" + destY);
 				plr.pbuf.beginPacket(PLAYER_MOVED);
 				plr.pbuf.writeShort(id);
 				plr.pbuf.writeShort(destX);
@@ -229,12 +231,13 @@ public class Player {
 					case END_MOVE:
 						int moveBit = pbuf.readByte();
 						int debugBullshit = pbuf.readByte();
-						if (Server.DEBUG)
+						//if (Server.DEBUG)
 							System.out.println("END MOVE REQUEST - ID = "
 									+ debugBullshit + " - TIME = "
 									+ System.currentTimeMillis());
 						if(moveBit == UP || moveBit == DOWN) dy = 0;
 						if(moveBit == LEFT || moveBit == RIGHT) dx = 0;
+						System.out.println("NEW DX = " + dx + " NEW DY = " + dy);
 						updatePos();
 						break;
 					case LOGOUT:

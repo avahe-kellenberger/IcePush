@@ -14,7 +14,7 @@ import com.glgames.shared.InterthreadQueue;
 
 public class IcePush extends Applet implements Runnable {
 
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	
 	public static IcePush instance;
 	public static Renderer renderer;
@@ -41,6 +41,8 @@ public class IcePush extends Applet implements Runnable {
 
 	private InterthreadQueue<TimedKeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
+
+	private int moveKeyFlags;
 
 	public static void main(String[] args) {
 		_init();
@@ -229,8 +231,13 @@ public class IcePush extends Applet implements Runnable {
 					break;
 			}
 
-		if (moveDir != 0)
-			NetworkHandler.sendMoveRequest(moveDir);
+		if (moveDir != 0) {
+			if((moveKeyFlags | moveDir) != moveKeyFlags) {
+				System.out.println("Sending move");
+				moveKeyFlags |= moveDir;
+				NetworkHandler.sendMoveRequest(moveDir);
+			}
+		}
 	}
 
 	private void keyTyped(KeyEvent ke) {
@@ -255,8 +262,11 @@ public class IcePush extends Applet implements Runnable {
 				moveDir = RIGHT;
 				break;
 		}
-		if (moveDir != 0)
+		if (moveDir != 0) {
+			System.out.println("Ending move");
+			moveKeyFlags &= (~moveDir);
 			NetworkHandler.endMoveRequest(moveDir);
+		}
 	}
 
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
