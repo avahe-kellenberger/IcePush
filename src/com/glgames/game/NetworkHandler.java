@@ -91,28 +91,15 @@ public class NetworkHandler {
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort();				// player ID
-					int destX = pbuf.readShort();			// x player will stop at
-					int destY = pbuf.readShort();			// y player will stop at
-					int timeFromNow = pbuf.readShort();		// time until they stop (< 0 for stoped moving)
+					x = pbuf.readShort();			// x player will stop at
+					y = pbuf.readShort();			// y player will stop at
 					plr = GameObjects.players[id];
 					if (plr == null) {
 						System.out.println("null player tried to move??? " + id);
 						break;
 					}
-					System.out.println("Player " + plr.username + " will stop moving at " + destX + ", " + destY + " in " + timeFromNow + "ms.");
-					plr.updatePos(destX, destY, timeFromNow);
-					break;
-				case PLAYER_STOPPED_MOVING:
-					id = pbuf.readShort();
-					plr = GameObjects.players[id];
-					x = pbuf.readShort();
-					y = pbuf.readShort();
-					if (plr == null) { // ???????????????
-						System.out.println("null player tried to move??? " + id);
-						break;
-					}
-					System.out.println("Player " + plr.username + " is stopping at " + x + ", " + y);
-					plr.updatePos(x, y, -1);
+					plr.x = x;
+					plr.y = y;
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();

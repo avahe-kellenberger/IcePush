@@ -36,15 +36,6 @@ public class Player {
 		this.username = username;
 	}
 
-/*	public static String toString(int flags) {
-		StringBuilder sb = new StringBuilder();
-		if((flags & UP)!= 0) sb.append("UP");
-		if((flags & DOWN) != 0) sb.append(" DOWN ");
-		if((flags & LEFT) != 0) sb.append(" LEFT ");
-		if((flags & RIGHT) != 0) sb.append(" RIGHT");
-		return sb.toString();
-	}*/
-
 	public void draw(Graphics g) {
 		if(sprite == null) return;
 		sprite.x = x;
@@ -64,7 +55,8 @@ public class Player {
 		}
 	}
 
-	public void updatePos(int newX, int newY, int timeFromNow) {
+	// ALL CODE IN COMMENTS HAS BEEN COMMENTED OUT
+	/*public void updatePos(int newX, int newY, int timeFromNow) {
 		startX = x;
 		startY = y;
 		startTime = System.currentTimeMillis();
@@ -101,5 +93,5 @@ public class Player {
 		sprite.y = y;
 		model.baseX = x;
 		model.baseZ = y;
-	}
+	}*/
 }

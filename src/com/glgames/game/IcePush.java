@@ -364,10 +364,7 @@ public class IcePush extends Applet implements Runnable {
 	}
 
 	private static void updatePlayers() {
-		for (Player p : GameObjects.players) {
-			if (p != null)
-				p.handleMove();
-		}
+		
 	}
 
 	public Dimension getPreferredSize() {

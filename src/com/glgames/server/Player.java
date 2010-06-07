@@ -114,14 +114,14 @@ public class Player {
 			}
 		}
 			
-		if(dx > 4)
+		if (dx > 4)
 			dx = 4;
-		if(dy > 4)
+		if (dy > 4)
 			dy = 4;
-		if(dx < -4)
+		if (dx < -4)
 			dx = -4;
-		if(dy < -4)
-				dy = -4;
+		if (dy < -4)
+			dy = -4;
 
 		if((dx | dy) != 0) {
 			area.x += dx;
