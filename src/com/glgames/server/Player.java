@@ -9,16 +9,9 @@ import java.util.TimerTask;
 import com.glgames.shared.PacketBuffer;
 
 public class Player {
-	public static final int FORWARD = 1 << 0;
-	public static final int BACKWARD = 1 << 1;
-	public static final int LEFT = 1 << 2;
-	public static final int RIGHT = 1 << 3;
-	public static final int UP = 1 << 4;
-	public static final int DOWN = 1 << 5;
-
 	public int id;
 	public int type;
-	public int dx, dy;
+	public int dx, dy, moveDir;
 	public int deaths;
 
 	public Rectangle area;
@@ -32,7 +25,7 @@ public class Player {
 
 	}
 
-/*	private void setBit(int flag) {
+	private void setBit(int flag) {
 		moveDir |= flag;
 	}
 
@@ -42,7 +35,7 @@ public class Player {
 
 	private boolean isSet(int flag) {
 		return (moveDir & flag) != 0;
-	}*/
+	}
 
 	
 	public void notifyLogin() {
@@ -93,68 +86,46 @@ public class Player {
 				break;
 		}
 		area = r;
-
+		moveDir = 0;
 		dx = dy = 0;
 	}
 
 	public void handleMove() {
 		if(!canMove)
 			return;			
-		Player p = getPlayerInWay();
-		if (p != null) {
-			if(p.canMove) {
-				p.dx = dx;
-				p.dy = dy;
-				// TODO make better
-				p.handleMove();
-				p.updatePos();
-			} else {
-				dx = dy = 0;
-				updatePos();
-			}
+		
+		if(isSet(UP))
+			dy--;
+		if(isSet(DOWN))
+			dy++;
+		if(isSet(LEFT))
+			dx--;
+		if(isSet(RIGHT))
+			dx++;
+		
+		dx = dx > 4 ? 4 : dx;
+		dy = dy > 4 ? 4 : dy;
+		dx = dx < -4 ? -4 : dx;
+		dy = dy < -4 ? -4 : dy;
+
+		Player o;
+		if((o = getPlayerInWay()) != null) {
+			o.moveDir = moveDir;
+			return;
 		}
-			
-		if (dx > 4)
-			dx = 4;
-		if (dy > 4)
-			dy = 4;
-		if (dx < -4)
-			dx = -4;
-		if (dy < -4)
-			dy = -4;
-
-		if((dx | dy) != 0) {
-			area.x += dx;
-			area.y += dy;
-
-			if (area.x < 0 - 10 || area.x > 400 + 10 || area.y < 0 - 10
-					|| area.y > 400 + 10) {
-				playerDied();
-				return;
-			}
-		}
-	}
-
-	private void updatePos() {
-		for(Player plr: Server.players) if(plr != null) {
-			if((dx | dy) == 0) {		// dx and dy are both zero
-				System.out.println("STOPPING PLAYER AT " + area.x + ", " + area.y);
-				plr.pbuf.beginPacket(PLAYER_STOPPED_MOVING);
-				plr.pbuf.writeShort(id);
-				plr.pbuf.writeShort(area.x);
-				plr.pbuf.writeShort(area.y);
-				plr.pbuf.endPacket();
-			} else {
-				int destX = area.x + 300 * dx;
-				int destY = area.y + 300 * dy;
-				System.out.println("SENDING PLAYER_MOVED: username = " + username + " destX=" + destX + " destY=" + destY);
-				plr.pbuf.beginPacket(PLAYER_MOVED);
-				plr.pbuf.writeShort(id);
-				plr.pbuf.writeShort(destX);
-				plr.pbuf.writeShort(destY);
-				plr.pbuf.writeShort(9000);
-				plr.pbuf.endPacket();
-			}
+		
+		area.x += dx;
+		area.y += dy;
+		
+		if(area.x < 0 || area.y < 0 || area.x > 400 || area.y > 400)
+			playerDied();
+		
+		for(Player p : Server.players) if(p != null) {
+			p.pbuf.beginPacket(PLAYER_MOVED);
+			p.pbuf.writeShort(id);
+			p.pbuf.writeShort(area.x);
+			p.pbuf.writeShort(area.y);
+			p.pbuf.endPacket();
 		}
 	}
 
@@ -200,45 +171,33 @@ public class Player {
 			plr.pbuf.endPacket();
 		}
 	}
-
+	
 	public void processIncomingPackets() {
 		try {
 			if (!pbuf.synch()) {
 				logout(); // Log out player if connection has been lost
 				return;
 			}
-			int opcode;
+			int opcode, moveDir, moveId;
 			while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
 					case MOVE_REQUEST:
-						int moveDir = pbuf.readByte();
-						int moveid = pbuf.readByte();
+						moveDir = pbuf.readByte();
+						moveId = pbuf.readByte();
 						if (Server.DEBUG)
 							System.out.println("GOT MOVE REQUEST - DIR: "
-									+ moveDir + " - ID = " + moveid
+									+ moveDir + " - ID = " + moveId
 									+ " , TIME: " + System.currentTimeMillis());
-						if(moveDir == UP) {
-							dy = -4;
-						} else if(moveDir == DOWN) {
-							dy = 4;
-						} else if(moveDir == RIGHT) {
-							dx = 4;
-						} else if(moveDir == LEFT) {
-							dx = -4;
-						}
-						updatePos();
+						setBit(moveDir);
 						break;
 					case END_MOVE:
-						int moveBit = pbuf.readByte();
-						int debugBullshit = pbuf.readByte();
-						//if (Server.DEBUG)
+						moveDir = pbuf.readByte();
+						moveId = pbuf.readByte();
+						if (Server.DEBUG)
 							System.out.println("END MOVE REQUEST - ID = "
-									+ debugBullshit + " - TIME = "
+									+ moveId + " - TIME = "
 									+ System.currentTimeMillis());
-						if(moveBit == UP || moveBit == DOWN) dy = 0;
-						if(moveBit == LEFT || moveBit == RIGHT) dx = 0;
-						System.out.println("NEW DX = " + dx + " NEW DY = " + dy);
-						updatePos();
+						clearBit(moveDir);
 						break;
 					case LOGOUT:
 						logout();
@@ -277,7 +236,7 @@ public class Player {
 	}
 
 	public Player getPlayerInWay() {
-		Rectangle newArea = new Rectangle(area.x + (int) dx, area.y + (int) dy, 48, 48);
+		Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
 		for(Player pl : Server.players) {
 			if(pl == null || pl == this)
 				continue;

@@ -25,6 +25,7 @@ public class GameFrame extends Frame {
 		if(we.getID() == WindowEvent.WINDOW_CLOSING) {
 			IcePush.instance.stop();
 			dispose();
+			//System.exit(0);
 		}
 	}
 }

@@ -8,7 +8,7 @@ import java.awt.Dimension;
 import static java.awt.AWTEvent.*;
 import java.awt.event.*;
 
-import static com.glgames.server.Player.*;
+import static com.glgames.shared.Opcodes.*;
 
 import com.glgames.shared.InterthreadQueue;
 

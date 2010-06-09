@@ -28,4 +28,10 @@ public class Opcodes {
 	// Player types
 	public static final int TREE = 0;
 	public static final int SNOWMAN = 1;
+	
+	// Movement directions
+	public static final int LEFT = 1 << 0;
+	public static final int RIGHT = 1 << 1;
+	public static final int UP = 1 << 2;
+	public static final int DOWN = 1 << 3;
 }

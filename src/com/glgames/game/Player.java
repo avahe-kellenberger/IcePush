@@ -1,10 +1,5 @@
 package com.glgames.game;
 
-import static com.glgames.server.Player.DOWN;
-import static com.glgames.server.Player.LEFT;
-import static com.glgames.server.Player.RIGHT;
-import static com.glgames.server.Player.UP;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -18,10 +13,11 @@ public class Player {
 	public int type;
 	public String username;
 
-	private int destX, destY;
-	private int startX, startY;
-	private long startTime;
-	private long endTime;
+	// CODE IN COMMENTS HAS BEEN COMMENTED OUT
+	//private int destX, destY;
+	//private int startX, startY;
+	//private long startTime;
+	//private long endTime;
 
 	public int x, y;
 	public int deaths;
