@@ -1,5 +1,6 @@
 -- Make stuff less static (Particularly stuff in IcePush)
--- FIX MOVEMENT (Assigned to _^_)
+-- FIX MOVEMENT (Assigned to _^_) OK THIS IS KIND OF DONE BUT MOVING DIAGONALLY IS STILL SHIT BUT THAT IS TEKKS FAULT I THINK
+   I WILL KEEP LOOKING INTO IT.
 -- Camera got messed up upon reintegration with 3D, the model baseX/Y/Z etc need to be changed on PLAYER_MOVED events
 -- GET THAT FUCKING KEYLINIX SHIT FUCKING FIXED RIGHT SO THAT I CAN TYPE MY NAME FAST AND HAVE EVERY LETTER REGISTER
 -- More contents ???

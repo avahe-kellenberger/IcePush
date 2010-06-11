@@ -11,7 +11,7 @@ import com.glgames.shared.PacketBuffer;
 public class Player {
 	public int id;
 	public int type;
-	public int dx, dy, moveDir;
+	public int dx, dy;
 	public int deaths;
 
 	public Rectangle area;
@@ -20,23 +20,11 @@ public class Player {
 	public String username;
 	public boolean connected;
 	public boolean canMove = true;
+	private long timeOfDied = 0;
 
 	public Player() {
 
 	}
-
-	private void setBit(int flag) {
-		moveDir |= flag;
-	}
-
-	private void clearBit(int flag) {
-		moveDir &= ~flag;
-	}
-
-	private boolean isSet(int flag) {
-		return (moveDir & flag) != 0;
-	}
-
 	
 	public void notifyLogin() {
 		for (Player plr : Server.players) {
@@ -86,39 +74,59 @@ public class Player {
 				break;
 		}
 		area = r;
-		moveDir = 0;
 		dx = dy = 0;
 	}
 
+	private void setBit(int bit) {
+		if(bit == UP) dy = -1;
+		if(bit == DOWN) dy = 1;
+		if(bit == LEFT) dx = -1;
+		if(bit == RIGHT) dx = 1;
+	}
+
+	private void clearBit(int bit) {
+		if(bit == UP && dy < 0) dy = 0;
+		if(bit == DOWN && dy > 0) dy = 0;
+		if(bit == LEFT && dx < 0) dx = 0;
+		if(bit == RIGHT & dx > 0) dx = 0;
+	}
+
 	public void handleMove() {
-		if(!canMove)
-			return;			
-		
-		if(isSet(UP))
-			dy--;
-		if(isSet(DOWN))
-			dy++;
-		if(isSet(LEFT))
-			dx--;
-		if(isSet(RIGHT))
-			dx++;
-		
-		dx = dx > 4 ? 4 : dx;
-		dy = dy > 4 ? 4 : dy;
-		dx = dx < -4 ? -4 : dx;
-		dy = dy < -4 ? -4 : dy;
+		if(timeOfDied != 0) {
+			if(System.currentTimeMillis() - timeOfDied > 3000) { // The last cycle of this players died time
+				setCanMove(true);
+				timeOfDied = 0;
+			} else {
+				return;		// This player is currently died
+			}
+		}
+
+		if((dx | dy) == 0) return;
+				
+		if(dx > 0 && dx < 4) dx++;
+		else if(dx < 0 && dx > -4) dx--;
+
+		if(dy > 0 && dy < 4) dy++;
+		else if(dy < 0 && dy > -4) dy--;
 
 		Player o;
 		if((o = getPlayerInWay()) != null) {
-			o.moveDir = moveDir;
-			return;
+			if(o.timeOfDied == 0) {
+				o.dx = dx;
+				o.dy = dy;
+				o.handleMove();
+			} else {
+				dx = dy = 0;
+			}
 		}
 		
 		area.x += dx;
 		area.y += dy;
 		
-		if(area.x < 0 || area.y < 0 || area.x > 400 || area.y > 400)
+		if(area.x < 0 || area.y < 0 || area.x > 400 || area.y > 400) {
 			playerDied();
+			return;
+		}
 		
 		for(Player p : Server.players) if(p != null) {
 			p.pbuf.beginPacket(PLAYER_MOVED);
@@ -132,8 +140,9 @@ public class Player {
 	private void playerDied() {
 		try {
 			deaths++;
+			setCanMove(false);
 			initPosition();
-			delayCanMove();
+			timeOfDied = System.currentTimeMillis();
 			for (Player plr : Server.players) {
 				if (plr == null)
 					continue;
@@ -147,17 +156,6 @@ public class Player {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private void delayCanMove() {
-		setCanMove(false);
-		final Timer t = new Timer();
-		t.schedule(new TimerTask() {
-			public void run() {
-				setCanMove(true);
-				t.cancel();
-			}
-		}, 3000, 1000);
 	}
 
 	private void setCanMove(boolean can) {
