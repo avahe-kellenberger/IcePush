@@ -83,8 +83,7 @@ public class NetworkHandler {
 					y = pbuf.readShort();
 					int deaths = pbuf.readShort();
 					plr = new Player(type, username);
-					plr.x = x;
-					plr.y = y;
+					plr.setPos(x, y);
 					plr.username = username;
 					plr.deaths = deaths;
 					GameObjects.players[id] = plr;
@@ -98,16 +97,16 @@ public class NetworkHandler {
 						System.out.println("null player tried to move??? " + id);
 						break;
 					}
-					plr.x = x;
-					plr.y = y;
+					plr.setPos(x, y);
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
 					plr.bubbleAlpha = 1.0f;
 					plr.deaths = pbuf.readByte();
-					plr.x = pbuf.readShort();
-					plr.y = pbuf.readShort();
+					x = pbuf.readShort();
+					y = pbuf.readShort();
+					plr.setPos(x, y);
 					if (id == NetworkHandler.id) {
 						IcePush.state = IcePush.DIED;
 					}

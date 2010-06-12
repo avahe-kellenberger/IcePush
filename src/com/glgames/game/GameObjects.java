@@ -57,7 +57,7 @@ public class GameObjects {
 				serverList = new ServerList(280);
 			
 			scenery = new Object3D[10];
-			scenery[0] = new Object3D.Cube(400);
+			scenery[0] = new Object3D.Plane(400);
 									
 			int width = 400, height = 400;
 			int x = IcePush.WIDTH / 2 - width / 2;

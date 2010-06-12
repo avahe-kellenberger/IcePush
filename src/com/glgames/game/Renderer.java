@@ -25,11 +25,11 @@ public class Renderer {
 	protected Graphics bg;
 
 	// Only used in 3D mode
-	public double cameraX;
-	public double cameraY;
+	public double cameraX = -185;
+	public double cameraY = -130;
 	public double cameraZ;
 
-	public int pitch = 0, yaw = 180;
+	public int pitch = 270, yaw = 180;
 
 	public double focusX, focusY, focusZ;
 
@@ -139,14 +139,11 @@ public class Renderer {
 	private void focusCamera() {
 		Player p = GameObjects.players[NetworkHandler.id];
 		if(p == null)
-			return;
-		
-		//focusX = 50;
-		//focusY = 50;
-		//cameraZ = 50;
-		focusX = focusY = 0;
-		cameraZ = - 120;
-		System.out.println(p.y);
+			return;		
+		focusX = focusY = focusZ = 0;
+	//	cameraX = 100;
+	//	cameraY = 50;
+		cameraZ = -450;
 	}
 
 	private void button(Rectangle r, String text) {
@@ -202,6 +199,7 @@ public class Renderer {
 		doRender(scenery);
 		doRender(objArray);
 		Triangles.pm.draw(0, 0, bg);
+		drawDebug();
 	}
 
 	private void doRender(Object3D[] objArray) {

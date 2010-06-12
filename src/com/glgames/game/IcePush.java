@@ -229,6 +229,18 @@ public class IcePush extends Applet implements Runnable {
 				case KeyEvent.VK_3:
 					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_3D;
 					break;
+				case KeyEvent.VK_J:
+					renderer.cameraX -= 5;
+					break;
+				case KeyEvent.VK_L:
+					renderer.cameraX += 5;
+					break;
+				case KeyEvent.VK_M:
+					renderer.cameraY -= 5;
+					break;
+				case KeyEvent.VK_I:
+					renderer.cameraY += 5;
+					break;
 			}
 
 		if (moveDir != 0) {

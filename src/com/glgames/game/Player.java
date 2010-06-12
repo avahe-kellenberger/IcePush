@@ -19,7 +19,7 @@ public class Player {
 	//private long startTime;
 	//private long endTime;
 
-	public int x, y;
+	private int x, y;
 	public int deaths;
 	public float bubbleAlpha;
 
@@ -34,8 +34,6 @@ public class Player {
 
 	public void draw(Graphics g) {
 		if(sprite == null) return;
-		sprite.x = x;
-		sprite.y = y;
 		sprite.draw(g);
 		int screenX = sprite.getScreenX(), screenY = sprite.getScreenY();
 		g.setColor(Color.red);
@@ -49,6 +47,15 @@ public class Player {
 			
 			((Graphics2D) g).drawImage(bubble, rop, screenX, screenY);
 		}
+	}
+
+	public void setPos(int x, int y) {
+		this.x = x;
+		this.y = y;
+		sprite.x = x;
+		sprite.y = y;
+		model.baseX = x;
+		model.baseZ = y;
 	}
 
 	// ALL CODE IN COMMENTS HAS BEEN COMMENTED OUT
