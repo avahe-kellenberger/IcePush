@@ -176,11 +176,8 @@ public class Renderer {
 		Graphics2D g = (Graphics2D) bg;
 		if(g == null)
 			return;
-		Rectangle rect = GameObjects.playingArea;
-		g.setPaint(GameObjects.background);
-		g.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
-		g.setPaint(GameObjects.foreground);
-		g.fillRect(rect.x, rect.y, rect.width, rect.height);
+		g.drawImage(GameObjects.background, 0, 0, null);
+
 		for (int k = 0; k < players.length; k++) {
 			Player p = players[k];
 			if (p == null)

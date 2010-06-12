@@ -9,7 +9,7 @@ public class GameObjects {
 	
 	public static String[] instructions, help;
 	public static BufferedImage logo;
-	public static TexturePaint background, foreground;
+	public static BufferedImage background;
 
 	public static TextBox serverBox, usernameBox;
 	public static ServerList serverList;
@@ -68,10 +68,7 @@ public class GameObjects {
 			loadingMessage = "Loading images...";
 			loadingPercent = 80;
 			
-			background = new TexturePaint(SpriteLoader
-					.getSprite("images/water.jpg"), new Rectangle(0, 0, 512, 512));
-			foreground = new TexturePaint(SpriteLoader.getSprite("images/ice.jpg"),
-					new Rectangle(playingArea.x, playingArea.y, 400, 400));
+			background = SpriteLoader.getSprite("images/icepush.png");
 			
 			trySleep(600);
 			loadingMessage = "Done";
