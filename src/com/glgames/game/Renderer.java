@@ -88,8 +88,8 @@ public class Renderer {
 		Color col = new Color(0, green, blue);
 		bg.setColor(col);
 		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
-		bg.drawImage(GameObjects.logo, 50, 50, null);
-
+		bg.drawImage(GameObjects.logo, IcePush.WIDTH / 2
+				- GameObjects.logo.getWidth() / 2, 20, null);
 	}
 
 	public void drawWelcomeScreen(int cycle) {
@@ -98,7 +98,7 @@ public class Renderer {
 		bg.setColor(Color.white);
 		bg.setFont(new Font("Arial", Font.PLAIN, 20));
 
-		int y = 190;
+		int y = 140;
 		for (String s : GameObjects.instructions) {
 			w = bg.getFontMetrics().stringWidth(s);
 			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
@@ -106,7 +106,7 @@ public class Renderer {
 
 		bg.setColor(Color.white);
 		w = bg.getFontMetrics().stringWidth(message);
-		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, 310);
+		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, 250);
 
 		if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
 			GameObjects.serverBox.draw(bg);

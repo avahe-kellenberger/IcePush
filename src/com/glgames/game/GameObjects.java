@@ -43,18 +43,18 @@ public class GameObjects {
 			logo = SpriteLoader.getSprite("images/logo.png");
 
 			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 450, false, "Server: ", "localhost");
-			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 480, true,
+			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 380, true,
 					"Username:", "");
-			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 520, 100, 25);
-			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 520, 100, 25);
-			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 520, 100, 25);
+			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 415, 100, 25);
+			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 415, 100, 25);
+			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 415, 100, 25);
 			
 			trySleep(300);
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
 
 			if (!IcePush.isApplet)
-				serverList = new ServerList(350);
+				serverList = new ServerList(280);
 			
 			scenery = new Object3D[10];
 			scenery[0] = new Object3D.Cube(400);
@@ -62,7 +62,7 @@ public class GameObjects {
 			int width = 400, height = 400;
 			int x = IcePush.WIDTH / 2 - width / 2;
 			int y = IcePush.HEIGHT / 2 - height / 2 - 45;
-			playingArea = new Rectangle(x, y, width, height);
+			playingArea = new Rectangle(28, 0, 744, 422);
 
 			trySleep(400);
 			loadingMessage = "Loading images...";

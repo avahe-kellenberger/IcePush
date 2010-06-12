@@ -62,8 +62,8 @@ public class Player {
 		boolean good = false;
 		while(true) {
 			good = true;
-			r = new Rectangle((int) (Math.random() * (400 - 48)), (int) (Math
-					.random() * (400 - 48)), 48, 48);
+			r = new Rectangle((int) (Math.random() * (744 - 48)), (int) (Math
+					.random() * (422 - 48)), 48, 48);
 			for(Player p : Server.players) {
 				if(p == null)
 					continue;
@@ -123,7 +123,7 @@ public class Player {
 		area.x += dx;
 		area.y += dy;
 		
-		if(area.x < 0 || area.y < 0 || area.x > 400 || area.y > 400) {
+		if(area.x < 0 || area.y < 0 || area.x > 744 || area.y > 422) {
 			playerDied();
 			return;
 		}
