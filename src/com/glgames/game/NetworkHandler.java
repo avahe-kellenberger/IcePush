@@ -171,11 +171,11 @@ public class NetworkHandler {
 				ret.put(server, num);
 			}
 			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
+			ret.put("localhost", 0);
 		} catch (Exception e) {
 			GameObjects.loadingMessage = "Error getting server list";
 			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
-		}
-		ret.put("localhost", 0);
+		};
 		return ret;
 	}
 
