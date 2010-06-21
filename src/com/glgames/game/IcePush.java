@@ -30,7 +30,7 @@ public class IcePush extends Applet implements Runnable {
 	public static int state = WELCOME;
 	
 	public static final int WIDTH = 800;
-	public static final int HEIGHT = 450;
+	public static final int HEIGHT = 480;
 	public static transient boolean stable = true;
 	public static boolean running = true;
 

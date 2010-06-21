@@ -80,7 +80,7 @@ public class Renderer {
 				- bg.getFontMetrics().getHeight() / 2 + 12);
 	}
 	
-	public void background(int cycle) {
+	public void renderBackgroundGradiatingBetweenBlueAndGreenBack(int cycle) {
 		double frequency = 0.01d;
 		int green = (int) (Math.sin(frequency * cycle % 32 + 2) * 63 + 160);
 		int blue = (int) (Math.sin(frequency * cycle % 32 + 4) * 63 + 160);
@@ -93,7 +93,8 @@ public class Renderer {
 	}
 
 	public void drawWelcomeScreen(int cycle) {
-		background(cycle);
+		//background(cycle);
+		bg.drawImage(GameObjects.background, 0, 0, null);
 		int w;
 		bg.setColor(Color.white);
 		bg.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -155,7 +156,8 @@ public class Renderer {
 	}
 
 	public void drawHelpScreen(int cycle) {
-		background(cycle);
+		//background(cycle);
+		bg.drawImage(GameObjects.background, 0, 0, null);
 		int w;
 		bg.setColor(Color.white);
 		bg.setFont(new Font("Arial", Font.PLAIN, 20));
