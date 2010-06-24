@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 
 public class Renderer {
 	private static final long serialVersionUID = 1L;
@@ -76,6 +77,8 @@ public class Renderer {
 
 		x = IcePush.WIDTH / 2 - bg.getFontMetrics().stringWidth(s) / 2;
 		bg.setColor(Color.white);
+		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 		bg.drawString(s, x, IcePush.HEIGHT / 2
 				- bg.getFontMetrics().getHeight() / 2 + 12);
 	}
@@ -106,6 +109,8 @@ public class Renderer {
 		}
 
 		bg.setColor(Color.white);
+		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 		w = bg.getFontMetrics().stringWidth(message);
 		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, 250);
 
@@ -161,7 +166,8 @@ public class Renderer {
 		int w;
 		bg.setColor(Color.white);
 		bg.setFont(new Font("Arial", Font.PLAIN, 20));
-
+		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 		int y = 190;
 		for (String s : GameObjects.help) {
 			w = bg.getFontMetrics().stringWidth(s);

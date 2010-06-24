@@ -86,8 +86,6 @@ public class IcePush extends Applet implements Runnable {
 
 	// --- --------------------------------------------- --- //
 
-	private boolean keyPressed = false;
-
 	private void processEvents() {
 		TimedKeyEvent tke = null;
 		MouseEvent me = null;

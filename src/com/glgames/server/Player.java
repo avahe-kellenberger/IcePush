@@ -3,8 +3,6 @@ package com.glgames.server;
 import static com.glgames.shared.Opcodes.*;
 
 import java.awt.Rectangle;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import com.glgames.shared.PacketBuffer;
 

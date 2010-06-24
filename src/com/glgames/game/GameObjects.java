@@ -1,7 +1,6 @@
 package com.glgames.game;
 
 import java.awt.Rectangle;
-import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 
 public class GameObjects {
@@ -58,10 +57,7 @@ public class GameObjects {
 			
 			scenery = new Object3D[10]; 
 			scenery[0] = new Object3D.Plane(400);
-									
-			int width = 400, height = 400;
-			int x = IcePush.WIDTH / 2 - width / 2;
-			int y = IcePush.HEIGHT / 2 - height / 2 - 45;
+
 			playingArea = new Rectangle(28, 0, 744, 422);
 
 			trySleep(400);
