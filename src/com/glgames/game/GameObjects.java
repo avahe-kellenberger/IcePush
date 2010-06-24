@@ -32,6 +32,7 @@ public class GameObjects {
 	public static Texture ice;
 
 	public static void load() {
+
 		try {
 			trySleep(500);
 			loadingMessage = "Loading text...";
@@ -42,12 +43,11 @@ public class GameObjects {
 			help = new String[] { "Arrow keys - move" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
-			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 450, false, "Server: ", "localhost");
-			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 380, true,
-					"Username:", "");
-			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 415, 100, 25);
-			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 415, 100, 25);
-			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 415, 100, 25);
+			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 275, false, "Server: ", "strictfp.com");
+			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 300, true, "Username:", "");
+			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 330, 100, 25);
+			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 330, 100, 25);
+			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 330, 100, 25);
 			
 			trySleep(300);
 			loadingMessage = "Loading players...";
@@ -56,7 +56,7 @@ public class GameObjects {
 			if (!IcePush.isApplet)
 				serverList = new ServerList(280);
 			
-			scenery = new Object3D[10];
+			scenery = new Object3D[10]; 
 			scenery[0] = new Object3D.Plane(400);
 									
 			int width = 400, height = 400;
