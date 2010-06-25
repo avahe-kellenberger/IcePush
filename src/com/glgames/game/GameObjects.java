@@ -42,8 +42,10 @@ public class GameObjects {
 			help = new String[] { "Arrow keys - move" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 
-			serverBox = new TextBox(IcePush.WIDTH / 2 - 85, 275, false, "Server: ", "strictfp.com");
-			usernameBox = new TextBox(IcePush.WIDTH / 2 - 85, 300, true, "Username:", "");
+			UserInterface.load();
+			serverBox = (TextBox) UserInterface.interfaces[1];
+			usernameBox = (TextBox) UserInterface.interfaces[2];
+			
 			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 330, 100, 25);
 			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 330, 100, 25);
 			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 330, 100, 25);

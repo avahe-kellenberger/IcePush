@@ -3,18 +3,15 @@ package com.glgames.game;
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class TextBox {
-	private int x, y;
+public class TextBox extends UserInterface {
 	private int count;
-	private boolean isFocused;
-	private String caption, text = "";
+	
+	boolean isFocused;
+	String caption;
+	String text = "";
 
-	public TextBox(int x, int y, boolean focus, String c, String text) {
-		this.x = x;
-		this.y = y;
-		this.caption = c;
-		this.text = text;
-		this.isFocused = focus;
+	public TextBox() {
+
 	}
 
 	public void append(char c) {
@@ -40,19 +37,25 @@ public class TextBox {
 	}
 
 	public void draw(Graphics g) {
+		int sX = this.x;
+		int sY = this.y;
+		if(parent != null) {
+			sX += parent.x;
+			sY += parent.y;
+		}
 		if(isFocused)
 			g.setColor(Color.gray);
 		else
 			g.setColor(Color.darkGray);
-		g.fill3DRect(x, y, 170, 20, false);
+		g.fill3DRect(sX, sY, 170, 20, false);
 
 		g.setColor(Color.white);
-		g.drawString(caption, x - g.getFontMetrics().stringWidth(caption) - 5, y + 15);
-		g.drawString(text, x + 3, y + 17);
+		g.drawString(caption, sX - g.getFontMetrics().stringWidth(caption) - 5, sY + 15);
+		g.drawString(text, sX + 3, sY + 17);
 		
 		if(isFocused && count++ % 50 > 25) {
 			int width = g.getFontMetrics().stringWidth(text) + 5;
-			g.drawLine(x + width, y + 1, x + width, y + 17);
+			g.drawLine(sX + width, sY + 1, sX + width, sY + 17);
 		}
 	}
 }
