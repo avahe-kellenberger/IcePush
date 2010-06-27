@@ -9,7 +9,8 @@ import com.glgames.shared.PacketBuffer;
 public class Player {
 	public int id;
 	public int type;
-	public int dx, dy;
+	public int dx, dy;	// **** //
+	private int xAccel, yAccel;
 	public int deaths;
 
 	public Rectangle area;
@@ -23,6 +24,8 @@ public class Player {
 	public Player() {
 
 	}
+
+	public final static int DELTA_SCALE = 6;
 	
 	public void notifyLogin() {
 		for (Player plr : Server.players) {
@@ -72,21 +75,21 @@ public class Player {
 				break;
 		}
 		area = r;
-		dx = dy = 0;
+		dx = dy = xAccel = yAccel = 0;
 	}
 
 	private void setBit(int bit) {
-		if(bit == UP) dy = -1;
-		if(bit == DOWN) dy = 1;
-		if(bit == LEFT) dx = -1;
-		if(bit == RIGHT) dx = 1;
+		if(bit == UP) yAccel = -2;
+		if(bit == DOWN) yAccel = 2;
+		if(bit == LEFT) xAccel = -2;
+		if(bit == RIGHT) xAccel = 2;
 	}
 
 	private void clearBit(int bit) {
-		if(bit == UP && dy < 0) dy = 0;
-		if(bit == DOWN && dy > 0) dy = 0;
-		if(bit == LEFT && dx < 0) dx = 0;
-		if(bit == RIGHT & dx > 0) dx = 0;
+		if(bit == UP) yAccel = 0;
+		if(bit == DOWN) yAccel = 0;
+		if(bit == LEFT) xAccel = 0;
+		if(bit == RIGHT) xAccel = 0;
 	}
 
 	public void handleMove() {
@@ -99,24 +102,22 @@ public class Player {
 			}
 		}
 
-		if((dx | dy) == 0) return;
-				
-		if(dx > 0 && dx < 4) dx++;
-		else if(dx < 0 && dx > -4) dx--;
-
-		if(dy > 0 && dy < 4) dy++;
-		else if(dy < 0 && dy > -4) dy--;
+		dx += xAccel;
+		dy += yAccel;
 
 		Player o;
 		if((o = getPlayerInWay()) != null) {
 			if(o.timeOfDied == 0) {
 				o.dx = dx;
 				o.dy = dy;
-				o.handleMove();
+				o.handleMove();	
 			} else {
 				dx = dy = 0;
 			}
 		}
+
+		dx = (dx * 15) / 16;
+		dy = (dy * 15) / 16;
 		
 		area.x += dx;
 		area.y += dy;
