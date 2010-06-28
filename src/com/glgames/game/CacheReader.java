@@ -10,6 +10,11 @@ public class CacheReader {
 		try {
 			dis = new DataInputStream(new FileInputStream(fn));
 		} catch(Exception e) {
+			try {
+				dis = new DataInputStream(GameObjects.class.getResourceAsStream("/" + fn));
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 	}

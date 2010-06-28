@@ -116,8 +116,8 @@ public class Player {
 			}
 		}
 
-		dx = (dx * 15) / 16;
-		dy = (dy * 15) / 16;
+		dx = (dx * 17) / 16;
+		dy = (dy * 17) / 16;
 		
 		area.x += dx;
 		area.y += dy;
