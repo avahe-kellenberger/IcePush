@@ -26,6 +26,8 @@ public class Player {
 	}
 
 	public final static int SCALE = 2 << 6;
+
+	private boolean inHandleMove = false;
 	
 	public void notifyLogin() {
 		for (Player plr : Server.players) {
@@ -97,13 +99,15 @@ public class Player {
 			if(System.currentTimeMillis() - timeOfDied > 3000) { // The last cycle of this players died time
 				setCanMove(true);
 				timeOfDied = 0;
+				dx = dy = xAccel = yAccel = 0;		// Fix entropic movement after becoming undead
 			} else {
 				return;		// This player is currently died
 			}
 		}
 
-		dx += xAccel;
-		dy += yAccel;
+		if(inHandleMove) return;
+
+		inHandleMove = true;
 
 		Player o;
 		if((o = getPlayerInWay()) != null) {
@@ -115,15 +119,16 @@ public class Player {
 				dx = dy = 0;
 			}
 		}
-
-		dx = (dx * 23) / 24;
-		dy = (dy * 23) / 24;
 		
+		dx = ((dx + xAccel) * 23) / 24;
+		dy = ((dy + yAccel) * 23) / 24;
+
 		area.x += (dx / SCALE);
 		area.y += (dy / SCALE);
-		
+
 		if(area.x < 0 || area.y < 0 || area.x > 744 || area.y > 422) {
 			playerDied();
+			inHandleMove = false;
 			return;
 		}
 		
@@ -134,6 +139,7 @@ public class Player {
 			p.pbuf.writeShort(area.y);
 			p.pbuf.endPacket();
 		}
+		inHandleMove = false;
 	}
 
 	private void playerDied() {
@@ -233,7 +239,7 @@ public class Player {
 	}
 
 	public Player getPlayerInWay() {
-		Rectangle newArea = new Rectangle(area.x + dx, area.y + dy, 48, 48);
+		Rectangle newArea = new Rectangle(area.x + (dx / SCALE), area.y + (dy / SCALE), 48, 48); // OMG HOLY SHIT CRAP WTF I OVERLOOKED THIS FOR ALMOST A DAY
 		for(Player pl : Server.players) {
 			if(pl == null || pl == this)
 				continue;
