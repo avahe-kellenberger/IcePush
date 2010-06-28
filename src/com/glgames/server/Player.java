@@ -25,7 +25,7 @@ public class Player {
 
 	}
 
-	public final static int DELTA_SCALE = 6;
+	public final static int SCALE = 2 << 6;
 	
 	public void notifyLogin() {
 		for (Player plr : Server.players) {
@@ -79,10 +79,10 @@ public class Player {
 	}
 
 	private void setBit(int bit) {
-		if(bit == UP) yAccel = -2;
-		if(bit == DOWN) yAccel = 2;
-		if(bit == LEFT) xAccel = -2;
-		if(bit == RIGHT) xAccel = 2;
+		if(bit == UP) yAccel = -(SCALE / 2);
+		if(bit == DOWN) yAccel = SCALE / 2;
+		if(bit == LEFT) xAccel = -(SCALE / 2);
+		if(bit == RIGHT) xAccel = SCALE / 2;
 	}
 
 	private void clearBit(int bit) {
@@ -116,11 +116,11 @@ public class Player {
 			}
 		}
 
-		dx = (dx * 17) / 16;
-		dy = (dy * 17) / 16;
+		dx = (dx * 23) / 24;
+		dy = (dy * 23) / 24;
 		
-		area.x += dx;
-		area.y += dy;
+		area.x += (dx / SCALE);
+		area.y += (dy / SCALE);
 		
 		if(area.x < 0 || area.y < 0 || area.x > 744 || area.y > 422) {
 			playerDied();
