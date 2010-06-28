@@ -33,6 +33,10 @@ public class GameObjects {
 	public static void load() {
 
 		try {
+			UserInterface.load();
+			serverBox = (TextBox) UserInterface.interfaces[1];
+			usernameBox = (TextBox) UserInterface.interfaces[2];
+			
 			trySleep(500);
 			loadingMessage = "Loading text...";
 			loadingPercent = 30;
@@ -41,10 +45,6 @@ public class GameObjects {
 					"Try not to fall off!" };
 			help = new String[] { "Arrow keys - move" };
 			logo = SpriteLoader.getSprite("images/logo.png");
-
-			UserInterface.load();
-			serverBox = (TextBox) UserInterface.interfaces[1];
-			usernameBox = (TextBox) UserInterface.interfaces[2];
 			
 			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 330, 100, 25);
 			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 330, 100, 25);

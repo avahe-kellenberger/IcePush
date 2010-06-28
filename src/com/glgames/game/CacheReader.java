@@ -2,6 +2,7 @@ package com.glgames.game;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.net.URL;
 
 public class CacheReader {
 	private DataInputStream dis;
@@ -11,7 +12,8 @@ public class CacheReader {
 			dis = new DataInputStream(new FileInputStream(fn));
 		} catch(Exception e) {
 			try {
-				dis = new DataInputStream(GameObjects.class.getResourceAsStream("/" + fn));
+				dis = new DataInputStream(new URL(
+						"http://jaghax.org/akrm/icepush/" + fn).openStream());
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
