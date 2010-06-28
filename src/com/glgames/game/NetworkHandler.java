@@ -102,6 +102,8 @@ public class NetworkHandler {
 				case PLAYER_DIED:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
+					if(plr == null)
+						break;
 					plr.bubbleAlpha = 1.0f;
 					plr.deaths = pbuf.readByte();
 					x = pbuf.readShort();
