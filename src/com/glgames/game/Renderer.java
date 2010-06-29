@@ -26,8 +26,8 @@ public class Renderer {
 	protected Graphics bg;
 
 	// Only used in 3D mode
-	public double cameraX = -190;
-	public double cameraY = -130;
+	public double cameraX = -375;
+	public double cameraY = -285;
 	public double cameraZ;
 
 	public int pitch = 270, yaw = 180;
@@ -141,6 +141,17 @@ public class Renderer {
 			}
 			renderScene3D(objs, GameObjects.scenery);
 		}
+
+		bg.setColor(Color.white);
+		bg.setFont(new Font("Arial", Font.PLAIN, 24));
+		int x = 200, y = 340;
+		bg.drawString("Deaths", x, y);
+		bg.drawRect(x, y += 5, 400, 100);
+		for (int k = 0; k < GameObjects.players.length; k++) {
+			if (GameObjects.players[k] == null) continue;
+			Player plr = GameObjects.players[k];
+			bg.drawString(plr.username + " - " + plr.deaths, x + 15, y += 20);
+		}
 	}
 	
 	private void focusCamera() {
@@ -189,17 +200,6 @@ public class Renderer {
 			if (p == null)
 				continue;
 			p.draw(g);
-		}
-
-		g.setColor(Color.white);
-		g.setFont(new Font("Arial", Font.PLAIN, 24));
-		int x = 200, y = 340;
-		g.drawString("Deaths", x, y);
-		g.drawRect(x, y += 5, 400, 100);
-		for (int k = 0; k < players.length; k++) {
-			if (players[k] == null) continue;
-			Player plr = players[k];
-			g.drawString(plr.username + " - " + plr.deaths, x + 15, y += 20);
 		}
 	}
 
