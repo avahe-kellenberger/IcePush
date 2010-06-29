@@ -33,10 +33,10 @@ public class Object2D extends GameObject {
 	}
 
 	public int getScreenX() {
-		return GameObjects.playingArea.x + this.x;
+		return x;
 	}
 
 	public int getScreenY() {
-		return GameObjects.playingArea.y + this.y;
+		return y;
 	}
 }

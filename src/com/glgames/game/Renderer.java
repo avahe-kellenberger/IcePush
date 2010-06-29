@@ -103,6 +103,7 @@ public class Renderer {
 		bg.setFont(new Font("Arial", Font.PLAIN, 20));
 
 		int y = 140;
+		if(GameObjects.serverList != null) y -= GameObjects.serverList.height;
 		for (String s : GameObjects.instructions) {
 			w = bg.getFontMetrics().stringWidth(s);
 			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
@@ -112,7 +113,7 @@ public class Renderer {
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		w = bg.getFontMetrics().stringWidth(message);
-		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, 250);
+		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, GameObjects.serverList == null ? 250 : 155);
 
 		if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
 			GameObjects.serverBox.draw(bg);
@@ -192,7 +193,7 @@ public class Renderer {
 
 		g.setColor(Color.white);
 		g.setFont(new Font("Arial", Font.PLAIN, 24));
-		int x = 30, y = 480;
+		int x = 200, y = 340;
 		g.drawString("Deaths", x, y);
 		g.drawRect(x, y += 5, 400, 100);
 		for (int k = 0; k < players.length; k++) {

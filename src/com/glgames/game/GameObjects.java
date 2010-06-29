@@ -14,7 +14,6 @@ public class GameObjects {
 	public static ServerList serverList;
 	public static Rectangle loginButton, helpButton, backButton;
 
-	public static Rectangle playingArea;
 	public static Player[] players;
 	public static Object3D[] scenery; // Right now scenery is only used in 3D mode
 	
@@ -55,12 +54,10 @@ public class GameObjects {
 			loadingPercent = 50;
 
 			if (!IcePush.isApplet)
-				serverList = new ServerList(280);
+				serverList = new ServerList(170);
 			
 			scenery = new Object3D[10]; 
 			scenery[0] = new Object3D.Plane(400);
-
-			playingArea = new Rectangle(28, 0, 744, 422);
 
 			trySleep(400);
 			loadingMessage = "Loading images...";

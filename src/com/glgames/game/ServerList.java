@@ -10,6 +10,7 @@ public class ServerList {
 	private String[] servers;
 	private String[] counts;
 	private String selected = "";
+	public int height;
 	
 	public ServerList(int y) {
 		this.y = y;
@@ -39,7 +40,7 @@ public class ServerList {
 			fontheight = g.getFontMetrics().getHeight();
 		int x = IcePush.WIDTH / 2 - width / 2;
 		g.setColor(Color.gray);
-		g.fill3DRect(x, y, width, servers.length * fontheight + 15, true);
+		g.fill3DRect(x, y, width, height = servers.length * fontheight + 15, true);
 		int y = this.y + 10;
 		for(int i = 0; i < servers.length; i++) {
 			String serv = servers[i];
