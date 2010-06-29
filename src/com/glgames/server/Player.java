@@ -123,22 +123,25 @@ public class Player {
 		dx = ((dx + xAccel) * 23) / 24;
 		dy = ((dy + yAccel) * 23) / 24;
 
-		area.x += (dx / SCALE);
-		area.y += (dy / SCALE);
-
-		if(area.x < 0 || area.y < 0 || area.x > 744 || area.y > 422) {
+		if(area.x < -21 || area.y < -19 || area.x > 772 || area.y > 452) {
 			playerDied();
 			inHandleMove = false;
 			return;
 		}
 		
-		for(Player p : Server.players) if(p != null) {
-			p.pbuf.beginPacket(PLAYER_MOVED);
-			p.pbuf.writeShort(id);
-			p.pbuf.writeShort(area.x);
-			p.pbuf.writeShort(area.y);
-			p.pbuf.endPacket();
+		if(dx != 0 || dy != 0) {
+			for(Player p : Server.players) if(p != null) {
+				p.pbuf.beginPacket(PLAYER_MOVED);
+				p.pbuf.writeShort(id);
+				p.pbuf.writeShort(area.x);
+				p.pbuf.writeShort(area.y);
+				p.pbuf.endPacket();
+			}
 		}
+
+		area.x += (dx / SCALE);
+		area.y += (dy / SCALE);
+
 		inHandleMove = false;
 	}
 
