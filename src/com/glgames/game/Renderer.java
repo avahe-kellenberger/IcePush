@@ -26,7 +26,7 @@ public class Renderer {
 	protected Graphics bg;
 
 	// Only used in 3D mode
-	public double cameraX = -185;
+	public double cameraX = -190;
 	public double cameraY = -130;
 	public double cameraZ;
 
@@ -311,7 +311,7 @@ public class Renderer {
 		Triangle[] tris = triangulatePolygons(faceArray, faceIndex);
 		java.util.Arrays.sort(tris, 0, triLen);
 
-		for (int i = triLen - 1; i --> 0;) {
+		for (int i = triLen - 1; i >= 0; i--) {
 			Triangle t = tris[i];
 			if(t.color != null)
 				Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());

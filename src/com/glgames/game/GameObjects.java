@@ -57,7 +57,7 @@ public class GameObjects {
 				serverList = new ServerList(170);
 			
 			scenery = new Object3D[10]; 
-			scenery[0] = new Object3D.Plane(400);
+			scenery[0] = new Object3D.Plane(744, 422);
 
 			trySleep(400);
 			loadingMessage = "Loading images...";
