@@ -3,7 +3,14 @@ package com.glgames.game;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import com.glgames.game.ui.ServerList;
+import com.glgames.game.ui.TextBox;
+import com.glgames.game.ui.UserInterface;
+
 public class GameObjects {
+	static final int SERVER_IFACE = 1;
+	static final int USERNAME_IFACE = 2;
+	
 	public static boolean loaded = false;
 	
 	public static String[] instructions, help;
@@ -33,8 +40,8 @@ public class GameObjects {
 
 		try {
 			UserInterface.load();
-			serverBox = (TextBox) UserInterface.interfaces[1];
-			usernameBox = (TextBox) UserInterface.interfaces[2];
+			serverBox = (TextBox) UserInterface.interfaces[SERVER_IFACE];
+			usernameBox = (TextBox) UserInterface.interfaces[USERNAME_IFACE];
 			
 			trySleep(500);
 			loadingMessage = "Loading text...";

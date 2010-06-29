@@ -17,7 +17,6 @@ public class CacheReader {
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
-			e.printStackTrace();
 		}
 	}
 	

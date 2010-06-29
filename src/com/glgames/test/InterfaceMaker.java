@@ -10,15 +10,14 @@ public class InterfaceMaker {
 		dos.writeShort(3); // number of interfaces
 		
 		dos.writeShort(0); // interface 0 id
+		dos.writeShort(-1); // parent id
 		dos.writeShort(315); // x
 		dos.writeShort(275); // y
-		dos.writeByte(2);// type UIContainer
-		dos.writeByte(2); // num of children
-		dos.writeShort(1); // child1 index
-		dos.writeShort(2); // child2 index
+		dos.writeByte(0); // no subclass
 		
 		
 		dos.writeShort(1); // interface 1 id
+		dos.writeShort(0); // parent id
 		dos.writeShort(0); // interface 1 X
 		dos.writeShort(0); // interface 1 Y
 		dos.writeByte(1); // interface 1 Type
@@ -27,6 +26,7 @@ public class InterfaceMaker {
 		writeString(dos, "strictfp.com");
 		
 		dos.writeShort(2); // interface 2 id
+		dos.writeShort(0); // parent id
 		dos.writeShort(0); // interface 2 X
 		dos.writeShort(25); // interface 2 Y
 		dos.writeByte(1); // interface 2 Type

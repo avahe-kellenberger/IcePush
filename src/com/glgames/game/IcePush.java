@@ -176,7 +176,7 @@ public class IcePush extends Applet implements Runnable {
 					GameObjects.usernameBox.toggleFocused();
 				}
 			} else if (code == KeyEvent.VK_ESCAPE) {
-				IcePush.running = false;
+				if(!isApplet) cleanup();
 			} else {
 				if (GameObjects.serverBox.isFocused())
 					GameObjects.serverBox.append(e.getKeyChar());
@@ -186,7 +186,7 @@ public class IcePush extends Applet implements Runnable {
 		} else
 			switch (e.getKeyCode()) {
 				case KeyEvent.VK_ESCAPE:
-					IcePush.running = false;
+					if(!isApplet) cleanup();
 					break;
 				case KeyEvent.VK_Q:
 					NetworkHandler.logOut();
@@ -372,6 +372,7 @@ public class IcePush extends Applet implements Runnable {
 		NetworkHandler.logOut();
 		instance = null;
 		System.gc();
+		System.exit(0);
 	}
 
 	private static void updatePlayers() {

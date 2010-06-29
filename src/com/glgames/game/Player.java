@@ -18,8 +18,7 @@ public class Player {
 	//private int startX, startY;
 	//private long startTime;
 	//private long endTime;
-
-	private int x, y;
+	
 	public int deaths;
 	public float bubbleAlpha;
 
@@ -50,8 +49,6 @@ public class Player {
 	}
 
 	public void setPos(int x, int y) {
-		this.x = x;
-		this.y = y;
 		sprite.x = x;
 		sprite.y = y;
 		model.baseX = x;
