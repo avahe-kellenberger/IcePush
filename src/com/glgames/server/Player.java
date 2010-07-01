@@ -239,6 +239,7 @@ public class Player {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		Server.server.updateWorldServer();
 	}
 
 	public Player getPlayerInWay() {

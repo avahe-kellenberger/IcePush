@@ -15,6 +15,8 @@ import com.glgames.shared.PacketBuffer;
 import com.glgames.shared.InterthreadQueue;
 
 public class Server implements Runnable {
+	public static Server server = null;
+
 	public static boolean DEBUG = false;
 	public static Player[] players;
 	
@@ -28,6 +30,7 @@ public class Server implements Runnable {
 			incomingConnections = new InterthreadQueue<Socket>();
 			listener = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
+			worldserver = new Socket(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
 			(new Thread(this)).start();
 
 			while (run) {
@@ -36,16 +39,11 @@ public class Server implements Runnable {
 					System.out.println("Client accepted, socket: "
 							+ s.toString());
 					s.setTcpNoDelay(true);
-					int type = s.getInputStream().read();
-					if(type == 0) // connecting client
-						loginPlayer(s);
-					else if(type == 1) { // connecting worldserver
-						worldserver = s;
-					}
+					loginPlayer(s);
 				}
 				updatePlayers();
-				if(worldserver != null)
-					checkPlayerCountRequest();
+				//if(worldserver != null)
+				//	checkPlayerCountRequest();
 				try {
 					Thread.sleep(30);
 				} catch (Exception e) {
@@ -69,6 +67,14 @@ public class Server implements Runnable {
 			out.write(count);
 			out.flush();
 		}
+	}
+
+	private int getPlayerCount() {
+		int count = 0;
+			for(Player p : players)
+				if(p != null)
+					count++;
+		return count;
 	}
 
 	private void loginPlayer(Socket s) {
@@ -125,6 +131,8 @@ public class Server implements Runnable {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		// Update Worldserver
+		updateWorldServer();
 	}
 
 	public void run() {
@@ -149,9 +157,18 @@ public class Server implements Runnable {
 		}
 	}
 
+	protected void updateWorldServer() {
+		try {
+			OutputStream out = worldserver.getOutputStream();
+			out.write(getPlayerCount());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
 		if(args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
 		players = new Player[50];
-		new Server(2345);
+		server = new Server(2345);
 	}
 }

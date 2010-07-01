@@ -31,7 +31,6 @@ public class NetworkHandler {
 			OutputStream out = sock.getOutputStream();
 			InputStream in = sock.getInputStream();
 
-			out.write(0); // connecting client
 			out.write(VERSION);
 			out.write(username.length());
 			out.write(username.getBytes());
@@ -161,8 +160,10 @@ public class NetworkHandler {
 	public static Map<String, Integer> getWorlds() {
 		Map<String, Integer> ret = new HashMap<String, Integer>();
 		try {
-			Socket s = new Socket(Opcodes.WORLDSERVER, 2346);
+			Socket s = new Socket(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
 			InputStream in = s.getInputStream();
+			OutputStream out = s.getOutputStream();
+			out.write(Opcodes.WORLD_REQUEST);
 			int numWorlds = in.read();
 			for (int i = 0; i < numWorlds; i++) {
 				int strlen = in.read();
