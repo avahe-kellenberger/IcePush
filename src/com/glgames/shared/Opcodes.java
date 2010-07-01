@@ -4,9 +4,6 @@ public class Opcodes {
 	// World server
 	public static final String WORLDSERVER = "99.198.122.53";
 	public static final int WORLDPORT = 2346;
-	public static final int WORLD_REQUEST = 1;
-	public static final int WORLD_SEND = 2;
-	
 	// Login protocol
 	public static final int VERSION = 105;
 	public static final int BAD_VERSION = 1;
