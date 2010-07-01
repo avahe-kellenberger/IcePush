@@ -13,7 +13,7 @@ public class CacheReader {
 		} catch(Exception e) {
 			try {
 				dis = new DataInputStream(new URL(
-						"http://jaghax.org/akrm/icepush/" + fn).openStream());
+						"http://icepush.strictfp.com/play/" + fn).openStream());
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
