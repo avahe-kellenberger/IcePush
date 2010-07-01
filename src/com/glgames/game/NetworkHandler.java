@@ -162,6 +162,7 @@ public class NetworkHandler {
 		Map<String, Integer> ret = new HashMap<String, Integer>();
 		try {
 			Socket s = new Socket(Opcodes.WORLDSERVER, 2346);
+			s.getOutputStream().write(Opcodes.NUM_PLAYERS_REQUEST);
 			InputStream in = s.getInputStream();
 			int numWorlds = in.read();
 			for (int i = 0; i < numWorlds; i++) {

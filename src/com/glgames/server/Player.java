@@ -181,7 +181,7 @@ public class Player {
 	public void processIncomingPackets() {
 		try {
 			if (!pbuf.synch()) {
-				logout(); // Log out player if connection has been lost
+				Server.logoutPlayer(this); // Log out player if connection has been lost
 				return;
 			}
 			int opcode, moveDir, moveId;
@@ -206,7 +206,7 @@ public class Player {
 						clearBit(moveDir);
 						break;
 					case LOGOUT:
-						logout();
+						Server.logoutPlayer(this);
 						break;
 					case KEEP_ALIVE:
 						break;
@@ -217,25 +217,6 @@ public class Player {
 				}
 				pbuf.closePacket();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void logout() {
-		try {
-			connected = false;
-			Server.players[id] = null;
-
-			for (Player plr : Server.players) {
-				if (plr == null || plr == this)
-					continue;
-
-				plr.pbuf.beginPacket(PLAYER_LOGGED_OUT);
-				plr.pbuf.writeShort(id);
-				plr.pbuf.endPacket();
-			}
-			System.out.println("Logged out: " + id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

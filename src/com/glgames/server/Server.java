@@ -1,12 +1,14 @@
 package com.glgames.server;
 
 import static com.glgames.shared.Opcodes.BAD_VERSION;
+import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
 import static com.glgames.shared.Opcodes.SUCCESS_LOG;
 import static com.glgames.shared.Opcodes.TOO_MANY_PL;
 import static com.glgames.shared.Opcodes.USER_IN_USE;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,19 +19,20 @@ import com.glgames.shared.InterthreadQueue;
 public class Server implements Runnable {
 	public static boolean DEBUG = false;
 	public static Player[] players;
+	private static Socket worldserver;
 	
 	private boolean run = true;
 	private ServerSocket listener;
-	private Socket worldserver;
 	private InterthreadQueue<Socket> incomingConnections;
 
 	public Server(int port) {
 		try {
+			worldserver = connectToWorldServer(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
 			incomingConnections = new InterthreadQueue<Socket>();
 			listener = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
-			(new Thread(this)).start();
-
+			new Thread(this).start();
+			
 			while (run) {
 				Socket s = incomingConnections.pull();
 				if (s != null) {
@@ -39,13 +42,8 @@ public class Server implements Runnable {
 					int type = s.getInputStream().read();
 					if(type == 0) // connecting client
 						loginPlayer(s);
-					else if(type == 1) { // connecting worldserver
-						worldserver = s;
-					}
 				}
 				updatePlayers();
-				if(worldserver != null)
-					checkPlayerCountRequest();
 				try {
 					Thread.sleep(30);
 				} catch (Exception e) {
@@ -56,19 +54,42 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	
+	private Socket connectToWorldServer(String server, int port) {
+		try {
+			Socket sock = new Socket(server, port);
+			OutputStream out = sock.getOutputStream();
+			out.write(Opcodes.NEW_SERVER);
 
-	private void checkPlayerCountRequest() throws Exception {
-		InputStream in = worldserver.getInputStream();
-		OutputStream out = worldserver.getOutputStream();
-		if(in.available() > 0 && in.read() == 0) {
-			int count = 0;
-			for(Player p : players)
-				if(p != null)
-					count++;
-			System.out.println("Number of players requested: sending " + count);
-			out.write(count);
+			String host = InetAddress.getLocalHost().getHostName();
+			out.write(host.length());
+			out.write(host.getBytes());
+			out.write(getNumPlayers());
 			out.flush();
+			return sock;
+		} catch (Exception e) {
+			return null;
 		}
+	}
+	
+	public static void syncNumPlayers() {
+		if(worldserver == null)
+			return;
+		try {
+			OutputStream out = worldserver.getOutputStream();
+			out.write(Opcodes.NUM_PLAYERS_NOTIFY);
+			out.write(getNumPlayers());
+			out.flush();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static int getNumPlayers() {
+		int count = 0;
+		for(Player p : players) if(p != null)
+			count++;
+		return count;
 	}
 
 	private void loginPlayer(Socket s) {
@@ -122,7 +143,29 @@ public class Server implements Runnable {
 			players[p.id] = p;
 			p.notifyLogin();
 			System.out.println("Player logged in: " + p.username + ", id: " + p.id);
+			syncNumPlayers();
 		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void logoutPlayer(Player p) {
+		try {
+			for (Player plr : Server.players) {
+				if (plr == null || plr == p)
+					continue;
+
+				plr.pbuf.beginPacket(PLAYER_LOGGED_OUT);
+				plr.pbuf.writeShort(p.id);
+				plr.pbuf.endPacket();
+			}
+			
+			p.connected = false;
+			players[p.id] = null;
+			System.out.println("Logged out: " + p.id);
+			
+			syncNumPlayers();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -34,8 +34,6 @@ public class GameObjects {
 	public static String loadingMessage = "Loading title screen...";
 	public static int loadingPercent = 10;
 
-	public static Texture ice;
-
 	public static void load() {
 
 		try {

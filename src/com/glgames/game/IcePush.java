@@ -144,6 +144,8 @@ public class IcePush extends Applet implements Runnable {
 					server = GameObjects.serverList.getSelected();
 				} else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 					server = GameObjects.serverBox.getText();
+				} else {
+					server = "icepush.strictfp.com";
 				}
 				if (!server.isEmpty()) {
 					//System.out.println("Logging in to " + server);

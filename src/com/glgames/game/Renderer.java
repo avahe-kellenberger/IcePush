@@ -26,9 +26,9 @@ public class Renderer {
 	protected Graphics bg;
 
 	// Only used in 3D mode
-	public double cameraX = -375;
-	public double cameraY = -285;
-	public double cameraZ;
+	public double cameraX = 0.0;
+	public double cameraY = -100.0;
+	public double cameraZ = -450.0;
 
 	public int pitch = 270, yaw = 180;
 
@@ -82,18 +82,6 @@ public class Renderer {
 		bg.drawString(s, x, IcePush.HEIGHT / 2
 				- bg.getFontMetrics().getHeight() / 2 + 12);
 	}
-	
-	public void renderBackgroundGradiatingBetweenBlueAndGreenBack(int cycle) {
-		double frequency = 0.01d;
-		int green = (int) (Math.sin(frequency * cycle % 32 + 2) * 63 + 160);
-		int blue = (int) (Math.sin(frequency * cycle % 32 + 4) * 63 + 160);
-
-		Color col = new Color(0, green, blue);
-		bg.setColor(col);
-		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
-		bg.drawImage(GameObjects.logo, IcePush.WIDTH / 2
-				- GameObjects.logo.getWidth() / 2, 20, null);
-	}
 
 	public void drawWelcomeScreen(int cycle) {
 		//background(cycle);
@@ -119,7 +107,7 @@ public class Renderer {
 			GameObjects.serverBox.draw(bg);
 		else if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
 			GameObjects.serverList.draw(bg);
-		
+
 		GameObjects.usernameBox.draw(bg);
 
 		button(GameObjects.loginButton, "Login");
@@ -141,17 +129,7 @@ public class Renderer {
 			}
 			renderScene3D(objs, GameObjects.scenery);
 		}
-
-		bg.setColor(Color.white);
-		bg.setFont(new Font("Arial", Font.PLAIN, 24));
-		int x = 200, y = 340;
-		bg.drawString("Deaths", x, y);
-		bg.drawRect(x, y += 5, 400, 100);
-		for (int k = 0; k < GameObjects.players.length; k++) {
-			if (GameObjects.players[k] == null) continue;
-			Player plr = GameObjects.players[k];
-			bg.drawString(plr.username + " - " + plr.deaths, x + 15, y += 20);
-		}
+		drawDeathsBox();
 	}
 	
 	private void focusCamera() {
@@ -159,9 +137,6 @@ public class Renderer {
 		if(p == null)
 			return;		
 		focusX = focusY = focusZ = 0;
-	//	cameraX = 100;
-	//	cameraY = 50;
-		cameraZ = -450;
 	}
 
 	private void button(Rectangle r, String text) {
@@ -194,7 +169,7 @@ public class Renderer {
 		if(g == null)
 			return;
 		g.drawImage(GameObjects.background, 0, 0, null);
-
+		
 		for (int k = 0; k < players.length; k++) {
 			Player p = players[k];
 			if (p == null)
@@ -210,6 +185,22 @@ public class Renderer {
 		Triangles.pm.draw(0, 0, bg);
 		drawDebug();
 	}
+	
+	private void drawDeathsBox() {
+		bg.setColor(Color.white);
+		bg.setFont(new Font("Arial", Font.PLAIN, 24));
+		int x = 200, y = 340;
+		bg.drawString("Deaths", x, y);
+		bg.drawRect(x, y += 5, 400, 100);
+		for (int k = 0; k < GameObjects.players.length; k++) {
+			if (GameObjects.players[k] == null) continue;
+			Player plr = GameObjects.players[k];
+			bg.drawString(plr.username + " - " + plr.deaths, x + 15, y += 20);
+		}
+	}
+	
+	static final int HALF_GAME_FIELD_WIDTH = (744 / 2);
+	static final int HALF_GAME_FIELD_HEIGHT = (422 / 2);
 
 	private void doRender(Object3D[] objArray) {
 		faceIndex = 0;
@@ -250,8 +241,9 @@ public class Renderer {
 				for (int currentVertex = 0; currentVertex < vertexCount; currentVertex++) {
 					int vertexID = obj.faceVertices[currentFace][currentVertex];
 
-					double[] transformed = transformPoint(obj.baseX, obj.baseY,
-							obj.baseZ, obj.vertX[vertexID],
+					double[] transformed = transformPoint(obj.baseX
+							- HALF_GAME_FIELD_WIDTH, obj.baseY, obj.baseZ
+							- HALF_GAME_FIELD_HEIGHT, obj.vertX[vertexID],
 							obj.vertY[vertexID], obj.vertZ[vertexID]);
 
 					obj.vertXRelCam[vertexID] = transformed[0];
