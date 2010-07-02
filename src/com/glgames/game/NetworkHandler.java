@@ -66,6 +66,7 @@ public class NetworkHandler {
 		if (!pbuf.synch()) {
 			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Connection with server was lost";
+			if(GameObjects.serverList != null) GameObjects.serverList.interrupt();
 			return;
 		}
 

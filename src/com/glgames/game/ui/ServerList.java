@@ -8,7 +8,7 @@ import java.util.Map;
 import com.glgames.game.IcePush;
 import com.glgames.game.NetworkHandler;
 
-public class ServerList {
+public class ServerList extends Thread {
 	private int y, width, fontheight;
 	private String[] servers;
 	private String[] counts;
@@ -17,26 +17,34 @@ public class ServerList {
 	
 	public ServerList(int y) {
 		this.y = y;
-		new Thread() {
-			public void run() {
-				while(IcePush.running) {		// TODO: THERE MIGHT BE A POTENTIAL THREAD RACE HERE, I AM NOT SURE.
-					Map<String, Integer> map = NetworkHandler.getWorlds();
-					servers = new String[map.size()];
-					counts = new String[map.size()];
-					int i = 0;
-					for (String ser : map.keySet()) {
-						int num = map.get(ser);
-						servers[i] = ser;
-						counts[i] = " - "	+ (num == 255 ? "offline" : num + (num != 1 ? " players" : " player"));
-						i++;
-					}
+		setDaemon(true);
+		start();
+	}
 
-					try {
-						Thread.sleep(5000);
-					} catch(Exception e) { }
+	public void run() {
+		while(IcePush.running) {		// TODO: THERE MIGHT BE A POTENTIAL THREAD RACE HERE, I AM NOT SURE!!
+			if(IcePush.state == IcePush.WELCOME) {
+				System.out.println("Getting worlds");
+				Map<String, Integer> map = NetworkHandler.getWorlds();
+				servers = new String[map.size()];
+				counts = new String[map.size()];
+				int i = 0;
+				for (String ser : map.keySet()) {
+					int num = map.get(ser);
+					servers[i] = ser;
+					counts[i] = " - "	+ (num == 255 ? "offline" : num + (num != 1 ? " players" : " player"));
+					i++;
 				}
+	
+				try {
+					Thread.sleep(20000);
+				} catch(InterruptedException e) {  } 	// Logged out/disconnected before 20 seconds since last world update
+			} else synchronized(this) {
+				try {
+					wait();
+				} catch (InterruptedException z) {	}	// Logged out/disconnected after 20 seconds since last world update
 			}
-		}.start();
+		}
 	}
 	
 	public void draw(Graphics g) {

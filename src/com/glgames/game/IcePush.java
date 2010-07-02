@@ -192,6 +192,7 @@ public class IcePush extends Applet implements Runnable {
 					break;
 				case KeyEvent.VK_Q:
 					NetworkHandler.logOut();
+					if(GameObjects.serverList != null) GameObjects.serverList.interrupt();
 					break;
 				case KeyEvent.VK_UP:
 					moveDir = UP;
@@ -372,7 +373,6 @@ public class IcePush extends Applet implements Runnable {
 		NetworkHandler.logOut();
 		instance = null;
 		System.gc();
-		System.exit(0);
 	}
 
 	private static void updatePlayers() {

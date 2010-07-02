@@ -27,6 +27,12 @@ public class Renderer {
 	protected Graphics outgfx;
 	protected Graphics bg;
 
+	protected Font titleFont = new Font("Arial", Font.PLAIN, 20);
+	protected Font deathsBoxFont = new Font("Arial", Font.PLAIN, 24);
+	protected Font debugFont = new Font(Font.DIALOG, Font.PLAIN, 9);
+	protected Font diedScreenFont = new Font("Arial Black", Font.PLAIN, 36);
+	protected Font namesFont = new Font(Font.DIALOG, Font.PLAIN, 12);
+
 	// Only used in 3D mode
 	public double cameraX = 0.0;
 	public double cameraY = -120.0;
@@ -90,7 +96,7 @@ public class Renderer {
 		bg.drawImage(GameObjects.background, 0, 0, null);
 		int w;
 		bg.setColor(Color.white);
-		bg.setFont(new Font("Arial", Font.PLAIN, 20));
+		bg.setFont(titleFont);
 
 		int y = 140;
 		if(GameObjects.serverList != null) y -= GameObjects.serverList.height;
@@ -149,7 +155,7 @@ public class Renderer {
 			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 			
 			int width = bg.getFontMetrics().stringWidth(p.username) / 2;
-			bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+			bg.setFont(namesFont);
 			bg.setColor(Color.red);
 			bg.drawString(p.username, scr[0] - width, scr[1]);
 		}
@@ -175,7 +181,7 @@ public class Renderer {
 		bg.drawImage(GameObjects.background, 0, 0, null);
 		int w;
 		bg.setColor(Color.white);
-		bg.setFont(new Font("Arial", Font.PLAIN, 20));
+		bg.setFont(titleFont);
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		int y = 190;
@@ -211,7 +217,7 @@ public class Renderer {
 	
 	private void drawDeathsBox() {
 		bg.setColor(Color.white);
-		bg.setFont(new Font("Arial", Font.PLAIN, 24));
+		bg.setFont(deathsBoxFont);
 		int x = 200, y = 340;
 		bg.drawString("Deaths", x, y);
 		bg.drawRect(x, y += 5, 400, 100);
@@ -376,7 +382,7 @@ public class Renderer {
 		if (bg == null)
 			return;
 		bg.setColor(Color.white);
-		bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 9));
+		bg.setFont(debugFont);
 		bg.drawString("3D Renderer - Camera X: " + cameraX + ", Y: " + cameraY
 				+ ", Z: " + cameraZ + ", Pitch: " + pitch + ", Yaw: " + yaw,
 				15, 15);
