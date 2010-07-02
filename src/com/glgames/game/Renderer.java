@@ -10,6 +10,8 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+import com.glgames.shared.Opcodes;
+
 public class Renderer {
 	private static final long serialVersionUID = 1L;
 
@@ -27,10 +29,10 @@ public class Renderer {
 
 	// Only used in 3D mode
 	public double cameraX = 0.0;
-	public double cameraY = -100.0;
+	public double cameraY = -120.0;
 	public double cameraZ = -450.0;
 
-	public int pitch = 270, yaw = 180;
+	public int pitch = 310, yaw = 180;
 
 	public double focusX, focusY, focusZ;
 
@@ -128,8 +130,28 @@ public class Renderer {
 				}
 			}
 			renderScene3D(objs, GameObjects.scenery);
+			drawNames(GameObjects.players);
 		}
 		drawDeathsBox();
+	}
+	
+	private void drawNames(Player[] players) {
+		for(Player p : players) if(p != null) {
+			Object3D o = p.model;
+			int height_variable_based_on_type = 0;
+			if(p.type == Opcodes.TREE) {
+				height_variable_based_on_type = 120;
+			} else if(p.type == Opcodes.SNOWMAN) {
+				height_variable_based_on_type = 50;
+			}
+			int width = bg.getFontMetrics().stringWidth(p.username) / 2;
+			double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ,
+					-HALF_GAME_FIELD_WIDTH, height_variable_based_on_type, -HALF_GAME_FIELD_HEIGHT);
+			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
+			
+			bg.setColor(Color.red);
+			bg.drawString(p.username, scr[0] - width, scr[1]);
+		}
 	}
 	
 	private void focusCamera() {
