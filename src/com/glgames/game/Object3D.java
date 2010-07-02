@@ -239,16 +239,31 @@ public class Object3D extends GameObject {
 	
 	public static class Plane extends Object3D {
 		public Plane(int w, int h) {
-			putVertex(0, 0, 0);
+	        super(400, 361);
+
+			for (int i = 0; i < 400; i++) {
+				vertX[i] = 80 - (i % 20) * 8;
+				vertY[i] = 0;
+				vertZ[i] = 80 - (i / 20) * 8;
+			}
+
+			int gfi = 0;
+			for (int i = 0; i < 380; i++) {
+				if ((1 + i) % 20 == 0)
+					continue;
+				faceColors[gfi] = new Color(100 + (gfi % 19) * 4,
+						100 + (gfi / 19) * 4, 196);
+				faceVertices[gfi++] = new int[] { i, i + 1, i + 21, i + 20 };
+			}
+	        
+			/*putVertex(0, 0, 0);
 			putVertex(w, 0, 0);
 			putVertex(w, 0, h);
 			putVertex(0, 0, h);
-			/*putVertex(-(w / 2), 0, h / 2);
+			putVertex(-(w / 2), 0, h / 2);
 			putVertex(w / 2, 0, h / 2);
 			putVertex(w / 2, 0, -(h / 2));
 			putVertex(-(w / 2), 0, -(h / 2));*/
-            faceVertices = new int[][] { { 0, 1, 2, 3 } };
-            faceColors = new Color[] { new Color(200, 255, 255) };
 		}
 	}
 }
