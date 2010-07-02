@@ -56,16 +56,20 @@ public class Server implements Runnable {
 	}
 	
 	private Socket connectToWorldServer(String server, int port) {
+		System.out.print("Connecting to worldserver: " + server + ":" + port + "...");
 		try {
 			Socket sock = new Socket(server, port);
+			System.out.print("connected...");
 			OutputStream out = sock.getOutputStream();
 			out.write(Opcodes.NEW_SERVER);
-
+			System.out.print("Opcodes.NEW_SERVER sent...");
 			String host = InetAddress.getLocalHost().getHostName();
+			System.out.print("host (" + host + ") sent...");
 			out.write(host.length());
 			out.write(host.getBytes());
 			out.write(getNumPlayers());
 			out.flush();
+			System.out.println("stream flushed.");
 			return sock;
 		} catch (Exception e) {
 			return null;

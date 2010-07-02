@@ -53,10 +53,13 @@ public class WorldServer implements Runnable {
 			ServerSocket ss = new ServerSocket(port);
 			Socket s;
 			while ((s = ss.accept()) != null) {
+				System.out.print("Connection accepted from "
+						+ s.getInetAddress().getHostAddress() + ", type: ");
 				try {
 					InputStream in = s.getInputStream();
 					int type = in.read();
-					if(type == 1) {
+					System.out.println(type);
+					if(type == Opcodes.NEW_SERVER) {
 						// omg new server connecting
 						int len = in.read();
 						byte[] strb = new byte[len];
@@ -69,7 +72,7 @@ public class WorldServer implements Runnable {
 								+ count + " players");
 					} else if(type == Opcodes.NUM_PLAYERS_REQUEST) {
 						// client is requesting number of people
-						System.out.println("Worlds requested from " + s.toString());
+						System.out.println(":: World list requested");
 						OutputStream out = s.getOutputStream();
 						out.write(servers.size());
 						for (String server : servers.keySet()) {
