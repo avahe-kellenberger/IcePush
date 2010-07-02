@@ -226,10 +226,10 @@ public class Server implements Runnable {
 		new Server();
 	}
 	
-	private static Map<String, String> defaults;
+	private static final Map<String, String> defaults;
 	static {
+		defaults = new HashMap<String, String>();
 		try {
-			defaults = new HashMap<String, String>();
 			defaults.put("host", InetAddress.getLocalHost().getHostName());
 			defaults.put("bind-port", "2345");
 		} catch(Exception e) {
