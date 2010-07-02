@@ -32,7 +32,7 @@ public class Renderer {
 	public double cameraY = -120.0;
 	public double cameraZ = -450.0;
 
-	public int pitch = 310, yaw = 180;
+	public int pitch = 270, yaw = 180;
 
 	public double focusX, focusY, focusZ;
 
@@ -149,6 +149,7 @@ public class Renderer {
 					-HALF_GAME_FIELD_WIDTH, height_variable_based_on_type, -HALF_GAME_FIELD_HEIGHT);
 			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 			
+			bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
 			bg.setColor(Color.red);
 			bg.drawString(p.username, scr[0] - width, scr[1]);
 		}
