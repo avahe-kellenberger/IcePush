@@ -6,19 +6,23 @@ import static com.glgames.shared.Opcodes.SUCCESS_LOG;
 import static com.glgames.shared.Opcodes.TOO_MANY_PL;
 import static com.glgames.shared.Opcodes.USER_IN_USE;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.glgames.shared.InterthreadQueue;
 import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
-import com.glgames.shared.InterthreadQueue;
 
 public class Server implements Runnable {
 	public static boolean DEBUG = false;
 	public static Player[] players;
+	public static Map<String, String> settings;
 	private static Socket worldserver;
 	
 	private boolean run = true;
@@ -27,6 +31,7 @@ public class Server implements Runnable {
 
 	public Server(int port) {
 		try {
+			settings = loadSettings("config.dat");
 			worldserver = connectToWorldServer(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
 			incomingConnections = new InterthreadQueue<Socket>();
 			listener = new ServerSocket(port);
@@ -55,6 +60,17 @@ public class Server implements Runnable {
 		}
 	}
 	
+	private Map<String, String> loadSettings(String fn) throws Exception {
+		Map<String, String> ret = new HashMap<String, String>();
+		BufferedReader br = new BufferedReader(new FileReader(fn));
+		String line;
+		while((line = br.readLine()) != null) {
+			String[] parts = line.split(":");
+			ret.put(parts[0], parts[1]);
+		}
+		return ret;
+	}
+
 	private Socket connectToWorldServer(String server, int port) {
 		System.out.print("Connecting to worldserver: " + server + ":" + port + "...");
 		try {
@@ -63,7 +79,7 @@ public class Server implements Runnable {
 			OutputStream out = sock.getOutputStream();
 			out.write(Opcodes.NEW_SERVER);
 			System.out.print("Opcodes.NEW_SERVER sent...");
-			String host = InetAddress.getLocalHost().getHostName();
+			String host = settings.get("host");
 			System.out.print("host (" + host + ") sent...");
 			out.write(host.length());
 			out.write(host.getBytes());
