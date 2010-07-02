@@ -19,19 +19,22 @@ public class ServerList {
 		this.y = y;
 		new Thread() {
 			public void run() {
-				Map<String, Integer> map = NetworkHandler.getWorlds();
-				servers = new String[map.size()];
-				counts = new String[map.size()];
-				int i = 0;
-				for (String ser : map.keySet()) {
-					int num = map.get(ser);
-					servers[i] = ser;
-					counts[i] = " - "
-							+ (num == 255 ? "offline" : num
-									+ (num != 1 ? " players" : " player"));
-					i++;
+				while(IcePush.running) {		// TODO: THERE MIGHT BE A POTENTIAL THREAD RACE HERE, I AM NOT SURE.
+					Map<String, Integer> map = NetworkHandler.getWorlds();
+					servers = new String[map.size()];
+					counts = new String[map.size()];
+					int i = 0;
+					for (String ser : map.keySet()) {
+						int num = map.get(ser);
+						servers[i] = ser;
+						counts[i] = " - "	+ (num == 255 ? "offline" : num + (num != 1 ? " players" : " player"));
+						i++;
+					}
+
+					try {
+						Thread.sleep(5000);
+					} catch(Exception e) { }
 				}
-				try { Thread.sleep(10000); } catch(Exception e) { }
 			}
 		}.start();
 	}
