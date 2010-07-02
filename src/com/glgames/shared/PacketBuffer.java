@@ -159,6 +159,8 @@ public class PacketBuffer {
 			// numBytesUnread = 0;
 			// }
 			int available = in.available();
+			if(numBytesUnread + available < 0)
+				return false;
 			// System.out.println("available = " + available);
 			byte[] newInBuf = new byte[numBytesUnread + available];
 			if (numBytesUnread != 0) {
