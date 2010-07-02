@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -29,11 +30,13 @@ public class Server implements Runnable {
 	private ServerSocket listener;
 	private InterthreadQueue<Socket> incomingConnections;
 
-	public Server(int port) {
+	public Server() {
 		try {
 			settings = loadSettings("config");
 			worldserver = connectToWorldServer(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
 			incomingConnections = new InterthreadQueue<Socket>();
+			
+			int port = Integer.parseInt(settings.get("bind-port"));
 			listener = new ServerSocket(port);
 			System.out.println("Client listener started on port " + port);
 			new Thread(this).start();
@@ -61,14 +64,19 @@ public class Server implements Runnable {
 	}
 	
 	private Map<String, String> loadSettings(String fn) throws Exception {
-		Map<String, String> ret = new HashMap<String, String>();
-		BufferedReader br = new BufferedReader(new FileReader(fn));
-		String line;
-		while((line = br.readLine()) != null) {
-			String[] parts = line.split(":");
-			ret.put(parts[0], parts[1]);
+		try {
+			Map<String, String> ret = new HashMap<String, String>();
+			BufferedReader br = new BufferedReader(new FileReader(fn));
+			String line;
+			while((line = br.readLine()) != null) {
+				String[] parts = line.split(":");
+				ret.put(parts[0], parts[1]);
+			}
+			return ret;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return defaults;
 		}
-		return ret;
 	}
 
 	private Socket connectToWorldServer(String server, int port) {
@@ -215,6 +223,17 @@ public class Server implements Runnable {
 	public static void main(String[] args) {
 		if(args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
 		players = new Player[50];
-		new Server(2345);
+		new Server();
+	}
+	
+	private static Map<String, String> defaults;
+	static {
+		try {
+			defaults = new HashMap<String, String>();
+			defaults.put("host", InetAddress.getLocalHost().getHostName());
+			defaults.put("bind-port", "2345");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
