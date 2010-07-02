@@ -144,11 +144,11 @@ public class Renderer {
 			} else if(p.type == Opcodes.SNOWMAN) {
 				height_variable_based_on_type = 50;
 			}
-			int width = bg.getFontMetrics().stringWidth(p.username) / 2;
 			double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ,
 					-HALF_GAME_FIELD_WIDTH, height_variable_based_on_type, -HALF_GAME_FIELD_HEIGHT);
 			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 			
+			int width = bg.getFontMetrics().stringWidth(p.username) / 2;
 			bg.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
 			bg.setColor(Color.red);
 			bg.drawString(p.username, scr[0] - width, scr[1]);

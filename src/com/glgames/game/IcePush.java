@@ -102,7 +102,7 @@ public class IcePush extends Applet implements Runnable {
 					System.out.println("final");
 					keyReleased(tke.event);
 				} else if((tke2.time - tke.time) > 1 || tke.event.getID() != KeyEvent.KEY_PRESSED) { // Tke2 is an event that was generated while waiting
-					keyReleased(tke.event);
+					// keyReleased(tke.event); - not needed, handled below
 					sendKeyEventInternal(tke2.event);
 				}
 			} else {
@@ -246,7 +246,6 @@ public class IcePush extends Applet implements Runnable {
 
 		if (moveDir != 0) {
 			if((moveKeyFlags | moveDir) != moveKeyFlags) {
-				System.out.println("Sending move");
 				moveKeyFlags |= moveDir;
 				NetworkHandler.sendMoveRequest(moveDir);
 			}
@@ -276,7 +275,6 @@ public class IcePush extends Applet implements Runnable {
 				break;
 		}
 		if (moveDir != 0) {
-			System.out.println("Ending move");
 			moveKeyFlags &= (~moveDir);
 			NetworkHandler.endMoveRequest(moveDir);
 		}
