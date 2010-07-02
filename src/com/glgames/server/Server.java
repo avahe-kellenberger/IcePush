@@ -31,7 +31,7 @@ public class Server implements Runnable {
 
 	public Server(int port) {
 		try {
-			settings = loadSettings("config.dat");
+			settings = loadSettings("config");
 			worldserver = connectToWorldServer(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
 			incomingConnections = new InterthreadQueue<Socket>();
 			listener = new ServerSocket(port);
