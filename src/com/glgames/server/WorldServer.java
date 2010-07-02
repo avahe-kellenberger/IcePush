@@ -25,8 +25,10 @@ public class WorldServer implements Runnable {
 			while(it.hasNext()) {
 				String srv = it.next();
 				Socket sock = sockets.get(srv);
-				if(sock.isClosed())
+				if(sock.isClosed()) {
 					it.remove();
+					servers.remove(srv);
+				}
 				try {
 					InputStream in = sock.getInputStream();
 					if (in.available() == 0)

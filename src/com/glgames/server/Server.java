@@ -33,7 +33,11 @@ public class Server implements Runnable {
 	public Server() {
 		try {
 			settings = loadSettings("config");
-			worldserver = connectToWorldServer(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
+			
+			if(Boolean.parseBoolean(settings.get("show-in-list")))
+				worldserver = connectToWorldServer(settings
+						.get("worldserver-addr"), Opcodes.WORLDPORT);
+			
 			incomingConnections = new InterthreadQueue<Socket>();
 			
 			int port = Integer.parseInt(settings.get("bind-port"));
@@ -232,6 +236,8 @@ public class Server implements Runnable {
 		try {
 			defaults.put("host", InetAddress.getLocalHost().getHostName());
 			defaults.put("bind-port", "2345");
+			defaults.put("worldserver-addr", "99.198.122.53");
+			defaults.put("show-in-list", "true");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
