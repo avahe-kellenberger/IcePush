@@ -76,6 +76,10 @@ public class Server implements Runnable {
 				String[] parts = line.split(":");
 				ret.put(parts[0], parts[1]);
 			}
+			for(String def : defaults.keySet()) {
+				if(!ret.containsKey(def))
+					ret.put(def, defaults.get(def));
+			}
 			return ret;
 		} catch(Exception e) {
 			e.printStackTrace();
