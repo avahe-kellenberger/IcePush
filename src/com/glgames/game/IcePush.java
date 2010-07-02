@@ -208,7 +208,7 @@ public class IcePush extends Applet implements Runnable {
 				case KeyEvent.VK_P:
 					NetworkHandler.ping();
 					break;
-				/*case KeyEvent.VK_W:
+				case KeyEvent.VK_W:
 					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
 						renderer.pitch -= 5;
 					break;
@@ -223,14 +223,14 @@ public class IcePush extends Applet implements Runnable {
 				case KeyEvent.VK_D:
 					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
 						renderer.yaw += 5;
-					break;*/
+					break;
 				case KeyEvent.VK_2:
 					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_2D;
 					break;
 				case KeyEvent.VK_3:
 					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_3D;
 					break;
-				/*case KeyEvent.VK_J:
+				case KeyEvent.VK_J:
 					renderer.cameraX -= 5;
 					break;
 				case KeyEvent.VK_L:
@@ -241,7 +241,7 @@ public class IcePush extends Applet implements Runnable {
 					break;
 				case KeyEvent.VK_I:
 					renderer.cameraY += 5;
-					break;*/
+					break;
 			}
 
 		if (moveDir != 0) {
