@@ -49,8 +49,10 @@ public class NetworkHandler {
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
 				GameObjects.players = new Player[50];
-				new Thread(new InternetRelayChat(IcePush.IRC_SERVER,
-						IcePush.IRC_PORT, IcePush.IRC_CHANNEL)).start();
+				Thread chat = new Thread(new InternetRelayChat(IcePush.IRC_SERVER,
+						IcePush.IRC_PORT, IcePush.IRC_CHANNEL, username));
+				chat.setDaemon(true);
+				chat.start();
 				IcePush.state = IcePush.PLAY;
 			} else {
 				Renderer.message = "Invalid response from server.";
@@ -225,6 +227,7 @@ public class NetworkHandler {
 			pbuf.beginPacket(LOGOUT);
 			pbuf.closePacket();
 			pbuf.synch();
+			InternetRelayChat.logout();
 			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Select a username.";
 		} catch (Exception e) {

@@ -10,26 +10,29 @@ import com.glgames.shared.InterthreadQueue;
 
 public class InternetRelayChat implements Runnable {
 	public static InterthreadQueue<String> msgs = new InterthreadQueue<String>();
+	public static String nick;
 	
+	private static Socket s;
 	private static BufferedWriter bw;
 	private static BufferedReader br;
 	private static String server;
 	private static String channel;
 	private static int port;
 	
-	public InternetRelayChat(String s, int p, String c) {
+	public InternetRelayChat(String s, int p, String c, String n) {
 		server = s;
 		port = p;
 		channel = c;
+		nick = n;
 	}
 	
 	public void run() {
 		try {
-			Socket s = new Socket(server, port);
+			s = new Socket(server, port);
 			bw = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
 			br = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			
-			bw.write("NICK IcePush" + (int) (Math.random() * 100) + "\n");
+			bw.write("NICK " + nick + "_ip \n");
 			bw.write("USER IcePush * * :IcePush Client\n");
 			bw.write("JOIN " + channel + "\n");
 			bw.flush();
@@ -45,7 +48,8 @@ public class InternetRelayChat implements Runnable {
 				if(partsSpace[1].equals("PRIVMSG")) {
 					String from = partsSpace[0].split("!")[0].substring(1);
 					String msg = partsColon[2];
-					msgs.push(from + ": " + msg);
+					if(!msg.contains("\u0001"))
+						msgs.push(from + ": " + msg);
 				}
 			}
 		} catch(Exception e) {
@@ -58,5 +62,15 @@ public class InternetRelayChat implements Runnable {
 			bw.write("PRIVMSG " + channel + " :" + message + "\n");
 			bw.flush();
 		} catch(Exception e) { }
+	}
+
+	public static void logout() throws Exception {
+		bw.flush();
+		bw.close();
+		br.close();
+		s.close();
+		br = null;
+		bw = null;
+		s = null;
 	}
 }

@@ -194,18 +194,11 @@ public class IcePush extends Applet {
 			if(is_chat)
 				Renderer.curChat = "";
 			else if (!is_chat && !Renderer.curChat.isEmpty()) {
-				InternetRelayChat.sendMessage(Renderer.curChat);
-				InternetRelayChat.msgs.push("You: " + Renderer.curChat);
+				InternetRelayChat.sendMessage(Renderer.curChat.trim());
+				InternetRelayChat.msgs.push(InternetRelayChat.nick + ": " + Renderer.curChat);
 				Renderer.curChat = "<enter> to chat";
 			}
-		} else if(is_chat) {
-			char c = e.getKeyChar();
-			if(c > 31 && e.getKeyCode() != KeyEvent.VK_SHIFT)
-				Renderer.curChat += c;
-			else if (c == 8 && Renderer.curChat.length() > 0)
-				Renderer.curChat = Renderer.curChat.substring(0,
-						Renderer.curChat.length() - 1);
-		} else
+		} else if(!is_chat)
 			switch (e.getKeyCode()) {
 				case KeyEvent.VK_ESCAPE:
 					if(!isApplet) cleanup();
@@ -273,8 +266,15 @@ public class IcePush extends Applet {
 		}
 	}
 
-	private void keyTyped(KeyEvent ke) {
-		// STUB THAT TEKK MIGHT FIND USEFUL TO FIX THE KEYLINUX BUG
+	private void keyTyped(KeyEvent e) {
+		if(is_chat) {
+			char c = e.getKeyChar();
+			if (c == 8 && Renderer.curChat.length() > 0)
+				Renderer.curChat = Renderer.curChat.substring(0,
+						Renderer.curChat.length() - 1);
+			else
+				Renderer.curChat += c;
+		}
 	}
 
 	private void keyReleased(KeyEvent e) {
@@ -353,7 +353,8 @@ public class IcePush extends Applet {
 				e.printStackTrace();
 			}
 			Graphics g = getGraphics();
-			g.drawImage(renderer.backbuffer, 0, 0, null);
+			if(g != null && renderer.backbuffer != null)
+				g.drawImage(renderer.backbuffer, 0, 0, null);
 		}
 	}
 

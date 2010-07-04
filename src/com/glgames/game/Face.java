@@ -24,7 +24,6 @@ public class Face {
 
 class Triangle implements Comparable<Triangle> {
 	public int x1, y1, x2, y2, x3, y3;
-	public int z1, z2, z3;
 	public double distance;
 	public Color color;
 	public Texture texture;

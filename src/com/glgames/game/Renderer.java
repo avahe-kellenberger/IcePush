@@ -161,7 +161,7 @@ public class Renderer {
 		bg.drawString(curChat, 35 + 3, 440);
 		if(count++ % 50 > 25) {
 			int width = bg.getFontMetrics().stringWidth(curChat) + 5;
-			bg.drawLine(35 + width, 440 - 13, 35 + width, 440);
+			bg.drawLine(35 + width, 440 - 8, 35 + width, 440);
 		}
 	}
 
@@ -376,7 +376,6 @@ public class Renderer {
 			Face f = faces[k];
 			int fanX = f.drawX[0];
 			int fanY = f.drawY[0];
-			int fanZ = f.drawZ[0];
 
 			// Skip the adjacent vertices
 			for (int vertex = 2; vertex < f.drawX.length; vertex++) {
@@ -387,10 +386,6 @@ public class Renderer {
 				t.y2 = f.drawY[vertex - 1];
 				t.x3 = f.drawX[vertex];
 				t.y3 = f.drawY[vertex];
-				
-				t.z1 = fanZ;
-				t.z2 = f.drawZ[vertex - 1];
-				t.z3 = f.drawZ[vertex];
 				
 				t.distance = f.distance;
 				t.color = f.color;
