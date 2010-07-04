@@ -52,9 +52,13 @@ public class Server implements Runnable {
 							+ s.toString());
 					s.setTcpNoDelay(true);
 					int type = s.getInputStream().read();
-					if(type == 0) // connecting client
-						loginPlayer(s);
-				}
+					if(type == 0) { // connecting client
+                                            loginPlayer(s);
+                                        } else if(type == 2) {
+                                            s.getOutputStream().write(getNumPlayers());
+                                        }
+                                        
+                                        }
 				updatePlayers();
 				try {
 					Thread.sleep(30);
