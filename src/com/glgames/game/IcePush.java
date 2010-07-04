@@ -31,7 +31,7 @@ public class IcePush extends Applet {
 	
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 480;
-	public static final String IRC_SERVER = "irc.rizon.net";
+	public static final String IRC_SERVER = "icepush.strictfp.com";
 	public static final int IRC_PORT = 6667;
 	public static final String IRC_CHANNEL = "#icepush";
 	public static transient boolean stable = true;

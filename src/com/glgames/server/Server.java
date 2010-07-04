@@ -222,13 +222,31 @@ public class Server implements Runnable {
 	}
 
 	private void updatePlayers() {
+		int focusX = 0, focusZ = 0;
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
 			p.keepAlive();
 			p.processIncomingPackets();
 			p.handleMove();
+			
+			focusX += p.area.x - 422;
+			focusZ += p.area.y - 211;
 		}
+		int nP = getNumPlayers();
+		focusX /= nP;
+		focusZ /= nP;
+		String tiltX, tiltY;
+		if(focusX > 0)
+			tiltX = "right";
+		else
+			tiltX = "left";
+		if(focusZ > 0)
+			tiltY = "down";
+		else
+			tiltY = "up";
+		System.out.println(tiltX + " " + tiltY);
+		//System.out.println(focusX + " " + focusZ);
 	}
 
 	public static void main(String[] args) {
