@@ -360,10 +360,6 @@ public class Renderer {
 			Triangle t = tris[i];
 			if(t.color != null)
 				Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
-		//	else if(t.texture != null)		THIS CODE DOES NOT WORK AND INSTEAD GOES INTO AN INFINITE LOOP
-		//		Triangles.textureMappedTriangle(t.texture, t.x1, t.y1, t.x2,
-		//				t.y2, t.x3, t.y3, 0, 0, t.z1, 255, 0, t.z2, 255, 255,
-		//				t.z3);
 		}
 	}
 	
@@ -389,7 +385,6 @@ public class Renderer {
 				
 				t.distance = f.distance;
 				t.color = f.color;
-				t.texture = f.texture;
 				out[num++] = t;
 			}
 		}
