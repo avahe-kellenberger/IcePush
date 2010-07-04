@@ -12,14 +12,14 @@ import static com.glgames.shared.Opcodes.*;
 
 import com.glgames.shared.InterthreadQueue;
 
-public class IcePush extends Applet implements Runnable {
+public class IcePush extends Applet {
 
 	public static boolean DEBUG = false;
 	
 	public static IcePush instance;
 	public static Renderer renderer;
 	public static GameFrame frame;
-	public static Graphics buffGraphics;
+	public static Graphics graphics;
 
 	// state stuff
 	public static final int WELCOME = 0;
@@ -287,14 +287,14 @@ public class IcePush extends Applet implements Runnable {
 		renderer = new Renderer(instance);
 		frame = new GameFrame();
 		renderer.initGraphics();
-		buffGraphics = renderer.getBufferGraphics();
+		graphics = renderer.getBufferGraphics();
 	}
 
 	public void start() {
 		setFocusTraversalKeysEnabled(false);
 		renderer = new Renderer(this);
 		renderer.initGraphics();
-		buffGraphics = renderer.getBufferGraphics();
+		graphics = renderer.getBufferGraphics();
 		run();
 		cleanup();
 	}
@@ -308,13 +308,13 @@ public class IcePush extends Applet implements Runnable {
 		Graphics g = getGraphics();
 		while (running) {
 			if (!GameObjects.loaded) {
-				buffGraphics.setColor(Color.black);
-				buffGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+				graphics.setColor(Color.black);
+				graphics.fillRect(0, 0, WIDTH, HEIGHT);
 				renderer.drawLoadingBar(GameObjects.loadingMessage,
 						GameObjects.loadingPercent);
 			} else {
-				buffGraphics.setColor(Color.black);
-				buffGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+				graphics.setColor(Color.black);
+				graphics.fillRect(0, 0, WIDTH, HEIGHT);
 				if (state == WELCOME) {
 					titleLoop();
 				} else if (state == HELP) {
