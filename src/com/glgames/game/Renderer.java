@@ -37,7 +37,7 @@ public class Renderer {
 
 	// Only used in 3D mode
 	public double cameraX = 0.0;
-	public double cameraY = -120.0;
+	public double cameraY = -100.0;
 	public double cameraZ = -450.0;
 
 	public int pitch = 270, yaw = 180;

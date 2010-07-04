@@ -105,7 +105,7 @@ public class IcePush extends Applet {
 					System.out.println("final");
 					keyReleased(tke.event);
 				} else if((tke2.time - tke.time) > 1 || tke.event.getID() != KeyEvent.KEY_PRESSED) { // Tke2 is an event that was generated while waiting
-					//keyReleased(tke.event); //- not needed, handled below
+					keyReleased(tke.event); //- not needed, handled below
 					sendKeyEventInternal(tke2.event);
 				}
 			} else {

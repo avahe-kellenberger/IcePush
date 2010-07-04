@@ -41,7 +41,7 @@ public class GameObjects {
 			serverBox = (TextBox) UserInterface.interfaces[SERVER_IFACE];
 			usernameBox = (TextBox) UserInterface.interfaces[USERNAME_IFACE];
 			
-			trySleep(500);
+		//	trySleep(500);
 			loadingMessage = "Loading text...";
 			loadingPercent = 30;
 			
@@ -54,7 +54,7 @@ public class GameObjects {
 			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 330, 100, 25);
 			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 330, 100, 25);
 			
-			trySleep(300);
+		//	trySleep(300);
 			loadingMessage = "Loading players...";
 			loadingPercent = 50;
 
@@ -62,19 +62,19 @@ public class GameObjects {
 				serverList = new ServerList(170);
 			
 			scenery = new Object3D[10]; 
-			scenery[0] = new Object3D.Plane(744, 422);
+			scenery[0] = new Object3D.Plane(0, 0, -100, 16, 12, 50);
 
-			trySleep(400);
+		//	trySleep(400);
 			loadingMessage = "Loading images...";
 			loadingPercent = 80;
 			
 			background = SpriteLoader.getSprite("images/icepush.png");
 			
-			trySleep(600);
+		//	trySleep(600);
 			loadingMessage = "Done";
 			loadingPercent = 99; // rounding error and such
 			
-			trySleep(200);
+		//	trySleep(200);
 			loaded = true;
 		} catch(Exception e) {
 			loadingMessage = loadingMessage + " - " + e.toString();

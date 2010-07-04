@@ -237,33 +237,40 @@ public class Object3D extends GameObject {
 				smLayerColors, null, null, 50);
 	}
 	
+
 	public static class Plane extends Object3D {
-		public Plane(int w, int h) {
-	        super(400, 361);
+		public Plane(double x, double y, double z, int verticesX, int verticesZ, double tileSize) {
+			super(verticesX * verticesZ, (verticesX - 1) * (verticesZ - 1));
 
-			for (int i = 0; i < 400; i++) {
-				vertX[i] = 80 - (i % 20) * 8;
-				vertY[i] = 0;
-				vertZ[i] = 80 - (i / 20) * 8;
+			//System.out.println("X = " + verticesX + " Z = " + verticesZ + " length: " + vertX.length);
+
+			double vertexX = x, vertexZ = z;
+			int currVertex = 0;
+
+			int facesX = verticesX - 1, facesZ = verticesZ - 1;
+
+			for(int vz = 0; vz < verticesZ; vz++) {
+				for(int vx = 0; vx < verticesX; vx++) {		
+					vertX[currVertex] = vertexX;
+					vertY[currVertex] = y;
+					vertZ[currVertex++] = vertexZ;
+					vertexX += tileSize;
+				}
+				vertexX = x;
+				vertexZ += tileSize;
 			}
 
-			int gfi = 0;
-			for (int i = 0; i < 380; i++) {
-				if ((1 + i) % 20 == 0)
-					continue;
-				faceColors[gfi] = new Color(100 + (gfi % 19) * 4,
-						100 + (gfi / 19) * 4, 196);
-				faceVertices[gfi++] = new int[] { i, i + 1, i + 21, i + 20 };
+			int currFace = 0;
+			int faceVert = 0;
+
+			for(int fz = 0; fz < facesZ; fz++) {
+				for(int fx = 0; fx < facesX; fx++) {
+					faceColors[currFace] = new Color(100 + fz * 4, 100 + fx * 4, 196);
+					faceVertices[currFace++] = new int[] { faceVert, faceVert + 1, faceVert + verticesX + 1, faceVert + verticesX};
+					faceVert++;
+				}
+				faceVert++;
 			}
-	        
-			/*putVertex(0, 0, 0);
-			putVertex(w, 0, 0);
-			putVertex(w, 0, h);
-			putVertex(0, 0, h);
-			putVertex(-(w / 2), 0, h / 2);
-			putVertex(w / 2, 0, h / 2);
-			putVertex(w / 2, 0, -(h / 2));
-			putVertex(-(w / 2), 0, -(h / 2));*/
 		}
 	}
 }
