@@ -9,6 +9,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import com.glgames.shared.Opcodes;
 
@@ -139,8 +141,31 @@ public class Renderer {
 			drawNames(GameObjects.players);
 		}
 		drawDeathsBox();
+		drawChats();
 	}
 	
+	public static String curChat = "<enter> to chat";
+	private ArrayList<String> chats = new ArrayList<String>();
+	private int count;
+	
+	private void drawChats() {
+		String chat;
+		while((chat = InternetRelayChat.msgs.pull()) != null)
+			chats.add(chat);
+		
+		bg.setFont(debugFont);
+		for(int k = 0; k < chats.size(); k++) {
+			chat = chats.get(k);
+			bg.drawString(chat, 35, 430 - (chats.size() - k) * 15);
+		}
+		
+		bg.drawString(curChat, 35 + 3, 440);
+		if(count++ % 50 > 25) {
+			int width = bg.getFontMetrics().stringWidth(curChat) + 5;
+			bg.drawLine(35 + width, 440 - 13, 35 + width, 440);
+		}
+	}
+
 	private void drawNames(Player[] players) {
 		for(Player p : players) if(p != null) {
 			Object3D o = p.model;

@@ -31,6 +31,9 @@ public class IcePush extends Applet {
 	
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 480;
+	public static final String IRC_SERVER = "irc.rizon.net";
+	public static final int IRC_PORT = 6667;
+	public static final String IRC_CHANNEL = "#icepush";
 	public static transient boolean stable = true;
 	public static boolean running = true;
 
@@ -162,6 +165,7 @@ public class IcePush extends Applet {
 		}
 	}
 
+	private boolean is_chat = false;
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;
@@ -185,6 +189,22 @@ public class IcePush extends Applet {
 				else
 					GameObjects.usernameBox.append(e.getKeyChar());
 			}
+		} else if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+			is_chat = !is_chat;
+			if(is_chat)
+				Renderer.curChat = "";
+			else if (!is_chat && !Renderer.curChat.isEmpty()) {
+				InternetRelayChat.sendMessage(Renderer.curChat);
+				InternetRelayChat.msgs.push("You: " + Renderer.curChat);
+				Renderer.curChat = "<enter> to chat";
+			}
+		} else if(is_chat) {
+			char c = e.getKeyChar();
+			if(c >= 'a' && c <= 'z' || c == ' ')
+				Renderer.curChat += c;
+			else if (c == 8 && Renderer.curChat.length() > 0)
+				Renderer.curChat = Renderer.curChat.substring(0,
+						Renderer.curChat.length() - 1);
 		} else
 			switch (e.getKeyCode()) {
 				case KeyEvent.VK_ESCAPE:
@@ -305,7 +325,7 @@ public class IcePush extends Applet {
 				GameObjects.load();
 			}
 		}.start();
-		Graphics g = getGraphics();
+		new Thread(new InternetRelayChat(IRC_SERVER, IRC_PORT, IRC_CHANNEL)).start();
 		while (running) {
 			if (!GameObjects.loaded) {
 				graphics.setColor(Color.black);
@@ -333,6 +353,7 @@ public class IcePush extends Applet {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			Graphics g = getGraphics();
 			g.drawImage(renderer.backbuffer, 0, 0, null);
 		}
 	}

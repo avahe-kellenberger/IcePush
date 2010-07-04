@@ -24,7 +24,6 @@ public class ServerList extends Thread {
 	public void run() {
 		while(IcePush.running) {		// TODO: THERE MIGHT BE A POTENTIAL THREAD RACE HERE, I AM NOT SURE!!
 			if(IcePush.state == IcePush.WELCOME) {
-				System.out.println("Getting worlds");
 				Map<String, Integer> map = NetworkHandler.getWorlds();
 				servers = new String[map.size()];
 				counts = new String[map.size()];
