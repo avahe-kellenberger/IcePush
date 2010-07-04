@@ -325,7 +325,6 @@ public class IcePush extends Applet {
 				GameObjects.load();
 			}
 		}.start();
-		new Thread(new InternetRelayChat(IRC_SERVER, IRC_PORT, IRC_CHANNEL)).start();
 		while (running) {
 			if (!GameObjects.loaded) {
 				graphics.setColor(Color.black);

@@ -49,6 +49,8 @@ public class NetworkHandler {
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
 				GameObjects.players = new Player[50];
+				new Thread(new InternetRelayChat(IcePush.IRC_SERVER,
+						IcePush.IRC_PORT, IcePush.IRC_CHANNEL)).start();
 				IcePush.state = IcePush.PLAY;
 			} else {
 				Renderer.message = "Invalid response from server.";
