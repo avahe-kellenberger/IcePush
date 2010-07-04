@@ -200,7 +200,7 @@ public class IcePush extends Applet {
 			}
 		} else if(is_chat) {
 			char c = e.getKeyChar();
-			if(c >= 'a' && c <= 'z' || c == ' ')
+			if(c > 31 && e.getKeyCode() != KeyEvent.VK_SHIFT)
 				Renderer.curChat += c;
 			else if (c == 8 && Renderer.curChat.length() > 0)
 				Renderer.curChat = Renderer.curChat.substring(0,
