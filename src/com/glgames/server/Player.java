@@ -96,7 +96,7 @@ public class Player {
 
 	public void handleMove() {
 		if(timeOfDied != 0) {
-			if(System.currentTimeMillis() - timeOfDied > 20000) { // The last cycle of this players died time
+			if(System.currentTimeMillis() - timeOfDied > 3000) { // The last cycle of this players died time
 				setCanMove(true);
 				timeOfDied = 0;
 				dx = dy = xAccel = yAccel = 0;		// Fix entropic movement after becoming undead
