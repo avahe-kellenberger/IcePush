@@ -22,11 +22,13 @@ public class Opcodes {
 	public static final int PLAYER_DIED = 12;
 	public static final int SET_CAN_MOVE = 13;
 	public static final int PLAYER_STOPPED_MOVING = 15;
+	public static final int NEW_CHAT_MESSAGE = 17;
 	// Client to Server
 	public static final int MOVE_REQUEST = 8;
 	public static final int END_MOVE = 9;
 	public static final int LOGOUT = 10;
 	public static final int PING = 14;
+	public static final int CHAT_REQUEST = 16;
 	
 	// Player types
 	public static final int TREE = 0;

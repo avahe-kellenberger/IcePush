@@ -1,14 +1,18 @@
 package com.glgames.game;
 
+import static com.glgames.shared.Opcodes.DOWN;
+import static com.glgames.shared.Opcodes.LEFT;
+import static com.glgames.shared.Opcodes.RIGHT;
+import static com.glgames.shared.Opcodes.UP;
+import static java.awt.AWTEvent.KEY_EVENT_MASK;
+import static java.awt.AWTEvent.MOUSE_EVENT_MASK;
+
 import java.applet.Applet;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Dimension;
-
-import static java.awt.AWTEvent.*;
-import java.awt.event.*;
-
-import static com.glgames.shared.Opcodes.*;
+import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import com.glgames.shared.InterthreadQueue;
 
@@ -31,9 +35,6 @@ public class IcePush extends Applet {
 	
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 480;
-	public static final String IRC_SERVER = "icepush.strictfp.com";
-	public static final int IRC_PORT = 6667;
-	public static final String IRC_CHANNEL = "#icepush";
 	public static transient boolean stable = true;
 	public static boolean running = true;
 
@@ -194,8 +195,7 @@ public class IcePush extends Applet {
 			if(is_chat)
 				Renderer.curChat = "";
 			else if (!is_chat && !Renderer.curChat.isEmpty()) {
-				InternetRelayChat.sendMessage(Renderer.curChat.trim());
-				InternetRelayChat.msgs.push(InternetRelayChat.nick + ": " + Renderer.curChat);
+				NetworkHandler.sendChatMessage(Renderer.curChat.replace("\r\n", "").replace("\n", ""));
 				Renderer.curChat = "<enter> to chat";
 			}
 		} else if(!is_chat)

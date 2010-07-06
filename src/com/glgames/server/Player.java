@@ -3,6 +3,7 @@ package com.glgames.server;
 import static com.glgames.shared.Opcodes.*;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 
 import com.glgames.shared.PacketBuffer;
 
@@ -211,6 +212,12 @@ public class Player {
 						break;
 					case KEEP_ALIVE:
 						break;
+					case CHAT_REQUEST:
+						String msg = pbuf.readString();
+						String full = username + ": " + msg;
+						InternetRelayChat.sendMessage(full);
+						InternetRelayChat.msgs.push(full);
+						break;
 					case PING:
 						pbuf.beginPacket(PING);
 						pbuf.endPacket();
@@ -233,5 +240,13 @@ public class Player {
 				return pl;
 		}
 		return null;
+	}
+
+	public void writePendingChats(ArrayList<String> chats) {
+		for(String s : chats) {
+			pbuf.beginPacket(NEW_CHAT_MESSAGE);
+			pbuf.writeString(s);
+			pbuf.endPacket();
+		}
 	}
 }

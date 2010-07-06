@@ -2,6 +2,7 @@ package com.glgames.game;
 
 import static com.glgames.shared.Opcodes.*;
 
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -49,10 +50,6 @@ public class NetworkHandler {
 				id = in.read();
 				pbuf = new PacketBuffer(sock);
 				GameObjects.players = new Player[50];
-				Thread chat = new Thread(new InternetRelayChat(IcePush.IRC_SERVER,
-						IcePush.IRC_PORT, IcePush.IRC_CHANNEL, username));
-				chat.setDaemon(true);
-				chat.start();
 				IcePush.state = IcePush.PLAY;
 			} else {
 				Renderer.message = "Invalid response from server.";
@@ -138,6 +135,10 @@ public class NetworkHandler {
 					System.out.println("Ping response recieved: "
 							+ (System.currentTimeMillis() - pingTime));
 					break;
+				case NEW_CHAT_MESSAGE:
+					String msg = pbuf.readString();
+					Renderer.chats.add(msg);
+					break;
 			}
 			pbuf.closePacket();
 		}
@@ -159,6 +160,16 @@ public class NetworkHandler {
 			pbuf.writeByte(moveID);
 			pbuf.endPacket();
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void sendChatMessage(String msg) {
+		try {
+			pbuf.beginPacket(CHAT_REQUEST);
+			pbuf.writeString(msg);
+			pbuf.endPacket();
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -227,7 +238,6 @@ public class NetworkHandler {
 			pbuf.beginPacket(LOGOUT);
 			pbuf.closePacket();
 			pbuf.synch();
-			InternetRelayChat.logout();
 			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Select a username.";
 		} catch (Exception e) {

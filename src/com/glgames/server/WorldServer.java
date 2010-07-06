@@ -25,7 +25,7 @@ public class WorldServer implements Runnable {
 			while(it.hasNext()) {
 				String srv = it.next();
 				Socket sock = sockets.get(srv);
-				if(sock.isClosed()) {
+				if(sock.isClosed() || !sock.isConnected()) {
 					it.remove();
 					servers.remove(srv);
 				}

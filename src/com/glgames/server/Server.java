@@ -1,10 +1,6 @@
 package com.glgames.server;
 
-import static com.glgames.shared.Opcodes.BAD_VERSION;
-import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
-import static com.glgames.shared.Opcodes.SUCCESS_LOG;
-import static com.glgames.shared.Opcodes.TOO_MANY_PL;
-import static com.glgames.shared.Opcodes.USER_IN_USE;
+import static com.glgames.shared.Opcodes.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -13,6 +9,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +26,7 @@ public class Server implements Runnable {
 	private boolean run = true;
 	private ServerSocket listener;
 	private InterthreadQueue<Socket> incomingConnections;
+	private InternetRelayChat irc;
 
 	public Server() {
 		try {
@@ -39,6 +37,12 @@ public class Server implements Runnable {
 						.get("worldserver-addr"), Opcodes.WORLDPORT);
 			
 			incomingConnections = new InterthreadQueue<Socket>();
+
+			irc = new InternetRelayChat("irc.rizon.net", 6667,
+					"#icepush", settings.get("host").replace(".", "-"));
+			Thread t = new Thread(irc);
+			t.setDaemon(true);
+			t.start();
 			
 			int port = Integer.parseInt(settings.get("bind-port"));
 			listener = new ServerSocket(port);
@@ -223,29 +227,29 @@ public class Server implements Runnable {
 
 	private void updatePlayers() {
 		int focusX = 0, focusZ = 0;
+		
+		ArrayList<String> chats = new ArrayList<String>();
+		String msg;
+		while((msg = InternetRelayChat.msgs.pull()) != null)
+			chats.add(msg);
+		
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
 			p.keepAlive();
 			p.processIncomingPackets();
 			p.handleMove();
+			p.writePendingChats(chats);
 			
-			focusX += p.area.x - 422;
-			focusZ += p.area.y - 211;
+			focusX += p.area.x - 422; // Distance from center X
+			focusZ += p.area.y - 211; // Distance from center Y
 		}
 		int nP = getNumPlayers();
+		if (nP == 0)
+			return;
 		focusX /= nP;
 		focusZ /= nP;
-		String tiltX, tiltY;
-		if(focusX > 0)
-			tiltX = "right";
-		else
-			tiltX = "left";
-		if(focusZ > 0)
-			tiltY = "down";
-		else
-			tiltY = "up";
-		System.out.println(tiltX + " " + tiltY);
+		// For tilting ice but not sure how to do this yet
 		//System.out.println(focusX + " " + focusZ);
 	}
 

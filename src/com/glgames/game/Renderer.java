@@ -144,14 +144,12 @@ public class Renderer {
 	}
 	
 	public static String curChat = "<enter> to chat";
-	private ArrayList<String> chats = new ArrayList<String>();
+	public static ArrayList<String> chats = new ArrayList<String>();
 	private int count;
 	
 	private void drawChats() {
 		String chat;
-		while((chat = InternetRelayChat.msgs.pull()) != null)
-			chats.add(chat);
-		
+
 		bg.setFont(debugFont);
 		for(int k = 0; k < chats.size(); k++) {
 			chat = chats.get(k);

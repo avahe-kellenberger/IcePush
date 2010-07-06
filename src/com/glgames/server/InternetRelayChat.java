@@ -1,4 +1,4 @@
-package com.glgames.game;
+package com.glgames.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -32,8 +32,8 @@ public class InternetRelayChat implements Runnable {
 			bw = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
 			br = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			
-			bw.write("NICK " + nick + "_ip \n");
-			bw.write("USER IcePush * * :IcePush Client\n");
+			bw.write("NICK " + nick + " \n");
+			bw.write("USER IcePush * * :IcePush Client Server\n");
 			bw.write("JOIN " + channel + "\n");
 			bw.flush();
 			
@@ -45,11 +45,15 @@ public class InternetRelayChat implements Runnable {
 				}
 				String[] partsColon = input.split(":", 3);
 				String[] partsSpace = input.split(" ");
-				if(partsSpace[1].equals("PRIVMSG")) {
+				String cmd = partsSpace[1].toUpperCase();
+				if(cmd.equals("PRIVMSG")) {
 					String from = partsSpace[0].split("!")[0].substring(1);
 					String msg = partsColon[2];
 					if(!msg.contains("\u0001"))
 						msgs.push(from + ": " + msg);
+				} else if(cmd.equals("KICK") || cmd.equals("INVITE")) {
+					bw.write("JOIN " + channel + "\n");
+					bw.flush();
 				}
 			}
 		} catch(Exception e) {
