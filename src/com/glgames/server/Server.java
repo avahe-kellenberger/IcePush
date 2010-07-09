@@ -38,7 +38,7 @@ public class Server implements Runnable {
 			
 			incomingConnections = new InterthreadQueue<Socket>();
 
-			irc = new InternetRelayChat("irc.rizon.net", 6667,
+			irc = new InternetRelayChat("localhost", 6667,
 					"#icepush", settings.get("host").replace(".", "-"));
 			Thread t = new Thread(irc);
 			t.setDaemon(true);
