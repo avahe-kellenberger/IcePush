@@ -194,8 +194,8 @@ public class IcePush extends Applet {
 			is_chat = !is_chat;
 			if(is_chat)
 				Renderer.curChat = "";
-			else if (!is_chat && !Renderer.curChat.isEmpty()) {
-				NetworkHandler.sendChatMessage(Renderer.curChat.replace("\r\n", "").replace("\n", ""));
+			else if (!is_chat && !Renderer.curChat.trim().isEmpty()) {
+				NetworkHandler.sendChatMessage(Renderer.curChat.trim());
 				Renderer.curChat = "<enter> to chat";
 			}
 		} else if(!is_chat)
