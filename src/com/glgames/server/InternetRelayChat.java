@@ -39,8 +39,9 @@ public class InternetRelayChat implements Runnable {
 			
 			String input;
 			while((input = br.readLine()) != null) {
+				System.out.println(input);
 				if(input.startsWith("PING")) {
-					bw.write(input.replace("PING", "PONG"));
+					bw.write(input.replace("PING", "PONG") + "\n");
 					bw.flush();
 				}
 				String[] partsColon = input.split(":", 3);
