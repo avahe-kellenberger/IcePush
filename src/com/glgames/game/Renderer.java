@@ -23,6 +23,9 @@ public class Renderer {
 
 	public static String message = "Select a server and username.";
 
+	int selectedButton;
+	int mouseOverButton;
+
 	protected Component canvas;
 	protected Image backbuffer;
 	protected Graphics outgfx;
@@ -119,8 +122,23 @@ public class Renderer {
 
 		GameObjects.usernameBox.draw(bg);
 
+		drawTopButtons();
+
 		button(GameObjects.loginButton, "Login");
 		button(GameObjects.helpButton, "Help");
+	}
+
+	private void drawTopButtons() {
+		int w = GameObjects.button.getWidth();
+		int x = 28, y = 30;
+		for(int i = 0; i < 5; i++) {
+			if(i == selectedButton || i == mouseOverButton) {
+				bg.drawImage(GameObjects.button2, x, y, null);
+			} else {
+				bg.drawImage(GameObjects.button, x, y, null);
+			}
+			x += w;
+		}
 	}
 
 	public void renderScene() {

@@ -17,6 +17,8 @@ public class GameObjects {
 	public static BufferedImage logo;
 	public static BufferedImage background;
 
+	public static BufferedImage button, button2;
+
 	public static TextBox serverBox, usernameBox;
 	public static ServerList serverList;
 	public static Rectangle loginButton, helpButton, backButton;
@@ -47,8 +49,10 @@ public class GameObjects {
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
-			help = new String[] { "Arrow keys - move" };
+			help = new String[] { "Arrow keys - move", "Q - logout", "2 - 2D view", "3 - 3D view"};
 			logo = SpriteLoader.getSprite("images/logo.png");
+			button = SpriteLoader.getSprite("images/button.png");
+			button2 = SpriteLoader.getSprite("images/button2.png");			
 			
 			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 330, 100, 25);
 			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 330, 100, 25);
@@ -62,7 +66,7 @@ public class GameObjects {
 				serverList = new ServerList(170);
 			
 			scenery = new Object3D[10]; 
-			scenery[0] = new Object3D.Plane(0, 0, -100, 16, 12, 50);
+			scenery[0] = new Object3D.Plane(0, 0, 0, 16, 10, 50);
 
 		//	trySleep(400);
 			loadingMessage = "Loading images...";

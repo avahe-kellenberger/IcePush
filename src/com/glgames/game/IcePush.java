@@ -4,8 +4,7 @@ import static com.glgames.shared.Opcodes.DOWN;
 import static com.glgames.shared.Opcodes.LEFT;
 import static com.glgames.shared.Opcodes.RIGHT;
 import static com.glgames.shared.Opcodes.UP;
-import static java.awt.AWTEvent.KEY_EVENT_MASK;
-import static java.awt.AWTEvent.MOUSE_EVENT_MASK;
+import static java.awt.AWTEvent.*;
 
 import java.applet.Applet;
 import java.awt.Color;
@@ -66,7 +65,7 @@ public class IcePush extends Applet {
 	}
 
 	public IcePush() {
-		enableEvents(MOUSE_EVENT_MASK | KEY_EVENT_MASK);
+		enableEvents(MOUSE_EVENT_MASK | MOUSE_MOTION_EVENT_MASK | KEY_EVENT_MASK);
 		keyEvents = new InterthreadQueue<TimedKeyEvent>();
 		mouseEvents = new InterthreadQueue<MouseEvent>();
 	}
@@ -81,6 +80,10 @@ public class IcePush extends Applet {
 	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 
 	protected void processMouseEvent(MouseEvent me) {
+		mouseEvents.push(me);
+	}
+
+	protected void processMouseMotionEvent(MouseEvent me) {
 		mouseEvents.push(me);
 	}
 
@@ -103,10 +106,10 @@ public class IcePush extends Applet {
 				} catch(Exception e) { }
 				TimedKeyEvent tke2 = keyEvents.pull();
 				if(tke2 == null) {			// This is the final key release
-					System.out.println("final");
+				//	System.out.println("final");
 					keyReleased(tke.event);
 				} else if((tke2.time - tke.time) > 1 || tke.event.getID() != KeyEvent.KEY_PRESSED) { // Tke2 is an event that was generated while waiting
-					keyReleased(tke.event); //- not needed, handled below
+					keyReleased(tke.event);
 					sendKeyEventInternal(tke2.event);
 				}
 			} else {
@@ -118,6 +121,8 @@ public class IcePush extends Applet {
 			id = me.getID();
 			if (id == MouseEvent.MOUSE_CLICKED) {
 				mouseClicked(me);
+			} else if(id == MouseEvent.MOUSE_MOVED) {
+				mouseMoved(me);
 			}
 		}
 	}
@@ -164,6 +169,25 @@ public class IcePush extends Applet {
 				IcePush.state = IcePush.WELCOME;
 			}
 		}
+	}
+
+	private void mouseMoved(MouseEvent me) {
+		if(GameObjects.loaded) renderer.mouseOverButton = getTopButtonID(me.getX(), me.getY());
+	}
+
+	private int getTopButtonID(int mouseX, int mouseY) {
+		int w = GameObjects.button.getWidth();
+		int h = GameObjects.button.getHeight();
+		int x = 28, y = 30;
+
+		if(mouseY < y || mouseY >= y + h) return -1;
+
+		for(int i = 0; i < 5; i++) {
+			if(mouseX > x && mouseX < x + w) return i;
+			x += w;
+		}
+
+		return -1;
 	}
 
 	private boolean is_chat = false;
