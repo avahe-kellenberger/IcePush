@@ -1,6 +1,10 @@
 package com.glgames.server;
 
-import static com.glgames.shared.Opcodes.*;
+import static com.glgames.shared.Opcodes.BAD_VERSION;
+import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
+import static com.glgames.shared.Opcodes.SUCCESS_LOG;
+import static com.glgames.shared.Opcodes.TOO_MANY_PL;
+import static com.glgames.shared.Opcodes.USER_IN_USE;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

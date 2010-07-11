@@ -2,7 +2,7 @@ package com.glgames.game.ui;
 
 import java.awt.Color;
 
-import com.glgames.game.CacheReader;
+import com.glgames.shared.FileBuffer;
 
 public class UserInterface {
 	public static UserInterface[] interfaces;
@@ -15,10 +15,10 @@ public class UserInterface {
 	public UserInterface() { }
 	
 	public static void load() {
-		CacheReader cr = new CacheReader("interfaces");
+		FileBuffer cr = new FileBuffer("interfaces");
 		short numInter = cr.readShort();
 		interfaces = new UserInterface[numInter];
-		while(numInter-- >= 0) {
+		for(int k = 0; k < numInter; k++) {
 			short id = cr.readShort();
 			short pID = cr.readShort();
 			short x = cr.readShort();

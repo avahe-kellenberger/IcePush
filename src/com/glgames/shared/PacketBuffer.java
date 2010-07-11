@@ -167,12 +167,7 @@ public class PacketBuffer {
 				if (debug)
 					System.out.println("Unread bytes in read buffer: "
 							+ numBytesUnread);
-				try {
-					System.arraycopy(inBuf, readPtr, newInBuf, 0, numBytesUnread);
-				}catch (Exception E) {
-					System.out.println("It's happening again.\n" + 
-				"inBuf.length=" + inBuf.length + ", readPtr=" + readPtr + " newInBuf.length=" + newInBuf.length + " numBytesUnread=" + numBytesUnread);
-				}
+				System.arraycopy(inBuf, readPtr, newInBuf, 0, numBytesUnread);
 			}
 			dataEnd = numBytesUnread;
 			if (available != 0) {
