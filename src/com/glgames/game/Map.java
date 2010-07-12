@@ -16,6 +16,7 @@ public class Map {
 			m.planes = fb.readByte();
 			m.width = fb.readByte();
 			m.height = fb.readByte();
+			m.map = new int[m.planes][m.height][m.width];
 			for(int h = 0; h < m.planes; h++) {
 				for(int y = 0; y < m.height; y++) {
 					for(int x = 0; x < m.width; x++) {

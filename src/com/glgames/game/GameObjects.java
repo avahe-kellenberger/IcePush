@@ -67,7 +67,7 @@ public class GameObjects {
 			
 			Map.load();
 			scenery = new Object3D[10]; 
-			scenery[0] = new Object3D.Plane(0, 0, 0, 16, 10, 50);
+			scenery[0] = new Object3D.Plane(0, 0, 0, 20, 12, 40);
 
 		//	trySleep(400);
 			loadingMessage = "Loading images...";

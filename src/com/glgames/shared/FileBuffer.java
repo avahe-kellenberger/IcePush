@@ -89,7 +89,7 @@ public class FileBuffer {
 			out.write(file, 0, ptr);
 			out.flush();
 			out.close();
-			System.out.println("Wrote " + ptr + " bytes out of allocated " + file.length);
+			debug();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
