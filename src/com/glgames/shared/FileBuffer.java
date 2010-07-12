@@ -4,7 +4,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class FileBuffer {
 	private byte[] file;
@@ -60,6 +59,11 @@ public class FileBuffer {
 		file[ptr++] = (byte) i;
 	}
 	
+	public void writeBytes(byte[] b, int off, int len) {
+		for(int k = off; k < off + len; k++)
+			file[ptr++] = b[k];
+	}
+	
 	public void writeShort(int s) {
 		file[ptr++] = (byte) ((s >> 8) & 0xff);
 		file[ptr++] = (byte) (s & 0xff);
@@ -85,8 +89,13 @@ public class FileBuffer {
 			out.write(file, 0, ptr);
 			out.flush();
 			out.close();
+			System.out.println("Wrote " + ptr + " bytes out of allocated " + file.length);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void debug() {
+		System.out.println("at: " + ptr + ", total: " + file.length);
 	}
 }

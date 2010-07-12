@@ -65,6 +65,7 @@ public class GameObjects {
 			if (!IcePush.isApplet)
 				serverList = new ServerList(170);
 			
+			Map.load();
 			scenery = new Object3D[10]; 
 			scenery[0] = new Object3D.Plane(0, 0, 0, 16, 10, 50);
 
