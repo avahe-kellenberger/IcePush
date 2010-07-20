@@ -63,7 +63,7 @@ public class Player extends RigidBody {
 			}
 		}
 
-		if(x < 28 || y < 30 || x > 772 || y > 452) {
+		if(x < 4 || y < 5 || x > 752 || y > 428) {
 			System.out.println("PLAYER " + username + " IS OUT OF RANGE!");
 			playerDied();
 			return;
@@ -95,7 +95,7 @@ public class Player extends RigidBody {
 			x = (float)(Math.random() * 744);
 			y = (float)(Math.random() * 422);
 			for(Player p : Server.players) {
-				if(p == null) {
+				if(p == null || p == this) {
 					continue;
 				}
 
