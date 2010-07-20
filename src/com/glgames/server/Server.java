@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.glgames.server.physics2d.Physics2D;
+
 import com.glgames.shared.InterthreadQueue;
 import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
@@ -26,6 +28,8 @@ public class Server implements Runnable {
 	public static Player[] players;
 	public static Map<String, String> settings;
 	private static Socket worldserver;
+
+	private static Physics2D physics;
 	
 	private boolean run = true;
 	private ServerSocket listener;
@@ -42,7 +46,7 @@ public class Server implements Runnable {
 			
 			incomingConnections = new InterthreadQueue<Socket>();
 
-			irc = new InternetRelayChat("localhost", 6667,
+			irc = new InternetRelayChat("quirlion.com", 6667,
 					"#icepush", settings.get("host").replace(".", "-"));
 			Thread t = new Thread(irc);
 			t.setDaemon(true);
@@ -53,6 +57,8 @@ public class Server implements Runnable {
 			System.out.println("Client listener started on port " + port);
 			new Thread(this).start();
 			
+			physics = new Physics2D(players);
+
 			while (run) {
 				Socket s = incomingConnections.pull();
 				if (s != null) {
@@ -66,6 +72,7 @@ public class Server implements Runnable {
 						s.getOutputStream().write(getNumPlayers());
 					}
 				}
+				physics.update();
 				updatePlayers();
 				try {
 					Thread.sleep(30);
@@ -230,7 +237,7 @@ public class Server implements Runnable {
 	}
 
 	private void updatePlayers() {
-		int focusX = 0, focusZ = 0;
+	//	int focusX = 0, focusZ = 0;
 		
 		ArrayList<String> chats = new ArrayList<String>();
 		String msg;
@@ -245,14 +252,14 @@ public class Server implements Runnable {
 			p.handleMove();
 			p.writePendingChats(chats);
 			
-			focusX += p.area.x - 422; // Distance from center X
-			focusZ += p.area.y - 211; // Distance from center Y
+	//		focusX += p.area.x - 422; // Distance from center X
+	//		focusZ += p.area.y - 211; // Distance from center Y
 		}
 		int nP = getNumPlayers();
 		if (nP == 0)
 			return;
-		focusX /= nP;
-		focusZ /= nP;
+	//	focusX /= nP;
+	//	focusZ /= nP;
 		// For tilting ice but not sure how to do this yet
 		//System.out.println(focusX + " " + focusZ);
 	}

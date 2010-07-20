@@ -1,35 +1,26 @@
 package com.glgames.server;
 
+import com.glgames.server.physics2d.*;
+import com.glgames.shared.PacketBuffer;
 import static com.glgames.shared.Opcodes.*;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import com.glgames.shared.PacketBuffer;
-
-public class Player {
+public class Player extends RigidBody {
 	public int id;
-	public int type;
-	public int dx, dy;	// **** //
-	private int xAccel, yAccel;
 	public int deaths;
-
-	public Rectangle area;
-	public PacketBuffer pbuf;
-
+	public int type;
 	public String username;
+	public boolean canMove;
 	public boolean connected;
-	public boolean canMove = true;
 	private long timeOfDied = 0;
 
-	public Player() {
+	public PacketBuffer pbuf;
 
+	public Player() {
+		r = 24;
 	}
 
-	public final static int SCALE = 2 << 6;
-
-	private boolean inHandleMove = false;
-	
 	public void notifyLogin() {
 		for (Player plr : Server.players) {
 			if (plr == null)
@@ -39,8 +30,8 @@ public class Player {
 			pbuf.writeShort(plr.id);
 			pbuf.writeByte(plr.type);
 			pbuf.writeString(plr.username);
-			pbuf.writeShort(plr.area.x);
-			pbuf.writeShort(plr.area.y);
+			pbuf.writeShort((int)plr.x);
+			pbuf.writeShort((int)plr.y);
 			pbuf.writeShort(plr.deaths);
 			pbuf.endPacket();
 
@@ -49,8 +40,8 @@ public class Player {
 			plr.pbuf.writeShort(id);
 			plr.pbuf.writeByte(type);
 			plr.pbuf.writeString(username);
-			plr.pbuf.writeShort(area.x); // x
-			plr.pbuf.writeShort(area.y); // y
+			plr.pbuf.writeShort((int)x); // x
+			plr.pbuf.writeShort((int)y); // y
 			plr.pbuf.writeShort(plr.deaths);
 			plr.pbuf.endPacket();
 		}
@@ -61,125 +52,68 @@ public class Player {
 		pbuf.endPacket();
 	}
 
-	void initPosition() {
-		Rectangle r;
-		boolean good = false;
-		while(true) {
-			good = true;
-			r = new Rectangle((int) (Math.random() * (744 - 48)), (int) (Math
-					.random() * (422 - 48)), 48, 48);
-			for(Player p : Server.players) {
-				if(p == null)
-					continue;
-				if(p.area.intersects(r))
-					good = false;
-			}
-			if(good)
-				break;
-		}
-		area = r;
-		dx = dy = xAccel = yAccel = 0;
-	}
-
-	private void setBit(int bit) {
-		if(bit == UP) yAccel = -(SCALE / 2);
-		if(bit == DOWN) yAccel = SCALE / 2;
-		if(bit == LEFT) xAccel = -(SCALE / 2);
-		if(bit == RIGHT) xAccel = SCALE / 2;
-	}
-
-	private void clearBit(int bit) {
-		if(bit == UP) yAccel = 0;
-		if(bit == DOWN) yAccel = 0;
-		if(bit == LEFT) xAccel = 0;
-		if(bit == RIGHT) xAccel = 0;
-	}
-
 	public void handleMove() {
 		if(timeOfDied != 0) {
 			if(System.currentTimeMillis() - timeOfDied > 3000) { // The last cycle of this players died time
 				setCanMove(true);
 				timeOfDied = 0;
-				dx = dy = xAccel = yAccel = 0;		// Fix entropic movement after becoming undead
+				dx = dy = xa = ya = 0;		// Fix entropic movement after becoming undead
 			} else {
 				return;		// This player is currently died
 			}
 		}
 
-		if(inHandleMove) return;
-
-		inHandleMove = true;
-
-		Player o;
-		if((o = getPlayerInWay()) != null) {
-			if(o.timeOfDied == 0) {
-				o.dx = dx;
-				o.dy = dy;
-				o.handleMove();	
-			} else {
-				dx = -dx;
-				dy = -dy;
-			}
-		}
-		
-		dx = ((dx + xAccel) * 23) / 24;
-		dy = ((dy + yAccel) * 23) / 24;
-
-		if(area.x < -21 || area.y < -19 || area.x > 772 || area.y > 452) {
+		if(x < 28 || y < 30 || x > 772 || y > 452) {
+			System.out.println("PLAYER " + username + " IS OUT OF RANGE!");
 			playerDied();
-			inHandleMove = false;
 			return;
 		}
 		
-		if(dx != 0 || dy != 0) {
+		if(hasMoved()) {
 			for(Player p : Server.players) if(p != null) {
 				p.pbuf.beginPacket(PLAYER_MOVED);
 				p.pbuf.writeShort(id);
-				p.pbuf.writeShort(area.x);
-				p.pbuf.writeShort(area.y);
+				p.pbuf.writeShort((int)x);
+				p.pbuf.writeShort((int)y);
 				p.pbuf.endPacket();
 			}
 		}
-
-		area.x += (dx / SCALE);
-		area.y += (dy / SCALE);
-
-		inHandleMove = false;
 	}
 
-	private void playerDied() {
-		try {
-			deaths++;
-			setCanMove(false);
-			initPosition();
-			timeOfDied = System.currentTimeMillis();
-			for (Player plr : Server.players) {
-				if (plr == null)
+	public void writePendingChats(ArrayList<String> chats) {
+		for(String s : chats) {
+			pbuf.beginPacket(NEW_CHAT_MESSAGE);
+			pbuf.writeString(s);
+			pbuf.endPacket();
+		}
+	}
+
+	void initPosition() {
+		boolean good = false;
+		while(true) {
+			good = true;
+			x = (float)(Math.random() * 744);
+			y = (float)(Math.random() * 422);
+			for(Player p : Server.players) {
+				if(p == null) {
 					continue;
-				plr.pbuf.beginPacket(PLAYER_DIED);
-				plr.pbuf.writeShort(id);
-				plr.pbuf.writeByte(deaths);
-				plr.pbuf.writeShort(area.x); // new location
-				plr.pbuf.writeShort(area.y);
-				plr.pbuf.endPacket();
+				}
+
+				float dx = x - p.x;
+				float dy = y - p.y;
+
+				float sum = r + p.r;
+
+				float dist = dx*dx + dy*dy;
+
+				if(dist < sum*sum) good = false;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			if(good)
+				break;
 		}
+		dx = dy = xa = ya = 0;
 	}
 
-	private void setCanMove(boolean can) {
-		canMove = can;
-		for (Player plr : Server.players) {
-			if (plr == null)
-				continue;
-			plr.pbuf.beginPacket(SET_CAN_MOVE);
-			plr.pbuf.writeShort(id);
-			plr.pbuf.writeByte(canMove ? 1 : 0);
-			plr.pbuf.endPacket();
-		}
-	}
-	
 	public void processIncomingPackets() {
 		try {
 			if (!pbuf.synch()) {
@@ -230,23 +164,50 @@ public class Player {
 		}
 	}
 
-	public Player getPlayerInWay() {
-		Rectangle newArea = new Rectangle(area.x + (dx / SCALE), area.y + (dy / SCALE), 48, 48); // OMG HOLY SHIT CRAP WTF I OVERLOOKED THIS FOR ALMOST A DAY
-		for(Player pl : Server.players) {
-			if(pl == null || pl == this)
-				continue;
-			
-			if(pl.area.intersects(newArea))
-				return pl;
+	private void playerDied() {
+		try {
+			deaths++;
+			setCanMove(false);
+			initPosition();
+			timeOfDied = System.currentTimeMillis();
+			for (Player plr : Server.players) {
+				if (plr == null)
+					continue;
+				plr.pbuf.beginPacket(PLAYER_DIED);
+				plr.pbuf.writeShort(id);
+				plr.pbuf.writeByte(deaths);
+				plr.pbuf.writeShort((int)x); // new location
+				plr.pbuf.writeShort((int)y);
+				plr.pbuf.endPacket();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return null;
 	}
 
-	public void writePendingChats(ArrayList<String> chats) {
-		for(String s : chats) {
-			pbuf.beginPacket(NEW_CHAT_MESSAGE);
-			pbuf.writeString(s);
-			pbuf.endPacket();
+	private void setCanMove(boolean can) {
+		canMove = can;
+		for (Player plr : Server.players) {
+			if (plr == null)
+				continue;
+			plr.pbuf.beginPacket(SET_CAN_MOVE);
+			plr.pbuf.writeShort(id);
+			plr.pbuf.writeByte(canMove ? 1 : 0);
+			plr.pbuf.endPacket();
 		}
+	}
+
+	private void setBit(int bit) {
+		if(bit == UP) ya = -0.5F;
+		if(bit == DOWN) ya = 0.5F;
+		if(bit == LEFT) xa = -0.5F;
+		if(bit == RIGHT) xa = 0.5F;
+	}
+
+	private void clearBit(int bit) {
+		if(bit == UP) ya = 0;
+		if(bit == DOWN) ya = 0;
+		if(bit == LEFT) xa = 0;
+		if(bit == RIGHT) xa = 0;
 	}
 }
