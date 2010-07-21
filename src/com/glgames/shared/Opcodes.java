@@ -2,7 +2,7 @@ package com.glgames.shared;
 
 public class Opcodes {
 	// World server
-	public static final String WORLDSERVER = "quirlion.com";
+	public static final String WORLDSERVER = "99.198.122.53";
 	public static final int WORLDPORT = 2346;
 	public static final int NUM_PLAYERS_REQUEST = 0;
 	public static final int NEW_SERVER = 1;

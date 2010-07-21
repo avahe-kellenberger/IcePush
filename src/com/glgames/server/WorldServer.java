@@ -1,7 +1,5 @@
 package com.glgames.server;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -88,11 +86,6 @@ public class WorldServer implements Runnable {
 						out.flush();
 						out.close();
 						s.close();
-					} else if(type == Opcodes.REQUEST_FILE) {
-						int nameLen = in.read();
-						byte[] strb = new byte[nameLen];
-						in.read(strb);
-						sendFileToClient(new String(strb), out);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -102,25 +95,7 @@ public class WorldServer implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
-	private void sendFileToClient(String fn, OutputStream out) throws Exception {
-		File f = new File(fn);
-		FileInputStream in = new FileInputStream(f);
-		int len = (int) f.length();
-		out.write((byte) ((len      ) & 0xff));
-		out.write((byte) ((len >>  8) & 0xff));
-		out.write((byte) ((len >> 16) & 0xff));
-		out.write((byte) ((len >> 24) & 0xff));
-		byte[] b = new byte[1024];
-		while((len = in.read(b, 0, 1024)) != -1)
-			out.write(b, 0, len);
-		out.flush();
-		
-		in.close();
-		out.close();
-	}
-
-
+	
 	public static void main(String[] args) {
 		new WorldServer(2346);
 	}
