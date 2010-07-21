@@ -35,8 +35,8 @@ public class Physics2D {
 				if((b = bodies[j]) == null || (b == a)) continue;
 
 				if(doCollision(a, b)) {
-					a.x = prevx;
-					a.y = prevy;
+					//a.x = prevx;
+					//a.y = prevy;
 				}
 			}
 		}
@@ -53,15 +53,15 @@ public class Physics2D {
 			double f6 = (b.y + Math.sin(f4) * b.r);
 			double f7 = (f5 - a.x) * spring;
 			double f8 = (f6 - a.y) * spring;
-			b.dx -= f7;
-			b.dy -= f8;
-			a.dx += f7;
-			a.dy += f8;
+			a.dx -= f7;
+			a.dy -= f8;
+			b.dx += f7;
+			b.dy += f8;
 			return true;
 		}
 		return false;
 	}
 
-	double spring = 1.0;
+	double spring = 0.10;
 	double friction = 0.96;
 }
