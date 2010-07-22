@@ -36,6 +36,8 @@ public class Server implements Runnable {
 	private InterthreadQueue<Socket> incomingConnections;
 	private InternetRelayChat irc;
 
+	int blockCount;
+
 	public Server() {
 		try {
 			settings = loadSettings("config");
@@ -64,12 +66,24 @@ public class Server implements Runnable {
 				if (s != null) {
 					System.out.println("Client accepted, socket: "
 							+ s.toString());
-					s.setTcpNoDelay(true);
-					int type = s.getInputStream().read();
-					if (type == 0) { // connecting client
-						loginPlayer(s);
-					} else if (type == 2) {
-						s.getOutputStream().write(getNumPlayers());
+					String host = s.getInetAddress().getHostName();
+					if(host.endsWith("mia.bellsouth.net") || host.endsWith("anchorfree.com")) {
+						blockCount++;
+						if((blockCount % 10) == 1)
+							System.out.println("Blocked: " + blockCount + " times");
+						try {
+							s.close();
+						} catch (Exception e) {
+						}
+						s = null;
+					} else {
+						s.setTcpNoDelay(true);
+						int type = s.getInputStream().read();
+						if (type == 0) { // connecting client
+							loginPlayer(s);
+						} else if (type == 2) {
+							s.getOutputStream().write(getNumPlayers());
+						}
 					}
 				}
 				physics.update();
@@ -283,3 +297,4 @@ public class Server implements Runnable {
 		}
 	}
 }
+
