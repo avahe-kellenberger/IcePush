@@ -2,8 +2,6 @@ package com.glgames.shared;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -11,31 +9,15 @@ public class FileBuffer {
 	private byte[] file;
 	private int ptr;
 	
-	public FileBuffer(String fn, boolean downloadFromWorldServerOrJustGetFromWebsite) {
+	public FileBuffer(String fn) {
 		try {
-			if(downloadFromWorldServerOrJustGetFromWebsite) {
-				Socket s = new Socket(Opcodes.WORLDSERVER, Opcodes.WORLDPORT);
-				InputStream in = s.getInputStream();
-				OutputStream out = s.getOutputStream();
-				out.write(Opcodes.REQUEST_FILE);
-				out.write(fn.length());
-				out.write(fn.getBytes());
-				out.flush();
-				int len = in.read() | (in.read() << 8) | (in.read() << 16) | (in.read() << 24);
-				file = new byte[len];
-				ptr = 0;
-				in.read(file);
-				in.close();
-				out.close();
-			} else {
-				URLConnection con = new URL("http://icepush.strictfp.com/play/"
-						+ fn).openConnection();
-				file = new byte[con.getContentLength()];
-				ptr = 0;
-				InputStream in = con.getInputStream();
-				in.read(file);
-				in.close();
-			}
+			URLConnection con = new URL("http://icepush.strictfp.com/play/"
+					+ fn).openConnection();
+			file = new byte[con.getContentLength()];
+			ptr = 0;
+			InputStream in = con.getInputStream();
+			in.read(file);
+			in.close();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

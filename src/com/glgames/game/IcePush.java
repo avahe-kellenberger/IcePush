@@ -28,7 +28,6 @@ public class IcePush extends Applet {
 	public static final int WELCOME = 0;
 	public static final int HELP = 1;
 	public static final int PLAY = 2;
-	public static final int DIED = 3;
 
 	public static int state = WELCOME;
 	
@@ -40,7 +39,6 @@ public class IcePush extends Applet {
 	public static boolean isApplet = false;
 
 	public static int cycle;
-	public static int lastDied;
 
 	private InterthreadQueue<TimedKeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
@@ -353,8 +351,7 @@ public class IcePush extends Applet {
 			if (!GameObjects.loaded) {
 				graphics.setColor(Color.black);
 				graphics.fillRect(0, 0, WIDTH, HEIGHT);
-				renderer.drawLoadingBar(GameObjects.loadingMessage,
-						GameObjects.loadingPercent);
+				renderer.drawLoadingErrorIfThereIsSuchAnError();
 			} else {
 				graphics.setColor(Color.black);
 				graphics.fillRect(0, 0, WIDTH, HEIGHT);
@@ -364,8 +361,6 @@ public class IcePush extends Applet {
 					helpLoop();
 				} else if (state == PLAY) {
 					gameLoop();
-				} else if (state == DIED) {
-					diedLoop();
 				}
 			}
 			renderer.swapBuffers();
@@ -400,17 +395,6 @@ public class IcePush extends Applet {
 		NetworkHandler.handlePackets();
 		updatePlayers();
 		renderer.renderScene();
-	}
-
-	private static void diedLoop() {
-		if (lastDied == 0) {
-			lastDied = cycle;
-		} else if (cycle - lastDied >= 50) {
-			lastDied = 0;
-			state = PLAY;
-		} else {
-			renderer.drawDiedScreen(cycle - lastDied);
-		}
 	}
 
 	public static void cleanup() {

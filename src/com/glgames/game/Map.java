@@ -8,7 +8,7 @@ public class Map {
 	int[][][] map;
 	
 	public static void load() {
-		FileBuffer fb = new FileBuffer("maps", false);
+		FileBuffer fb = new FileBuffer("maps");
 		maps = new Map[fb.readByte()];
 		for(int k = 0; k < maps.length; k++) {
 			int lenOfMapFile = fb.readInt(); // not really useful for maps because length is known

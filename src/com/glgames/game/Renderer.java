@@ -3,7 +3,6 @@ package com.glgames.game;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -66,33 +65,6 @@ public class Renderer {
 
 	public Component getCanvas() {
 		return canvas;
-	}
-
-	public void drawLoadingBar(String s, int p) {
-		int width = 400, height = 30, x = IcePush.WIDTH / 2 - width / 2;
-
-		bg.setColor(Color.cyan);
-		bg.drawRect(x, IcePush.HEIGHT / 2 - height / 2, width, height);
-
-		x += 2;
-		if (p == -1)
-			width -= 2;
-		else
-			width = (int) (p / 100.0d * width);
-		height -= 3;
-
-		if (p == -1)
-			bg.setColor(new Color(150, 0, 0));
-		else
-			bg.setColor(new Color(0, 0, 150));
-		bg.fillRect(x, IcePush.HEIGHT / 2 - height / 2, width, height);
-
-		x = IcePush.WIDTH / 2 - bg.getFontMetrics().stringWidth(s) / 2;
-		bg.setColor(Color.white);
-		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		bg.drawString(s, x, IcePush.HEIGHT / 2
-				- bg.getFontMetrics().getHeight() / 2 + 12);
 	}
 
 	public void drawWelcomeScreen(int cycle) {
@@ -458,18 +430,6 @@ public class Renderer {
 		return ret;
 	}
 
-
-	public void drawDiedScreen(int l) {
-		int alpha = (int) ((l / 50.0d) * 255.0d);
-		bg.setColor(new Color(255, 255, 255, alpha));
-		bg.fillRect(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
-		((Graphics2D) bg).setPaint(new GradientPaint(200, 200, new Color(0,
-				255, 0), 400, 400, new Color(0, 0, 255)));
-		bg.setFont(new Font("Arial Black", Font.PLAIN, 36));
-		bg.drawString("TRY AGAIN", IcePush.WIDTH / 2 - 110,
-				IcePush.HEIGHT / 2);
-	}
-
 	public void clearScreen() {
 		bg.setColor(Color.BLACK);
 		bg.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -483,5 +443,13 @@ public class Renderer {
 
 	public Graphics getBufferGraphics() {
 		return bg;
+	}
+
+	public void drawLoadingErrorIfThereIsSuchAnError() {
+		if(GameObjects.error == null)
+			return;
+		bg.setColor(Color.red);
+		bg.setFont(deathsBoxFont);
+		bg.drawString(GameObjects.error, 50, 50);
 	}
 }

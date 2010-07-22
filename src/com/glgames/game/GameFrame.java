@@ -23,7 +23,8 @@ public class GameFrame extends Frame {
 	public void processWindowEvent(WindowEvent we) {
 		super.processWindowEvent(we);
 		if(we.getID() == WindowEvent.WINDOW_CLOSING) {
-			IcePush.instance.stop();
+			if(IcePush.instance != null)
+				IcePush.instance.stop();
 			dispose();
 			//System.exit(0);
 		}

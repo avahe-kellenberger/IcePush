@@ -111,20 +111,6 @@ public class NetworkHandler {
 					x = pbuf.readShort();
 					y = pbuf.readShort();
 					plr.setPos(x, y);
-					if (id == NetworkHandler.id) {
-						IcePush.state = IcePush.DIED;
-					}
-					break;
-				case SET_CAN_MOVE:
-					id = pbuf.readShort();
-					plr = GameObjects.players[id];
-					if (plr == null) { // ???????????????
-						System.out
-								.println("null player tried to set can move ??? "
-										+ id);
-						break;
-					}
-					plr.bubbleAlpha = pbuf.readByte() > 0 ? 0.0f : 1.0f;
 					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();
@@ -193,7 +179,7 @@ public class NetworkHandler {
 			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
 			ret.put("localhost", 0);
 		} catch (Exception e) {
-			GameObjects.loadingMessage = "Error getting server list";
+			e.printStackTrace();
 			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
 		};
 		return ret;

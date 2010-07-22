@@ -13,8 +13,7 @@ public class Player extends RigidBody {
 	public String username;
 	public boolean canMove;
 	public boolean connected;
-	private long timeOfDied = 0;
-
+	
 	public PacketBuffer pbuf;
 
 	public Player() {
@@ -53,16 +52,6 @@ public class Player extends RigidBody {
 	}
 
 	public void handleMove() {
-		if(timeOfDied != 0) {
-			if(System.currentTimeMillis() - timeOfDied > 3000) { // The last cycle of this players died time
-				setCanMove(true);
-				timeOfDied = 0;
-				dx = dy = xa = ya = 0;		// Fix entropic movement after becoming undead
-			} else {
-				return;		// This player is currently died
-			}
-		}
-
 		if(x < 4 || y < 5 || x > 752 || y > 428) {
 			System.out.println("PLAYER " + username + " IS OUT OF RANGE!");
 			playerDied();
@@ -167,9 +156,7 @@ public class Player extends RigidBody {
 	private void playerDied() {
 		try {
 			deaths++;
-			setCanMove(false);
 			initPosition();
-			timeOfDied = System.currentTimeMillis();
 			for (Player plr : Server.players) {
 				if (plr == null)
 					continue;
@@ -182,18 +169,6 @@ public class Player extends RigidBody {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	private void setCanMove(boolean can) {
-		canMove = can;
-		for (Player plr : Server.players) {
-			if (plr == null)
-				continue;
-			plr.pbuf.beginPacket(SET_CAN_MOVE);
-			plr.pbuf.writeShort(id);
-			plr.pbuf.writeByte(canMove ? 1 : 0);
-			plr.pbuf.endPacket();
 		}
 	}
 

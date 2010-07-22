@@ -15,7 +15,7 @@ public class UserInterface {
 	public UserInterface() { }
 	
 	public static void load() {
-		FileBuffer cr = new FileBuffer("interfaces", false);
+		FileBuffer cr = new FileBuffer("interfaces");
 		short numInter = cr.readShort();
 		interfaces = new UserInterface[numInter];
 		for(int k = 0; k < numInter; k++) {
