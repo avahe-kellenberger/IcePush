@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import com.glgames.shared.Opcodes;
@@ -156,8 +157,10 @@ public class Renderer {
 	}*/
 	
 	static Font chatsFont;
+	static BufferedImage font;
 	static {
 		try {
+			font = SpriteLoader.getSprite("data/font.png");
 			chatsFont = Font.createFont(Font.TRUETYPE_FONT,
 					GameObjects.class.getResourceAsStream("/data/dina.ttf")).deriveFont(15.0f);
 		} catch (Exception e) {
@@ -207,6 +210,30 @@ public class Renderer {
 			bg.drawString(p.username, scr[0] - width, scr[1]);
 		}
 	}
+	
+	/* these are Bad and Use lots of cpu due to bufferedImage */
+	/*private void drawString(String s, int x, int y) {
+		for(int k = 0; k < s.length(); k++) {
+			char c = s.charAt(k);
+			drawCharacter(c, x, y);
+			x += 7;
+		}
+	}
+	
+	private void drawCharacter(char c, int x, int y) {
+		int index = 0;
+		if(c < 32)
+			return;
+		if(c >= '0' && c <= '9')
+			index = c - '0' + 1;
+		else if(c >= 'A' && c <= 'Z')
+			index = c - 'A' + 11;
+		else if(c >= 'a' && c <= 'z')
+			index = c - 'a' + 37;
+		int srcx = index * 7;
+		BufferedImage ch = font.getSubimage(srcx, 0, 7, 12);
+		bg.drawImage(ch, x, y, null);
+	}*/
 	
 	private void focusCamera() {
 		Player p = GameObjects.players[NetworkHandler.id];
