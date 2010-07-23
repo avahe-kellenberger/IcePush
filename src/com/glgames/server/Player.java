@@ -137,7 +137,7 @@ public class Player extends RigidBody {
 						break;
 					case CHAT_REQUEST:
 						String msg = pbuf.readString();
-						String full = username + ": " + msg;
+						String full = "<" + username + "> " + msg;
 						InternetRelayChat.sendMessage(full);
 						InternetRelayChat.msgs.push(full);
 						break;

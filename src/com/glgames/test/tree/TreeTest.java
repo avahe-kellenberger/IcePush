@@ -1,4 +1,4 @@
-package tree;
+package com.glgames.test.tree;
 
 import java.awt.*;
 import java.awt.event.*;

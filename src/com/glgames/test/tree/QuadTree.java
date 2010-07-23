@@ -1,4 +1,4 @@
-package tree;
+package com.glgames.test.tree;
 
 public class QuadTree {
 

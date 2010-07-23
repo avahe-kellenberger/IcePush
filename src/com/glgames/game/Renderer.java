@@ -130,14 +130,16 @@ public class Renderer {
 			drawNames(GameObjects.players);
 		}
 		drawDeathsBox();
-		drawChats();
+		if(chats_visible)
+			drawNewChats();
 	}
 	
-	public static String curChat = "<enter> to chat";
+	static boolean chats_visible;
+	public static String curChat = "";
 	public static ArrayList<String> chats = new ArrayList<String>();
-	private int count;
+	//private int count;
 	
-	private void drawChats() {
+	/*private void drawChats() {
 		String chat;
 
 		bg.setFont(debugFont);
@@ -151,6 +153,39 @@ public class Renderer {
 			int width = bg.getFontMetrics().stringWidth(curChat) + 5;
 			bg.drawLine(35 + width, 440 - 8, 35 + width, 440);
 		}
+	}*/
+	
+	static Font chatsFont;
+	static {
+		try {
+			chatsFont = Font.createFont(Font.TRUETYPE_FONT,
+					GameObjects.class.getResourceAsStream("/data/dina.ttf")).deriveFont(15.0f);
+		} catch (Exception e) {
+			e.printStackTrace();
+			chatsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+		}
+	}
+	static final Color chatsBoxColor = new Color(0, 0, 0, 150);
+	private void drawNewChats() {
+		String chat;
+		
+		bg.setColor(chatsBoxColor);
+		bg.setFont(chatsFont);
+		
+		bg.fillRoundRect(50, -21, 700, 200, 50, 50);
+		bg.setColor(Color.white);
+		bg.drawLine(50, 155, 750, 155);
+		
+		for(int k = 0; k < chats.size(); k++) {
+			chat = chats.get(k);
+			bg.drawString(chat, 70, 160 - (chats.size() - k) * 15);
+		}
+		Player p = GameObjects.players[NetworkHandler.id];
+		if(p == null)
+			return;
+		
+		String str = IcePush.is_chat ? "<" + p.username + "> " + curChat + "_" : "<enter> to chat";
+		bg.drawString(str, 70, 172);
 	}
 
 	private void drawNames(Player[] players) {

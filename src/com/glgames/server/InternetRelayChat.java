@@ -39,7 +39,7 @@ public class InternetRelayChat implements Runnable {
 			
 			String input;
 			while((input = br.readLine()) != null) {
-				System.out.println(input);
+				//System.out.println(input);
 				if(input.startsWith("PING")) {
 					bw.write(input.replace("PING", "PONG") + "\n");
 					bw.flush();
@@ -51,7 +51,7 @@ public class InternetRelayChat implements Runnable {
 					String from = partsSpace[0].split("!")[0].substring(1);
 					String msg = partsColon[2];
 					if(!msg.contains("\u0001"))
-						msgs.push(from + ": " + msg);
+						msgs.push("<" + from + "> " + msg);
 				} else if(cmd.equals("KICK") || cmd.equals("INVITE")) {
 					bw.write("JOIN " + channel + "\n");
 					bw.flush();

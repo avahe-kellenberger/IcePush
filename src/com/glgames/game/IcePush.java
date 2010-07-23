@@ -188,7 +188,7 @@ public class IcePush extends Applet {
 		return -1;
 	}
 
-	private boolean is_chat = false;
+	static boolean is_chat = false;
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;
@@ -214,11 +214,9 @@ public class IcePush extends Applet {
 			}
 		} else if(e.getKeyCode() == KeyEvent.VK_ENTER) {
 			is_chat = !is_chat;
-			if(is_chat)
-				Renderer.curChat = "";
-			else if (!is_chat && !Renderer.curChat.trim().isEmpty()) {
+			if (!is_chat && !Renderer.curChat.trim().isEmpty()) {
 				NetworkHandler.sendChatMessage(Renderer.curChat.trim());
-				Renderer.curChat = "<enter> to chat";
+				Renderer.curChat = "";
 			}
 		} else if(!is_chat)
 			switch (e.getKeyCode()) {
@@ -243,6 +241,9 @@ public class IcePush extends Applet {
 					break;
 				case KeyEvent.VK_P:
 					NetworkHandler.ping();
+					break;
+				case KeyEvent.VK_C:
+					Renderer.chats_visible = !Renderer.chats_visible;
 					break;
 				case KeyEvent.VK_W:
 					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
@@ -294,7 +295,7 @@ public class IcePush extends Applet {
 			if (c == 8 && Renderer.curChat.length() > 0)
 				Renderer.curChat = Renderer.curChat.substring(0,
 						Renderer.curChat.length() - 1);
-			else
+			else if(c >= ' ')
 				Renderer.curChat += c;
 		}
 	}
