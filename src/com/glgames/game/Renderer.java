@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.image.MemoryImageSource;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -30,6 +31,8 @@ public class Renderer {
 	protected Image backbuffer;
 	protected Graphics outgfx;
 	protected Graphics bg;
+	protected MemoryImageSource memsrc;
+	protected Image memimg;
 
 	protected Font titleFont = new Font("Arial", Font.PLAIN, 20);
 	protected Font deathsBoxFont = new Font("Arial", Font.PLAIN, 24);
@@ -50,15 +53,26 @@ public class Renderer {
 	private int faceIndex;
 
 	private double yawSin, yawCos, pitchSin, pitchCos;
+	int width, height, pixels[];
+	int scaledWidth;
+
 
 	public Renderer(Component c) {
 		canvas = c;
 		faceArray = new Face[5000];
-		Triangles.init(IcePush.WIDTH, IcePush.HEIGHT, c);
+		//System.out.println("width: " + c.getWidth() + " height: " + c.getHeight());
+
+		width = IcePush.WIDTH;
+		height = IcePush.HEIGHT;
+		scaledWidth = width << 12;
 	}
 
 	public void initGraphics() {
+		pixels = new int[width * height];
 		backbuffer = canvas.createImage(IcePush.WIDTH, IcePush.HEIGHT);
+		memsrc = new MemoryImageSource(width, height, pixels, 0, width);
+		memsrc.setAnimated(true);
+		memimg = canvas.createImage(memsrc);
 		bg = backbuffer.getGraphics();
 		outgfx = canvas.getGraphics();
 		canvas.requestFocus();
@@ -282,10 +296,11 @@ public class Renderer {
 	}
 
 	private void renderScene3D(Object3D objArray[], Object3D[] scenery) {
-		Triangles.setAllPixelsToZero();
+		clear();
 		doRender(scenery);
 		doRender(objArray);
-		Triangles.pm.draw(0, 0, bg);
+		memsrc.newPixels();
+		bg.drawImage(memimg, 0, 0, null);
 		drawDebug();
 	}
 	
@@ -409,7 +424,7 @@ public class Renderer {
 		for (int i = triLen - 1; i >= 0; i--) {
 			Triangle t = tris[i];
 			if(t.color != null)
-				Triangles.solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
+				solidTriangle(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3, t.color.getRGB());
 		}
 	}
 	
@@ -514,4 +529,159 @@ public class Renderer {
 		bg.setFont(deathsBoxFont);
 		bg.drawString(GameObjects.error, 50, 50);
 	}
+
+	/**
+	 * Sorts a trio of vertices by height so that y1 <= y2 <= y3 Implemented as
+	 * its own method with global variables so that triangle code can stay small
+	 * (Crucial to fitting within CPU code cache for these presumably highly
+	 * performance intensive routines.)
+	 */
+
+	private static int _x1, _y1, _x2, _y2, _x3, _y3;
+
+	private static void triSort(int x1, int y1, int x2, int y2, int x3, int y3) {
+		_x1 = x1;
+		_y1 = y1;
+		_x2 = x2;
+		_y2 = y2;
+		_x3 = x3;
+		_y3 = y3;
+		int exchx = 0, exchy = 0; // two exchange variables are used to take
+		// advantage of potential ILP
+
+		if (_y1 > _y2) { // Each exchange block is dependant on the previous
+			// one, so crap
+			exchx = _x1;
+			exchy = _y1;
+
+			_x1 = _x2;
+			_y1 = _y2;
+
+			_x2 = exchx;
+			_y2 = exchy;
+		}
+
+		if (_y1 > _y3) {
+			exchx = _x1;
+			exchy = _y1;
+
+			_x1 = _x3;
+			_y1 = _y3;
+
+			_x3 = exchx;
+			_y3 = exchy;
+		}
+
+		if (_y2 > _y3) {
+			exchx = _x2;
+			exchy = _y2;
+
+			_x2 = _x3;
+			_y2 = _y3;
+
+			_x3 = exchx;
+			_y3 = exchy;
+		}
+
+	}
+
+	public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3,
+			int Y3, int color) {
+		triSort(X1, Y1, X2, Y2, X3, Y3);
+		if (_y3 == _y1)
+			return;
+
+		int step31 = scaledWidth + ((_x3 - _x1) << 12) / (_y3 - _y1);
+
+		int right = _y1 * scaledWidth, left = right;
+		int boundLeft = _y1 * width, boundRight = boundLeft + width;
+
+		if (_y1 != _y2) {
+			right += _x1 << 12;
+			left = right;
+			int step21 = scaledWidth + ((_x2 - _x1) << 12) / (_y2 - _y1);
+			// Top part, triangle is broadening. stepLeft < stepRight
+			int stepLeft = 0, stepRight = 0;
+			if (step21 > step31) {
+				stepLeft = step31;
+				stepRight = step21;
+			} else {
+				stepLeft = step21;
+				stepRight = step31;
+			}
+			while (_y1 != _y2) {
+				if (_y1 >= 0 && _y1 < height) {
+					int l = left >> 12;
+					int r = right >> 12;
+
+					if (l < boundLeft)
+						l = boundLeft;
+					if (r > boundRight)
+						r = boundRight;
+
+					while (l < r)
+						pixels[l++] = color;
+				}
+				left += stepLeft;
+				right += stepRight;
+				boundLeft = boundRight;
+				boundRight += width;
+				_y1++;
+			}
+		} else {
+			// Triangle is flat topped; adjust left & right accordingly + skip
+			// filling top half
+			if (_x1 > _x2) {
+				right += _x1 << 12;
+				left += _x2 << 12;
+			} else {
+				right += _x2 << 12;
+				left += _x1 << 12;
+			}
+		}
+
+		if (_y2 != _y3) {
+			int step23 = scaledWidth + ((_x2 - _x3) << 12) / (_y2 - _y3);
+			// Bottom part: Triangle is narrowing. stepLeft > stepRight.
+			int stepLeft = 0, stepRight = 0;
+			if (step23 > step31) {
+				stepLeft = step23;
+				stepRight = step31;
+			} else {
+				stepLeft = step31;
+				stepRight = step23;
+			}
+			while (_y2 != _y3) {
+				if (_y2 >= 0 && _y2 < height) {
+					int l = left >> 12;
+					int r = right >> 12;
+
+					if (l < boundLeft)
+						l = boundLeft;
+					if (r > boundRight)
+						r = boundRight;
+
+					while (l < r)
+						pixels[l++] = color;
+				}
+
+				left += stepLeft;
+				right += stepRight;
+				boundLeft = boundRight;
+				boundRight += width;
+				_y2++;
+			}
+		}
+
+		// pixels[X1 + Y1 * width] = pixels[X2 + Y2 * width] = pixels[X3 + Y3
+		// * width] = 0xffffff;
+	}
+
+	public void clear() {
+		int i = width * height;
+		for (int j = 0; j < i; j++)
+			pixels[j] = 0;
+
+	}
+
 }
