@@ -41,7 +41,7 @@ public class Player extends RigidBody {
 			plr.pbuf.writeString(username);
 			plr.pbuf.writeShort((int)x); // x
 			plr.pbuf.writeShort((int)y); // y
-			plr.pbuf.writeShort(plr.deaths);
+			plr.pbuf.writeShort(deaths);
 			plr.pbuf.endPacket();
 		}
 	}

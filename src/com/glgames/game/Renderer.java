@@ -673,8 +673,10 @@ public class Renderer {
 			}
 		}
 
-		// pixels[X1 + Y1 * width] = pixels[X2 + Y2 * width] = pixels[X3 + Y3
-		// * width] = 0xffffff;
+	//	if(X1 >= 0 && X1 < width && Y1 >= 0 && Y1 < height) pixels[X1 + Y1 * width] = 0xffffffff;
+	//	if(X2 >= 0 && X2 < width && Y2 >= 0 && Y2 < height) pixels[X2 + Y2 * width] = 0xffffffff;
+	//	if(X3 >= 0 && X3 < width && Y3 >= 0 && Y3 < height) pixels[X3 + Y3 * width] = 0xffffffff;
+
 	}
 
 	public void clear() {

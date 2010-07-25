@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.IOException;
+
 import com.glgames.server.physics2d.Physics2D;
 
 import com.glgames.shared.InterthreadQueue;
@@ -39,67 +41,74 @@ public class Server implements Runnable {
 	int blockCount;
 
 	public Server() {
+		settings = loadSettings("config");
+
+		if(Boolean.parseBoolean(settings.get("show-in-list")))
+			worldserver = connectToWorldServer(settings
+					.get("worldserver-addr"), Opcodes.WORLDPORT);
+
+		incomingConnections = new InterthreadQueue<Socket>();
+
+		irc = new InternetRelayChat("quirlion.com", 6667,
+				"#icepush", settings.get("host").replace(".", "-"));
+		Thread t = new Thread(irc);
+		t.setDaemon(true);
+		t.start();
+
+		int port = Integer.parseInt(settings.get("bind-port"));
 		try {
-			settings = loadSettings("config");
-			
-			if(Boolean.parseBoolean(settings.get("show-in-list")))
-				worldserver = connectToWorldServer(settings
-						.get("worldserver-addr"), Opcodes.WORLDPORT);
-			
-			incomingConnections = new InterthreadQueue<Socket>();
-
-			irc = new InternetRelayChat("quirlion.com", 6667,
-					"#icepush", settings.get("host").replace(".", "-"));
-			Thread t = new Thread(irc);
-			t.setDaemon(true);
-			t.start();
-			
-			int port = Integer.parseInt(settings.get("bind-port"));
 			listener = new ServerSocket(port);
-			System.out.println("Client listener started on port " + port);
-			new Thread(this).start();
-			
-			physics = new Physics2D(players);
+		} catch (IOException ioe) {
+			System.out.println("Could not bind to port!");
+			ioe.printStackTrace();
+		}
+		System.out.println("Client listener started on port " + port);
+		new Thread(this).start();
 
-			while (run) {
-				Socket s = incomingConnections.pull();
-				if (s != null) {
-					System.out.println("Client accepted, socket: "
-							+ s.toString());
-					String host = s.getInetAddress().getHostName();
-					if(host.endsWith("mia.bellsouth.net") || host.endsWith("anchorfree.com")) {
-						blockCount++;
-						if((blockCount % 10) == 1)
-							System.out.println("Blocked: " + blockCount + " times");
-						try {
-							s.close();
-						} catch (Exception e) {
-						}
-						s = null;
-					} else {
-						s.setTcpNoDelay(true);
-						int type = s.getInputStream().read();
-						if (type == 0) { // connecting client
-							loginPlayer(s);
-						} else if (type == 2) {
-							s.getOutputStream().write(getNumPlayers());
-						}
-					}
-				}
-				physics.update();
-				updatePlayers();
-				try {
-					Thread.sleep(30);
-				} catch (Exception e) {
+		physics = new Physics2D(players);
 
-				}
+		while (run) {
+			Socket s = incomingConnections.pull();
+			if (s != null) processIncomingConnection(s);
+			physics.update();
+			updatePlayers();
+			try {
+				Thread.sleep(30);
+			} catch (Exception e) {
+
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		}
+	}
+
+	private void processIncomingConnection(Socket s) {
+		System.out.println("Connection accepted: " + s.toString());
+		String host = s.getInetAddress().getHostName();
+		if(host.endsWith("mia.bellsouth.net") || host.endsWith("anchorfree.com")) {
+			blockCount++;
+			if((blockCount % 10) == 1)
+				System.out.println("Blocked: " + blockCount + " times");
+			try {
+				s.close();
+			} catch (Exception e) {
+			}
+			return;
+		} else {
+			try {
+				s.setTcpNoDelay(true);
+				int type = s.getInputStream().read();
+				if (type == 0) { // connecting client
+					loginPlayer(s);
+				} else if (type == 2) {
+					s.getOutputStream().write(getNumPlayers());
+				}
+			} catch(IOException ioe) {
+				System.out.println("Error processing connection!");
+				ioe.printStackTrace();
+			}
 		}
 	}
 	
-	private Map<String, String> loadSettings(String fn) throws Exception {
+	private Map<String, String> loadSettings(String fn) {
 		try {
 			Map<String, String> ret = new HashMap<String, String>();
 			BufferedReader br = new BufferedReader(new FileReader(fn));
@@ -141,7 +150,7 @@ public class Server implements Runnable {
 	}
 	
 	public static void syncNumPlayers() {
-		if(worldserver == null)
+		if((worldserver == null) || !worldserver.isConnected())
 			return;
 		try {
 			OutputStream out = worldserver.getOutputStream();
@@ -177,7 +186,7 @@ public class Server implements Runnable {
 
 			p.username = new String(strb);
 
-			for (int k = 0; k < players.length; k++)
+			for (int k = 0; k < players.length; k++) {
 				if (players[k] != null) {
 					String user = players[k].username;
 					if (user != null && user.equals(p.username)) {
@@ -186,12 +195,15 @@ public class Server implements Runnable {
 						return;
 					}
 				}
+			}
+
 			int index = -1;
 			for (int k = 0; k < players.length; k++)
 				if (players[k] == null) {
 					index = k;
 					break;
-				}
+			}
+
 			if (index == -1) {
 				out.write(TOO_MANY_PL);
 				out.flush();
@@ -280,7 +292,7 @@ public class Server implements Runnable {
 
 	public static void main(String[] args) {
 		if(args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
-		players = new Player[50];
+		players = new Player[30];
 		new Server();
 	}
 	

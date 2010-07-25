@@ -1,9 +1,19 @@
 -- Make stuff less static (Particularly stuff in IcePush)
--- FIX MOVEMENT (Assigned to _^_) OK THIS IS KIND OF DONE BUT MOVING DIAGONALLY IS STILL SHIT BUT THAT IS TEKKS FAULT I THINK
-   I WILL KEEP LOOKING INTO IT.
+-- FIX MOVEMENT
+      Movement was improved alot with the physics updates, but the following problems still exist
+       - It is possible for an object moving at a high speed to pass across an object in its path (Requires continuous collision detection)
+       - Under some conditions objects can interpenetrate
+      _^_ is working on a simple grid based collision system that could fix these (Or at least the second item)
 DONE -- Camera got messed up upon reintegration with 3D, the model baseX/Y/Z etc need to be changed on PLAYER_MOVED events
 -- GET THAT FUCKING KEYLINIX SHIT FUCKING FIXED RIGHT SO THAT I CAN TYPE MY NAME FAST AND HAVE EVERY LETTER REGISTER
 -- More contents ???
 -- CREATE INFERFACE EDITOR AND FILEFORMAT
+      Interface format created by Tekk
 -- SET UP THE SERVER FOR FILE SHARING SO THAT CONTENTS CREATED BY USERS MAY BE PERSISTED AND PROPOGATED
 -- ADD PHYSICAL INTERACTIVES, SUCH AS MOMMENTUM; FRICTION; COLLISION COEFFICIENTS ETC
+      Current physics system does not model angular momentum and treats all objects as if they are equal in mass
+-- The triangle filling function can leave holes between adjacent polygons (Assigned to _^_)
+-- The serverside packet handling is vulnerable to packets sent by the client that are smaller than they are supposed to be, potentially resulting in index out of bounds
+-- The server is vulnerable to a client connecting and then never writing any data to the socket; the server blocks forever waiting for clienttype/login info
+      Trying to make the server ensure that all data is sent before reading it and rejecting the client otherwise causes people on higher latency connections to be locked out
+-- Worldserver is a piece of crap
