@@ -3,19 +3,12 @@ package com.glgames.game.ui;
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Label extends UserInterface {
+public class Label extends UIComponent {
 	String caption;
 	Color color;
 	
-	public void draw(Graphics g) {
-		int sX = this.x;
-		int sY = this.y;
-		if(parent != null) {
-			sX += parent.x;
-			sY += parent.y;
-		}
-		
+	protected void drawComponent(Graphics g) {
 		g.setColor(color);
-		g.drawString(caption, sX, sY);
+		g.drawString(caption, x, y);
 	}
 }

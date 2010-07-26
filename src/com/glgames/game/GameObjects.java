@@ -1,15 +1,15 @@
 package com.glgames.game;
 
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import com.glgames.game.ui.ServerList;
 import com.glgames.game.ui.TextBox;
-import com.glgames.game.ui.UserInterface;
+import com.glgames.game.ui.UIComponent;
 
 public class GameObjects {
 	static final int SERVER_IFACE = 1;
 	static final int USERNAME_IFACE = 2;
+	static final int SERVER_LIST_IFACE = 6;
 	
 	public static boolean loaded = false;
 	
@@ -18,10 +18,8 @@ public class GameObjects {
 	public static BufferedImage background;
 
 	public static BufferedImage button, button2;
-
 	public static TextBox serverBox, usernameBox;
 	public static ServerList serverList;
-	public static Rectangle loginButton, helpButton, backButton;
 
 	public static Player[] players;
 	public static Object3D[] scenery; // Right now scenery is only used in 3D mode
@@ -36,9 +34,13 @@ public class GameObjects {
 	public static void load() {
 
 		try {
-			UserInterface.load();
-			serverBox = (TextBox) UserInterface.interfaces[SERVER_IFACE];
-			usernameBox = (TextBox) UserInterface.interfaces[USERNAME_IFACE];
+			UIComponent.loadUI();
+			serverBox = (TextBox) UIComponent.interfaces[SERVER_IFACE];
+			usernameBox = (TextBox) UIComponent.interfaces[USERNAME_IFACE];
+			serverList = (ServerList) UIComponent.interfaces[SERVER_LIST_IFACE];
+			if(serverMode == LIST_FROM_SERVER) {
+				serverBox.visibleDuring = IcePush.NONE;
+			}
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
@@ -46,13 +48,6 @@ public class GameObjects {
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");
 			button2 = SpriteLoader.getSprite("images/button2.png");			
-			
-			loginButton = new Rectangle(IcePush.WIDTH / 2 - 110, 330, 100, 25);
-			helpButton = new Rectangle(IcePush.WIDTH / 2 + 0, 330, 100, 25);
-			backButton = new Rectangle(IcePush.WIDTH / 2 - 50, 330, 100, 25);
-
-			if (!IcePush.isApplet)
-				serverList = new ServerList(170);
 			
 			Map.load();
 			scenery = new Object3D[10]; 

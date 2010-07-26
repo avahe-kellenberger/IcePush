@@ -1,5 +1,8 @@
 package com.glgames.shared;
 
+import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -11,6 +14,14 @@ public class FileBuffer {
 	
 	public FileBuffer(String fn) {
 		try {
+			if(fn.equals("interfaces")) {
+				FileInputStream fi = new FileInputStream(fn);
+				file = new byte[(int) new File(fn).length()];
+				ptr = 0;
+				fi.read(file);
+				fi.close();
+				return;
+			}
 			URLConnection con = new URL("http://icepush.strictfp.com/play/"
 					+ fn).openConnection();
 			file = new byte[con.getContentLength()];
@@ -33,12 +44,13 @@ public class FileBuffer {
 	}
 	
 	public short readShort() {
-		return (short) ((file[ptr++] << 8) | file[ptr++]);
+		short s = (short) ((file[ptr++] << 8) | (file[ptr++] & 0xff));
+		return s;
 	}
 	
 	public int readInt() {
-		return (file[ptr++] << 24) | (file[ptr++] << 16) 
-				| (file[ptr++] << 8) | file[ptr++];
+		return (file[ptr++] << 24) | ((file[ptr++] << 16) & 0xff) 
+				| ((file[ptr++] << 8) & 0xff) | (file[ptr++] & 0xff);
 	}
 	
 	public String readString() {
@@ -59,15 +71,15 @@ public class FileBuffer {
 	}
 	
 	public void writeShort(int s) {
-		file[ptr++] = (byte) ((s >> 8) & 0xff);
-		file[ptr++] = (byte) (s & 0xff);
+		file[ptr++] = (byte) (s >> 8);
+		file[ptr++] = (byte) (s     );
 	}
 	
 	public void writeInt(int i) {
-		file[ptr++] = (byte) ((i >> 24) & 0xff);
-		file[ptr++] = (byte) ((i >> 16) & 0xff);
-		file[ptr++] = (byte) ((i >> 8) & 0xff);
-		file[ptr++] = (byte) (i & 0xff);
+		file[ptr++] = (byte) (i >> 24);
+		file[ptr++] = (byte) (i >> 16);
+		file[ptr++] = (byte) (i >>  8);
+		file[ptr++] = (byte) (i      );
 	}
 	
 	public void writeString(String s) {
@@ -75,6 +87,22 @@ public class FileBuffer {
 		writeShort(len);
 		System.arraycopy(s.getBytes(), 0, file, ptr, len);
 		ptr += len;
+	}
+	
+	public void writeColor(Color c) {
+		writeByte(c.getAlpha());
+		writeByte(c.getRed());
+		writeByte(c.getGreen());
+		writeByte(c.getBlue());
+	}
+	
+	public Color readColor() {
+		int a = readByte(), r = readByte(), g = readByte(), b = readByte();
+		a &= 0xff;
+		r &= 0xff;
+		g &= 0xff;
+		b &= 0xff;
+		return new Color(r, g, b, a);
 	}
 	
 	public void save(String fn) {

@@ -6,12 +6,12 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.image.MemoryImageSource;
 import java.awt.image.BufferedImage;
+import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
 
+import com.glgames.game.ui.UIComponent;
 import com.glgames.shared.Opcodes;
 
 public class Renderer {
@@ -102,17 +102,7 @@ public class Renderer {
 		w = bg.getFontMetrics().stringWidth(message);
 		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, GameObjects.serverList == null ? 250 : 155);
 
-		if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX)
-			GameObjects.serverBox.draw(bg);
-		else if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER)
-			GameObjects.serverList.draw(bg);
-
-		GameObjects.usernameBox.draw(bg);
-
 		drawTopButtons();
-
-		button(GameObjects.loginButton, "Login");
-		button(GameObjects.helpButton, "Help");
 	}
 
 	private void drawTopButtons() {
@@ -256,14 +246,6 @@ public class Renderer {
 		focusX = focusY = focusZ = 0;
 	}
 
-	private void button(Rectangle r, String text) {
-		bg.setColor(Color.gray);
-		bg.fill3DRect(r.x, r.y, r.width, r.height, true);
-		bg.setColor(Color.white);
-		int w = bg.getFontMetrics().stringWidth(text);
-		bg.drawString(text, r.x + r.width / 2 - w / 2, r.y + 18);
-	}
-
 	public void drawHelpScreen(int cycle) {
 		//background(cycle);
 		bg.drawImage(GameObjects.background, 0, 0, null);
@@ -277,8 +259,6 @@ public class Renderer {
 			w = bg.getFontMetrics().stringWidth(s);
 			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
 		}
-
-		button(GameObjects.backButton, "Back");
 	}
 	
 	private void renderScene2D(Player[] players) {
