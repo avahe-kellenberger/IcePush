@@ -17,19 +17,28 @@ public class BitmapTest extends Frame {
 
 	Image bbuf;
 	MemoryImageSource imgsrc;
+	Bitmap background;
+	Bitmap sprite;
 
-	public static void main(String args[]) throws InterruptedException {
+	public static void main(String args[]) throws Exception {
 		new BitmapTest();
 	}
 
-	private BitmapTest() {
+	private BitmapTest() throws Exception {
 		super("Bitmap Test");
 		enableEvents(WINDOW_EVENT_MASK | MOUSE_MOTION_EVENT_MASK);
 
-		width = height = 512;
+		width = 800;
+		height = 480;
 		pixels = new int[width*height];
 
-		for(int i = 0; i < pixels.length; i++) pixels[i] = i | 0xff000000;
+		for(int i = 0; i < pixels.length; i++) pixels[i] = 0xffff00ff;
+
+		sprite = genSprite();//new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("images/tree.png")));
+		background = new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("images\\icepush.png")));
+		
+		//drawBitmap(background, 0, 0, 0);
+
 
 		setVisible(true);
 		setResizable(false);
@@ -41,6 +50,8 @@ public class BitmapTest extends Frame {
 		imgsrc = new MemoryImageSource(width, height, pixels, 0, width);
 		imgsrc.setAnimated(true);
 		bbuf = createImage(imgsrc);
+		drawBitmap(sprite, 200, 200, 0);
+		imgsrc.newPixels();
 
 		repaint();
 
@@ -59,12 +70,16 @@ public class BitmapTest extends Frame {
 	}
 
 	public void processMouseMotionEvent(MouseEvent mme) {
-		drawBitmap(sprite, mme.getX() - 32, mme.getY() - 32, 0);
-		imgsrc.newPixels();
-		repaint();
+		Graphics g = getGraphics();
+		int x = mme.getX() - insx, y = mme.getY() - insy;
+	//	drawBitmap(background, 0, 0, 0xff000000);
+	//	imgsrc.newPixels(0, 0, width, height, true);
+	//	bbuf.flush();
+	//	drawBitmap(sprite, x - 24, y - 24, 0xff000000);
+	//	imgsrc.newPixels(0, 0, width, height, true);
+	//	bbuf.flush();
+	//	g.drawImage(bbuf, insx, insy, null);
 	}
-
-	Bitmap sprite = genSprite();
 
 	Bitmap genSprite() {
 		int[] texture = new int[4096];
@@ -108,14 +123,43 @@ public class BitmapTest extends Frame {
 			ypix = height - y;
 		}
 
-		//System.out.println("bitx = " + bitx + " bity = " + bity + " x = " + x + " y = " + y + " xpix = " + xpix + " ypix= " + ypix);
+		int bitPos = bitx + bity * b.width;
+		int pixPos = x + y * width;
+
+		int bitStep = b.width - xpix;
+		int pixStep = width - xpix;
 
 		for(int j = 0; j < ypix; j++) {
 			for(int i = 0; i < xpix; i++) {
-				int p = b.pixels[(bitx + i) + (bity + j)*b.width];
+				int p = b.pixels[bitPos++];
+				pixPos++;
 				if(p == bgColor) continue;
-				pixels[(x + i) + (j + y)*width] = p;
+				pixels[pixPos - 1] = p;
 			}
+			bitPos += bitStep;
+			pixPos += pixStep;
+		}
+	}
+
+	public void copyArea(	int num_x,
+					int num_y,
+					int src[],
+					int src_x,
+					int src_y,
+					int src_width,
+					int src_height,
+					int dest[],
+					int dest_x,
+					int dest_y,
+					int dest_width,
+					int dest_height	) {
+		if(src_x < 0) {
+			num_x += src_x;
+			src_x = 0;
+		}
+		if(src_y < 0) {
+			num_y += src_y;
+			src_y = 0;
 		}
 	}
 }

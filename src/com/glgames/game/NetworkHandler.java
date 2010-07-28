@@ -37,6 +37,7 @@ public class NetworkHandler {
 	private static Socket sock;
 	private static PacketBuffer pbuf;
 	private static long pingTime;
+	private static int keepAliveCounter;
 
 	public static Action<Button> loginAction = new Action<Button>() {
 		public void action(Button b, int x, int y) {
@@ -233,12 +234,11 @@ public class NetworkHandler {
 	}
 
 	public static void keepAlive() {
-		if (IcePush.state == IcePush.WELCOME)
-			return;
-		if (pbuf == null)
-			return;
-		pbuf.beginPacket(KEEP_ALIVE);
-		pbuf.endPacket();
+		keepAliveCounter = (keepAliveCounter + 1) % 25;
+		if(keepAliveCounter == 0) {
+			pbuf.beginPacket(KEEP_ALIVE);
+			pbuf.endPacket();
+		}
 	}
 
 	public static void ping() {

@@ -13,6 +13,7 @@ public class Player extends RigidBody {
 	public String username;
 	public boolean canMove;
 	public boolean connected;
+	private int keepAliveCounter;
 	
 	public PacketBuffer pbuf;
 
@@ -47,6 +48,8 @@ public class Player extends RigidBody {
 	}
 
 	public void keepAlive() {
+		keepAliveCounter = (keepAliveCounter + 1) % 50;
+		if(keepAliveCounter == 0) return;
 		pbuf.beginPacket(KEEP_ALIVE);
 		pbuf.endPacket();
 	}

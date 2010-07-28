@@ -8,6 +8,7 @@ import static com.glgames.shared.Opcodes.USER_IN_USE;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -32,8 +33,9 @@ public class Server implements Runnable {
 	private static Socket worldserver;
 
 	private static Physics2D physics;
+	private static UpdateServer updates;
 	
-	private boolean run = true;
+	static boolean run = true;
 	private ServerSocket listener;
 	private InterthreadQueue<Socket> incomingConnections;
 	private InternetRelayChat irc;
@@ -49,7 +51,7 @@ public class Server implements Runnable {
 
 		incomingConnections = new InterthreadQueue<Socket>();
 
-		irc = new InternetRelayChat("quirlion.com", 6667,
+		irc = new InternetRelayChat("localhost", 6667,
 				"#icepush", settings.get("host").replace(".", "-"));
 		Thread t = new Thread(irc);
 		t.setDaemon(true);
@@ -66,6 +68,8 @@ public class Server implements Runnable {
 		new Thread(this).start();
 
 		physics = new Physics2D(players);
+		updates = new UpdateServer(new File(settings.get("update-path")));
+		updates.start();
 
 		while (run) {
 			Socket s = incomingConnections.pull();
@@ -100,6 +104,8 @@ public class Server implements Runnable {
 					loginPlayer(s);
 				} else if (type == 2) {
 					s.getOutputStream().write(getNumPlayers());
+				} else if(type == 3) {
+					updates.incomingConnections.push(s);	// THIS SERVER IS HELD TOGETHER WITH DUCT TAPE
 				}
 			} catch(IOException ioe) {
 				System.out.println("Error processing connection!");
@@ -304,6 +310,7 @@ public class Server implements Runnable {
 			defaults.put("bind-port", "2345");
 			defaults.put("worldserver-addr", "99.198.122.53");
 			defaults.put("show-in-list", "true");
+			defaults.put("update-path", "/home/icepush/data");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

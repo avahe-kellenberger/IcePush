@@ -80,13 +80,10 @@ public class InternetRelayChat implements Runnable {
 			if(from.toLowerCase().equals(n.toLowerCase()))
 				auth = true;
 		if(!auth) {
-			try {
-				bw.write("PRIVMSG " + channel
-						+ " :You are not allowed to use this command\n");
-				bw.flush();
-			} catch (Exception e) { }
 			return;
 		}
+
+		System.out.println("Got command " +args[0] + " from " + from);
 		System.out.println("auth1: " + auth);
 		try {
 			bw.write("PRIVMSG NickServ :STATUS " + from + "\n");

@@ -86,7 +86,9 @@ public class UIComponent {
 			} else if(type == 5) {
 				ServerList s = (ServerList) i;
 				s.actionID = cr.readByte();
-				new Thread(s).start();
+				Thread t = new Thread(s);
+				t.setDaemon(true);
+				t.start();
 			}
 			
 			interfaces[id] = i;
