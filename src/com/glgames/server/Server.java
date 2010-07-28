@@ -311,7 +311,7 @@ public class Server implements Runnable {
 			defaults.put("worldserver-addr", "99.198.122.53");
 			defaults.put("show-in-list", "true");
 			defaults.put("update-path", "/home/icepush/data");
-			defaults.put("irc-server", "irc.quirlion.com"
+			defaults.put("irc-server", "irc.quirlion.com");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
