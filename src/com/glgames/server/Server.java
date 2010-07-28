@@ -51,7 +51,7 @@ public class Server implements Runnable {
 
 		incomingConnections = new InterthreadQueue<Socket>();
 
-		irc = new InternetRelayChat("localhost", 6667,
+		irc = new InternetRelayChat(settings.get("irc-server"), 6667,
 				"#icepush", settings.get("host").replace(".", "-"));
 		Thread t = new Thread(irc);
 		t.setDaemon(true);
@@ -311,6 +311,7 @@ public class Server implements Runnable {
 			defaults.put("worldserver-addr", "99.198.122.53");
 			defaults.put("show-in-list", "true");
 			defaults.put("update-path", "/home/icepush/data");
+			defaults.put("irc-server", "irc.quirlion.com"
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
