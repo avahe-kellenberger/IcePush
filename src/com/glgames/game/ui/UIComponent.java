@@ -22,8 +22,8 @@ public class UIComponent {
 	UIComponent() { }
 	
 	@SuppressWarnings("unchecked")
-	public static void loadUI() {
-		FileBuffer cr = new FileBuffer("interfaces");
+	public static void loadUI(String filename) {
+		FileBuffer cr = new FileBuffer(filename);
 		short numInter = cr.readShort();
 		interfaces = new UIComponent[numInter];
 		for(short k = 0; k < numInter; k++) {

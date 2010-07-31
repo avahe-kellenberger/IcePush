@@ -34,13 +34,14 @@ public class GameObjects {
 	public static void load() {
 
 		try {
-			UIComponent.loadUI();
+			UIComponent.loadUI("interfaces");
 			serverBox = (TextBox) UIComponent.interfaces[SERVER_IFACE];
 			usernameBox = (TextBox) UIComponent.interfaces[USERNAME_IFACE];
 			serverList = (ServerList) UIComponent.interfaces[SERVER_LIST_IFACE];
 			if(serverMode == LIST_FROM_SERVER) {
 				serverBox.visibleDuring = IcePush.NONE;
-			}
+			} else
+				serverList.visibleDuring = IcePush.NONE;
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
