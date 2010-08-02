@@ -1,10 +1,10 @@
-package com.glgames.test;
+package com.glgames.game;
 
 import java.awt.Color;
 import java.awt.Component;
 
 public class Triangles {
-	/*static Pixmap pm;*/
+	static Pixmap pm;
 	
 	static int pixels[];
 	static int width, height;
@@ -14,10 +14,10 @@ public class Triangles {
 	static int boundy;
 
 	public static void init(int w, int h, Component component) {
-		/*pm = new Pixmap(w, h, component);
+		pm = new Pixmap(w, h, component);
 		pixels = DrawingArea.pixels;
 		width = DrawingArea.width;
-		height = DrawingArea.height;*/
+		height = DrawingArea.height;
 		boundx = width - 1;
 		boundy = height - 1;
 		scaledWidth = width << 12;
@@ -27,7 +27,7 @@ public class Triangles {
 	}
 
 	public static void setDimensions(int x, int y) {
-		/*pixels = DrawingArea.pixels;*/
+		pixels = DrawingArea.pixels;
 		width = x;
 		height = y;
 		boundx = x - 1;
@@ -39,10 +39,10 @@ public class Triangles {
 	}
 
 	public static void setAllPixelsToZero() {
-		/*DrawingArea.width = width;
+		DrawingArea.width = width;
 		DrawingArea.height = height;
 		DrawingArea.pixels = pixels;
-		DrawingArea.setAllPixelsToZero();*/
+		DrawingArea.setAllPixelsToZero();
 	}
 
 	/**
@@ -336,12 +336,12 @@ public class Triangles {
 	 * scanoff += width; }
 	 */
 
-	/*public static void textureMappedTriangle(Texture texture, int x1, int y1,
+	public static void textureMappedTriangle(Texture texture, int x1, int y1,
 			int x2, int y2, int x3, int y3, int u1, int v1, int z1, int u2,
 			int v2, int z2, int u3, int v3, int z3) {
 		textureMappedTriangle(texture.pixels, texture.sidelen, x1, y1, x2, y2,
 				x3, y3, u1, v1, z1, u2, v2, z2, u3, v3, z3);
-	}*/
+	}
 	
 	public static void textureMappedTriangle(int[] texture, int sidelen,
 			int x1, int y1, int x2, int y2, int x3, int y3, int u1, int v1,

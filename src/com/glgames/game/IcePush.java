@@ -234,16 +234,26 @@ public class IcePush extends Applet {
 					Renderer.chats_visible = !Renderer.chats_visible;
 					break;
 				case KeyEvent.VK_W:
-					renderer.pitch -= 5;
+					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+						renderer.pitch -= 5;
 					break;
 				case KeyEvent.VK_S:
-					renderer.pitch += 5;
+					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+						renderer.pitch += 5;
 					break;
 				case KeyEvent.VK_A:
-					renderer.yaw -= 5;
+					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+						renderer.yaw -= 5;
 					break;
 				case KeyEvent.VK_D:
-					renderer.yaw += 5;
+					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+						renderer.yaw += 5;
+					break;
+				case KeyEvent.VK_2:
+					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_2D;
+					break;
+				case KeyEvent.VK_3:
+					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_3D;
 					break;
 				case KeyEvent.VK_J:
 					renderer.cameraX -= 5;

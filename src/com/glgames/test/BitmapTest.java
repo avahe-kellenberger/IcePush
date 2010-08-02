@@ -1,16 +1,10 @@
 package com.glgames.test;
 
-import static java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK;
-import static java.awt.AWTEvent.WINDOW_EVENT_MASK;
-
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.image.MemoryImageSource;
-import java.io.File;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import java.awt.event.*;
+import static java.awt.AWTEvent.*;
 
 import com.glgames.game.Bitmap;
 
@@ -41,7 +35,7 @@ public class BitmapTest extends Frame {
 		for(int i = 0; i < pixels.length; i++) pixels[i] = 0xffff00ff;
 
 		sprite = genSprite();//new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("images/tree.png")));
-		background = new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("bin/images/icepush.png")));
+		background = new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("images\\icepush.png")));
 		
 		//drawBitmap(background, 0, 0, 0);
 

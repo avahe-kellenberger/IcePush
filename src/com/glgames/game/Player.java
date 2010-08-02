@@ -1,7 +1,15 @@
 package com.glgames.game;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 
-public class Player extends Object3D {
+public class Player {
+	Object3D model;
+	Object2D sprite;
 	public int type;
 	public String username;
 
@@ -14,15 +22,37 @@ public class Player extends Object3D {
 	public int deaths;
 	public float bubbleAlpha;
 
+	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
+
 	public Player(int type, String username) {
-		super(type);
 		this.type = type;
+		model = new Object3D(type);
+		sprite = new Object2D(type);
 		this.username = username;
 	}
 
+	public void draw(Graphics g) {
+		if(sprite == null) return;
+		sprite.draw(g);
+		int screenX = sprite.getScreenX(), screenY = sprite.getScreenY();
+		g.setColor(Color.red);
+		g.setFont(new Font("Arial", Font.PLAIN, 14));
+		g.drawString(username, screenX, screenY);
+		if(bubbleAlpha > 0.0f) {
+			float[] scales = {
+					1f, 1f, 1f, bubbleAlpha -= 0.05f };
+			float[] offsets = new float[4];
+			RescaleOp rop = new RescaleOp(scales, offsets, null);
+			
+			((Graphics2D) g).drawImage(bubble, rop, screenX, screenY);
+		}
+	}
+
 	public void setPos(int x, int y) {
-		baseX = x;
-		baseZ = y;
+		sprite.x = x;
+		sprite.y = y;
+		model.baseX = x;
+		model.baseZ = y;
 	}
 
 	// ALL CODE IN COMMENTS HAS BEEN COMMENTED OUT

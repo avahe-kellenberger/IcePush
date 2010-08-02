@@ -168,10 +168,6 @@ public class Object3D extends GameObject {
 		super(type);
 		Object3D orig = templates[type];
 		vertexCount = orig.vertexCount;
-		
-		baseX = orig.baseX;
-		baseY = orig.baseY;
-		baseZ = orig.baseZ;
 
 		vertX = orig.vertX.clone();
 		vertY = orig.vertY.clone();
@@ -237,11 +233,11 @@ public class Object3D extends GameObject {
 
 		templates[0] = new Object3D(treeLayerHeights, treeLayerScale,
 				treeLayerColors, null, null, 6);
-		templates[0].baseY = 20;
 		templates[1] = new Object3D(smLayerHeights, smLayerScale,
 				smLayerColors, null, null, 50);
 	}
 	
+
 	public static class Plane extends Object3D {
 		public Plane(double x, double y, double z, int verticesX, int verticesZ, double tileSize) {
 			super(verticesX * verticesZ, (verticesX - 1) * (verticesZ - 1));

@@ -11,10 +11,16 @@ import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
 
+import com.glgames.game.ui.UIComponent;
 import com.glgames.shared.Opcodes;
 
 public class Renderer {
 	private static final long serialVersionUID = 1L;
+
+	public static final int SOFTWARE_2D = 0;
+	public static final int SOFTWARE_3D = 1;
+	public static final int HARDWARE_3D = 2;
+	public static int GRAPHICS_MODE = SOFTWARE_2D;
 
 	public static String message = "Select a server and username.";
 
@@ -35,9 +41,9 @@ public class Renderer {
 	protected Font namesFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 
 	// Only used in 3D mode
-	public double cameraX = -10.0;
-	public double cameraY = -105.0;
-	public double cameraZ = -400.0;
+	public double cameraX = 0.0;
+	public double cameraY = -100.0;
+	public double cameraZ = -450.0;
 
 	public int pitch = 270, yaw = 180;
 
@@ -113,10 +119,21 @@ public class Renderer {
 	}
 
 	public void renderScene() {
-		// if(focusX == 0 && focusY == 0 && focusZ == 0)
-		focusCamera();
-		renderScene3D(GameObjects.players, GameObjects.scenery);
-		drawNames(GameObjects.players);
+		if(GRAPHICS_MODE == SOFTWARE_2D) {
+			renderScene2D(GameObjects.players);
+		}
+		if(GRAPHICS_MODE == SOFTWARE_3D) {
+			//if(focusX == 0 && focusY == 0 && focusZ == 0)
+				focusCamera();
+			Object3D objs[] = new Object3D[GameObjects.players.length];
+			for(int i = 0; i < objs.length; i++) {
+				if(GameObjects.players[i] != null) {
+					objs[i] = GameObjects.players[i].model;
+				}
+			}
+			renderScene3D(objs, GameObjects.scenery);
+			drawNames(GameObjects.players);
+		}
 		drawDeathsBox();
 		if(chats_visible)
 			drawNewChats();
@@ -155,7 +172,6 @@ public class Renderer {
 			chatsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 		}
 	}
-	
 	static final Color chatsBoxColor = new Color(0, 0, 0, 150);
 	private void drawNewChats() {
 		String chat;
@@ -181,13 +197,14 @@ public class Renderer {
 
 	private void drawNames(Player[] players) {
 		for(Player p : players) if(p != null) {
+			Object3D o = p.model;
 			int height_variable_based_on_type = 0;
 			if(p.type == Opcodes.TREE) {
 				height_variable_based_on_type = 120;
 			} else if(p.type == Opcodes.SNOWMAN) {
 				height_variable_based_on_type = 50;
 			}
-			double[] pt = transformPoint(p.baseX, p.baseY, p.baseZ,
+			double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ,
 					-HALF_GAME_FIELD_WIDTH, height_variable_based_on_type, -HALF_GAME_FIELD_HEIGHT);
 			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 			
@@ -225,9 +242,8 @@ public class Renderer {
 	private void focusCamera() {
 		Player p = GameObjects.players[NetworkHandler.id];
 		if(p == null)
-			return;
+			return;		
 		focusX = focusY = focusZ = 0;
-		cameraZ = -400;
 	}
 
 	public void drawHelpScreen(int cycle) {
@@ -242,6 +258,20 @@ public class Renderer {
 		for (String s : GameObjects.help) {
 			w = bg.getFontMetrics().stringWidth(s);
 			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
+		}
+	}
+	
+	private void renderScene2D(Player[] players) {
+		Graphics2D g = (Graphics2D) bg;
+		if(g == null)
+			return;
+		g.drawImage(GameObjects.background, 0, 0, null);
+		
+		for (int k = 0; k < players.length; k++) {
+			Player p = players[k];
+			if (p == null)
+				continue;
+			p.draw(g);
 		}
 	}
 
@@ -357,9 +387,15 @@ public class Renderer {
 
 				if (faceIndex > 4998)
 					faceIndex = 4998;
-				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
-						drawZBuf, vertexCount, distance,
-						obj.faceColors[currentFace], null);
+				if (obj.faceColors != null) {
+					faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
+							drawZBuf, vertexCount, distance,
+							obj.faceColors[currentFace], null);
+				} else if (obj.faceTextures != null) {
+					faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf,
+							drawZBuf, vertexCount, distance, null,
+							obj.faceTextures[currentFace]);
+				}
 			}
 		}
 		Triangle[] tris = triangulatePolygons(faceArray, faceIndex);
