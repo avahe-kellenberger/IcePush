@@ -1,10 +1,19 @@
 package com.glgames.test;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-import java.awt.event.*;
-import static java.awt.AWTEvent.*;
+import static java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK;
+import static java.awt.AWTEvent.WINDOW_EVENT_MASK;
+
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.image.MemoryImageSource;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+import java.io.FileInputStream;
 
 import com.glgames.game.Bitmap;
 
@@ -19,6 +28,7 @@ public class BitmapTest extends Frame {
 	MemoryImageSource imgsrc;
 	Bitmap background;
 	Bitmap sprite;
+	MonospaceFont font;
 
 	public static void main(String args[]) throws Exception {
 		new BitmapTest();
@@ -34,8 +44,9 @@ public class BitmapTest extends Frame {
 
 		for(int i = 0; i < pixels.length; i++) pixels[i] = 0xffff00ff;
 
-		sprite = genSprite();//new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("images/tree.png")));
-		background = new Bitmap(javax.imageio.ImageIO.read(new java.io.FileInputStream("images\\icepush.png")));
+		sprite = genSprite();//new Bitmap(ImageIO.read(new FileInputStream("images/tree.png")));
+		background = new Bitmap(ImageIO.read(new FileInputStream("images/icepush.png")));
+		font = new MonospaceFont(ImageIO.read(new FileInputStream("data/font.png")));
 		
 		//drawBitmap(background, 0, 0, 0);
 
@@ -72,13 +83,12 @@ public class BitmapTest extends Frame {
 	public void processMouseMotionEvent(MouseEvent mme) {
 		Graphics g = getGraphics();
 		int x = mme.getX() - insx, y = mme.getY() - insy;
-	//	drawBitmap(background, 0, 0, 0xff000000);
-	//	imgsrc.newPixels(0, 0, width, height, true);
-	//	bbuf.flush();
-	//	drawBitmap(sprite, x - 24, y - 24, 0xff000000);
-	//	imgsrc.newPixels(0, 0, width, height, true);
-	//	bbuf.flush();
-	//	g.drawImage(bbuf, insx, insy, null);
+		drawBitmap(background, 0, 0, 0xff000000);
+		String str = "tHiS Is a TeSt StRiNg";
+		//int w = stringWidth(str);
+		//int h = stringHeight();
+		//drawString(str, x - w / 2, y - h / 2);
+		g.drawImage(bbuf, insx, insy, null);
 	}
 
 	Bitmap genSprite() {
@@ -141,25 +151,43 @@ public class BitmapTest extends Frame {
 		}
 	}
 
-	public void copyArea(	int num_x,
-					int num_y,
-					int src[],
-					int src_x,
-					int src_y,
-					int src_width,
-					int src_height,
-					int dest[],
-					int dest_x,
-					int dest_y,
-					int dest_width,
-					int dest_height	) {
-		if(src_x < 0) {
-			num_x += src_x;
-			src_x = 0;
+	// Note: all src coords are assumed to be properly bounded!
+	public void copy(Bitmap src, Bitmap dest, int src_x, int src_y, int dest_x, int dest_y, int count_x, int count_y, int bg) {
+
+		if(dest_x < 0) {
+			src_x -= dest_x;
+			count_x += dest_x;
+			dest_x = 0;
 		}
-		if(src_y < 0) {
-			num_y += src_y;
-			src_y = 0;
+
+		if(dest_y < 0) {
+			src_y -= dest_y;
+			count_x += dest_y;
+			dest_y = 0;
+		}
+
+		if(dest_x + count_x > dest.width) {
+			count_x = dest.width - dest_x;
+		}
+
+		if(dest_y + count_y > dest.height) {
+			count_y = dest.height - dest_y;
+		}
+
+		int src_index = src_x + src_y * src.width;
+		int dest_index = dest_x + dest_y * dest.width;
+
+		int src_step = src.width - count_x;
+		int dest_step = dest.width - count_x;
+
+		for(int j = 0; j < count_y; j++) {
+			for(int i = 0; i < count_x; i++) {
+				int pixel = src.pixels[src_index++];
+				dest_index++;
+				if(pixel != bg) dest.pixels[dest_index - 1] = pixel;
+			}
+			src_index += src_step;
+			dest_index += dest_step;
 		}
 	}
 }

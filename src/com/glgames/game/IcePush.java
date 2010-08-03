@@ -370,12 +370,12 @@ public class IcePush extends Applet {
 
 	private static void titleLoop() {
 		renderer.drawWelcomeScreen(cycle);
-		UIComponent.drawUI(renderer.bg);
+		UIComponent.drawUI(renderer);
 	}
 
 	private static void helpLoop() {
 		renderer.drawHelpScreen(cycle);
-		UIComponent.drawUI(renderer.bg);
+		UIComponent.drawUI(renderer);
 	}
 
 	private static void gameLoop() {
@@ -384,7 +384,7 @@ public class IcePush extends Applet {
 		NetworkHandler.handlePackets();
 		updatePlayers();
 		renderer.renderScene();
-		UIComponent.drawUI(renderer.bg);
+		UIComponent.drawUI(renderer);
 	}
 
 	public static void cleanup() {

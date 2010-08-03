@@ -1,20 +1,20 @@
 package com.glgames.game.ui;
 
 import java.awt.Color;
-import java.awt.Graphics;
 
 import com.glgames.game.IcePush;
+import com.glgames.game.Renderer;
 
 public class Button extends UIComponent {
 	String caption;
 	Color bgcol, fgcol;
 	
-	protected void drawComponent(Graphics g) {
-		g.setColor(bgcol);
-		g.fill3DRect(x, y, width, height, true);
-		g.setColor(fgcol);
-		int w = g.getFontMetrics().stringWidth(caption);
-		g.drawString(caption, x + width / 2 - w / 2, y + 18);
+	protected void drawComponent(Renderer r) {
+		r.setColor(bgcol);
+		r.fill3DRect(x, y, width, height, true);
+		r.setColor(fgcol);
+		int w = r.stringWidth(caption);
+		r.drawString(caption, x + width / 2 - w / 2, y + 18);
 	}
 	
 

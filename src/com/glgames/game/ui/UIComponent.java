@@ -1,7 +1,6 @@
 package com.glgames.game.ui;
 
-import java.awt.Graphics;
-
+import com.glgames.game.Renderer;
 import com.glgames.game.IcePush;
 import com.glgames.game.NetworkHandler;
 import com.glgames.shared.FileBuffer;
@@ -124,21 +123,21 @@ public class UIComponent {
 		}
 	}
 	
-	public static void drawUI(Graphics g) {
+	public static void drawUI(Renderer r) {
 		for(UIComponent c : interfaces) if(c != null) {
 			if((c.visibleDuring & IcePush.state) != 0)
-				c.draw(g);
+				c.draw(r);
 		}
 	}
 	
-	public void draw(Graphics g) { 
+	public void draw(Renderer r) { 
 		if(parent != null) {
-			parent.draw(g);
+			parent.draw(r);
 		}
-		drawComponent(g);
+		drawComponent(r);
 	}
 	
-	protected void drawComponent(Graphics g) {
+	protected void drawComponent(Renderer r) {
 		
 	}
 }

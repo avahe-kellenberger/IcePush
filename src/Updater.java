@@ -120,8 +120,8 @@ public class Updater {
 			if(i > 400) throw new IOException("File download is taking too fucking long!!!!!!!");
 			read += count;
 		}
-
-		String namePD = e.name.replaceAll("/", File.separator);
+		System.out.println("Platform dependanting name: " + e.name);
+		String namePD = e.name.replace('/', File.separatorChar);
 		int last = namePD.lastIndexOf(File.separatorChar);
 		if(last != -1) {
 			new File(namePD.substring(0, last)).mkdirs();

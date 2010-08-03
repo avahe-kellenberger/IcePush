@@ -1,9 +1,9 @@
 package com.glgames.game.ui;
 
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.util.Map;
 
+import com.glgames.game.Renderer;
 import com.glgames.game.GameObjects;
 import com.glgames.game.IcePush;
 import com.glgames.game.NetworkHandler;
@@ -47,30 +47,30 @@ public class ServerList extends ListBox implements Runnable {
 		}
 	}
 	
-	public void drawComponent(Graphics g) {
+	public void drawComponent(Renderer r) {
 		if(items == null)
 			return;
 		if(fontheight == 0)
-			fontheight = g.getFontMetrics().getHeight();
+			fontheight = r.getFontHeight();
 		if(width == 0 || height == 0) {
-			width = getLongestStringWidth(g) + 50;
+			width = getLongestStringWidth(r) + 50;
 			height = items.length * fontheight + 15;
 		}
-		x = IcePush.WIDTH / 2 - getLongestStringWidth(g) / 2;
-		super.drawComponent(g);
+		x = IcePush.WIDTH / 2 - getLongestStringWidth(r) / 2;
+		super.drawComponent(r);
 	}
 	
-	private int getLongestStringWidth(Graphics g) {
+	private int getLongestStringWidth(Renderer r) {
 		if(items == null)
 			return 0;
-		FontMetrics m = g.getFontMetrics();
 		int max = -1;
 		for(int i = 0; i < items.length; i++) {
 			if(items[i] == null)
 				continue;
 			String serv = items[i];
-			if(m.stringWidth(serv) > max)
-				max = m.stringWidth(serv);
+			int w = r.stringWidth(serv);
+			if(w > max)
+				max = w;
 		}
 		return max;
 	}

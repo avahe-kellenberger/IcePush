@@ -1,7 +1,7 @@
 package com.glgames.game.ui;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import com.glgames.game.Renderer;
 
 public class TextBox extends UIComponent {
 	private int count;
@@ -37,20 +37,22 @@ public class TextBox extends UIComponent {
 		isFocused = !isFocused;
 	}
 
-	protected void drawComponent(Graphics g) {
+	static final Color selectedCol = new Color(0, 64, 255, 200);
+	static final Color deselectedCol = new Color(0, 16, 64, 200);
+	protected void drawComponent(Renderer r) {
 		if(isFocused)
-			g.setColor(Color.gray);
+			r.setColor(selectedCol);
 		else
-			g.setColor(Color.darkGray);
-		g.fill3DRect(x, y, width, height, false);
-
-		g.setColor(Color.white);
-		g.drawString(caption, x - g.getFontMetrics().stringWidth(caption) - 5, y + 15);
-		g.drawString(value, x + 3, y + 17);
+			r.setColor(deselectedCol);
+		r.fillRect(x, y, width, height);
+		
+		r.setColor(Color.white);
+		r.drawString(caption, x - r.stringWidth(caption) - 5, y + 15);
+		r.drawString(value, x + 3, y + 17);
 		
 		if(isFocused && count++ % 50 > 25) {
-			int width = g.getFontMetrics().stringWidth(value) + 5;
-			g.drawLine(y + width, y + 1, y + width, y + 17);
+			int width = r.stringWidth(value) + 5;
+			r.drawLine(x + width, y + 1, x + width, y + 17);
 		}
 	}
 }

@@ -666,4 +666,33 @@ public class Renderer {
 
 	}
 
+	// THESE STUBS WILL ALL BE REMOVED AS MORE OF THE 2D GRAPHICS LIBRARY IS WRITTEN AND USAGE IS STANDARDIZED WITHIN THE COMPONENT CLASSES
+
+	public void setColor(Color c) {
+		bg.setColor(c);
+	}
+
+	public void fill3DRect(int a, int b, int c, int d, boolean e) {
+		bg.fill3DRect(a, b, c, d, e);
+	}
+
+	public void drawString(String a, int b, int c) {
+		bg.drawString(a, b, c);
+	}
+
+	public int getFontHeight() {
+		return bg.getFontMetrics().getHeight();
+	}
+
+	public int stringWidth(String s) {
+		return bg.getFontMetrics().stringWidth(s);
+	}
+
+	public void fillRect(int a, int b, int c, int d) {
+		bg.fillRect(a, b, c, d);
+	}
+
+	public void drawLine(int a, int b, int c, int d) {
+		bg.drawLine(a, b, c, d);
+	}
 }
