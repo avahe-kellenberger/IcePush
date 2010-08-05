@@ -565,7 +565,7 @@ public class Renderer {
 
 	}
 
-	public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3,
+	/*public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3,
 			int Y3, int color) {
 		triSort(X1, Y1, X2, Y2, X3, Y3);
 		if (_y3 == _y1)
@@ -657,6 +657,112 @@ public class Renderer {
 	//	if(X2 >= 0 && X2 < width && Y2 >= 0 && Y2 < height) pixels[X2 + Y2 * width] = 0xffffffff;
 	//	if(X3 >= 0 && X3 < width && Y3 >= 0 && Y3 < height) pixels[X3 + Y3 * width] = 0xffffffff;
 
+	}*/
+	static final int lineskip = 1;
+	public void solidTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int color) {
+		float startx, endx;
+		float slope21, slope31, slope32;
+		float slopeleft, sloperight;
+		int temp, off, start, end;
+		
+		if(y2 < y1) {
+			temp = y2;
+			y2 = y1;
+			y1 = temp;
+			temp = x2;
+			x2 = x1;
+			x1 = temp;
+		}
+		if(y3 < y1) {
+			temp = y3;
+			y3 = y1;
+			y1 = temp;
+			temp = x3;
+			x3 = x1;
+			x1 = temp;
+		}
+		if(y3 < y2) {
+			temp = y3;
+			y3 = y2;
+			y2 = temp;
+			temp = x3;
+			x3 = x2;
+			x2 = temp;
+		}
+		
+		if(y1 == y3)
+			return;
+		
+		slope21 = (float) (x2 - x1) / (y2 - y1);
+		slope31 = (float) (x3 - x1) / (y3 - y1);
+		slope32 = (float) (x3 - x2) / (y3 - y2);
+		
+		startx = endx = x1;
+		if(y1 != y2) {
+			if(slope21 > slope31) {
+				slopeleft = slope31;
+				sloperight = slope21;
+			} else {
+				slopeleft = slope21;
+				sloperight = slope31;
+			}
+			
+			for(int y = y1; y != y2; y++) {
+				if(y > 0 && y < height && y % lineskip == 0) {
+					off = y * width;
+					start = off + (int) startx;
+					end = off + (int) endx;
+					if(start < off)
+						start = off;
+					if(end > off + width - 1)
+						end = off + width - 1;
+				
+					while(start <= end)
+						pixels[start++] = color;
+				}
+
+				startx += slopeleft;
+				endx += sloperight;
+			}
+		} else {
+			if (x1 > x2) {
+				startx = x2;
+				endx = x1;
+			} else {
+				startx = x1;
+				endx = x2;
+			}
+		}
+		
+		if(y2 != y3) {
+			if(slope32 > slope31) {
+				slopeleft  = slope32;
+				sloperight = slope31;
+			} else {
+				slopeleft  = slope31;
+				sloperight = slope32;
+			}
+			
+			for(int y = y2; y != y3; y++) {
+				if(y > 0 && y < height && y % lineskip == 0) {
+					off = y * width;
+					start = off + (int) startx;
+					end = off + (int) endx;
+					if(start < off)
+						start = off;
+					if(end > off + width - 1)
+						end = off + width - 1;
+					
+					while(start <= end)
+						pixels[start++] = color;
+				}
+				startx += slopeleft;
+				endx += sloperight;
+			}
+		}
+		//pixels[y1 * width + x1] = 0xffffff;
+		//pixels[y2 * width + x2] = 0xffffff;
+		//pixels[y3 * width + x3] = 0xffffff;
 	}
 
 	public void clear() {

@@ -28,7 +28,7 @@ public class BitmapTest extends Frame {
 	MemoryImageSource imgsrc;
 	Bitmap background;
 	Bitmap sprite;
-	MonospaceFont font;
+	//MonospaceFont font;
 
 	public static void main(String args[]) throws Exception {
 		new BitmapTest();
@@ -46,7 +46,7 @@ public class BitmapTest extends Frame {
 
 		sprite = genSprite();//new Bitmap(ImageIO.read(new FileInputStream("images/tree.png")));
 		background = new Bitmap(ImageIO.read(new FileInputStream("images/icepush.png")));
-		font = new MonospaceFont(ImageIO.read(new FileInputStream("data/font.png")));
+		//font = new MonospaceFont(ImageIO.read(new FileInputStream("data/font.png")));
 		
 		//drawBitmap(background, 0, 0, 0);
 
