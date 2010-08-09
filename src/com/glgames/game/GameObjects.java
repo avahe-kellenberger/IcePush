@@ -40,13 +40,16 @@ public class GameObjects {
 			serverList = (ServerList) UIComponent.interfaces[SERVER_LIST_IFACE];
 			if(serverMode == LIST_FROM_SERVER) {
 				serverBox.visibleDuring = IcePush.NONE;
+			} else if(serverMode == TYPE_IN_BOX) {
+				serverList.visibleDuring = IcePush.NONE;
 			} else {
+				serverBox.visibleDuring = IcePush.NONE;
 				serverList.visibleDuring = IcePush.NONE;
 			}
 			
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
-			help = new String[] { "Arrow keys - move", "Q - logout", "2 - 2D view", "3 - 3D view"};
+			help = new String[] { "Arrow keys - move", "Q - logout", "2 - 2D view", "3 - 3D view", "C - chat" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");
 			button2 = SpriteLoader.getSprite("images/button2.png");			
