@@ -40,6 +40,8 @@ public class GameObjects {
 			serverList = (ServerList) UIComponent.interfaces[SERVER_LIST_IFACE];
 			if(serverMode == LIST_FROM_SERVER) {
 				serverBox.visibleDuring = IcePush.NONE;
+			} else {
+				serverList.visibleDuring = IcePush.NONE;
 			}
 			
 			instructions = new String[] { "Push the other players off the ice!",
