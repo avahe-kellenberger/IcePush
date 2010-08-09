@@ -1,14 +1,10 @@
 package com.glgames.shared;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-
-import com.glgames.game.IcePush;
 
 public class FileBuffer {
 	private byte[] file;
@@ -16,15 +12,6 @@ public class FileBuffer {
 	
 	public FileBuffer(String fn) {
 		try {
-			if(!IcePush.isApplet && new File(fn).exists()) {
-				FileInputStream fi = new FileInputStream(fn);
-				file = new byte[(int) new File(fn).length()];
-				ptr = 0;
-				fi.read(file);
-				fi.close();
-				return;
-			}
-
 			URLConnection con = new URL("http://icepush.strictfp.com/play/"
 					+ fn).openConnection();
 			file = new byte[con.getContentLength()];
