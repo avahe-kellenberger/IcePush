@@ -8,13 +8,15 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+import com.glgames.game.IcePush;
+
 public class FileBuffer {
 	private byte[] file;
 	private int ptr;
 	
 	public FileBuffer(String fn) {
 		try {
-			if(new File(fn).exists()) {
+			if(!IcePush.isApplet && new File(fn).exists()) {
 				FileInputStream fi = new FileInputStream(fn);
 				file = new byte[(int) new File(fn).length()];
 				ptr = 0;
