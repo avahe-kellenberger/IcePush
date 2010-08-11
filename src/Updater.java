@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.Socket;
+import java.net.InetSocketAddress;
 
 public class Updater {
 
@@ -16,7 +17,7 @@ public class Updater {
 		if(file.exists())
 			try {
 				FileInputStream fin = new FileInputStream(file);
-				localIndex = loadIndex(fin);
+				localIndex = loadIndex(fin, false);
 				fin.close();
 			} catch (IOException ioe) {
 				System.out.println("Error loading local index!");
@@ -29,14 +30,18 @@ public class Updater {
 		OutputStream out;
 
 		try {
+			//sock = new Socket();
+			//sock.setReceiveBufferSize(0x8fff);
+			//sock.connect(new InetSocketAddress("icepush.strictfp.com", 2345));
 			sock = new Socket("icepush.strictfp.com", 2345);
+			System.out.println(sock.getReceiveBufferSize());
 			in = sock.getInputStream();
 			out = sock.getOutputStream();
 			out.write(3);
 			out.flush();
 			sock.setSoTimeout(5000);
 			System.out.println("Connected to server, loading server index");
-			serverIndex = loadIndex(in);
+			serverIndex = loadIndex(in, true);
 		} catch (IOException ioe) {
 			System.out.println("Error loading server index!");
 			ioe.printStackTrace();
@@ -102,6 +107,13 @@ public class Updater {
 	}
 
 	private static void loadFile(Entry e, InputStream in, OutputStream out) throws IOException {
+
+		if(e.dir) {
+			System.out.println("Making directory: " + e.name);
+			new File(e.name).mkdirs();
+			return;
+		}
+
 		out.write(e.fileId);
 		int len = 0;
 		int read = 0;
@@ -116,23 +128,18 @@ public class Updater {
 
 		for(int i = 0; read < len; i++) {
 			int count = in.read(buf, read, len - read);
+			//System.out.println("Interation: " + i + " count: " + count);
 			if(count < 0) throw new IOException("End of stream!!!");
-			if(i > 400) throw new IOException("File download is taking too fucking long!!!!!!!");
+			if(i > 4000) throw new IOException("File download is taking too fucking long!!!!!!!");
 			read += count;
 		}
-		System.out.println("Platform dependanting name: " + e.name);
-		String namePD = e.name.replace('/', File.separatorChar);
-		int last = namePD.lastIndexOf(File.separatorChar);
-		if(last != -1) {
-			new File(namePD.substring(0, last)).mkdirs();
-		}
 
-		FileOutputStream fos = new FileOutputStream(namePD);
+		FileOutputStream fos = new FileOutputStream(e.name);
 		fos.write(buf);
 		fos.close();
 	}
 
-	private static Entry[] loadIndex(InputStream ins) throws IOException {
+	private static Entry[] loadIndex(InputStream ins, boolean convert) throws IOException {
 
 		DataInputStream in = new DataInputStream(ins);
 		Entry index[] = new Entry[in.readInt()];
@@ -145,6 +152,13 @@ public class Updater {
 			e.fileId = i;
 			index[i] = e;
 			System.out.println("Loaded entry: " + e.name);
+			if(convert) {
+				System.out.println("Converting filename: " + e.name);
+				e.name = ('.' + e.name.replace('/', File.separatorChar)).intern();
+				System.out.println("New name: " + e.name);
+
+				if(e.name.charAt(e.name.length() - 1) == File.separatorChar) e.dir = true;
+			}
 		}
 
 		return index;
@@ -170,5 +184,6 @@ public class Updater {
 		int crc;		// CRC computed by server
 		int fileId;
 		int status;		// Whether or not this file was updated (transient)
+		boolean dir;
 	}
 }

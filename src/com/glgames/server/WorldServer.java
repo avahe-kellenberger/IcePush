@@ -69,6 +69,7 @@ public class WorldServer implements Runnable {
 						in.read(strb);
 						String name = new String(strb);
 						int count = in.read();
+						name += '@' + s.getInetAddress().getHostAddress();
 						sockets.put(name, s);
 						servers.put(name, count);
 						System.out.println("-- " + name + " connected with "

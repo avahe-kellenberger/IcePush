@@ -5,7 +5,7 @@ import com.glgames.game.Renderer;
 
 public class ListBox extends UIComponent {
 	protected String[] items;
-	protected String selected = "";
+	protected int selectedIndex;
 	
 	public void drawComponent(Renderer r) {
 		r.setColor(Color.gray);
@@ -15,7 +15,7 @@ public class ListBox extends UIComponent {
 			String serv = items[i];
 			if(serv == null)
 				continue;
-			if(serv.equals(selected)) {
+			if(i == selectedIndex) {
 				r.setColor(Color.green);
 				r.fill3DRect(x + 10, cy, 15, 15, false);
 			} else {
@@ -30,6 +30,6 @@ public class ListBox extends UIComponent {
 	}
 	
 	public String getSelected() {
-		return selected;
+		return items[selectedIndex];
 	}
 }

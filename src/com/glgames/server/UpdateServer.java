@@ -13,6 +13,7 @@ public class UpdateServer extends Thread {
 	private File indexDir;
 	private int fileCount;
 	private ArrayList<Entry> index;
+	private int dirNameLen;
 
 	InterthreadQueue<Socket> incomingConnections;
 	private Con connections[];
@@ -21,6 +22,7 @@ public class UpdateServer extends Thread {
 
 	public UpdateServer(File file) {
 		indexDir = file;
+		dirNameLen = indexDir.getPath().length();
 		adler = new Adler32();
 		index = new ArrayList<Entry>();
 		incomingConnections = new InterthreadQueue<Socket>();
@@ -34,11 +36,19 @@ public class UpdateServer extends Thread {
 
 	private void loadFile(File file) {
 		if(file.isDirectory()) {
+			String name = file.getPath().substring(dirNameLen);
+			if(!name.isEmpty()) {
+				if(name.charAt(name.length() - 1) != file.separatorChar) name += file.separatorChar;
+				System.out.println("Directory: " + name);
+				Entry e = new Entry();
+				e.name = name;
+				index.add(e);
+			}
 			File files[] = file.listFiles();
 			for(File f : files) loadFile(f);
 		} else {
 			Entry e = new Entry();
-			e.name = file.getPath();
+			e.name = file.getPath().substring(dirNameLen);	// This is a very dangerous game
 			e.modified = file.lastModified();
 			byte data[] = new byte[(int)file.length()];
 			try {
@@ -80,6 +90,8 @@ public class UpdateServer extends Thread {
 				int i = -1;
 				try {
 					sock.setSoTimeout(5000);						// haqcors
+
+				System.out.println("send size: " + sock.getSendBufferSize());
 					for(int j = 0; j < connections.length; j++)
 						if(connections[j] == null) {
 							i = j;
@@ -107,7 +119,8 @@ public class UpdateServer extends Thread {
 						con.lastReadTime = System.currentTimeMillis();
 						System.out.println("File " + file + " requested");
 						if(file >= 0 && file < index.size()) {
-							sendFile(con.out, index.get(file));
+							Entry e = index.get(file);
+							if(e.data != null) sendFile(con.out, e);				// this should nev er happen ..
 						} else {									// HACQORS
 							tryClose(con.sock);
 							connections[con.id] = null;
@@ -116,8 +129,8 @@ public class UpdateServer extends Thread {
 					}
 
 					long now = System.currentTimeMillis();
-					if(now - con.lastReadTime > 5000) {
-						System.out.println("Over 5 seconds since data was read:" + con.sock.toString());
+					if(now - con.lastReadTime > 20000) {
+						System.out.println("Over 20 seconds since data was read:" + con.sock.toString());
 						tryClose(con.sock);
 						connections[con.id] = null;
 					}

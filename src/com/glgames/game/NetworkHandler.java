@@ -44,7 +44,6 @@ public class NetworkHandler {
 			String server = "";
 			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 				server = GameObjects.serverList.getSelected();
-				server = server.substring(0, server.indexOf(' '));
 			} else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 				server = GameObjects.serverBox.getText();
 			} else {
@@ -225,10 +224,12 @@ public class NetworkHandler {
 				ret.put(server, num);
 			}
 			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
-			ret.put("localhost", 0);
+			GameObjects.serverList.visibleDuring = IcePush.WELCOME;
+			ret.put("localhost@127.0.0.1", 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
+			GameObjects.serverList.visibleDuring = IcePush.NONE;
 		}
 		return ret;
 	}
