@@ -1,5 +1,7 @@
 package com.glgames.game.ui;
 
+import java.awt.Color;
+
 import com.glgames.game.Renderer;
 import com.glgames.game.IcePush;
 import com.glgames.game.NetworkHandler;
@@ -22,76 +24,90 @@ public class UIComponent {
 	
 	@SuppressWarnings("unchecked")
 	public static void loadUI() {
-		FileBuffer cr = new FileBuffer("interfaces");
-		short numInter = cr.readShort();
-		interfaces = new UIComponent[numInter];
-		for(short k = 0; k < numInter; k++) {
-			short id = cr.readShort();
-			short pID = cr.readShort();
-			short x = cr.readShort();
-			short y = cr.readShort();
-			byte vOn = cr.readByte();
-			byte type = cr.readByte();
-			
-			UIComponent i = null;
-			if(type == 0)
-				i = new UIComponent();
-			else if(type == 1)
-				i = new TextBox();
-			else if(type == 2)
-				i = new Label();
-			else if(type == 3)
-				i = new Button();
-			else if(type == 4)
-				i = new ListBox();
-			else if(type == 5)
-				i = new ServerList();
-			
-			if(i == null) {
-				System.out.println("Read unknown UIcomp type " + i);
-				throw new RuntimeException();
-			}
-			
-			i.id = id;
-			i.parentID = pID;
-			i.x = x;
-			i.y = y;
-			i.visibleDuring = vOn;
-			
-			if(type == 1) {
-				TextBox b = (TextBox) i;
-				b.isFocused = cr.readByte() == 1;
-				b.caption = cr.readString();
-				b.value = cr.readString();
-			} else if(type == 2) {
-				Label l = (Label) i;
-				l.caption = cr.readString();
-				l.color = cr.readColor();
-			} else if(type == 3) {
-				Button b = (Button) i;
-				b.width = cr.readShort();
-				b.height = cr.readShort();
-				b.actionID = cr.readByte();
-				b.caption = cr.readString();
-				b.bgcol = cr.readColor();
-				b.fgcol = cr.readColor();
-			} else if(type == 4) {
-				ListBox l = (ListBox) i;
-				l.actionID = cr.readByte();
-				int count = cr.readByte();
-				l.items = new String[count];
-				for(int n = 0; n < count; n++)
-					l.items[n] = cr.readString();
-			} else if(type == 5) {
-				ServerList s = (ServerList) i;
-				s.actionID = cr.readByte();
-				Thread t = new Thread(s);
-				t.setDaemon(true);
-				t.start();
-			}
-			
-			interfaces[id] = i;
-		}
+        short numInter = 7;
+        interfaces = new UIComponent[numInter];
+
+        UIComponent dataComponent = new UIComponent();
+        dataComponent.id = 0;
+        dataComponent.parentID = -1;
+        dataComponent.x = 315;
+        dataComponent.y = 275;
+        dataComponent.visibleDuring = IcePush.WELCOME;
+
+        TextBox serverTextBox = new TextBox();
+        serverTextBox.id = 1;
+        serverTextBox.parentID = dataComponent.id;
+        serverTextBox.x = 0;
+        serverTextBox.y = 0;
+        serverTextBox.visibleDuring = IcePush.WELCOME;
+        serverTextBox.isFocused = false;
+        serverTextBox.caption = "Server: ";
+        serverTextBox.value = "strictfp.com";
+        
+        TextBox usernameTextBox = new TextBox();
+        usernameTextBox.id = 2;
+        usernameTextBox.parentID = dataComponent.id;
+        usernameTextBox.x = 0;
+        usernameTextBox.y = 25;
+        usernameTextBox.visibleDuring = IcePush.WELCOME;
+        usernameTextBox.isFocused = true;
+        usernameTextBox.caption = "Username: ";
+        usernameTextBox.value = "";
+          
+        Button loginButton = new Button();
+        loginButton.id = 3;
+        loginButton.parentID = -1;
+        loginButton.x = 290;
+        loginButton.y = 330;
+        loginButton.visibleDuring = IcePush.WELCOME;
+        loginButton.width = 100;
+        loginButton.height = 25;
+        loginButton.actionID = 0;
+        loginButton.caption = "Login";
+        loginButton.bgcol = Color.gray;
+        loginButton.fgcol = Color.white;
+
+        Button helpButton = new Button();
+        helpButton.id = 4;
+        helpButton.parentID = -1;
+        helpButton.x = 400;
+        helpButton.y = 330;
+        helpButton.visibleDuring = IcePush.WELCOME;
+        helpButton.width = 100;
+        helpButton.height = 25;
+        helpButton.actionID = 1;
+        helpButton.caption = "Help";
+        helpButton.bgcol = Color.gray;
+        helpButton.fgcol = Color.white;
+
+        Button backButton = new Button();
+        backButton.id = 5;
+        backButton.parentID = -1;
+        backButton.x = 350;
+        backButton.y = 330;
+        backButton.visibleDuring = IcePush.HELP;
+        backButton.width = 100;
+        backButton.height = 25;
+        backButton.actionID = 2;
+        backButton.caption = "Back";
+        backButton.bgcol = Color.gray;
+        backButton.fgcol = Color.white;
+
+        ServerList serverList = new ServerList();
+        serverList.id = 6;
+        serverList.parentID = -1;
+        serverList.x = 350;
+        serverList.y = 170;
+        serverList.visibleDuring = IcePush.WELCOME;
+        serverList.actionID = 3;
+
+        interfaces[dataComponent.id] = dataComponent;
+        interfaces[serverTextBox.id] = serverTextBox;
+        interfaces[usernameTextBox.id] = usernameTextBox;
+        interfaces[loginButton.id] = loginButton;
+        interfaces[helpButton.id] = helpButton;
+        interfaces[backButton.id] = backButton;
+        interfaces[serverList.id] = serverList;
 		
 		for(int k = 0; k < interfaces.length; k++) {
 			UIComponent i = interfaces[k];
@@ -100,7 +116,7 @@ public class UIComponent {
 					System.out.println("UIcomp " + k + " is parent of itself");
 					throw new RuntimeException();
 				} else {
-					i.parent = interfaces[i.parentID];
+			 		i.parent = interfaces[i.parentID];
 					i.x += i.parent.x;
 					i.y += i.parent.y;
 				}
