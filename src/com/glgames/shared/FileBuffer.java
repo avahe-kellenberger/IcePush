@@ -7,13 +7,13 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class FileBuffer {
+	static final String BASE_URL = "http://strictfp.com/icepush/";
 	private byte[] file;
 	private int ptr;
 	
 	public FileBuffer(String fn) {
 		try {
-			URLConnection con = new URL("http://icepush.strictfp.com/play/"
-					+ fn).openConnection();
+			URLConnection con = new URL(BASE_URL + fn).openConnection();
 			file = new byte[con.getContentLength()];
 			ptr = 0;
 			InputStream in = con.getInputStream();
@@ -109,5 +109,6 @@ public class FileBuffer {
 	
 	public void debug() {
 		System.out.println("at: " + ptr + ", total: " + file.length);
+		System.out.println();
 	}
 }

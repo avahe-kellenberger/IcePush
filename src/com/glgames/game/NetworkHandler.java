@@ -31,6 +31,7 @@ import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
 
 public class NetworkHandler {
+	static final String DEFAULT_SERVER = "strictfp.com";
 	// The id of the connected player
 	public static int id;
 
@@ -47,7 +48,7 @@ public class NetworkHandler {
 			} else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 				server = GameObjects.serverBox.getText();
 			} else {
-				server = "icepush.strictfp.com";
+				server = DEFAULT_SERVER;
 			}
 			if (!server.isEmpty()) {
 				Renderer.message = "Logging in...";
