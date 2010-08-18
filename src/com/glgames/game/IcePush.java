@@ -83,39 +83,39 @@ public class IcePush extends Applet {
 	public static Action<Button> onHelpButtonClick = new Action<Button>() {
 		public void doAction(Button component, int x, int y) {
 			IcePush.state = IcePush.HELP;
-            GameObjects.ui.setVisibleRecursive(false);
-            GameObjects.ui.setVisible(true);
-            GameObjects.ui.buttonContainer.setVisible(true);
-            GameObjects.ui.backButton.setVisible(true);
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.buttonContainer.setVisible(true);
+			GameObjects.ui.backButton.setVisible(true);
 		}
 	};
-    
-    public static Action<Button> onBackButtonClick = new Action<Button>() {
+	
+	public static Action<Button> onBackButtonClick = new Action<Button>() {
 		public void doAction(Button component, int x, int y) {
 			IcePush.state = IcePush.WELCOME;
-            GameObjects.ui.setVisibleRecursive(true);
-            GameObjects.ui.backButton.setVisible(false);
-            if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
-                GameObjects.ui.serverTextBox.setVisible(false);
-            } else {
-                GameObjects.ui.serverList.setVisible(false);
-            }
+			GameObjects.ui.setVisibleRecursive(true);
+			GameObjects.ui.backButton.setVisible(false);
+			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
+				GameObjects.ui.serverTextBox.setVisible(false);
+			} else {
+				GameObjects.ui.serverList.setVisible(false);
+			}
 		}
 	};
 
-    public static Action<TextBox> onUsernameTextBoxClick = new Action<TextBox>() {
-        public void doAction(TextBox component, int x, int y) {
-            GameObjects.ui.serverTextBox.unfocus();
-            GameObjects.ui.usernameTextBox.focus();
-        }
-    };
+	public static Action<TextBox> onUsernameTextBoxClick = new Action<TextBox>() {
+		public void doAction(TextBox component, int x, int y) {
+			GameObjects.ui.serverTextBox.unfocus();
+			GameObjects.ui.usernameTextBox.focus();
+		}
+	};
 
-    public static Action<TextBox> onServerTextBoxClick = new Action<TextBox>() {
-        public void doAction(TextBox component, int x, int y) {
-            GameObjects.ui.usernameTextBox.unfocus();
-            GameObjects.ui.serverTextBox.focus();
-        }
-    };
+	public static Action<TextBox> onServerTextBoxClick = new Action<TextBox>() {
+		public void doAction(TextBox component, int x, int y) {
+			GameObjects.ui.usernameTextBox.unfocus();
+			GameObjects.ui.serverTextBox.focus();
+		}
+	};
 
 	public static Action<ServerList> onServerListClick = new Action<ServerList>() {
 		public void doAction(ServerList component, int x, int y) {

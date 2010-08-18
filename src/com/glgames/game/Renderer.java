@@ -91,7 +91,7 @@ public class Renderer {
 
 		int y = 140;
 		if(GameObjects.ui.serverList != null)
-            y -= GameObjects.ui.serverList.getSize().height;
+			y -= GameObjects.ui.serverList.getSize().height;
 		for (String s : GameObjects.instructions) {
 			w = bg.getFontMetrics().stringWidth(s);
 			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);

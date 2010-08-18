@@ -12,17 +12,17 @@ public class ServerList extends ListBox implements Runnable {
 	private int fontHeight;
 	private String serverIPs[];
 
-    ServerList (int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
+	ServerList (int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
 
 	public String getSelected() {
 		return serverIPs[selectedIndex];
 	}
 	
-    public int getFontHeight() {
-        return fontHeight;
-    }
+	public int getFontHeight() {
+		return fontHeight;
+	}
 
 	public static Action<ServerList> onServerListClick = new Action<ServerList>() {
 		public void doAction(ServerList component, int x, int y) {

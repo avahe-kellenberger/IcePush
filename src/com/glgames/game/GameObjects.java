@@ -9,7 +9,7 @@ public class GameObjects {
 	static final int USERNAME_IFACE = 2;
 	static final int SERVER_LIST_IFACE = 6;
 	
-    public static UI ui;
+	public static UI ui;
 
 	public static boolean loaded = false;
 	
@@ -34,7 +34,7 @@ public class GameObjects {
 	public static void load() {
 
 		try {
-            ui = new UI(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
+			ui = new UI(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 			if(serverMode == LIST_FROM_SERVER) {
 				ui.serverTextBox.setVisible(false);
 			} else if(serverMode == TYPE_IN_BOX) {
@@ -44,13 +44,13 @@ public class GameObjects {
 				ui.serverList.setVisible(false);
 			}
 			
-            ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
-            ui.serverTextBox.setAction(IcePush.onServerTextBoxClick);
-            ui.usernameTextBox.setAction(IcePush.onUsernameTextBoxClick);
-            ui.serverList.setAction(ServerList.onServerListClick);
-            ui.loginButton.setAction(NetworkHandler.onLoginButtonClick);
-            ui.helpButton.setAction(IcePush.onHelpButtonClick);
-            ui.backButton.setAction(IcePush.onBackButtonClick);
+			ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
+			ui.serverTextBox.setAction(IcePush.onServerTextBoxClick);
+			ui.usernameTextBox.setAction(IcePush.onUsernameTextBoxClick);
+			ui.serverList.setAction(ServerList.onServerListClick);
+			ui.loginButton.setAction(NetworkHandler.onLoginButtonClick);
+			ui.helpButton.setAction(IcePush.onHelpButtonClick);
+			ui.backButton.setAction(IcePush.onBackButtonClick);
 
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };

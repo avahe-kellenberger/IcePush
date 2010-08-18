@@ -7,9 +7,9 @@ public class ListBox extends UIComponent {
 	protected String[] items;
 	protected int selectedIndex;
 	
-    ListBox (int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
+	ListBox (int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
 
 	public void drawComponent(Renderer r) {
 		r.setColor(Color.gray);
@@ -33,13 +33,13 @@ public class ListBox extends UIComponent {
 		}
 	}
 	
-    public String[] getItems() {
-        return items;
-    }
+	public String[] getItems() {
+		return items;
+	}
 
-    public void setSelected(int selectedIndex) {
-        this.selectedIndex = selectedIndex;
-    }
+	public void setSelected(int selectedIndex) {
+		this.selectedIndex = selectedIndex;
+	}
 
 	public String getSelected() {
 		return items[selectedIndex];

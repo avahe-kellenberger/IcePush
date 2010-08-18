@@ -7,28 +7,28 @@ import com.glgames.game.Renderer;
 
 public class Button extends UIComponent {
 	protected Color bgColor = Color.gray;
-    protected Color fgColor = Color.white;
+	protected Color fgColor = Color.white;
 	protected String caption;
 	
-    Button (int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
+	Button (int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
 
-    public void setFG(Color fgColor) {
-        this.fgColor = fgColor;
-    }
+	public void setFG(Color fgColor) {
+		this.fgColor = fgColor;
+	}
 
-    public void setBG(Color bgColor) {
-        this.bgColor = bgColor;
-    }
+	public void setBG(Color bgColor) {
+		this.bgColor = bgColor;
+	}
 
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
-    
-    public String getCaption() {
-        return caption;
-    }
+	public void setCaption(String caption) {
+		this.caption = caption;
+	}
+	
+	public String getCaption() {
+		return caption;
+	}
 
 	protected void drawComponent(Renderer r) {
 		r.setColor(bgColor);

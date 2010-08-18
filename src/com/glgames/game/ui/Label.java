@@ -8,9 +8,9 @@ public class Label extends UIComponent {
 	String caption;
 	Color color;
 	
-    Label (int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
+	Label (int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
 
 	protected void drawComponent(Renderer r) {
 		r.setColor(color);

@@ -14,9 +14,9 @@ public class SpriteLoader {
 	 * the internal map, it is loaded from the file.
 	 * 
 	 * @param name
-	 *            The name of the sprite to get
+	 *			The name of the sprite to get
 	 * @return A BufferedImage of the sprite, or null if an error occured
-	 *         loading it.
+	 *		 loading it.
 	 */
 	public static BufferedImage getSprite(String name) {
 		if(sprites.get(name) == null)

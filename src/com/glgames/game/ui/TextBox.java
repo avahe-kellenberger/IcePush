@@ -8,13 +8,13 @@ import com.glgames.game.Renderer;
 public class TextBox extends UIComponent {
 	private int count;
 	
-    protected boolean focused = false;
+	protected boolean focused = false;
 	protected String caption;
 	String value = "";
 
-    TextBox (int x, int y, int width, int height) {
-        super(x, y, width, height);
-    }
+	TextBox (int x, int y, int width, int height) {
+		super(x, y, width, height);
+	}
 
 	public void append(char c) {
 		if (!focused)
@@ -26,29 +26,29 @@ public class TextBox extends UIComponent {
 			value += c;
 	}
 
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
+	public void setCaption(String caption) {
+		this.caption = caption;
+	}
 
-    public String getCaption() {
-        return caption;
-    }
+	public String getCaption() {
+		return caption;
+	}
 
-    public void setText(String value) {
-        this.value = value;
-    }
+	public void setText(String value) {
+		this.value = value;
+	}
 
 	public String getText() {
 		return value;
 	}
 
-    public void focus() {
-        focused = true;
-    }
+	public void focus() {
+		focused = true;
+	}
 
-    public void unfocus() {
-        focused = false;
-    }
+	public void unfocus() {
+		focused = false;
+	}
 
 	public void toggleFocus() {
 		focused = !focused;

@@ -52,7 +52,7 @@ public class NetworkHandler {
 			if (!server.isEmpty()) {
 				Renderer.message = "Logging in...";
 				NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText());
-                GameObjects.ui.setVisibleRecursive(false);
+				GameObjects.ui.setVisibleRecursive(false);
 			}
 		}
 	};
