@@ -21,7 +21,6 @@ public class UI extends UIComponent {
 
         serverTextBox = new TextBox(0, 0, 170, 20);
         serverTextBox.setCaption("Server: ");
-        serverTextBox.setText("strictfp.com");
         usernameTextBox = new TextBox(0, 25, 170, 20);
         usernameTextBox.focus();
         usernameTextBox.setCaption("Username: ");

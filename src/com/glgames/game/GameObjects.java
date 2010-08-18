@@ -44,6 +44,7 @@ public class GameObjects {
 				ui.serverList.setVisible(false);
 			}
 			
+            ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
             ui.serverTextBox.setAction(IcePush.onServerTextBoxClick);
             ui.usernameTextBox.setAction(IcePush.onUsernameTextBoxClick);
             ui.serverList.setAction(ServerList.onServerListClick);
