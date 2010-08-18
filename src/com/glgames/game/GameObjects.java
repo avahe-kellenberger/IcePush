@@ -2,15 +2,15 @@ package com.glgames.game;
 
 import java.awt.image.BufferedImage;
 
-import com.glgames.game.ui.ServerList;
-import com.glgames.game.ui.TextBox;
-import com.glgames.game.ui.UIComponent;
+import com.glgames.game.ui.*;
 
 public class GameObjects {
 	static final int SERVER_IFACE = 1;
 	static final int USERNAME_IFACE = 2;
 	static final int SERVER_LIST_IFACE = 6;
 	
+    public static UI ui;
+
 	public static boolean loaded = false;
 	
 	public static String[] instructions, help;
@@ -34,19 +34,23 @@ public class GameObjects {
 	public static void load() {
 
 		try {
-			UIComponent.loadUI();
-			serverBox = (TextBox) UIComponent.interfaces[SERVER_IFACE];
-			usernameBox = (TextBox) UIComponent.interfaces[USERNAME_IFACE];
-			serverList = (ServerList) UIComponent.interfaces[SERVER_LIST_IFACE];
+            ui = new UI(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
 			if(serverMode == LIST_FROM_SERVER) {
-				serverBox.visibleDuring = IcePush.NONE;
+				ui.serverTextBox.setVisible(false);
 			} else if(serverMode == TYPE_IN_BOX) {
-				serverList.visibleDuring = IcePush.NONE;
+				ui.serverList.setVisible(false);
 			} else {
-				serverBox.visibleDuring = IcePush.NONE;
-				serverList.visibleDuring = IcePush.NONE;
+				ui.serverTextBox.setVisible(false);
+				ui.serverList.setVisible(false);
 			}
 			
+            ui.serverTextBox.setAction(IcePush.onServerTextBoxClick);
+            ui.usernameTextBox.setAction(IcePush.onUsernameTextBoxClick);
+            ui.serverList.setAction(ServerList.onServerListClick);
+            ui.loginButton.setAction(NetworkHandler.onLoginButtonClick);
+            ui.helpButton.setAction(IcePush.onHelpButtonClick);
+            ui.backButton.setAction(IcePush.onBackButtonClick);
+
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };
 			help = new String[] { "Arrow keys - move", "Q - logout", "2 - 2D view", "3 - 3D view", "C - chat" };

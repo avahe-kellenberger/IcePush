@@ -15,7 +15,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-import com.glgames.game.ui.UIComponent;
+import com.glgames.game.ui.*;
 import com.glgames.shared.InterthreadQueue;
 
 public class IcePush extends Applet {
@@ -79,6 +79,59 @@ public class IcePush extends Applet {
 		GameObjects.serverMode = GameObjects.USE_DEFAULT;
 		Renderer.message = "Select a username.";
 	}
+
+	public static Action<Button> onHelpButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			IcePush.state = IcePush.HELP;
+            GameObjects.ui.setVisibleRecursive(false);
+            GameObjects.ui.setVisible(true);
+            GameObjects.ui.buttonContainer.setVisible(true);
+            GameObjects.ui.backButton.setVisible(true);
+		}
+	};
+    
+    public static Action<Button> onBackButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			IcePush.state = IcePush.WELCOME;
+            GameObjects.ui.setVisibleRecursive(true);
+            GameObjects.ui.backButton.setVisible(false);
+            if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
+                GameObjects.ui.serverTextBox.setVisible(false);
+            } else {
+                GameObjects.ui.serverList.setVisible(false);
+            }
+		}
+	};
+
+    public static Action<TextBox> onUsernameTextBoxClick = new Action<TextBox>() {
+        public void doAction(TextBox component, int x, int y) {
+            GameObjects.ui.serverTextBox.unfocus();
+            GameObjects.ui.usernameTextBox.focus();
+        }
+    };
+
+    public static Action<TextBox> onServerTextBoxClick = new Action<TextBox>() {
+        public void doAction(TextBox component, int x, int y) {
+            GameObjects.ui.usernameTextBox.unfocus();
+            GameObjects.ui.serverTextBox.focus();
+        }
+    };
+
+	public static Action<ServerList> onServerListClick = new Action<ServerList>() {
+		public void doAction(ServerList component, int x, int y) {
+			if (IcePush.state != IcePush.WELCOME 
+					|| GameObjects.serverMode != GameObjects.LIST_FROM_SERVER)
+				return;
+			int index = y / component.getFontHeight();
+			if(IcePush.DEBUG)
+				System.out.println(index);
+			synchronized(component) {
+				if(index < 0 || index > component.getItems().length - 1)
+					return;
+				component.setSelected(index);
+			}
+		}
+	};
 
 	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 
@@ -149,7 +202,7 @@ public class IcePush extends Applet {
 		if (!GameObjects.loaded)
 			return;
 		System.out.println("Pressed");
-		UIComponent.handleClick(e.getX(), e.getY());
+		GameObjects.ui.handleClick(e.getX(), e.getY());
 	}
 
 	private void mouseMoved(MouseEvent me) {
@@ -188,17 +241,17 @@ public class IcePush extends Applet {
 			int code = e.getKeyCode();
 			if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
 				if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
-					GameObjects.serverBox.toggleFocused();
-					GameObjects.usernameBox.toggleFocused();
+					GameObjects.ui.serverTextBox.toggleFocus();
+					GameObjects.ui.usernameTextBox.toggleFocus();
 				}
 			} else if (code == KeyEvent.VK_ESCAPE) {
 				if (!isApplet)
 					cleanup();
 			} else {
-				if (GameObjects.serverBox.isFocused())
-					GameObjects.serverBox.append(e.getKeyChar());
-				else
-					GameObjects.usernameBox.append(e.getKeyChar());
+				if ((GameObjects.ui.serverTextBox.hasFocus()) && (GameObjects.ui.serverTextBox.getVisible()))
+					GameObjects.ui.serverTextBox.append(e.getKeyChar());
+				else if (GameObjects.ui.usernameTextBox.getVisible())
+					GameObjects.ui.usernameTextBox.append(e.getKeyChar());
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			is_chat = !is_chat;
@@ -370,12 +423,12 @@ public class IcePush extends Applet {
 
 	private static void titleLoop() {
 		renderer.drawWelcomeScreen(cycle);
-		UIComponent.drawUI(renderer);
+		GameObjects.ui.draw(renderer);
 	}
 
 	private static void helpLoop() {
 		renderer.drawHelpScreen(cycle);
-		UIComponent.drawUI(renderer);
+		GameObjects.ui.draw(renderer);
 	}
 
 	private static void gameLoop() {
@@ -384,7 +437,7 @@ public class IcePush extends Applet {
 		NetworkHandler.handlePackets();
 		updatePlayers();
 		renderer.renderScene();
-		UIComponent.drawUI(renderer);
+		GameObjects.ui.draw(renderer);
 	}
 
 	public static void cleanup() {

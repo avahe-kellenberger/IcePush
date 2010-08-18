@@ -24,8 +24,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.glgames.game.ui.Action;
-import com.glgames.game.ui.Button;
+import com.glgames.game.ui.*;
 import com.glgames.shared.ILoader;
 import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
@@ -40,19 +39,20 @@ public class NetworkHandler {
 	private static long pingTime;
 	private static int keepAliveCounter;
 
-	public static Action<Button> loginAction = new Action<Button>() {
-		public void action(Button b, int x, int y) {
+	public static Action<Button> onLoginButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
 			String server = "";
 			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
-				server = GameObjects.serverList.getSelected();
+				server = GameObjects.ui.serverList.getSelected();
 			} else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
-				server = GameObjects.serverBox.getText();
+				server = GameObjects.ui.serverTextBox.getText();
 			} else {
 				server = DEFAULT_SERVER;
 			}
 			if (!server.isEmpty()) {
 				Renderer.message = "Logging in...";
-				NetworkHandler.login(server, GameObjects.usernameBox.getText());
+				NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText());
+                GameObjects.ui.setVisibleRecursive(false);
 			}
 		}
 	};
@@ -225,12 +225,10 @@ public class NetworkHandler {
 				ret.put(server, num);
 			}
 			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
-			GameObjects.serverList.visibleDuring = IcePush.WELCOME;
 			ret.put("localhost@127.0.0.1", 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
-			GameObjects.serverList.visibleDuring = IcePush.NONE;
 		}
 		return ret;
 	}

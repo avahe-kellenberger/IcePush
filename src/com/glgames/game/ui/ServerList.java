@@ -9,25 +9,33 @@ import com.glgames.game.IcePush;
 import com.glgames.game.NetworkHandler;
 
 public class ServerList extends ListBox implements Runnable {
-	private int fontheight;
+	private int fontHeight;
 	private String serverIPs[];
+
+    ServerList (int x, int y, int width, int height) {
+        super(x, y, width, height);
+    }
 
 	public String getSelected() {
 		return serverIPs[selectedIndex];
 	}
 	
-	public static Action<ServerList> clickedAction = new Action<ServerList>() {
-		public void action(ServerList s, int x, int y) {
+    public int getFontHeight() {
+        return fontHeight;
+    }
+
+	public static Action<ServerList> onServerListClick = new Action<ServerList>() {
+		public void doAction(ServerList component, int x, int y) {
 			if (IcePush.state != IcePush.WELCOME 
 					|| GameObjects.serverMode != GameObjects.LIST_FROM_SERVER)
 				return;
-			int index = y / s.fontheight;
+			int index = y / component.fontHeight;
 			if(IcePush.DEBUG)
 				System.out.println(index);
-			synchronized(s) {
-				if(index < 0 || index > s.items.length - 1)
+			synchronized(component) {
+				if(index < 0 || index > component.items.length - 1)
 					return;
-				s.selectedIndex = index;
+				component.selectedIndex = index;
 			}
 		}
 	};
@@ -73,13 +81,13 @@ public class ServerList extends ListBox implements Runnable {
 	public synchronized void drawComponent(Renderer r) {
 		if(items == null)
 			return;
-		if(fontheight == 0)
-			fontheight = r.getFontHeight();
+		if(fontHeight == 0)
+			fontHeight = r.getFontHeight();
 		if(width == 0 || height == 0) {
 			width = getLongestStringWidth(r) + 50;
-			height = items.length * fontheight + 15;
+			height = items.length * fontHeight + 15;
 		}
-		x = IcePush.WIDTH / 2 - getLongestStringWidth(r) / 2;
+		abs_x = IcePush.WIDTH / 2 - getLongestStringWidth(r) / 2;
 		super.drawComponent(r);
 	}
 	

@@ -90,7 +90,8 @@ public class Renderer {
 		bg.setFont(titleFont);
 
 		int y = 140;
-		if(GameObjects.serverList != null) y -= GameObjects.serverList.height;
+		if(GameObjects.ui.serverList != null)
+            y -= GameObjects.ui.serverList.getSize().height;
 		for (String s : GameObjects.instructions) {
 			w = bg.getFontMetrics().stringWidth(s);
 			bg.drawString(s, IcePush.WIDTH / 2 - w / 2, y += 30);
@@ -100,7 +101,7 @@ public class Renderer {
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		w = bg.getFontMetrics().stringWidth(message);
-		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, GameObjects.serverList == null ? 250 : 155);
+		bg.drawString(message, IcePush.WIDTH / 2 - w / 2, GameObjects.ui.serverList == null ? 250 : 155);
 
 		drawTopButtons();
 	}
