@@ -44,6 +44,12 @@ public class DebugPacketBuffer extends PacketBuffer {
 		return readByte();
 	}
 
+	public void closePacket() {
+		debugIn("PacketBuffer::closePacket[0]");
+		super.closePacket();
+		debugIn("PacketBuffer::closePacket[1]");
+	}
+
 	public void debugIn(String blah) {
 		System.out.print('\t' + blah + ":  ");
 		System.out.println("readPtr=" + readPtr + " pktEnd=" + pktEnd + " dataEnd=" + dataEnd);

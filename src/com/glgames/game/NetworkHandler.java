@@ -261,7 +261,7 @@ public class NetworkHandler {
 			if (pbuf == null)
 				return;
 			pbuf.beginPacket(LOGOUT);
-			pbuf.closePacket();
+			pbuf.endPacket();
 			pbuf.synch();
 			IcePush.state = IcePush.WELCOME;
 			Renderer.message = "Select a username.";
