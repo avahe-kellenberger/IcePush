@@ -13,7 +13,6 @@ public class Player extends RigidBody {
 	public String username;
 	public boolean canMove;
 	public boolean connected;
-	private int keepAliveCounter;
 	
 	public PacketBuffer pbuf;
 
@@ -45,13 +44,6 @@ public class Player extends RigidBody {
 			plr.pbuf.writeShort(deaths);
 			plr.pbuf.endPacket();
 		}
-	}
-
-	public void keepAlive() {
-		keepAliveCounter = (keepAliveCounter + 1) % 50;
-		if(keepAliveCounter == 0) return;
-		pbuf.beginPacket(KEEP_ALIVE);
-		pbuf.endPacket();
 	}
 
 	public void handleMove() {
@@ -135,8 +127,6 @@ public class Player extends RigidBody {
 						break;
 					case LOGOUT:
 						Server.logoutPlayer(this);
-						break;
-					case KEEP_ALIVE:
 						break;
 					case CHAT_REQUEST:
 						String msg = pbuf.readString();

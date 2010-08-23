@@ -24,6 +24,7 @@ import com.glgames.server.physics2d.Physics2D;
 
 import com.glgames.shared.InterthreadQueue;
 import com.glgames.shared.Opcodes;
+
 import com.glgames.shared.PacketBuffer;
 
 public class Server implements Runnable {
@@ -279,7 +280,6 @@ public class Server implements Runnable {
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
-			p.keepAlive();
 			p.processIncomingPackets();
 			p.handleMove();
 			p.writePendingChats(chats);

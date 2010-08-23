@@ -49,21 +49,32 @@ public class IcePush extends Applet {
 
 	private int moveKeyFlags;
 
+	public static String username;
+
 	public static void main(String[] args) {
 		_init();
-		for (String arg : args) {
-			processCommandOption(arg);
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equalsIgnoreCase("-applet")) {
+				instance.init();
+			} else if (args[i].equalsIgnoreCase("-debug")) {
+				DEBUG = true;
+			} else if(args[i].equalsIgnoreCase("-server")) {
+				if(i + 1 == args.length) {
+					System.out.println("No server argument provided to -server option");
+					return;
+				}
+				NetworkHandler.DEFAULT_SERVER = args[i + 1];
+				i++;
+			} else if(args[i].equalsIgnoreCase("-username")) {
+				if(i + 1 == args.length) {
+					System.out.println("No username argument provided to -username option");
+					return;
+				}
+				username = args[i + 1];
+			}
 		}
 		instance.run();
 		cleanup();
-	}
-
-	private static void processCommandOption(String option) {
-		if (option.equalsIgnoreCase("-applet")) {
-			instance.init();
-		} else if (option.equalsIgnoreCase("-debug")) {
-			DEBUG = true;
-		}
 	}
 
 	public IcePush() {
@@ -76,6 +87,10 @@ public class IcePush extends Applet {
 	public void init() {
 		// SET ISAPPLET TO TRUE IF AN APPLET
 		isApplet = true;
+		String s = getParameter("server");
+		String u = getParameter("username");
+		if(s != null) NetworkHandler.DEFAULT_SERVER = s;
+		if(u != null) username = u;
 		GameObjects.serverMode = GameObjects.USE_DEFAULT;
 		Renderer.message = "Select a username.";
 	}
@@ -433,7 +448,6 @@ public class IcePush extends Applet {
 
 	private static void gameLoop() {
 		// update positions and such
-		NetworkHandler.keepAlive();
 		NetworkHandler.handlePackets();
 		updatePlayers();
 		renderer.renderScene();

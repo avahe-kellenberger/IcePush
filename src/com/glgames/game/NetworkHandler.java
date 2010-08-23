@@ -30,14 +30,13 @@ import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
 
 public class NetworkHandler {
-	static final String DEFAULT_SERVER = "strictfp.com";
+	static String DEFAULT_SERVER = "strictfp.com";
 	// The id of the connected player
 	public static int id;
 
 	private static Socket sock;
 	private static PacketBuffer pbuf;
 	private static long pingTime;
-	private static int keepAliveCounter;
 
 	public static Action<Button> onLoginButtonClick = new Action<Button>() {
 		public void doAction(Button component, int x, int y) {
@@ -231,14 +230,6 @@ public class NetworkHandler {
 			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
 		}
 		return ret;
-	}
-
-	public static void keepAlive() {
-		keepAliveCounter = (keepAliveCounter + 1) % 25;
-		if(keepAliveCounter == 0) {
-			pbuf.beginPacket(KEEP_ALIVE);
-			pbuf.endPacket();
-		}
 	}
 
 	public static void ping() {
