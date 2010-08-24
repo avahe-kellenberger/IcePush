@@ -24,6 +24,7 @@ public class Button extends UIComponent {
 		unhoverAction = new Action<Button>() {
 			public void doAction(Button component, int x, int y) {
 				component.setBG(NORMAL_BGCOLOR);
+				component.setDepressed(false);
 			}
 		};
 		mousePressAction = new Action<Button>() {
