@@ -110,6 +110,7 @@ public class IcePush extends Applet {
 			IcePush.state = IcePush.WELCOME;
 			GameObjects.ui.setVisibleRecursive(true);
 			GameObjects.ui.backButton.setVisible(false);
+			GameObjects.ui.logoutButton.setVisible(false);
 			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 				GameObjects.ui.serverTextBox.setVisible(false);
 			} else {
@@ -194,8 +195,12 @@ public class IcePush extends Applet {
 
 		while ((me = mouseEvents.pull()) != null) {
 			id = me.getID();
-			if (id == MouseEvent.MOUSE_PRESSED) {
+			if (id == MouseEvent.MOUSE_CLICKED) {
 				mouseClicked(me);
+			} else if (id == MouseEvent.MOUSE_PRESSED) {
+				mousePressed(me);
+			} else if (id == MouseEvent.MOUSE_RELEASED) {
+				mouseReleased(me);
 			} else if (id == MouseEvent.MOUSE_MOVED) {
 				mouseMoved(me);
 			}
@@ -213,16 +218,43 @@ public class IcePush extends Applet {
 		}
 	}
 
+	private void mousePressed(MouseEvent e) {
+		if (!GameObjects.loaded)
+			return;
+		if (DEBUG)
+			System.out.println("Pressed");
+		int x = e.getX();
+		int y = e.getY();
+		GameObjects.ui.handleAction(Actions.PRESS, x, y);
+	}
+
+	private void mouseReleased(MouseEvent e) {
+		if (!GameObjects.loaded)
+			return;
+		if (DEBUG)
+			System.out.println("Released");
+		int x = e.getX();
+		int y = e.getY();
+		GameObjects.ui.handleAction(Actions.RELEASE, x, y);
+	}
+
 	private void mouseClicked(MouseEvent e) {
 		if (!GameObjects.loaded)
 			return;
-		System.out.println("Pressed");
-		GameObjects.ui.handleClick(e.getX(), e.getY());
+		if (DEBUG)
+			System.out.println("Clicked");
+		int x = e.getX();
+		int y = e.getY();
+		GameObjects.ui.handleAction(Actions.CLICK, x, y);
 	}
 
-	private void mouseMoved(MouseEvent me) {
-		if (GameObjects.loaded)
-			renderer.mouseOverButton = getTopButtonID(me.getX(), me.getY());
+	private void mouseMoved(MouseEvent e) {
+		if (!GameObjects.loaded)
+			return;
+		int x = e.getX();
+		int y = e.getY();
+		GameObjects.ui.handleAction(Actions.HOVER, x, y);
+		renderer.mouseOverButton = getTopButtonID(x, y);
 	}
 
 	private int getTopButtonID(int mouseX, int mouseY) {
@@ -281,7 +313,7 @@ public class IcePush extends Applet {
 						cleanup();
 					break;
 				case KeyEvent.VK_Q:
-					NetworkHandler.logOut();
+					NetworkHandler.onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
 					break;
 				case KeyEvent.VK_UP:
 					moveDir = UP;

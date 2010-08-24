@@ -52,7 +52,19 @@ public class NetworkHandler {
 				Renderer.message = "Logging in...";
 				NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText());
 				GameObjects.ui.setVisibleRecursive(false);
+				GameObjects.ui.setVisible(true);
+				GameObjects.ui.logoutButton.setVisible(true);
 			}
+		}
+	};
+
+	public static Action<Button> onLogoutButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			NetworkHandler.logOut();
+			GameObjects.ui.setVisibleRecursive(true);
+			GameObjects.ui.backButton.setVisible(false);
+			GameObjects.ui.logoutButton.setVisible(false);
+
 		}
 	};
 

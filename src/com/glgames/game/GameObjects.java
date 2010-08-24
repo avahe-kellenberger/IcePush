@@ -45,13 +45,14 @@ public class GameObjects {
 			}
 			
 			ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
-			ui.serverTextBox.setAction(IcePush.onServerTextBoxClick);
 			if(IcePush.username != null) ui.usernameTextBox.setText(IcePush.username);
-			ui.usernameTextBox.setAction(IcePush.onUsernameTextBoxClick);
-			ui.serverList.setAction(ServerList.onServerListClick);
-			ui.loginButton.setAction(NetworkHandler.onLoginButtonClick);
-			ui.helpButton.setAction(IcePush.onHelpButtonClick);
-			ui.backButton.setAction(IcePush.onBackButtonClick);
+			ui.serverTextBox.setClickAction(IcePush.onServerTextBoxClick);
+			ui.usernameTextBox.setClickAction(IcePush.onUsernameTextBoxClick);
+			ui.serverList.setClickAction(ServerList.onServerListClick);
+			ui.loginButton.setClickAction(NetworkHandler.onLoginButtonClick);
+			ui.logoutButton.setClickAction(NetworkHandler.onLogoutButtonClick);
+			ui.helpButton.setClickAction(IcePush.onHelpButtonClick);
+			ui.backButton.setClickAction(IcePush.onBackButtonClick);
 
 			instructions = new String[] { "Push the other players off the ice!",
 					"Try not to fall off!" };

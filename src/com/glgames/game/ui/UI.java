@@ -12,6 +12,7 @@ public class UI extends UIComponent {
 	public Button loginButton;
 	public Button helpButton;
 	public Button backButton;
+	public Button logoutButton;
 	public ServerList serverList;
 
 	public UI(int x, int y, int width, int height) {
@@ -31,6 +32,8 @@ public class UI extends UIComponent {
 		helpButton.setCaption("Help");
 		backButton = new Button(55, 30, 100, 25);
 		backButton.setCaption("Back");
+		logoutButton = new Button(690, 2, 100, 27);
+		logoutButton.setCaption("Logout");
 
 		// The ServerList calculates its own width and height, so set to 0 for now
 		serverList = new ServerList(350, 170, 0, 0);
@@ -44,9 +47,11 @@ public class UI extends UIComponent {
 		this.addChild(dataEntryContainer);
 		this.addChild(buttonContainer);
 		this.addChild(serverList);
+		this.addChild(logoutButton);
 
 		// Recursively make every component visible
 		this.setVisibleRecursive(true);
 		backButton.setVisible(false);
+		logoutButton.setVisible(false);
 	}
 }

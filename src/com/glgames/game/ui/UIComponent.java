@@ -11,7 +11,11 @@ import com.glgames.game.Renderer;
 public class UIComponent {
 	protected ArrayList<UIComponent> children = new ArrayList<UIComponent>();
 	protected UIComponent parent;
-	protected Action action = null;
+	protected Action clickAction = null;
+	protected Action hoverAction = null;
+	protected Action unhoverAction = null;
+	protected Action mousePressAction = null;
+	protected Action mouseReleaseAction = null;
 
 	protected int x, y;
 	protected int abs_x, abs_y;
@@ -33,8 +37,44 @@ public class UIComponent {
 		this.height = rect.height;
 	}
 	
-	public void setAction(Action action) {
-		this.action = action;
+	public void setClickAction(Action clickAction) {
+		this.clickAction = clickAction;
+	}
+
+	public Action getClickAction() {
+		return clickAction;
+	}
+
+	public void setMousePressAction(Action mousePressAction) {
+		this.mousePressAction = mousePressAction;
+	}
+
+	public Action getMousePressAction() {
+		return mousePressAction;
+	}
+
+	public void setMouseReleaseAction(Action mouseReleaseAction) {
+		this.mouseReleaseAction = mouseReleaseAction;
+	}
+
+	public Action getMouseReleaseAction() {
+		return mouseReleaseAction;
+	}
+
+	public void setHoverAction(Action hoverAction) {
+		this.hoverAction = hoverAction;
+	}
+
+	public Action getHoverAction() {
+		return hoverAction;
+	}
+
+	public void setUnhoverAction(Action unhoverAction) {
+		this.unhoverAction = unhoverAction;
+	}
+
+	public Action getUnhoverAction() {
+		return unhoverAction;
 	}
 
 	public boolean getVisible() {
@@ -95,9 +135,19 @@ public class UIComponent {
 		this.children.add(child);
 	}
 
-	public boolean handleClick(int x, int y) {
+	public boolean handleAction(Actions actionType, int x, int y) {
+		// Run the received action if the component accepts it
+		boolean result;
+		Action action = null;
 		if (getVisible() && getRect().contains(x, y)) {
-			boolean result;
+			if (actionType == Actions.CLICK)
+				action = getClickAction();
+			else if (actionType == Actions.HOVER)
+				action = getHoverAction();
+			else if (actionType == Actions.PRESS)
+				action = getMousePressAction();
+			else if (actionType == Actions.RELEASE)
+				action = getMouseReleaseAction();
 			if (action != null) {
 				action.doAction(this, x, y);
 				// Consume the action
@@ -105,7 +155,20 @@ public class UIComponent {
 			}
 
 			for (UIComponent child : children) {
-				result = child.handleClick(x, y);
+				result = child.handleAction(actionType, x, y);
+				// If an action was consumed, pass it up
+				if (result)
+					return true;
+			}
+		} else if (actionType == Actions.HOVER) {
+			// If we were passed a HOVER action, but it is not in the component rectangle,
+			// then treat it as an UNHOVER action
+			action = getUnhoverAction();
+			if (action != null) {
+				action.doAction(this, x, y);
+			}
+			for (UIComponent child : children) {
+				result = child.handleAction(actionType, x, y);
 				// If an action was consumed, pass it up
 				if (result)
 					return true;
