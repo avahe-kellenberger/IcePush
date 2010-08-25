@@ -145,12 +145,6 @@ public class UIComponent {
 		return parent;
 	}
 
-//	public void addChild(UIComponent child) {
-//		child.parent = this;
-//		child.setAbsoluteLocation(this.abs_x + child.x, this.abs_y + child.y);
-//		this.children.add(child);
-//	}
-
 	public boolean handleAction(Actions actionType, int x, int y) {
 		// Run the received action if the component accepts it
 		boolean result;
