@@ -10,7 +10,7 @@ import com.glgames.game.Renderer;
 
 public class UIComponent {
 	protected ArrayList<UIComponent> children = new ArrayList<UIComponent>();
-	protected UIComponent parent;
+	protected Container parent = null;
 	protected Action clickAction = null;
 	protected Action hoverAction = null;
 	protected Action unhoverAction = null;
@@ -30,11 +30,14 @@ public class UIComponent {
 		this.width = width;
 		this.height = height;
 	}
-	UIComponent(Rectangle rect) { 
-		this.x = rect.x;
-		this.y = rect.y;
-		this.width = rect.width;
-		this.height = rect.height;
+	UIComponent(int width, int height) { 
+		// Use this constructor when making a component that will be auto-positioned by a container
+		this.x = 0;
+		this.y = 0;
+		this.abs_x = x;
+		this.abs_y = y;
+		this.width = width;
+		this.height = height;
 	}
 	
 	public void setClickAction(Action clickAction) {
@@ -83,6 +86,8 @@ public class UIComponent {
 	
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+		if (parent != null)
+			parent.positionChildren();
 	}
 
 	public void setVisibleRecursive(boolean visible) {
@@ -90,11 +95,19 @@ public class UIComponent {
 		for (UIComponent child : children) {
 			child.setVisibleRecursive(visible);
 		}
+		if (parent != null)
+			parent.positionChildren();
 	}
 
 	public void setLocation(int x, int y) {
 		this.x = x;
 		this.y = y;
+		updateAbsoluteLocation();
+	}
+
+	public Point getLocation() {
+		Point location = new Point(x, y);
+		return location;
 	}
 
 	public void setAbsoluteLocation(int abs_x, int abs_y) {
@@ -105,9 +118,12 @@ public class UIComponent {
 		}
 	}
 
-	public Point getLocation() {
-		Point location = new Point(x, y);
-		return location;
+	public void updateAbsoluteLocation() {
+		// Recalculate absolute location based on the parent
+		if (parent != null)
+			setAbsoluteLocation(parent.abs_x + x, parent.abs_y + y);
+		else
+			setAbsoluteLocation(x, y);
 	}
 
 	public void setSize(int width, int height) {
@@ -129,11 +145,11 @@ public class UIComponent {
 		return parent;
 	}
 
-	public void addChild(UIComponent child) {
-		child.parent = this;
-		child.setAbsoluteLocation(this.abs_x + child.x, this.abs_y + child.y);
-		this.children.add(child);
-	}
+//	public void addChild(UIComponent child) {
+//		child.parent = this;
+//		child.setAbsoluteLocation(this.abs_x + child.x, this.abs_y + child.y);
+//		this.children.add(child);
+//	}
 
 	public boolean handleAction(Actions actionType, int x, int y) {
 		// Run the received action if the component accepts it

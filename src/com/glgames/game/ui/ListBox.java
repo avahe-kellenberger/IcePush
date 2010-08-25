@@ -10,6 +10,9 @@ public class ListBox extends UIComponent {
 	ListBox (int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
+	ListBox (int width, int height) {
+		super(width, height);
+	}
 
 	public void drawComponent(Renderer r) {
 		r.setColor(Color.gray);

@@ -11,6 +11,9 @@ public class Label extends UIComponent {
 	Label (int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
+	Label (int width, int height) {
+		super(width, height);
+	}
 
 	protected void drawComponent(Renderer r) {
 		r.setColor(color);

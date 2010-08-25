@@ -12,8 +12,8 @@ public class ServerList extends ListBox implements Runnable {
 	private int fontHeight;
 	private String serverIPs[];
 
-	ServerList (int x, int y, int width, int height) {
-		super(x, y, width, height);
+	ServerList (int x, int y) {
+		super(x, y, 0, 0);
 	}
 
 	public String getSelected() {

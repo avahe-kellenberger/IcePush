@@ -34,7 +34,7 @@ public class GameObjects {
 	public static void load() {
 
 		try {
-			ui = new UI(0, 0, IcePush.WIDTH, IcePush.HEIGHT);
+			ui = new UI(IcePush.WIDTH, IcePush.HEIGHT);
 			if(serverMode == LIST_FROM_SERVER) {
 				ui.serverTextBox.setVisible(false);
 			} else if(serverMode == TYPE_IN_BOX) {

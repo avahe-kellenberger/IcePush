@@ -39,6 +39,31 @@ public class Button extends UIComponent {
 			}
 		};
 	}
+	Button (int width, int height) {
+		super(width, height);
+		hoverAction = new Action<Button>() {
+			public void doAction(Button component, int x, int y) {
+				component.setBG(HOVER_BGCOLOR);
+			}
+		};
+		unhoverAction = new Action<Button>() {
+			public void doAction(Button component, int x, int y) {
+				component.setBG(NORMAL_BGCOLOR);
+				component.setDepressed(false);
+			}
+		};
+		mousePressAction = new Action<Button>() {
+			public void doAction(Button component, int x, int y) {
+				component.setBG(NORMAL_BGCOLOR);
+				component.setDepressed(true);
+			}
+		};
+		mouseReleaseAction = new Action<Button>() {
+			public void doAction(Button component, int x, int y) {
+				component.setDepressed(false);
+			}
+		};
+	}
 
 	public void setFG(Color fgColor) {
 		this.fgColor = fgColor;

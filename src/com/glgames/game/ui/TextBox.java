@@ -8,12 +8,16 @@ import com.glgames.game.Renderer;
 public class TextBox extends UIComponent {
 	private int count;
 	
+	protected int maxLength = 18;
 	protected boolean focused = false;
 	protected String caption;
 	String value = "";
 
 	TextBox (int x, int y, int width, int height) {
 		super(x, y, width, height);
+	}
+	TextBox (int width, int height) {
+		super(width, height);
 	}
 
 	public void append(char c) {
@@ -22,7 +26,7 @@ public class TextBox extends UIComponent {
 		if (c == 8) {
 			if (value.length() > 0)
 				value = value.substring(0, value.length() - 1);
-		} else if ((Character.isLetterOrDigit(c)  || c == '.') && value.length() < 15)
+		} else if ((Character.isLetterOrDigit(c)  || c == '.') && value.length() < maxLength)
 			value += c;
 	}
 
@@ -56,6 +60,14 @@ public class TextBox extends UIComponent {
 
 	public boolean hasFocus() {
 		return focused;
+	}
+
+	public void setMaxLength(int maxLength) {
+		this.maxLength = maxLength;
+	}
+
+	public int getMaxLength() {
+		return maxLength;
 	}
 
 	static final Color selectedCol = new Color(0, 64, 255, 200);
