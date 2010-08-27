@@ -2,7 +2,7 @@ package com.glgames.ui;
 
 import java.awt.Color;
 
-import import com.glgames.graphics2d.Renderer;
+import com.glgames.graphics2d.Renderer;
 
 public class Label extends UIComponent {
 	String caption;
