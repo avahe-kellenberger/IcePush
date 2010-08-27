@@ -1,4 +1,4 @@
-package com.glgames.game;
+package com.glgames.graphics3d;
 
 import java.awt.Color;
 

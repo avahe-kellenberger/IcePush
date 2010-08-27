@@ -1,4 +1,4 @@
-package com.glgames.game;
+package com.glgames.graphics2d;
 
 import java.awt.image.*;
 

@@ -1,6 +1,6 @@
-package com.glgames.game.ui;
+package com.glgames.ui;
 
-import com.glgames.game.Renderer;
+import com.glgames.graphics2d.Renderer;
 
 public class UI extends Container {
 	public Container dataEntryContainer;
@@ -11,7 +11,7 @@ public class UI extends Container {
 	public Button helpButton;
 	public Button backButton;
 	public Button logoutButton;
-	public ServerList serverList;
+	//public ServerList serverList;
 
 	public UI(int width, int height) {
 		super(0, 0, width, height);
@@ -34,7 +34,7 @@ public class UI extends Container {
 		logoutButton.setCaption("Logout");
 
 		// The ServerList calculates its own width and height, so set to 0 for now
-		serverList = new ServerList(350, 170);
+		//serverList = new ServerList(350, 170);
 
 		// Pack the components
 		dataEntryContainer.setLayout(Container.Layout.VERTICAL);
@@ -46,7 +46,7 @@ public class UI extends Container {
 		this.setLayout(Container.Layout.FIXED);
 		this.addChild(dataEntryContainer);
 		this.addChild(buttonContainer);
-		this.addChild(serverList);
+		//this.addChild(serverList);
 		this.addChild(logoutButton);
 
 		// Recursively make every component visible

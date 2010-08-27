@@ -2,7 +2,9 @@ package com.glgames.game;
 
 import java.awt.image.BufferedImage;
 
-import com.glgames.game.ui.*;
+import com.glgames.ui.*;
+import com.glgames.graphics2d.SpriteLoader;
+import com.glgames.graphics3d.Object3D;
 
 public class GameObjects {
 	static final int SERVER_IFACE = 1;
@@ -19,7 +21,7 @@ public class GameObjects {
 
 	public static BufferedImage button, button2;
 	public static TextBox serverBox, usernameBox;
-	public static ServerList serverList;
+	//public static ServerList serverList;
 
 	public static Player[] players;
 	public static Object3D[] scenery; // Right now scenery is only used in 3D mode
@@ -38,17 +40,17 @@ public class GameObjects {
 			if(serverMode == LIST_FROM_SERVER) {
 				ui.serverTextBox.setVisible(false);
 			} else if(serverMode == TYPE_IN_BOX) {
-				ui.serverList.setVisible(false);
+				//ui.serverList.setVisible(false);
 			} else {
 				ui.serverTextBox.setVisible(false);
-				ui.serverList.setVisible(false);
+				//ui.serverList.setVisible(false);
 			}
 			
 			ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
 			if(IcePush.username != null) ui.usernameTextBox.setText(IcePush.username);
 			ui.serverTextBox.setClickAction(IcePush.onServerTextBoxClick);
 			ui.usernameTextBox.setClickAction(IcePush.onUsernameTextBoxClick);
-			ui.serverList.setClickAction(ServerList.onServerListClick);
+			//ui.serverList.setClickAction(ServerList.onServerListClick);
 			ui.loginButton.setClickAction(NetworkHandler.onLoginButtonClick);
 			ui.logoutButton.setClickAction(NetworkHandler.onLogoutButtonClick);
 			ui.helpButton.setClickAction(IcePush.onHelpButtonClick);

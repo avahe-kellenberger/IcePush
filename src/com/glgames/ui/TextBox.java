@@ -1,9 +1,9 @@
-package com.glgames.game.ui;
+package com.glgames.ui;
 
 import java.awt.Color;
 import java.awt.Rectangle;
 
-import com.glgames.game.Renderer;
+import com.glgames.graphics2d.Renderer;
 
 public class TextBox extends UIComponent {
 	private int count;

@@ -7,9 +7,12 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
+import com.glgames.graphics3d.Object3D;
+import com.glgames.graphics2d.SpriteLoader;
+
 public class Player {
-	Object3D model;
-	Object2D sprite;
+	public Object3D model;
+	public Object2D sprite;
 	public int type;
 	public String username;
 

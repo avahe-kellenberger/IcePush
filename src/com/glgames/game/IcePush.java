@@ -15,7 +15,9 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-import com.glgames.game.ui.*;
+import com.glgames.ui.*;
+import com.glgames.graphics2d.*;
+import com.glgames.graphics3d.*;
 import com.glgames.shared.InterthreadQueue;
 
 public class IcePush extends Applet {
@@ -23,7 +25,7 @@ public class IcePush extends Applet {
 	public static boolean DEBUG = false;
 
 	public static IcePush instance;
-	public static Renderer renderer;
+	public static ClientRenderer renderer;
 	public static GameFrame frame;
 	public static Graphics graphics;
 
@@ -92,7 +94,7 @@ public class IcePush extends Applet {
 		if(s != null) NetworkHandler.DEFAULT_SERVER = s;
 		if(u != null) username = u;
 		GameObjects.serverMode = GameObjects.USE_DEFAULT;
-		Renderer.message = "Select a username.";
+		renderer.message = "Select a username.";
 	}
 
 	public static Action<Button> onHelpButtonClick = new Action<Button>() {
@@ -114,7 +116,7 @@ public class IcePush extends Applet {
 			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 				GameObjects.ui.serverTextBox.setVisible(false);
 			} else {
-				GameObjects.ui.serverList.setVisible(false);
+				//GameObjects.ui.serverList.setVisible(false);
 			}
 		}
 	};
@@ -133,7 +135,7 @@ public class IcePush extends Applet {
 		}
 	};
 
-	public static Action<ServerList> onServerListClick = new Action<ServerList>() {
+	/*public static Action<ServerList> onServerListClick = new Action<ServerList>() {
 		public void doAction(ServerList component, int x, int y) {
 			if (IcePush.state != IcePush.WELCOME 
 					|| GameObjects.serverMode != GameObjects.LIST_FROM_SERVER)
@@ -147,7 +149,7 @@ public class IcePush extends Applet {
 				component.setSelected(index);
 			}
 		}
-	};
+	};*/
 
 	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 
@@ -274,7 +276,7 @@ public class IcePush extends Applet {
 		return -1;
 	}
 
-	static boolean is_chat = false;
+	public static boolean is_chat = false;
 
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
@@ -302,9 +304,9 @@ public class IcePush extends Applet {
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			is_chat = !is_chat;
-			if (!is_chat && !Renderer.curChat.trim().isEmpty()) {
-				NetworkHandler.sendChatMessage(Renderer.curChat.trim());
-				Renderer.curChat = "";
+			if (!is_chat && !renderer.curChat.trim().isEmpty()) {
+				NetworkHandler.sendChatMessage(renderer.curChat.trim());
+				renderer.curChat = "";
 			}
 		} else if (!is_chat)
 			switch (e.getKeyCode()) {
@@ -331,29 +333,29 @@ public class IcePush extends Applet {
 					NetworkHandler.ping();
 					break;
 				case KeyEvent.VK_C:
-					Renderer.chats_visible = !Renderer.chats_visible;
+					renderer.chats_visible = !renderer.chats_visible;
 					break;
 				case KeyEvent.VK_W:
-					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+					if (renderer.GRAPHICS_MODE == renderer.SOFTWARE_3D)
 						renderer.pitch -= 5;
 					break;
 				case KeyEvent.VK_S:
-					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+					if (renderer.GRAPHICS_MODE == renderer.SOFTWARE_3D)
 						renderer.pitch += 5;
 					break;
 				case KeyEvent.VK_A:
-					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+					if (renderer.GRAPHICS_MODE == renderer.SOFTWARE_3D)
 						renderer.yaw -= 5;
 					break;
 				case KeyEvent.VK_D:
-					if (Renderer.GRAPHICS_MODE == Renderer.SOFTWARE_3D)
+					if (renderer.GRAPHICS_MODE == renderer.SOFTWARE_3D)
 						renderer.yaw += 5;
 					break;
 				case KeyEvent.VK_2:
-					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_2D;
+					renderer.GRAPHICS_MODE = renderer.SOFTWARE_2D;
 					break;
 				case KeyEvent.VK_3:
-					Renderer.GRAPHICS_MODE = Renderer.SOFTWARE_3D;
+					renderer.GRAPHICS_MODE = renderer.SOFTWARE_3D;
 					break;
 				case KeyEvent.VK_J:
 					renderer.cameraX -= 5;
@@ -380,11 +382,11 @@ public class IcePush extends Applet {
 	private void keyTyped(KeyEvent e) {
 		if (is_chat) {
 			char c = e.getKeyChar();
-			if (c == 8 && Renderer.curChat.length() > 0)
-				Renderer.curChat = Renderer.curChat.substring(0,
-						Renderer.curChat.length() - 1);
+			if (c == 8 && renderer.curChat.length() > 0)
+				Renderer.curChat = renderer.curChat.substring(0,
+						renderer.curChat.length() - 1);
 			else if (c >= ' ')
-				Renderer.curChat += c;
+				renderer.curChat += c;
 		}
 	}
 
@@ -415,7 +417,7 @@ public class IcePush extends Applet {
 	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 		instance = new IcePush();
 		instance.setFocusTraversalKeysEnabled(false);
-		renderer = new Renderer(instance);
+		renderer = new ClientRenderer(instance, WIDTH, HEIGHT);
 		frame = new GameFrame();
 		renderer.initGraphics();
 		graphics = renderer.getBufferGraphics();
@@ -423,7 +425,7 @@ public class IcePush extends Applet {
 
 	public void start() {
 		setFocusTraversalKeysEnabled(false);
-		renderer = new Renderer(this);
+		renderer = new ClientRenderer(this, WIDTH, HEIGHT);
 		renderer.initGraphics();
 		graphics = renderer.getBufferGraphics();
 		run();

@@ -1,4 +1,4 @@
-package com.glgames.game.ui;
+package com.glgames.ui;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -6,7 +6,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import com.glgames.game.Renderer;
+import com.glgames.graphics2d.Renderer;
 
 public class UIComponent {
 	protected ArrayList<UIComponent> children = new ArrayList<UIComponent>();

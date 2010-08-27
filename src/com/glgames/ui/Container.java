@@ -1,7 +1,8 @@
-package com.glgames.game.ui;
+package com.glgames.ui;
 
 import java.awt.Color;
-import com.glgames.game.Renderer;
+
+import com.glgames.graphics2d.Renderer;
 
 public class Container extends UIComponent {
 	public enum Layout {

@@ -1,4 +1,4 @@
-package com.glgames.game;
+package com.glgames.graphics3d;
 
 import java.awt.image.BufferedImage;
 
@@ -10,7 +10,7 @@ public class Texture {
 
 	public Texture(String filename) {
 		try {
-			BufferedImage im = ImageIO.read(GameObjects.class.getResource("/"
+			BufferedImage im = ImageIO.read(Texture.class.getResource("/"
 					+ filename));
 			sidelen = im.getWidth();
 			if (sidelen != im.getHeight())

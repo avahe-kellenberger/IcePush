@@ -24,7 +24,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.glgames.game.ui.*;
+import com.glgames.ui.*;
 import com.glgames.shared.ILoader;
 import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
@@ -41,15 +41,15 @@ public class NetworkHandler {
 	public static Action<Button> onLoginButtonClick = new Action<Button>() {
 		public void doAction(Button component, int x, int y) {
 			String server = "";
-			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
+			/*if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 				server = GameObjects.ui.serverList.getSelected();
-			} else if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
+			} else */if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 				server = GameObjects.ui.serverTextBox.getText();
 			} else {
 				server = DEFAULT_SERVER;
 			}
 			if (!server.isEmpty()) {
-				Renderer.message = "Logging in...";
+				IcePush.renderer.message = "Logging in...";
 				NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText());
 				GameObjects.ui.setVisibleRecursive(false);
 				GameObjects.ui.setVisible(true);
@@ -88,11 +88,11 @@ public class NetworkHandler {
 
 			int result = in.read();
 			if (result == USER_IN_USE) {
-				Renderer.message = "That username is in use.";
+				IcePush.renderer.message = "That username is in use.";
 			} else if (result == BAD_VERSION) {
-				Renderer.message = "The game has been updated, refresh the page.";
+				IcePush.renderer.message = "The game has been updated, refresh the page.";
 			} else if (result == TOO_MANY_PL) {
-				Renderer.message = "Too many players are logged in.";
+				IcePush.renderer.message = "Too many players are logged in.";
 			} else if (result == SUCCESS_LOG) {
 				// Successful login
 				id = in.read();
@@ -100,11 +100,11 @@ public class NetworkHandler {
 				GameObjects.players = new Player[50];
 				IcePush.state = IcePush.PLAY;
 			} else {
-				Renderer.message = "Invalid response from server.";
+				IcePush.renderer.message = "Invalid response from server.";
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Renderer.message = "Error connecting to server: " + e.getMessage();
+			IcePush.renderer.message = "Error connecting to server: " + e.getMessage();
 		}
 	}
 
@@ -114,7 +114,7 @@ public class NetworkHandler {
 
 		if (!pbuf.synch()) {
 			IcePush.state = IcePush.WELCOME;
-			Renderer.message = "Connection with server was lost";
+			IcePush.renderer.message = "Connection with server was lost";
 			return;
 		}
 
@@ -171,7 +171,7 @@ public class NetworkHandler {
 					break;
 				case NEW_CHAT_MESSAGE:
 					String msg = pbuf.readString();
-					Renderer.chats.add(msg);
+					IcePush.renderer.chats.add(msg);
 					break;
 
 				case UPDATE:
@@ -276,7 +276,7 @@ public class NetworkHandler {
 			pbuf.endPacket();
 			pbuf.synch();
 			IcePush.state = IcePush.WELCOME;
-			Renderer.message = "Select a username.";
+			IcePush.renderer.message = "Select a username.";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

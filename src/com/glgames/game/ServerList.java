@@ -1,12 +1,11 @@
-package com.glgames.game.ui;
+package com.glgames.game;
 
 import java.awt.FontMetrics;
 import java.util.Map;
 
-import com.glgames.game.Renderer;
-import com.glgames.game.GameObjects;
-import com.glgames.game.IcePush;
-import com.glgames.game.NetworkHandler;
+import com.glgames.graphics2d.Renderer;
+import com.glgames.ui.ListBox;
+import com.glgames.ui.Action;
 
 public class ServerList extends ListBox implements Runnable {
 	private int fontHeight;

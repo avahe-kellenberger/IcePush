@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage;
 
 import static com.glgames.shared.Opcodes.*;
 
+import com.glgames.graphics2d.SpriteLoader;
+
 public class Object2D extends GameObject {
 	public int x, y, width, height;
 	private BufferedImage sprite;
