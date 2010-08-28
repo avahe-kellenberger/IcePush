@@ -1,0 +1,12 @@
+# Ignore temporary files and such
+.DS_Store
+*~
+*.swp
+
+# Ignore compiled code
+*.class
+
+# Ignore developer-specific scripts
+mkjar.bat
+mkjar.sh
+run.sh
