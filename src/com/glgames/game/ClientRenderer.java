@@ -9,6 +9,11 @@ import com.glgames.shared.Opcodes;
 
 public class ClientRenderer extends Renderer3D {
 
+	public static final int SOFTWARE_2D = 0;
+	public static final int SOFTWARE_3D = 1;
+	public static final int HARDWARE_3D = 2;
+	public static int GRAPHICS_MODE = SOFTWARE_2D;
+
 	public ClientRenderer(Component c, int w, int h) {
 		super(c, w, h);
 	}

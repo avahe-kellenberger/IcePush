@@ -14,11 +14,6 @@ import java.util.ArrayList;
 public class Renderer {
 	private static final long serialVersionUID = 1L;
 
-	public static final int SOFTWARE_2D = 0;
-	public static final int SOFTWARE_3D = 1;
-	public static final int HARDWARE_3D = 2;
-	public static int GRAPHICS_MODE = SOFTWARE_2D;
-
 	public static String message = "Select a server and username.";
 
 	public int selectedButton;
