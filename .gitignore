@@ -4,6 +4,7 @@
 *.swp
 
 # Ignore compiled code
+IcePush.jar
 *.class
 
 # Ignore developer-specific scripts
