@@ -147,10 +147,9 @@ public class Renderer {
 			_x3 = exchx;
 			_y3 = exchy;
 		}
-
 	}
 
-	public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3,
+	public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3, 
 			int Y3, int color) {
 		triSort(X1, Y1, X2, Y2, X3, Y3);
 		if (_y3 == _y1)
@@ -237,14 +236,12 @@ public class Renderer {
 				_y2++;
 			}
 		}
-
 	}
 
 	public void clear() {
 		int i = width * height;
 		for (int j = 0; j < i; j++)
 			pixels[j] = 0;
-
 	}
 
 	// THESE STUBS WILL ALL BE REMOVED AS MORE OF THE 2D GRAPHICS LIBRARY IS WRITTEN AND USAGE IS STANDARDIZED WITHIN THE COMPONENT CLASSES
@@ -255,6 +252,10 @@ public class Renderer {
 
 	public void fill3DRect(int a, int b, int c, int d, boolean e) {
 		bg.fill3DRect(a, b, c, d, e);
+	}
+
+	public void setFont(Font font) {
+		bg.setFont(font);
 	}
 
 	public void drawString(String a, int b, int c) {
