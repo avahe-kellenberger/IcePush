@@ -14,13 +14,6 @@ import java.util.ArrayList;
 public class Renderer {
 	private static final long serialVersionUID = 1L;
 
-	public static final int SOFTWARE_2D = 0;
-	public static final int SOFTWARE_3D = 1;
-	public static final int HARDWARE_3D = 2;
-	public static int GRAPHICS_MODE = SOFTWARE_2D;
-
-	public static String message = "Select a server and username.";
-
 	public int selectedButton;
 	public int mouseOverButton;
 
@@ -42,7 +35,6 @@ public class Renderer {
 
 	public Renderer(Component c, int w, int h) {
 		canvas = c;
-		//System.out.println("width: " + c.getWidth() + " height: " + c.getHeight());
 
 		width = w;
 		height = h;
@@ -67,23 +59,6 @@ public class Renderer {
 	public static boolean chats_visible;
 	public static String curChat = "";
 	public static ArrayList<String> chats = new ArrayList<String>();
-	//private int count;
-	
-	/*private void drawChats() {
-		String chat;
-
-		bg.setFont(debugFont);
-		for(int k = 0; k < chats.size(); k++) {
-			chat = chats.get(k);
-			bg.drawString(chat, 35, 430 - (chats.size() - k) * 15);
-		}
-		
-		bg.drawString(curChat, 35 + 3, 440);
-		if(count++ % 50 > 25) {
-			int width = bg.getFontMetrics().stringWidth(curChat) + 5;
-			bg.drawLine(35 + width, 440 - 8, 35 + width, 440);
-		}
-	}*/
 	
 	public static Font chatsFont;
 	public static BufferedImage font;
@@ -99,37 +74,6 @@ public class Renderer {
 		}
 	}
 	public static final Color chatsBoxColor = new Color(0, 0, 0, 150);
-	
-	/* these are Bad and Use lots of cpu due to bufferedImage */
-	/*private void drawString(String s, int x, int y) {
-		for(int k = 0; k < s.length(); k++) {
-			char c = s.charAt(k);
-			drawCharacter(c, x, y);
-			x += 7;
-		}
-	}
-	
-	private void drawCharacter(char c, int x, int y) {
-		int index = 0;
-		if(c < 32)
-			return;
-		if(c >= '0' && c <= '9')
-			index = c - '0' + 1;
-		else if(c >= 'A' && c <= 'Z')
-			index = c - 'A' + 11;
-		else if(c >= 'a' && c <= 'z')
-			index = c - 'a' + 37;
-		int srcx = index * 7;
-		BufferedImage ch = font.getSubimage(srcx, 0, 7, 12);
-		bg.drawImage(ch, x, y, null);
-	}*/
-	
-	/*private void focusCamera() {
-		Player p = GameObjects.players[NetworkHandler.id];
-		if(p == null)
-			return;		
-		focusX = focusY = focusZ = 0;
-	}*/
 	
 	public static final int HALF_GAME_FIELD_WIDTH = (744 / 2);
 	public static final int HALF_GAME_FIELD_HEIGHT = (422 / 2);
@@ -201,10 +145,9 @@ public class Renderer {
 			_x3 = exchx;
 			_y3 = exchy;
 		}
-
 	}
 
-	public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3,
+	public void solidTriangle(int X1, int Y1, int X2, int Y2, int X3, 
 			int Y3, int color) {
 		triSort(X1, Y1, X2, Y2, X3, Y3);
 		if (_y3 == _y1)
@@ -291,18 +234,12 @@ public class Renderer {
 				_y2++;
 			}
 		}
-
-	//	if(X1 >= 0 && X1 < width && Y1 >= 0 && Y1 < height) pixels[X1 + Y1 * width] = 0xffffffff;
-	//	if(X2 >= 0 && X2 < width && Y2 >= 0 && Y2 < height) pixels[X2 + Y2 * width] = 0xffffffff;
-	//	if(X3 >= 0 && X3 < width && Y3 >= 0 && Y3 < height) pixels[X3 + Y3 * width] = 0xffffffff;
-
 	}
 
 	public void clear() {
 		int i = width * height;
 		for (int j = 0; j < i; j++)
 			pixels[j] = 0;
-
 	}
 
 	// THESE STUBS WILL ALL BE REMOVED AS MORE OF THE 2D GRAPHICS LIBRARY IS WRITTEN AND USAGE IS STANDARDIZED WITHIN THE COMPONENT CLASSES
@@ -315,12 +252,20 @@ public class Renderer {
 		bg.fill3DRect(a, b, c, d, e);
 	}
 
+	public void setFont(Font font) {
+		bg.setFont(font);
+	}
+
 	public void drawString(String a, int b, int c) {
 		bg.drawString(a, b, c);
 	}
 
 	public int getFontHeight() {
 		return bg.getFontMetrics().getHeight();
+	}
+
+	public int getFontDescent() {
+		return bg.getFontMetrics().getDescent();
 	}
 
 	public int stringWidth(String s) {

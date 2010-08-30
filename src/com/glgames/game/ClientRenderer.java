@@ -9,6 +9,11 @@ import com.glgames.shared.Opcodes;
 
 public class ClientRenderer extends Renderer3D {
 
+	public static final int SOFTWARE_2D = 0;
+	public static final int SOFTWARE_3D = 1;
+	public static final int HARDWARE_3D = 2;
+	public static int GRAPHICS_MODE = SOFTWARE_2D;
+
 	public ClientRenderer(Component c, int w, int h) {
 		super(c, w, h);
 	}
@@ -110,57 +115,22 @@ public class ClientRenderer extends Renderer3D {
 	}
 
 	public void drawHelpScreen(int cycle) {
-		//background(cycle);
 		bg.drawImage(GameObjects.background, 0, 0, null);
 		int w;
 		bg.setColor(Color.white);
 		bg.setFont(titleFont);
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		int y = 190;
-		for (String s : GameObjects.help) {
-			w = bg.getFontMetrics().stringWidth(s);
-			bg.drawString(s, width / 2 - w / 2, y += 30);
-		}
-	}
-
-
-	private void drawTopButtons() {
-		int w = GameObjects.button.getWidth();
-		int x = 28, y = 30;
-		for(int i = 0; i < 5; i++) {
-			if(i == selectedButton || i == mouseOverButton) {
-				bg.drawImage(GameObjects.button2, x, y, null);
-			} else {
-				bg.drawImage(GameObjects.button, x, y, null);
-			}
-			x += w;
-		}
 	}
 
 	public void drawWelcomeScreen(int cycle) {
-		//background(cycle);
 		bg.drawImage(GameObjects.background, 0, 0, null);
-		int w;
 		bg.setColor(Color.white);
 		bg.setFont(titleFont);
-
-		int y = 140;
-		//if(GameObjects.ui.serverList != null)
-		//	y -= GameObjects.ui.serverList.getSize().height;
-		for (String s : GameObjects.instructions) {
-			w = bg.getFontMetrics().stringWidth(s);
-			bg.drawString(s, width / 2 - w / 2, y += 30);
-		}
 
 		bg.setColor(Color.white);
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		w = bg.getFontMetrics().stringWidth(message);
-		//bg.drawString(message, width / 2 - w / 2, GameObjects.ui.serverList == null ? 250 : 155);
-
-		// Temporarily disabled for now - see http://icepush.strictfp.com/forums/index.php?topic=7.0
-		//drawTopButtons();
 	}
 
 }
