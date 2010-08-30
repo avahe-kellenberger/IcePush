@@ -121,11 +121,6 @@ public class ClientRenderer extends Renderer3D {
 		bg.setFont(titleFont);
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		int y = 190;
-		for (String s : GameObjects.help) {
-			w = bg.getFontMetrics().stringWidth(s);
-			bg.drawString(s, width / 2 - w / 2, y += 30);
-		}
 	}
 
 	public void drawWelcomeScreen(int cycle) {
@@ -133,12 +128,6 @@ public class ClientRenderer extends Renderer3D {
 		int w;
 		bg.setColor(Color.white);
 		bg.setFont(titleFont);
-
-		int y = 140;
-		for (String s : GameObjects.instructions) {
-			w = bg.getFontMetrics().stringWidth(s);
-			bg.drawString(s, width / 2 - w / 2, y += 30);
-		}
 
 		bg.setColor(Color.white);
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,

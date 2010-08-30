@@ -102,17 +102,16 @@ public class IcePush extends Applet {
 			IcePush.state = IcePush.HELP;
 			GameObjects.ui.setVisibleRecursive(false);
 			GameObjects.ui.setVisible(true);
-			GameObjects.ui.buttonContainer.setVisible(true);
-			GameObjects.ui.backButton.setVisible(true);
+			GameObjects.ui.helpScreenContainer.setVisibleRecursive(true);
 		}
 	};
 	
 	public static Action<Button> onBackButtonClick = new Action<Button>() {
 		public void doAction(Button component, int x, int y) {
 			IcePush.state = IcePush.WELCOME;
-			GameObjects.ui.setVisibleRecursive(true);
-			GameObjects.ui.backButton.setVisible(false);
-			GameObjects.ui.logoutButton.setVisible(false);
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.welcomeScreenContainer.setVisibleRecursive(true);
 			if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
 				GameObjects.ui.serverTextBox.setVisible(false);
 			} else {

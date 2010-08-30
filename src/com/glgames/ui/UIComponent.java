@@ -129,6 +129,8 @@ public class UIComponent {
 	public void setSize(int width, int height) {
 		this.width = width;
 		this.height = height;
+		if (parent != null)
+			parent.positionChildren();
 	}
 
 	public Dimension getSize() {
