@@ -2,6 +2,7 @@ package com.glgames.ui;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.Font;
 
 import com.glgames.graphics2d.Renderer;
 
@@ -13,6 +14,7 @@ public class Button extends UIComponent {
 	protected Color fgColor = Color.white;
 	protected String caption;
 	protected Boolean depressed = false;
+	protected Font font = new Font("Arial", Font.PLAIN, 20);
 	
 	Button (int x, int y, int width, int height) {
 		super(x, y, width, height);
@@ -89,11 +91,23 @@ public class Button extends UIComponent {
 		return depressed;
 	}
 
+	public void setFont(Font font) {
+		this.font = font;
+	}
+
+	public Font getFont() {
+		return font;
+	}
+
 	protected void drawComponent(Renderer r) {
 		r.setColor(bgColor);
 		r.fill3DRect(abs_x, abs_y, width, height, !depressed);
 		r.setColor(fgColor);
-		int w = r.stringWidth(caption);
-		r.drawString(caption, abs_x + width / 2 - w / 2, abs_y + 18);
+		r.setFont(font);
+		int captionWidth = r.stringWidth(caption);
+		int fontHeight = r.getFontHeight();
+		int fontDescent = r.getFontDescent();
+		// Subtract 1 at the end of the height calculation because it looks more centered on the 3D button that way
+		r.drawString(caption, (abs_x + width / 2 - captionWidth / 2), (abs_y + height / 2 + fontHeight / 2 - fontDescent - 1));
 	}
 }
