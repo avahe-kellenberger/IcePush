@@ -14,8 +14,6 @@ import java.util.ArrayList;
 public class Renderer {
 	private static final long serialVersionUID = 1L;
 
-	public static String message = "Select a server and username.";
-
 	public int selectedButton;
 	public int mouseOverButton;
 

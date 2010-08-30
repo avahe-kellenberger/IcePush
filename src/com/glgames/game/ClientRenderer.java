@@ -125,14 +125,12 @@ public class ClientRenderer extends Renderer3D {
 
 	public void drawWelcomeScreen(int cycle) {
 		bg.drawImage(GameObjects.background, 0, 0, null);
-		int w;
 		bg.setColor(Color.white);
 		bg.setFont(titleFont);
 
 		bg.setColor(Color.white);
 		((Graphics2D) bg).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		w = bg.getFontMetrics().stringWidth(message);
 	}
 
 }

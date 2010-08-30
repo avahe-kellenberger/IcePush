@@ -49,7 +49,7 @@ public class NetworkHandler {
 				server = DEFAULT_SERVER;
 			}
 			if (!server.isEmpty()) {
-				IcePush.renderer.message = "Logging in...";
+				GameObjects.ui.networkStatus.setText("Logging in...");
 				NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText());
 				GameObjects.ui.setVisibleRecursive(false);
 				GameObjects.ui.setVisible(true);
@@ -88,11 +88,11 @@ public class NetworkHandler {
 
 			int result = in.read();
 			if (result == USER_IN_USE) {
-				IcePush.renderer.message = "That username is in use.";
+				GameObjects.ui.networkStatus.setText("That username is in use.");
 			} else if (result == BAD_VERSION) {
-				IcePush.renderer.message = "The game has been updated, refresh the page.";
+				GameObjects.ui.networkStatus.setText("The game has been updated, refresh the page.");
 			} else if (result == TOO_MANY_PL) {
-				IcePush.renderer.message = "Too many players are logged in.";
+				GameObjects.ui.networkStatus.setText("Too many players are logged in.");
 			} else if (result == SUCCESS_LOG) {
 				// Successful login
 				id = in.read();
@@ -100,11 +100,11 @@ public class NetworkHandler {
 				GameObjects.players = new Player[50];
 				IcePush.state = IcePush.PLAY;
 			} else {
-				IcePush.renderer.message = "Invalid response from server.";
+				GameObjects.ui.networkStatus.setText("Invalid response from server.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			IcePush.renderer.message = "Error connecting to server: " + e.getMessage();
+			GameObjects.ui.networkStatus.setText("Error connecting to server: " + e.getMessage());
 		}
 	}
 
@@ -114,7 +114,7 @@ public class NetworkHandler {
 
 		if (!pbuf.synch()) {
 			IcePush.state = IcePush.WELCOME;
-			IcePush.renderer.message = "Connection with server was lost";
+			GameObjects.ui.networkStatus.setText("Connection with server was lost.");
 			return;
 		}
 
@@ -276,7 +276,7 @@ public class NetworkHandler {
 			pbuf.endPacket();
 			pbuf.synch();
 			IcePush.state = IcePush.WELCOME;
-			IcePush.renderer.message = "Select a username.";
+			GameObjects.ui.networkStatus.setText("Select a username.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

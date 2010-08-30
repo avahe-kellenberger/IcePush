@@ -94,7 +94,6 @@ public class IcePush extends Applet {
 		if(s != null) NetworkHandler.DEFAULT_SERVER = s;
 		if(u != null) username = u;
 		GameObjects.serverMode = GameObjects.USE_DEFAULT;
-		renderer.message = "Select a username.";
 	}
 
 	public static Action<Button> onHelpButtonClick = new Action<Button>() {

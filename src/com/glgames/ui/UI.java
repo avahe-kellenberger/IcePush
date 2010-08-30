@@ -15,6 +15,7 @@ public class UI extends Container {
 	public Button helpButton;
 	public Button backButton;
 	public Button logoutButton;
+	public Label networkStatus;
 
 	public UI(int width, int height) {
 		super(0, 0, width, height);
@@ -25,11 +26,12 @@ public class UI extends Container {
 		welcomeScreenContainer = new Container(0, 0, width, height);
 		helpScreenContainer = new Container(0, 0, width, height);
 
-		instructionsContainer = new Container(0, 140, width, 50);
+		instructionsContainer = new Container(0, 140, width, 70);
 		dataEntryContainer = new Container(315, 250, 170, 65);
 		buttonContainer = new Container(295, 345, 210, 25);
 		helpTextContainer = new Container(0, 150, width, 200);
 
+		networkStatus = new Label("Select a username.");
 		serverTextBox = new TextBox(170, 20);
 		serverTextBox.setCaption("Server: ");
 		usernameTextBox = new TextBox(170, 20);
@@ -53,6 +55,7 @@ public class UI extends Container {
 		instructionsContainer.setLayout(Container.Layout.VERTICAL);
 		for (String line : instructionsText)
 			instructionsContainer.addChild(new Label(line));
+		instructionsContainer.addChild(networkStatus);
 		dataEntryContainer.setLayout(Container.Layout.VERTICAL);
 		dataEntryContainer.addChild(serverTextBox);
 		dataEntryContainer.addChild(usernameTextBox);
