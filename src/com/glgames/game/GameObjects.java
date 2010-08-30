@@ -52,9 +52,6 @@ public class GameObjects {
 			ui.helpButton.setClickAction(IcePush.onHelpButtonClick);
 			ui.backButton.setClickAction(IcePush.onBackButtonClick);
 
-			instructions = new String[] { "Push the other players off the ice!",
-					"Try not to fall off!" };
-			help = new String[] { "Arrow keys - move", "Q - logout", "2 - 2D view", "3 - 3D view", "C - chat" };
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");
 			button2 = SpriteLoader.getSprite("images/button2.png");			
