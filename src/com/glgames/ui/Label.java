@@ -11,12 +11,6 @@ public class Label extends UIComponent {
 	protected Color color = Color.white;
 	protected Font font = new Font("Arial", Font.PLAIN, 20);
 	
-	//Label (int x, int y, int width, int height) {
-	//	super(x, y, width, height);
-	//}
-	//Label (int width, int height) {
-	//	super(width, height);
-	//}
 	Label () {
 		super(0, 0);
 	}
