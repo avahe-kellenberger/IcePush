@@ -266,6 +266,10 @@ public class Renderer {
 		return bg.getFontMetrics().getHeight();
 	}
 
+	public int getFontDescent() {
+		return bg.getFontMetrics().getDescent();
+	}
+
 	public int stringWidth(String s) {
 		return bg.getFontMetrics().stringWidth(s);
 	}
