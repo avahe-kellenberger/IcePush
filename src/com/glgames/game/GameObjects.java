@@ -7,10 +7,6 @@ import com.glgames.graphics2d.SpriteLoader;
 import com.glgames.graphics3d.Object3D;
 
 public class GameObjects {
-	static final int SERVER_IFACE = 1;
-	static final int USERNAME_IFACE = 2;
-	static final int SERVER_LIST_IFACE = 6;
-	
 	public static UI ui;
 
 	public static boolean loaded = false;
