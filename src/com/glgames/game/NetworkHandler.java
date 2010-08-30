@@ -51,9 +51,6 @@ public class NetworkHandler {
 			if (!server.isEmpty()) {
 				GameObjects.ui.networkStatus.setText("Logging in...");
 				NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText());
-				GameObjects.ui.setVisibleRecursive(false);
-				GameObjects.ui.setVisible(true);
-				GameObjects.ui.logoutButton.setVisible(true);
 			}
 		}
 	};
@@ -102,6 +99,9 @@ public class NetworkHandler {
 			} else {
 				GameObjects.ui.networkStatus.setText("Invalid response from server.");
 			}
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.logoutButton.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			GameObjects.ui.networkStatus.setText("Error connecting to server: " + e.getMessage());
