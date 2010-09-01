@@ -27,7 +27,6 @@ public class IcePush extends Applet {
 	public static IcePush instance;
 	public static ClientRenderer renderer;
 	public static GameFrame frame;
-	public static Graphics graphics;
 
 	// state stuff
 	public static final int NONE = 0;
@@ -417,14 +416,12 @@ public class IcePush extends Applet {
 		renderer = new ClientRenderer(instance, WIDTH, HEIGHT);
 		frame = new GameFrame();
 		renderer.initGraphics();
-		graphics = renderer.getBufferGraphics();
 	}
 
 	public void start() {
 		setFocusTraversalKeysEnabled(false);
 		renderer = new ClientRenderer(this, WIDTH, HEIGHT);
 		renderer.initGraphics();
-		graphics = renderer.getBufferGraphics();
 		run();
 		cleanup();
 	}
@@ -436,8 +433,6 @@ public class IcePush extends Applet {
 			}
 		}.start();
 		while (running) {
-			graphics.setColor(Color.black);
-			graphics.fillRect(0, 0, WIDTH, HEIGHT);
 			if (!GameObjects.loaded) {
 				renderer.drawLoadingErrorIfThereIsSuchAnError();
 			} else {
@@ -449,7 +444,6 @@ public class IcePush extends Applet {
 					gameLoop();
 				}
 			}
-			renderer.swapBuffers();
 			processEvents();
 			cycle++;
 			try {
