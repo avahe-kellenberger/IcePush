@@ -255,23 +255,6 @@ public class IcePush extends Applet {
 		GameObjects.ui.handleAction(Actions.HOVER, x, y);
 	}
 
-	private int getTopButtonID(int mouseX, int mouseY) {
-		int w = GameObjects.button.getWidth();
-		int h = GameObjects.button.getHeight();
-		int x = 28, y = 30;
-
-		if (mouseY < y || mouseY >= y + h)
-			return -1;
-
-		for (int i = 0; i < 5; i++) {
-			if (mouseX > x && mouseX < x + w)
-				return i;
-			x += w;
-		}
-
-		return -1;
-	}
-
 	public static boolean is_chat = false;
 
 	private void keyPressed(KeyEvent e) {

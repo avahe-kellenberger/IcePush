@@ -17,8 +17,8 @@ public class Renderer {
 	// Drawing stuff
 	protected Component canvas;
 	public Image backbuffer;
-	protected Graphics outgfx;
 	protected Graphics bg;
+	protected int width, height;
 
 	// Fonts
 	protected Font titleFont = new Font("Arial", Font.PLAIN, 20);
@@ -26,7 +26,6 @@ public class Renderer {
 	protected Font debugFont = new Font(Font.DIALOG, Font.PLAIN, 9);
 	protected Font namesFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 
-	protected int width, height;
 
 	// Chat stuff
 	public static final Color chatsBoxColor = new Color(0, 0, 0, 150);
