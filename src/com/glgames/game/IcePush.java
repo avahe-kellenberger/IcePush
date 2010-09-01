@@ -33,7 +33,6 @@ public class IcePush extends Applet {
 	public static final int WELCOME = 1 << 0;
 	public static final int HELP = 1 << 1;
 	public static final int PLAY = 1 << 2;
-
 	public static int state = WELCOME;
 
 	public static final int WIDTH = 800;
@@ -146,6 +145,15 @@ public class IcePush extends Applet {
 		// update positions and such
 		NetworkHandler.handlePackets();
 		updatePlayers();
+	}
+
+	public void paint(Graphics g) {
+		if ((state == WELCOME) || (state == HELP) {
+			renderer.drawWelcomeScreen(g);
+		} else if (state == GAME) {
+			renderer.renderScene(g);
+		}
+		GameObjects.ui.draw(g);
 	}
 
 	public static Action<Button> onHelpButtonClick = new Action<Button>() {
