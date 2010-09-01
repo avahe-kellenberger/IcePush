@@ -417,14 +417,10 @@ public class IcePush extends Applet {
 			if (!GameObjects.loaded) {
 				stop();
 				continue;
-			} else {
-				if (state == WELCOME) {
-					titleLoop();
-				} else if (state == HELP) {
-					helpLoop();
-				} else if (state == PLAY) {
-					gameLoop();
-				}
+			}
+
+			if (state == PLAY) {
+				gameLoop();
 			}
 			processEvents();
 			try {
@@ -439,22 +435,10 @@ public class IcePush extends Applet {
 		running = false;
 	}
 
-	private static void titleLoop() {
-		renderer.drawWelcomeScreen();
-		GameObjects.ui.draw(renderer);
-	}
-
-	private static void helpLoop() {
-		renderer.drawHelpScreen();
-		GameObjects.ui.draw(renderer);
-	}
-
 	private static void gameLoop() {
 		// update positions and such
 		NetworkHandler.handlePackets();
 		updatePlayers();
-		renderer.renderScene();
-		GameObjects.ui.draw(renderer);
 	}
 
 	public static void cleanup() {
