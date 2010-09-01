@@ -15,7 +15,7 @@ public class Renderer {
 
 	// Drawing stuff
 	protected Component canvas;
-	public Image buffer;
+	protected Image buffer;
 	protected Graphics bg;
 	protected int width, height;
 
@@ -66,45 +66,11 @@ public class Renderer {
 		bg.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 	}
 
+	public Image getBuffer() {
+		return buffer;
+	}
+
 	public Graphics getBufferGraphics() {
 		return bg;
-	}
-
-	// THESE STUBS WILL ALL BE REMOVED AS MORE OF THE 2D GRAPHICS LIBRARY IS WRITTEN AND USAGE IS STANDARDIZED WITHIN THE COMPONENT CLASSES
-
-	public void setColor(Color c) {
-		bg.setColor(c);
-	}
-
-	public void fill3DRect(int a, int b, int c, int d, boolean e) {
-		bg.fill3DRect(a, b, c, d, e);
-	}
-
-	public void setFont(Font font) {
-		bg.setFont(font);
-	}
-
-	public void drawString(String a, int b, int c) {
-		bg.drawString(a, b, c);
-	}
-
-	public int getFontHeight() {
-		return bg.getFontMetrics().getHeight();
-	}
-
-	public int getFontDescent() {
-		return bg.getFontMetrics().getDescent();
-	}
-
-	public int stringWidth(String s) {
-		return bg.getFontMetrics().stringWidth(s);
-	}
-
-	public void fillRect(int a, int b, int c, int d) {
-		bg.fillRect(a, b, c, d);
-	}
-
-	public void drawLine(int a, int b, int c, int d) {
-		bg.drawLine(a, b, c, d);
 	}
 }

@@ -112,12 +112,21 @@ public class IcePush extends Applet {
 	}
 
 	public void run() {
-		while (running) {
-			if (!GameObjects.loaded) {
-				stop();
-				continue;
+		Thread painter = new Thread() {
+			public void run() {
+				while (running) {
+					repaint();
+					try {
+						Thread.sleep(20);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
+		};
+		painter.start();
 
+		while (running) {
 			if (state == PLAY) {
 				gameLoop();
 			}
@@ -148,12 +157,21 @@ public class IcePush extends Applet {
 	}
 
 	public void paint(Graphics g) {
+		if (!GameObjects.loaded)
+			return;
+
+		Graphics bg = renderer.getBufferGraphics();
 		if ((state == WELCOME) || (state == HELP)) {
-			renderer.drawWelcomeScreen(g);
+			renderer.drawWelcomeScreen(bg);
 		} else if (state == PLAY) {
-			renderer.renderScene(g);
+			renderer.renderScene(bg);
 		}
-		GameObjects.ui.draw(g);
+		GameObjects.ui.draw(bg);
+		g.drawImage(renderer.getBuffer(), 0, 0, this);
+	}
+	
+	public void update(Graphics g) {
+		paint(g);
 	}
 
 	public static Action<Button> onHelpButtonClick = new Action<Button>() {
@@ -279,8 +297,6 @@ public class IcePush extends Applet {
 	}
 
 	private void mousePressed(MouseEvent e) {
-		if (!GameObjects.loaded)
-			return;
 		if (DEBUG)
 			System.out.println("Pressed");
 		int x = e.getX();
@@ -289,8 +305,6 @@ public class IcePush extends Applet {
 	}
 
 	private void mouseReleased(MouseEvent e) {
-		if (!GameObjects.loaded)
-			return;
 		if (DEBUG)
 			System.out.println("Released");
 		int x = e.getX();
@@ -299,8 +313,6 @@ public class IcePush extends Applet {
 	}
 
 	private void mouseClicked(MouseEvent e) {
-		if (!GameObjects.loaded)
-			return;
 		if (DEBUG)
 			System.out.println("Clicked");
 		int x = e.getX();
@@ -309,17 +321,12 @@ public class IcePush extends Applet {
 	}
 
 	private void mouseMoved(MouseEvent e) {
-		if (!GameObjects.loaded)
-			return;
 		int x = e.getX();
 		int y = e.getY();
 		GameObjects.ui.handleAction(Actions.HOVER, x, y);
 	}
 
 	private void keyPressed(KeyEvent e) {
-		if (!GameObjects.loaded)
-			return;
-
 		if (IcePush.DEBUG)
 			System.out.println("key pressed");
 

@@ -15,6 +15,7 @@ public class Player {
 	public Object2D sprite;
 	public int type;
 	public String username;
+	protected Font nameFont = new Font("Arial", Font.PLAIN, 14);
 
 	// CODE IN COMMENTS HAS BEEN COMMENTED OUT
 	//private int destX, destY;
@@ -39,7 +40,7 @@ public class Player {
 		sprite.draw(g);
 		int screenX = sprite.getScreenX(), screenY = sprite.getScreenY();
 		g.setColor(Color.red);
-		g.setFont(new Font("Arial", Font.PLAIN, 14));
+		g.setFont(nameFont);
 		g.drawString(username, screenX, screenY);
 		if(bubbleAlpha > 0.0f) {
 			float[] scales = {
