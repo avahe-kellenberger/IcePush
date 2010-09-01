@@ -72,6 +72,7 @@ public class IcePush extends Applet {
 				username = args[i + 1];
 			}
 		}
+		GameObjects.load();
 		instance.run();
 		cleanup();
 	}
