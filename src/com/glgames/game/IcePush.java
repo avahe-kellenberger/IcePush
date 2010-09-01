@@ -43,8 +43,6 @@ public class IcePush extends Applet {
 
 	public static boolean isApplet = false;
 
-	public static int cycle;
-
 	private InterthreadQueue<TimedKeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
 
@@ -428,7 +426,6 @@ public class IcePush extends Applet {
 				}
 			}
 			processEvents();
-			cycle++;
 			try {
 				Thread.sleep(20);
 			} catch (Exception e) {
@@ -445,12 +442,12 @@ public class IcePush extends Applet {
 	}
 
 	private static void titleLoop() {
-		renderer.drawWelcomeScreen(cycle);
+		renderer.drawWelcomeScreen();
 		GameObjects.ui.draw(renderer);
 	}
 
 	private static void helpLoop() {
-		renderer.drawHelpScreen(cycle);
+		renderer.drawHelpScreen();
 		GameObjects.ui.draw(renderer);
 	}
 

@@ -114,7 +114,7 @@ public class ClientRenderer extends Renderer3D {
 		}
 	}
 
-	public void drawHelpScreen(int cycle) {
+	public void drawHelpScreen() {
 		bg.drawImage(GameObjects.background, 0, 0, null);
 		int w;
 		bg.setColor(Color.white);
@@ -123,7 +123,7 @@ public class ClientRenderer extends Renderer3D {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 
-	public void drawWelcomeScreen(int cycle) {
+	public void drawWelcomeScreen() {
 		bg.drawImage(GameObjects.background, 0, 0, null);
 		bg.setColor(Color.white);
 		bg.setFont(titleFont);
