@@ -162,7 +162,8 @@ public class Renderer3D extends Renderer {
 	public void clear() {
 		int i = width * height;
 		for (int j = 0; j < i; j++)
-			pixels[j] = 0;
+			// Set all pixels to black
+			pixels[j] = 0xFF000000;
 	}
 
 	private Triangle[] triangulatePolygons(Face[] faces, int len) {
