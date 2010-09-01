@@ -403,16 +403,12 @@ public class IcePush extends Applet {
 		setFocusTraversalKeysEnabled(false);
 		renderer = new ClientRenderer(this, WIDTH, HEIGHT);
 		renderer.initGraphics();
+		GameObjects.load();
 		run();
 		cleanup();
 	}
 
 	public void run() {
-		new Thread() {
-			public void run() {
-				GameObjects.load();
-			}
-		}.start();
 		while (running) {
 			if (!GameObjects.loaded) {
 				stop();
