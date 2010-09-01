@@ -32,7 +32,7 @@ public class SpriteLoader {
 		}
 		return null;
 	}
-	
+
 	static {
 		sprites = new HashMap<String, BufferedImage>();
 	}
