@@ -415,7 +415,8 @@ public class IcePush extends Applet {
 		}.start();
 		while (running) {
 			if (!GameObjects.loaded) {
-				renderer.drawLoadingErrorIfThereIsSuchAnError();
+				stop();
+				continue;
 			} else {
 				if (state == WELCOME) {
 					titleLoop();
@@ -431,9 +432,6 @@ public class IcePush extends Applet {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			Graphics g = getGraphics();
-			if (g != null && renderer.backbuffer != null)
-				g.drawImage(renderer.backbuffer, 0, 0, null);
 		}
 	}
 

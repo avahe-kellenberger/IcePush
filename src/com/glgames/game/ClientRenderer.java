@@ -93,14 +93,6 @@ public class ClientRenderer extends Renderer3D {
 		}
 	}
 
-	public void drawLoadingErrorIfThereIsSuchAnError() {
-		if(GameObjects.error == null)
-			return;
-		bg.setColor(Color.red);
-		bg.setFont(deathsBoxFont);
-		bg.drawString(GameObjects.error, 50, 50);
-	}
-
 	private void drawDeathsBox() {
 		bg.setColor(Color.white);
 		bg.setFont(deathsBoxFont);
