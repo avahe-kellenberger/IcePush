@@ -83,7 +83,7 @@ public class TextBox extends UIComponent {
 		g.fillRect(abs_x, abs_y, width, height);
 		
 		g.setColor(Color.white);
-		g.drawString(caption, abs_x - r.stringWidth(caption) - 5, abs_y + 15);
+		g.drawString(caption, abs_x - g.getFontMetrics().stringWidth(caption) - 5, abs_y + 15);
 		g.drawString(value, abs_x + 3, abs_y + 17);
 		
 		if(focused && count++ % 50 > 25) {
