@@ -10,14 +10,18 @@ import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.image.MemoryImageSource;
+import java.awt.image.DirectColorModel;
 import java.io.File;
 
 import javax.imageio.ImageIO;
 import java.io.FileInputStream;
 
-import com.glgames.game.Bitmap;
+import com.glgames.graphics2d.Bitmap;
 
 public class BitmapTest extends Frame {
+
+	public static final int TEST_BLT = 0;
+	public static final int TEST_FONT = 1;
 
 	int insx, insy;
 
@@ -28,7 +32,10 @@ public class BitmapTest extends Frame {
 	MemoryImageSource imgsrc;
 	Bitmap background;
 	Bitmap sprite;
-	//MonospaceFont font;
+	Bitmap font;
+
+	int foreGround = 0xffff00;;
+	int backGround;
 
 	public static void main(String args[]) throws Exception {
 		new BitmapTest();
@@ -44,12 +51,13 @@ public class BitmapTest extends Frame {
 
 		for(int i = 0; i < pixels.length; i++) pixels[i] = 0xffff00ff;
 
-		sprite = genSprite();//new Bitmap(ImageIO.read(new FileInputStream("images/tree.png")));
-		background = new Bitmap(ImageIO.read(new FileInputStream("images/icepush.png")));
-		//font = new MonospaceFont(ImageIO.read(new FileInputStream("data/font.png")));
+		sprite = new Bitmap(ImageIO.read(new FileInputStream("src/images/snowman.png")));
+		background = new Bitmap(ImageIO.read(new FileInputStream("src/images/icepush.png")));
+		font = new Bitmap(ImageIO.read(new FileInputStream("src/data/font.png")));
+
+		trimSprite(sprite, 0xff00ff);
 		
 		//drawBitmap(background, 0, 0, 0);
-
 
 		setVisible(true);
 		setResizable(false);
@@ -58,7 +66,7 @@ public class BitmapTest extends Frame {
 		insx = ins.left;
 		insy = ins.top;
 		setSize(insx + width, insy + ins.bottom + height);
-		imgsrc = new MemoryImageSource(width, height, pixels, 0, width);
+		imgsrc = new MemoryImageSource(width, height, new DirectColorModel(32, 0xff0000, 0xff00, 0xff), pixels, 0, width);
 		imgsrc.setAnimated(true);
 		bbuf = createImage(imgsrc);
 		drawBitmap(sprite, 200, 200, 0);
@@ -67,6 +75,11 @@ public class BitmapTest extends Frame {
 		repaint();
 
    	}
+
+	void trimSprite(Bitmap b, int bg) {
+		for(int i = 0; i < b.pixels.length; i++)
+			if((b.pixels[i] & 0xff000000) != 0xff000000) b.pixels[i] = bg;
+	}
 
 	public void processWindowEvent(WindowEvent we) {
 		if(we.getID() == we.WINDOW_CLOSING) dispose();
@@ -84,10 +97,13 @@ public class BitmapTest extends Frame {
 		Graphics g = getGraphics();
 		int x = mme.getX() - insx, y = mme.getY() - insy;
 		drawBitmap(background, 0, 0, 0xff000000);
-		String str = "tHiS Is a TeSt StRiNg";
-		//int w = stringWidth(str);
-		//int h = stringHeight();
-		//drawString(str, x - w / 2, y - h / 2);
+		drawBitmap(sprite, x - sprite.width / 2, y - sprite.height / 2, 0xff00ff);
+		String str = "234567ThisIS A TEST string";
+		int w = stringWidth(str, font);
+		int h = stringHeight(font);
+		drawString(font, x - w / 2, y - h / 2, str);
+		fill3DRect(x - 20, y - 20, 40, 40);
+		imgsrc.newPixels();
 		g.drawImage(bbuf, insx, insy, null);
 	}
 
@@ -106,6 +122,36 @@ public class BitmapTest extends Frame {
 		return new Bitmap(64, 64, texture);
 	}
 
+	public int stringWidth(String str, Bitmap font) {
+		return str.length()*font.width / 95;
+	}
+
+	public int stringHeight(Bitmap font) {
+		return font.height;
+	}
+
+	public int getIndex(char c) {
+		if(c >= '0' && c <= '9') {
+			return c - ('0' - 1);
+		} else if(c >= 'A' && c <= 'Z') {
+			return c - ('A' - 11);
+		} else if(c >= 'a' && c < 'z') {
+			return c - ('a' - 37);
+		}
+		return 0;
+	}
+
+//Bitmap src, Bitmap dest, int src_x, int src_y, int dest_x, int dest_y, int count_x, int count_y, int bg) {
+
+
+	public void drawString(Bitmap font, int x, int y, String str) {
+		int charWidth = font.width / 95;		// TODO: Read this data from the font description
+		Bitmap b = new Bitmap(width, height, pixels);
+		for(int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			copy(font, b, charWidth * getIndex(c), 0, x + i*charWidth, y, charWidth, font.height, 0);
+		}
+	}
 
 	public void drawBitmap(Bitmap b, int x, int y, int bgColor) {
 		int xpix = b.width;			// Number of pixels to be drawn in the X direction
@@ -153,6 +199,8 @@ public class BitmapTest extends Frame {
 
 	// Note: all src coords are assumed to be properly bounded!
 	public void copy(Bitmap src, Bitmap dest, int src_x, int src_y, int dest_x, int dest_y, int count_x, int count_y, int bg) {
+		//System.out.println("1 src_x=" + src_x + " src_y=" + src_y);
+		//System.out.println("2 " + src.pixels.length);
 
 		if(dest_x < 0) {
 			src_x -= dest_x;
@@ -162,7 +210,7 @@ public class BitmapTest extends Frame {
 
 		if(dest_y < 0) {
 			src_y -= dest_y;
-			count_x += dest_y;
+			count_y += dest_y;
 			dest_y = 0;
 		}
 
@@ -180,14 +228,92 @@ public class BitmapTest extends Frame {
 		int src_step = src.width - count_x;
 		int dest_step = dest.width - count_x;
 
+		//System.out.println("3 src_index=" + src_index + " src_x=" + src_x + " src_y="+src_y + " src.width="+src.width);
+		//System.out.println("4 count_x=" + count_x + " count_y=" + count_y);
+		//System.out.println("5 src_step=" + src_step + " dest_step=" + dest_step);
+
 		for(int j = 0; j < count_y; j++) {
 			for(int i = 0; i < count_x; i++) {
 				int pixel = src.pixels[src_index++];
 				dest_index++;
-				if(pixel != bg) dest.pixels[dest_index - 1] = pixel;
+				if(pixel != bg) dest.pixels[dest_index - 1] = foreGround;
 			}
 			src_index += src_step;
 			dest_index += dest_step;
+		}
+	}
+
+	public void fillRect(int x, int y, int w, int h) {
+		if(x >= width || y >= height) return;
+		if(x < 0) {
+			w += x;
+			x = 0;
+		}
+		if(y < 0) {
+			h += y;
+			y = 0;
+		}
+
+		if(x + w > width) {
+			w = width - x;
+		}
+
+		if(y + h > height) {
+			h = height - y;
+		}
+
+		for(int j = 0; j < h; j++) {
+			for(int i = 0; i < w; i++) {
+				pixels[(i + x) + (j + y)*width] = foreGround;
+			}
+		}
+	}
+
+	public void fill3DRect(int x, int y, int w, int h) {
+		if(w < 3 || h < 3) return;
+		int r = (foreGround >> 16) & 0xff;
+		int g = (foreGround >> 8) & 0xff;
+		int b = foreGround & 0xff;
+
+		int bright = (((r + 255) >> 1) << 16) + (((g + 255) >> 1) << 8) + ((b + 255) >> 1);
+		int darker = ((r >> 1) << 16) + ((g >> 1) << 8) + (b >> 1);
+
+		int fg = foreGround;
+		foreGround = bright;
+		horzLine(x, x + w, y);				// Top
+		vertLine(x, y, y + h);				// Left
+		foreGround = darker;
+		horzLine(x, x + w, y + h);			// Bottom
+		vertLine(x + w, y, y + h);			// Right
+		foreGround = fg;
+		fillRect(x + 1, y + 1, w - 1, h - 1);
+	}
+		
+
+	public void horzLine(int x1, int x2, int y) {
+		if(y < 0 || y >= height) return;
+		int left = x1 < x2 ? x1 : x2;
+		int right = x1 < x2 ? x2 : x1;
+		if(left < 0) left = 0;
+		if(right > width) right = width;
+
+		int pos = left + y*width;
+
+		for(int i = left; i < right; i++) pixels[pos++] = foreGround;
+	}
+
+	public void vertLine(int x, int y1, int y2) {
+		if(x < 0 || x >= width) return;
+		int top = y1 < y2 ? y1 : y2;
+		int bottom = y1 < y2 ? y2 : y1;
+		if(top < 0) top = 0;
+		if(bottom > height) bottom = height;
+
+		int pos = x + top*width;
+
+		for(int i = top; i < bottom; i++) {
+			pixels[pos] = foreGround;
+			pos += width;
 		}
 	}
 }

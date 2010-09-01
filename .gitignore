@@ -8,6 +8,5 @@ IcePush.jar
 *.class
 
 # Ignore developer-specific scripts
-mkjar.bat
-mkjar.sh
-run.sh
+*.bat
+*.sh
