@@ -8,5 +8,6 @@ IcePush.jar
 *.class
 
 # Ignore developer-specific scripts
+IcePush.iml
 *.bat
 *.sh
