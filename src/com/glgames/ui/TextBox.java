@@ -11,7 +11,10 @@ public class TextBox extends UIComponent {
 	protected int maxLength = 18;
 	protected boolean focused = false;
 	protected String caption;
-	String value = "";
+	protected String value = "";
+
+	static final Color selectedCol = new Color(0, 64, 255, 200);
+	static final Color deselectedCol = new Color(0, 16, 64, 200);
 
 	TextBox (int x, int y, int width, int height) {
 		super(x, y, width, height);
@@ -70,22 +73,21 @@ public class TextBox extends UIComponent {
 		return maxLength;
 	}
 
-	static final Color selectedCol = new Color(0, 64, 255, 200);
-	static final Color deselectedCol = new Color(0, 16, 64, 200);
-	protected void drawComponent(Renderer r) {
+
+	protected void drawComponent(Graphics g) {
 		if(focused)
-			r.setColor(selectedCol);
+			g.setColor(selectedCol);
 		else
-			r.setColor(deselectedCol);
-		r.fillRect(abs_x, abs_y, width, height);
+			g.setColor(deselectedCol);
+		g.fillRect(abs_x, abs_y, width, height);
 		
-		r.setColor(Color.white);
-		r.drawString(caption, abs_x - r.stringWidth(caption) - 5, abs_y + 15);
-		r.drawString(value, abs_x + 3, abs_y + 17);
+		g.setColor(Color.white);
+		g.drawString(caption, abs_x - r.stringWidth(caption) - 5, abs_y + 15);
+		g.drawString(value, abs_x + 3, abs_y + 17);
 		
 		if(focused && count++ % 50 > 25) {
-			int width = r.stringWidth(value) + 5;
-			r.drawLine(abs_x + width, abs_y + 1, abs_x + width, abs_y + 17);
+			int width = g.getFontMetrics().stringWidth(value) + 5;
+			g.drawLine(abs_x + width, abs_y + 1, abs_x + width, abs_y + 17);
 		}
 	}
 }

@@ -1,9 +1,5 @@
 package com.glgames.ui;
 
-import java.awt.Color;
-
-import com.glgames.graphics2d.Renderer;
-
 public class Container extends UIComponent {
 	public enum Layout {
 		FIXED, HORIZONTAL, VERTICAL;

@@ -148,9 +148,9 @@ public class IcePush extends Applet {
 	}
 
 	public void paint(Graphics g) {
-		if ((state == WELCOME) || (state == HELP) {
+		if ((state == WELCOME) || (state == HELP)) {
 			renderer.drawWelcomeScreen(g);
-		} else if (state == GAME) {
+		} else if (state == PLAY) {
 			renderer.renderScene(g);
 		}
 		GameObjects.ui.draw(g);

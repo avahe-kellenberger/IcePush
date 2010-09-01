@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
 
 public class Renderer {
@@ -16,7 +15,7 @@ public class Renderer {
 
 	// Drawing stuff
 	protected Component canvas;
-	public Image backbuffer;
+	public Image buffer;
 	protected Graphics bg;
 	protected int width, height;
 

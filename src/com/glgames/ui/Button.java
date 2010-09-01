@@ -1,10 +1,9 @@
 package com.glgames.ui;
 
+import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Font;
-
-import com.glgames.graphics2d.Renderer;
 
 public class Button extends UIComponent {
 	private Color HOVER_BGCOLOR = Color.lightGray;
@@ -99,15 +98,15 @@ public class Button extends UIComponent {
 		return font;
 	}
 
-	protected void drawComponent(Renderer r) {
-		r.setColor(bgColor);
-		r.fill3DRect(abs_x, abs_y, width, height, !depressed);
-		r.setColor(fgColor);
-		r.setFont(font);
-		int captionWidth = r.stringWidth(caption);
-		int fontHeight = r.getFontHeight();
-		int fontDescent = r.getFontDescent();
+	protected void drawComponent(Graphics g) {
+		g.setColor(bgColor);
+		g.fill3DRect(abs_x, abs_y, width, height, !depressed);
+		g.setColor(fgColor);
+		g.setFont(font);
+		int captionWidth = g.getFontMetrics().stringWidth(caption);
+		int fontHeight = g.getFontMetrics().getHeight();
+		int fontDescent = g.getFontMetrics().getDescent();
 		// Subtract 1 at the end of the height calculation because it looks more centered on the 3D button that way
-		r.drawString(caption, (abs_x + width / 2 - captionWidth / 2), (abs_y + height / 2 + fontHeight / 2 - fontDescent - 1));
+		g.drawString(caption, (abs_x + width / 2 - captionWidth / 2), (abs_y + height / 2 + fontHeight / 2 - fontDescent - 1));
 	}
 }

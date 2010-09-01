@@ -1,6 +1,7 @@
 package com.glgames.graphics3d;
 
 import java.awt.*;
+import java.awt.image.MemoryImageSource;
 
 import com.glgames.graphics2d.Renderer;
 
@@ -30,8 +31,6 @@ public class Renderer3D extends Renderer {
 	public Renderer3D(Component c, int w, int h) {
 		super(c, w, h);
 		scaledWidth = width << 12;
-		HALF_GAME_FIELD_WIDTH = (744 / 2);
-		HALF_GAME_FIELD_HEIGHT = (422 / 2);
 		faceArray = new Face[5000];
 	}
 

@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 
-import com.glgames.graphics2d.Renderer;
-
 public class Label extends UIComponent {
 	protected String text;
 	protected Color color = Color.white;
@@ -37,15 +35,15 @@ public class Label extends UIComponent {
 		return font;
 	}
 
-	protected void drawComponent(Renderer r) {
+	protected void drawComponent(Graphics g) {
 		if ((width == 0) && (height == 0)) {
-			r.setFont(font);
-			int new_width = r.stringWidth(text);
-			int new_height = r.getFontHeight();
+			g.setFont(font);
+			int new_width = g.getFontMetrics().stringWidth(text);
+			int new_height = g.getFontMetrics().getHeight();
 			setSize(new_width, new_height);
 		}
-		r.setColor(color);
-		r.setFont(font);
-		r.drawString(text, abs_x, abs_y);
+		g.setColor(color);
+		g.setFont(font);
+		g.drawString(text, abs_x, abs_y);
 	}
 }

@@ -6,8 +6,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import com.glgames.graphics2d.Renderer;
-
 public class UIComponent {
 	protected ArrayList<UIComponent> children = new ArrayList<UIComponent>();
 	protected Container parent = null;
@@ -189,18 +187,18 @@ public class UIComponent {
 		return false;
 	}
 	
-	public void draw(Renderer r) { 
+	public void draw(Graphics g) { 
 		if (!getVisible()) {
 			return;
 		}
 
-		drawComponent(r);
+		drawComponent(g);
 		for (UIComponent child : children) {
-			child.draw(r);
+			child.draw(g);
 		}
 	}
 	
-	protected void drawComponent(Renderer r) {
+	protected void drawComponent(Graphics g) {
 		
 	}
 }

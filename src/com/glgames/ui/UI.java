@@ -1,7 +1,5 @@
 package com.glgames.ui;
 
-import com.glgames.graphics2d.Renderer;
-
 public class UI extends Container {
 	public Container welcomeScreenContainer;
 	public Container helpScreenContainer;
