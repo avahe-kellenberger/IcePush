@@ -34,7 +34,7 @@ public class Renderer {
 	public static ArrayList<String> chats = new ArrayList<String>();
 	public static Font chatsFont;
 	public static BufferedImage font;
-
+	// Set the font
 	static {
 		try {
 			font = SpriteLoader.getSprite("data/font.png");

@@ -42,6 +42,7 @@ public class IcePush extends Applet {
 	public static boolean running = true;
 
 	public static boolean isApplet = false;
+	public static boolean is_chat = false;
 
 	private InterthreadQueue<TimedKeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
@@ -92,6 +93,59 @@ public class IcePush extends Applet {
 		if(s != null) NetworkHandler.DEFAULT_SERVER = s;
 		if(u != null) username = u;
 		GameObjects.serverMode = GameObjects.USE_DEFAULT;
+	}
+
+	public static void _init() {
+		instance = new IcePush();
+		instance.setFocusTraversalKeysEnabled(false);
+		renderer = new ClientRenderer(instance, WIDTH, HEIGHT);
+		frame = new GameFrame();
+		renderer.initGraphics();
+	}
+
+	public void start() {
+		setFocusTraversalKeysEnabled(false);
+		renderer = new ClientRenderer(this, WIDTH, HEIGHT);
+		renderer.initGraphics();
+		GameObjects.load();
+		run();
+		cleanup();
+	}
+
+	public void run() {
+		while (running) {
+			if (!GameObjects.loaded) {
+				stop();
+				continue;
+			}
+
+			if (state == PLAY) {
+				gameLoop();
+			}
+			processEvents();
+			try {
+				Thread.sleep(20);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void stop() {
+		running = false;
+	}
+
+	public static void cleanup() {
+		running = false;
+		NetworkHandler.logOut();
+		instance = null;
+		System.gc();
+	}
+
+	private static void gameLoop() {
+		// update positions and such
+		NetworkHandler.handlePackets();
+		updatePlayers();
 	}
 
 	public static Action<Button> onHelpButtonClick = new Action<Button>() {
@@ -254,8 +308,6 @@ public class IcePush extends Applet {
 		GameObjects.ui.handleAction(Actions.HOVER, x, y);
 	}
 
-	public static boolean is_chat = false;
-
 	private void keyPressed(KeyEvent e) {
 		if (!GameObjects.loaded)
 			return;
@@ -390,59 +442,6 @@ public class IcePush extends Applet {
 			moveKeyFlags &= (~moveDir);
 			NetworkHandler.endMoveRequest(moveDir);
 		}
-	}
-
-	public static void _init() { // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-		instance = new IcePush();
-		instance.setFocusTraversalKeysEnabled(false);
-		renderer = new ClientRenderer(instance, WIDTH, HEIGHT);
-		frame = new GameFrame();
-		renderer.initGraphics();
-	}
-
-	public void start() {
-		setFocusTraversalKeysEnabled(false);
-		renderer = new ClientRenderer(this, WIDTH, HEIGHT);
-		renderer.initGraphics();
-		GameObjects.load();
-		run();
-		cleanup();
-	}
-
-	public void run() {
-		while (running) {
-			if (!GameObjects.loaded) {
-				stop();
-				continue;
-			}
-
-			if (state == PLAY) {
-				gameLoop();
-			}
-			processEvents();
-			try {
-				Thread.sleep(20);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public void stop() {
-		running = false;
-	}
-
-	private static void gameLoop() {
-		// update positions and such
-		NetworkHandler.handlePackets();
-		updatePlayers();
-	}
-
-	public static void cleanup() {
-		running = false;
-		NetworkHandler.logOut();
-		instance = null;
-		System.gc();
 	}
 
 	private static void updatePlayers() {
