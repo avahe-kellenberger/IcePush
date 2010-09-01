@@ -14,9 +14,6 @@ import java.util.ArrayList;
 public class Renderer {
 	private static final long serialVersionUID = 1L;
 
-	public int selectedButton;
-	public int mouseOverButton;
-
 	protected Component canvas;
 	public Image backbuffer;
 	protected Graphics outgfx;

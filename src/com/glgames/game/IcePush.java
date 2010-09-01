@@ -254,7 +254,6 @@ public class IcePush extends Applet {
 		int x = e.getX();
 		int y = e.getY();
 		GameObjects.ui.handleAction(Actions.HOVER, x, y);
-		renderer.mouseOverButton = getTopButtonID(x, y);
 	}
 
 	private int getTopButtonID(int mouseX, int mouseY) {
