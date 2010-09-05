@@ -245,6 +245,12 @@ public class IcePush extends Applet {
 		}
 	};
 
+	public static Action<Button> onCloseButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.closePath();
+		}
+	};
+
 	/*public static Action<ServerList> onServerListClick = new Action<ServerList>() {
 		public void doAction(ServerList component, int x, int y) {
 			if (IcePush.state != IcePush.WELCOME 

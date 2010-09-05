@@ -57,6 +57,7 @@ public class GameObjects {
 			ui.lineButton.setClickAction(IcePush.onLineButtonClick);
 			ui.quadButton.setClickAction(IcePush.onQuadButtonClick);
 			ui.cubicButton.setClickAction(IcePush.onCubicButtonClick);
+			ui.closeButton.setClickAction(IcePush.onCloseButtonClick);
 
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");
