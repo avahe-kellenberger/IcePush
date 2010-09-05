@@ -71,6 +71,11 @@ public class Server implements Runnable {
 		physics = new Physics2D(players);
 		updates = new UpdateServer(new File(settings.get("update-path")));
 		updates.start();
+		try {
+			PacketMapper.load();
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
 
 		while (run) {
 			Socket s = incomingConnections.pull();
@@ -225,7 +230,7 @@ public class Server implements Runnable {
 			out.write(p.id);
 			out.flush();
 
-			p.pbuf = new PacketBuffer(s);
+			p.pbuf = new com.glgames.test.DebugPacketBuffer(s);
 			p.connected = true;
 			players[p.id] = p;
 			p.notifyLogin();

@@ -15,9 +15,11 @@ public class Player extends RigidBody {
 	public boolean connected;
 	
 	public PacketBuffer pbuf;
+	private Packets packets;
 
 	public Player() {
 		r = 24;
+		packets = new Packets(this);
 	}
 
 	public void notifyLogin() {
@@ -99,11 +101,15 @@ public class Player extends RigidBody {
 	}
 
 	public void processIncomingPackets() {
-		try {
+	//	try {
 			if (!pbuf.synch()) {
 				Server.logoutPlayer(this); // Log out player if connection has been lost
 				return;
 			}
+			PacketMapper.handlePackets(pbuf, this);
+		
+
+/*
 			int opcode, moveDir, moveId;
 			while ((opcode = pbuf.openPacket()) != -1) {
 				switch (opcode) {
@@ -143,7 +149,7 @@ public class Player extends RigidBody {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	private void playerDied() {
@@ -165,14 +171,14 @@ public class Player extends RigidBody {
 		}
 	}
 
-	private void setBit(int bit) {
+	void setBit(int bit) {
 		if(bit == UP) ya = -0.5F;
 		if(bit == DOWN) ya = 0.5F;
 		if(bit == LEFT) xa = -0.5F;
 		if(bit == RIGHT) xa = 0.5F;
 	}
 
-	private void clearBit(int bit) {
+	void clearBit(int bit) {
 		if(bit == UP) ya = 0;
 		if(bit == DOWN) ya = 0;
 		if(bit == LEFT) xa = 0;
