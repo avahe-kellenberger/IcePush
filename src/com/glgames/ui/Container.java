@@ -10,6 +10,9 @@ public class Container extends UIComponent {
 	Container (int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
+	Container (int width, int height) {
+		super(width, height);
+	}
 
 	public void setLayout(Layout layout) {
 		this.layout = layout;
