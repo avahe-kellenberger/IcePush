@@ -52,12 +52,13 @@ public class GameObjects {
 			ui.helpButton.setClickAction(IcePush.onHelpButtonClick);
 			ui.mapEditorButton.setClickAction(IcePush.onMapEditorButtonClick);
 			ui.backButton.setClickAction(IcePush.onBackButtonClick);
-			//ui.mapCanvas.setClickAction(IcePush.onMapCanvasClick);
 			ui.selectButton.setClickAction(IcePush.onSelectButtonClick);
 			ui.lineButton.setClickAction(IcePush.onLineButtonClick);
 			ui.quadButton.setClickAction(IcePush.onQuadButtonClick);
 			ui.cubicButton.setClickAction(IcePush.onCubicButtonClick);
 			ui.closeButton.setClickAction(IcePush.onCloseButtonClick);
+			ui.exportButton.setClickAction(IcePush.onExportButtonClick);
+			ui.importButton.setClickAction(IcePush.onImportButtonClick);
 
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");

@@ -26,6 +26,8 @@ public class UI extends Container {
 	public Button quadButton;
 	public Button cubicButton;
 	public Button closeButton;
+	public Button exportButton;
+	public Button importButton;
 
 	public UI(int width, int height) {
 		super(0, 0, width, height);
@@ -44,7 +46,7 @@ public class UI extends Container {
 		buttonContainer = new Container(295, 330, 210, 60);
 		buttonInnerContainer = new Container(210, 25);
 		helpTextContainer = new Container(0, 150, width, 200);
-		toolContainer = new Container(50, 450, 700, 25);
+		toolContainer = new Container(10, 450, 780, 25);
 
 		// Create welcome screen components
 		networkStatus = new Label("Select a username.");
@@ -78,6 +80,10 @@ public class UI extends Container {
 		cubicButton.setCaption("Cubic");
 		closeButton = new Button(100, 25);
 		closeButton.setCaption("Close Path");
+		exportButton = new Button(100, 25);
+		exportButton.setCaption("Export");
+		importButton = new Button(100, 25);
+		importButton.setCaption("Import");
 
 		// Pack the welcome screen
 		instructionsContainer.setLayout(Container.Layout.VERTICAL);
@@ -111,6 +117,8 @@ public class UI extends Container {
 		toolContainer.addChild(quadButton);
 		toolContainer.addChild(cubicButton);
 		toolContainer.addChild(closeButton);
+		toolContainer.addChild(exportButton);
+		toolContainer.addChild(importButton);
 		mapEditorScreenContainer.setLayout(Container.Layout.FIXED);
 		mapEditorScreenContainer.addChild(mapCanvas);
 		mapEditorScreenContainer.addChild(toolContainer);

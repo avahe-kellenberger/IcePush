@@ -1,6 +1,13 @@
 package com.glgames.ui;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -50,6 +57,7 @@ public class MapCanvas extends Container {
 		}
 
 		queueLength = queue.size();
+		// Draw if we have collected enough points for the current tool
 		if ((tool == Tool.LINE) && (queueLength == 1)) {
 			currentPoint = queue.get(0);
 			path.lineTo(currentPoint.x, currentPoint.y);
@@ -68,6 +76,38 @@ public class MapCanvas extends Container {
 			queue.remove(2);
 			queue.remove(1);
 			queue.remove(0);
+		}
+	}
+
+	public void exportPath() {
+		// TODO: Add textbox for specifying file name
+		//Date now = new Date();
+		//SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-HH:mm:ss");
+		//String filePath = sdf.format(now) + ".ipm";
+		//System.out.println(filePath);
+		String filePath = "map.ipm";
+		try {
+			FileOutputStream fos = new FileOutputStream(filePath);
+			ObjectOutputStream out = new ObjectOutputStream(fos);
+			out.writeObject(path);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void importPath() {
+		// TODO: Add textbox for specifying file name
+		String filePath = "map.ipm";
+		try {
+			FileInputStream fis = new FileInputStream(filePath);
+			ObjectInputStream in = new ObjectInputStream(fis);
+			path = (Path2D) in.readObject();
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 
