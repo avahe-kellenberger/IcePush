@@ -6,14 +6,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.Path2D;
 
 public class MapCanvas extends Container {
 	public enum Tool {
 		SELECT, LINE, QUADRATIC, CUBIC;
 	}
 
-	protected GeneralPath path = new GeneralPath();
+	protected Path2D path = new Path2D.Float();
 	protected Tool tool = Tool.SELECT;
 	protected ArrayList<Point> queue = new ArrayList<Point>();
 	protected Color bgColor = new Color(255, 255, 255, 200);
@@ -88,7 +88,7 @@ public class MapCanvas extends Container {
 	}
 
 	protected void drawComponent(Graphics g) {
-		GeneralPath closedPath;
+		Path2D closedPath;
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -98,7 +98,7 @@ public class MapCanvas extends Container {
 		g2.draw(path);
 
 		try {
-			closedPath = (GeneralPath) path.clone();
+			closedPath = (Path2D) path.clone();
 			closedPath.closePath();
 			g2.setColor(fillColor);
 			g2.fill(closedPath);
