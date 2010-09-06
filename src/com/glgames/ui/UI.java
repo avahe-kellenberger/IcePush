@@ -8,6 +8,7 @@ public class UI extends Container {
 	public Container instructionsContainer;
 	public Container dataEntryContainer;
 	public Container buttonContainer;
+	public Container buttonInnerContainer;
 	public Container helpTextContainer;
 	public Container toolContainer;
 
@@ -40,7 +41,8 @@ public class UI extends Container {
 		// Create sub-containers
 		instructionsContainer = new Container(0, 140, width, 70);
 		dataEntryContainer = new Container(315, 250, 170, 65);
-		buttonContainer = new Container(295, 330, 210, 85);
+		buttonContainer = new Container(295, 330, 210, 60);
+		buttonInnerContainer = new Container(210, 25);
 		helpTextContainer = new Container(0, 150, width, 200);
 		toolContainer = new Container(50, 450, 700, 25);
 
@@ -86,8 +88,9 @@ public class UI extends Container {
 		dataEntryContainer.addChild(serverTextBox);
 		dataEntryContainer.addChild(usernameTextBox);
 		buttonContainer.setLayout(Container.Layout.VERTICAL);
-		buttonContainer.addChild(loginButton);
-		buttonContainer.addChild(helpButton);
+		buttonInnerContainer.addChild(loginButton);
+		buttonInnerContainer.addChild(helpButton);
+		buttonContainer.addChild(buttonInnerContainer);
 		buttonContainer.addChild(mapEditorButton);
 		welcomeScreenContainer.setLayout(Container.Layout.FIXED);
 		welcomeScreenContainer.addChild(instructionsContainer);
