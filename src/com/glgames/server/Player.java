@@ -15,11 +15,9 @@ public class Player extends RigidBody {
 	public boolean connected;
 	
 	public PacketBuffer pbuf;
-	private Packets packets;
 
 	public Player() {
-		r = 24;
-		packets = new Packets(this);
+		r = 24;			// Radius
 	}
 
 	public void notifyLogin() {
@@ -101,55 +99,36 @@ public class Player extends RigidBody {
 	}
 
 	public void processIncomingPackets() {
-	//	try {
-			if (!pbuf.synch()) {
-				Server.logoutPlayer(this); // Log out player if connection has been lost
-				return;
-			}
-			PacketMapper.handlePackets(pbuf, this);
-		
+		if (!pbuf.synch()) {
+			Server.logoutPlayer(this); // Log out player if connection has been lost
+			return;
+		}
+		PacketMapper.handlePackets(pbuf, this);
+	}
 
-/*
-			int opcode, moveDir, moveId;
-			while ((opcode = pbuf.openPacket()) != -1) {
-				switch (opcode) {
-					case MOVE_REQUEST:
-						moveDir = pbuf.readByte();
-						moveId = pbuf.readByte();
-						if (Server.DEBUG)
-							System.out.println("GOT MOVE REQUEST - DIR: "
-									+ moveDir + " - ID = " + moveId
-									+ " , TIME: " + System.currentTimeMillis());
-						setBit(moveDir);
-						break;
-					case END_MOVE:
-						moveDir = pbuf.readByte();
-						moveId = pbuf.readByte();
-						if (Server.DEBUG)
-							System.out.println("END MOVE REQUEST - ID = "
-									+ moveId + " - TIME = "
-									+ System.currentTimeMillis());
-						clearBit(moveDir);
-						break;
-					case LOGOUT:
-						Server.logoutPlayer(this);
-						break;
-					case CHAT_REQUEST:
-						String msg = pbuf.readString();
-						String full = "<" + username + "> " + msg;
-						InternetRelayChat.sendMessage(full);
-						InternetRelayChat.msgs.push(full);
-						break;
-					case PING:
-						pbuf.beginPacket(PING);
-						pbuf.endPacket();
-						break;
-				}
-				pbuf.closePacket();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
+	public void MOVE_REQUEST(int moveDir, int moveId) {
+		setBit(moveDir);
+		if(Server.DEBUG) System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveId + " , TIME: " + System.currentTimeMillis());
+	}
+
+	public void END_MOVE(int moveDir, int moveId) {	
+		clearBit(moveDir);
+		if(Server.DEBUG) System.out.println("END MOVE REQUEST - ID = " + moveId + " - TIME = " + System.currentTimeMillis());
+	}
+
+	public void LOGOUT() {
+		Server.logoutPlayer(this);
+	}
+
+	public void CHAT_REQUEST(String msg) {
+		String full = "<" + username + "> " + msg;
+		InternetRelayChat.sendMessage(full);
+		InternetRelayChat.msgs.push(full);
+	}
+
+	public void PING() {
+		pbuf.beginPacket(PING);
+		pbuf.endPacket();
 	}
 
 	private void playerDied() {
@@ -171,14 +150,14 @@ public class Player extends RigidBody {
 		}
 	}
 
-	void setBit(int bit) {
+	private void setBit(int bit) {
 		if(bit == UP) ya = -0.5F;
 		if(bit == DOWN) ya = 0.5F;
 		if(bit == LEFT) xa = -0.5F;
 		if(bit == RIGHT) xa = 0.5F;
 	}
 
-	void clearBit(int bit) {
+	private void clearBit(int bit) {
 		if(bit == UP) ya = 0;
 		if(bit == DOWN) ya = 0;
 		if(bit == LEFT) xa = 0;

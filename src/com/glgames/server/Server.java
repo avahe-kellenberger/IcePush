@@ -53,7 +53,7 @@ public class Server implements Runnable {
 		incomingConnections = new InterthreadQueue<Socket>();
 
 		irc = new InternetRelayChat(settings.get("irc-server"), 6667,
-				"#icepush", settings.get("host").replace(".", "-"));
+				"#badpush", settings.get("host").replace(".", "-"));
 		Thread t = new Thread(irc);
 		t.setDaemon(true);
 		t.start();
@@ -230,7 +230,7 @@ public class Server implements Runnable {
 			out.write(p.id);
 			out.flush();
 
-			p.pbuf = new com.glgames.test.DebugPacketBuffer(s);
+			p.pbuf = new PacketBuffer(s); //com.glgames.test.DebugPacketBuffer(s);
 			p.connected = true;
 			players[p.id] = p;
 			p.notifyLogin();
