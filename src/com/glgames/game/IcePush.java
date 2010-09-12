@@ -33,6 +33,7 @@ public class IcePush extends Applet {
 	public static final int WELCOME = 1 << 0;
 	public static final int HELP = 1 << 1;
 	public static final int PLAY = 1 << 2;
+	public static final int MAPEDITOR = 1 << 3;
 	public static int state = WELCOME;
 
 	public static final int WIDTH = 800;
@@ -161,7 +162,7 @@ public class IcePush extends Applet {
 			return;
 
 		Graphics bg = renderer.getBufferGraphics();
-		if ((state == WELCOME) || (state == HELP)) {
+		if ((state == WELCOME) || (state == HELP) || (state == MAPEDITOR)) {
 			renderer.drawWelcomeScreen(bg);
 		} else if (state == PLAY) {
 			renderer.renderScene(bg);
@@ -183,6 +184,15 @@ public class IcePush extends Applet {
 		}
 	};
 	
+	public static Action<Button> onMapEditorButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			IcePush.state = IcePush.MAPEDITOR;
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.mapEditorScreenContainer.setVisibleRecursive(true);
+		}
+	};
+
 	public static Action<Button> onBackButtonClick = new Action<Button>() {
 		public void doAction(Button component, int x, int y) {
 			IcePush.state = IcePush.WELCOME;
@@ -208,6 +218,48 @@ public class IcePush extends Applet {
 		public void doAction(TextBox component, int x, int y) {
 			GameObjects.ui.usernameTextBox.unfocus();
 			GameObjects.ui.serverTextBox.focus();
+		}
+	};
+
+	public static Action<Button> onSelectButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.SELECT);
+		}
+	};
+
+	public static Action<Button> onLineButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.LINE);
+		}
+	};
+	
+	public static Action<Button> onQuadButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.QUADRATIC);
+		}
+	};
+
+	public static Action<Button> onCubicButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.CUBIC);
+		}
+	};
+
+	public static Action<Button> onCloseButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.closePath();
+		}
+	};
+
+	public static Action<Button> onExportButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.exportPath();
+		}
+	};
+
+	public static Action<Button> onImportButtonClick = new Action<Button>() {
+		public void doAction(Button component, int x, int y) {
+			GameObjects.ui.mapCanvas.importPath();
 		}
 	};
 

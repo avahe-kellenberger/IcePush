@@ -13,7 +13,7 @@ public class Button extends UIComponent {
 	protected Color fgColor = Color.white;
 	protected String caption;
 	protected Boolean depressed = false;
-	protected Font font = new Font("Arial", Font.PLAIN, 20);
+	protected Font font = new Font("Arial", Font.PLAIN, 18);
 	
 	Button (int x, int y, int width, int height) {
 		super(x, y, width, height);
