@@ -1,17 +1,21 @@
 package com.glgames.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.zip.Adler32;
-
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.zip.Adler32;
 
 import com.glgames.shared.InterthreadQueue;
 
 public class UpdateServer extends Thread {
 
 	private File indexDir;
-	private int fileCount;
+	//private int fileCount;
 	private ArrayList<Entry> index;
 	private int dirNameLen;
 
@@ -38,7 +42,7 @@ public class UpdateServer extends Thread {
 		if(file.isDirectory()) {
 			String name = file.getPath().substring(dirNameLen);
 			if(!name.isEmpty()) {
-				if(name.charAt(name.length() - 1) != file.separatorChar) name += file.separatorChar;
+				if(name.charAt(name.length() - 1) != File.separatorChar) name += File.separatorChar;
 				System.out.println("Directory: " + name);
 				Entry e = new Entry();
 				e.name = name;
@@ -79,6 +83,7 @@ public class UpdateServer extends Thread {
 		return b;
 	}
 
+	@SuppressWarnings("unused")
 	private int b2i(byte b[]) {
 		return ((b[0] & 0xff) << 24) | ((b[1] & 0xff) << 16) | ((b[2] & 0xff) << 8) | (b[3] & 0xff);
 	}

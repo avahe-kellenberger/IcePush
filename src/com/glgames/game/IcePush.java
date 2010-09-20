@@ -9,16 +9,18 @@ import static java.awt.AWTEvent.MOUSE_EVENT_MASK;
 import static java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK;
 
 import java.applet.Applet;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-import com.glgames.ui.*;
-import com.glgames.graphics2d.*;
-import com.glgames.graphics3d.*;
+import com.glgames.graphics2d.Renderer;
 import com.glgames.shared.InterthreadQueue;
+import com.glgames.ui.Action;
+import com.glgames.ui.Actions;
+import com.glgames.ui.Button;
+import com.glgames.ui.MapCanvas;
+import com.glgames.ui.TextBox;
 
 public class IcePush extends Applet {
 
@@ -401,9 +403,9 @@ public class IcePush extends Applet {
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			is_chat = !is_chat;
-			if (!is_chat && !renderer.curChat.trim().isEmpty()) {
-				NetworkHandler.sendChatMessage(renderer.curChat.trim());
-				renderer.curChat = "";
+			if (!is_chat && !Renderer.curChat.trim().isEmpty()) {
+				NetworkHandler.sendChatMessage(Renderer.curChat.trim());
+				Renderer.curChat = "";
 			}
 		} else if (!is_chat)
 			switch (e.getKeyCode()) {
@@ -430,29 +432,29 @@ public class IcePush extends Applet {
 					NetworkHandler.ping();
 					break;
 				case KeyEvent.VK_C:
-					renderer.chats_visible = !renderer.chats_visible;
+					Renderer.chats_visible = !Renderer.chats_visible;
 					break;
 				case KeyEvent.VK_W:
-					if (renderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
+					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
 						renderer.pitch -= 5;
 					break;
 				case KeyEvent.VK_S:
-					if (renderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
+					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
 						renderer.pitch += 5;
 					break;
 				case KeyEvent.VK_A:
-					if (renderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
+					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
 						renderer.yaw -= 5;
 					break;
 				case KeyEvent.VK_D:
-					if (renderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
+					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
 						renderer.yaw += 5;
 					break;
 				case KeyEvent.VK_2:
-					renderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
+					ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
 					break;
 				case KeyEvent.VK_3:
-					renderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
+					ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
 					break;
 				case KeyEvent.VK_J:
 					renderer.cameraX -= 5;
@@ -479,11 +481,11 @@ public class IcePush extends Applet {
 	private void keyTyped(KeyEvent e) {
 		if (is_chat) {
 			char c = e.getKeyChar();
-			if (c == 8 && renderer.curChat.length() > 0)
-				Renderer.curChat = renderer.curChat.substring(0,
-						renderer.curChat.length() - 1);
+			if (c == 8 && Renderer.curChat.length() > 0)
+				Renderer.curChat = Renderer.curChat.substring(0,
+						Renderer.curChat.length() - 1);
 			else if (c >= ' ')
-				renderer.curChat += c;
+				Renderer.curChat += c;
 		}
 	}
 

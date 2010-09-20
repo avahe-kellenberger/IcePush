@@ -17,8 +17,8 @@ public class Physics2D {
 		for(int i = 0; i < bodies.length; i++) {
 			if((a = bodies[i]) == null) continue;
 
-			float prevx = a.x;
-			float prevy = a.y;
+			//float prevx = a.x;
+			//float prevy = a.y;
 
 			if(a.movable) {
 				a.dx *= friction;

@@ -10,7 +10,6 @@ public class Object3D {
 	public int faceVertices[][];
 	
 	public Color faceColors[];
-	public Texture faceTextures[];
 
 	public int screenX[];
 	public int screenY[];

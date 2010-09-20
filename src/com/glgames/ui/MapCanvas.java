@@ -1,19 +1,17 @@
 package com.glgames.ui;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.IOException;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Color;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 public class MapCanvas extends Container {
 	public enum Tool {

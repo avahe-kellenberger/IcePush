@@ -1,10 +1,15 @@
 package com.glgames.test.tree;
 
-import java.awt.*;
-import java.awt.event.*;
-import static java.awt.AWTEvent.*;
-import static java.awt.event.KeyEvent.*;
-import static java.awt.event.WindowEvent.*;
+import static java.awt.AWTEvent.MOUSE_EVENT_MASK;
+import static java.awt.AWTEvent.WINDOW_EVENT_MASK;
+import static java.awt.event.WindowEvent.WINDOW_CLOSING;
+
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 public class TreeTest extends Frame {
 
@@ -16,7 +21,7 @@ public class TreeTest extends Frame {
 	QuadTree tree;
 
 	public static void main(String thusly[]) {
-		TreeTest tt = new TreeTest();
+		new TreeTest();
 	}
 
 	TreeTest() {
@@ -32,7 +37,7 @@ public class TreeTest extends Frame {
 	}
 
 	public void processMouseEvent(MouseEvent me) {
-		if(me.getID() != me.MOUSE_CLICKED) return;
+		if(me.getID() != MouseEvent.MOUSE_CLICKED) return;
 		QtNode n = tree.root.getNodeContaining(me.getX() - insLeft, me.getY() - insTop);
 		if(n != null) n.split();
 		repaint();

@@ -9,12 +9,11 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
-import java.awt.image.MemoryImageSource;
 import java.awt.image.DirectColorModel;
-import java.io.File;
+import java.awt.image.MemoryImageSource;
+import java.io.FileInputStream;
 
 import javax.imageio.ImageIO;
-import java.io.FileInputStream;
 
 import com.glgames.graphics2d.Bitmap;
 
@@ -82,7 +81,7 @@ public class BitmapTest extends Frame {
 	}
 
 	public void processWindowEvent(WindowEvent we) {
-		if(we.getID() == we.WINDOW_CLOSING) dispose();
+		if(we.getID() == WindowEvent.WINDOW_CLOSING) dispose();
 	}
 
 	public void paint(Graphics g) {

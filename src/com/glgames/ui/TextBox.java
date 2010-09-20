@@ -1,10 +1,7 @@
 package com.glgames.ui;
 
-import java.awt.Graphics;
 import java.awt.Color;
-import java.awt.Rectangle;
-
-import com.glgames.graphics2d.Renderer;
+import java.awt.Graphics;
 
 public class TextBox extends UIComponent {
 	private int count;
