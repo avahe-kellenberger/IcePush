@@ -64,7 +64,6 @@ public class GameObjects {
 			button = SpriteLoader.getSprite("images/button.png");
 			button2 = SpriteLoader.getSprite("images/button2.png");			
 			
-			Map.load();
 			scenery = new Object3D[10]; 
 			scenery[0] = new Object3D.Plane(0, 0, 0, 20, 12, 40);
 			

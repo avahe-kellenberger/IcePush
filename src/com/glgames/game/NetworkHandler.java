@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.glgames.ui.*;
+import com.glgames.graphics2d.Renderer;
 import com.glgames.shared.ILoader;
 import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
@@ -171,7 +172,7 @@ public class NetworkHandler {
 					break;
 				case NEW_CHAT_MESSAGE:
 					String msg = pbuf.readString();
-					IcePush.renderer.chats.add(msg);
+					Renderer.chats.add(msg);
 					break;
 
 				case UPDATE:

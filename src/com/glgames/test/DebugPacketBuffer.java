@@ -1,7 +1,6 @@
 package com.glgames.test;
 
 import java.net.Socket;
-import java.io.IOException;
 
 import com.glgames.shared.PacketBuffer;
 

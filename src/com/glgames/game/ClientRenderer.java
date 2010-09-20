@@ -1,10 +1,13 @@
 package com.glgames.game;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
-import com.glgames.graphics2d.*;
-import com.glgames.graphics3d.*;
-
+import com.glgames.graphics3d.Object3D;
+import com.glgames.graphics3d.Renderer3D;
 import com.glgames.shared.Opcodes;
 
 public class ClientRenderer extends Renderer3D {
