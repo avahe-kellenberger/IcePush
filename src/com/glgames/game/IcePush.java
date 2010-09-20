@@ -468,6 +468,12 @@ public class IcePush extends Applet {
 				case KeyEvent.VK_I:
 					renderer.cameraY += 5;
 					break;
+				case KeyEvent.VK_Y:
+					renderer.cameraZ += 5;
+					break;
+				case KeyEvent.VK_N:
+					renderer.cameraZ -= 5;
+					break;
 			}
 
 		if (moveDir != 0) {

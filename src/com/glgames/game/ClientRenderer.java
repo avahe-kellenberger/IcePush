@@ -63,7 +63,7 @@ public class ClientRenderer extends Renderer3D {
 	}
 
 	private void drawNames(Player[] players, Graphics g) {
-		for(Player p : players) if(p != null) {
+		/*for(Player p : players) if(p != null) {
 			Object3D o = p.model;
 			int height_variable_based_on_type = 0;
 			if(p.type == Opcodes.TREE) {
@@ -79,7 +79,7 @@ public class ClientRenderer extends Renderer3D {
 			g.setFont(namesFont);
 			g.setColor(Color.red);
 			g.drawString(p.username, scr[0] - width, scr[1]);
-		}
+		}*/
 	}
 
 	protected void renderScene2D(Player[] players, Graphics g) {

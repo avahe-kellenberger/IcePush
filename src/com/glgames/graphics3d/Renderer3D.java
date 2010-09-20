@@ -11,11 +11,10 @@ import com.glgames.graphics2d.Renderer;
 public class Renderer3D extends Renderer {
 
 	// 3D camera stuff
-	public double cameraX = 0.0;
-	public double cameraY = -100.0;
-	public double cameraZ = -450.0;
-	public int pitch = 270, yaw = 180;
-	public double focusX, focusY, focusZ;
+	public double cameraX = 380.0;
+	public double cameraY = 390.0;
+	public double cameraZ = 110.0;
+	public int pitch = 270, yaw = 0;
 	private double yawSin, yawCos, pitchSin, pitchCos;
 
 	// 3D drawing stuff
@@ -80,33 +79,25 @@ public class Renderer3D extends Renderer {
 					continue;
 
 				vertexCount = obj.faceVertices[currentFace].length;
-
+				Face out = new Face(vertexCount);
 				double faceCenterX = 0;
 				double faceCenterY = 0;
 				double faceCenterZ = 0;
-
-				// Will be discarded if this face is culled
-				int drawXBuf[] = new int[vertexCount];
-				int drawYBuf[] = new int[vertexCount];
-				int drawZBuf[] = new int[vertexCount];
-
+				
 				for (int currentVertex = 0; currentVertex < vertexCount; currentVertex++) {
 					int vertexID = obj.faceVertices[currentFace][currentVertex];
-
-					double[] transformed = transformPoint(obj.baseX
-							- HALF_GAME_FIELD_WIDTH, obj.baseY, obj.baseZ
-							- HALF_GAME_FIELD_HEIGHT, obj.vertX[vertexID],
+					
+					double[] transformed = transformPoint(obj.baseX, obj.baseY, obj.baseZ, obj.vertX[vertexID],
 							obj.vertY[vertexID], obj.vertZ[vertexID]);
-
+					
 					obj.vertXRelCam[vertexID] = transformed[0];
 					obj.vertYRelCam[vertexID] = transformed[1];
 					obj.vertZRelCam[vertexID] = transformed[2];
-
+					
 					if (obj.vertZRelCam[vertexID] <= 0)
 						obj.vertZRelCam[vertexID] = 1;
 
-					int[] screen = worldToScreen(obj.vertXRelCam[vertexID],
-							obj.vertYRelCam[vertexID],
+					int[] screen = worldToScreen(obj.vertXRelCam[vertexID], obj.vertYRelCam[vertexID],
 							obj.vertZRelCam[vertexID]);
 
 					obj.screenX[vertexID] = screen[0];
@@ -118,15 +109,21 @@ public class Renderer3D extends Renderer {
 
 					int drawX = obj.screenX[vertexID];
 					int drawY = obj.screenY[vertexID];
-					int drawZ = (int) (1 / obj.vertZRelCam[vertexID]);
+					float drawZ = (float) obj.vertZRelCam[vertexID];
 
 					if (drawX >= 0 && drawX <= width && drawY >= 0
 							&& drawY <= height)
 						withinViewport = true;
-
-					drawXBuf[currentVertex] = drawX;
-					drawYBuf[currentVertex] = drawY;
-					drawZBuf[currentVertex] = drawZ;
+					
+					out.x[currentVertex] = drawX;
+					out.y[currentVertex] = drawY;
+					out.z[currentVertex] = drawZ;
+					if(obj.faceuv.length > 0 && obj.faceuv[0] != null) {
+						out.color = -1;
+						int uvID = obj.faceuv[currentFace][currentVertex];
+						out.u[currentVertex] = obj.U[uvID];
+						out.v[currentVertex] = obj.V[uvID];
+					}
 				}
 
 				if (!withinViewport)
@@ -138,17 +135,21 @@ public class Renderer3D extends Renderer {
 
 				double distance = faceCenterX * faceCenterX + faceCenterY
 						* faceCenterY + faceCenterZ * faceCenterZ;
-
-				if (faceIndex > 4998)
-					faceIndex = 4998;
-				faceArray[faceIndex++] = new Face(drawXBuf, drawYBuf, drawZBuf,
-						vertexCount, distance, obj.faceColors[currentFace]);
+				out.distance = distance;
+				if(obj.faceuv.length == 0 || obj.faceuv[0] == null)
+					out.color = obj.faceColors[currentFace].getRGB();
+				
+				faceArray[faceIndex++] = out;
 			}
 		}
 		Arrays.sort(faceArray, 0, faceIndex);
 		for(int k = faceIndex - 1; k >= 0; k--) {
 			Face f = faceArray[k];
-			fillPolygon(f.drawX, f.drawY, f.color.getRGB());
+			if(f.color == -1) {
+				perspectiveCorrectPolygon(f.x, f.y, f.z, f.u, f.v, Object3D.textures[f.texID], 512);
+			} else {
+				fillPolygon(f.x, f.y, f.color);
+			}
 		}
 	}
 	
@@ -173,42 +174,35 @@ public class Renderer3D extends Renderer {
 		int[] ret = new int[2];
 		int sW = width / 2, sH = height / 2;
 
-		ret[0] = sW - (int) (sW * x / z); // Fix for bug #433299297: Left and
-											// right are transposed
+		ret[0] = sW + (int) (sW * x / z); // Fix for bug #433299297: Left and right are transposed
 		ret[1] = sH - (int) (sH * y / z);
 		return ret;
 	}
-
+	
 	public double[] transformPoint(double objBaseX, double objBaseY,
 			double objBaseZ, double vertX, double vertY, double vertZ) {
-		double absVertX = objBaseX + vertX;
-		double absVertY = objBaseY + vertY;
-		double absVertZ = objBaseZ + vertZ;
-		// System.out.println(absVertX + " " + absVertY + " " + absVertZ);
-		absVertX -= focusX;
-		absVertY -= focusY;
-		absVertZ -= focusZ;
-
+		vertX -= cameraX;
+		vertY -= cameraY;
+		vertZ -= cameraZ;
+		
+		vertX += objBaseX;
+		vertY += objBaseY;
+		vertZ += objBaseZ;
+		
 		/* Rotation about Y axis -- Camera Yaw */
-
-		double rotated_Y_AbsVertX = (absVertX * yawCos - absVertZ * yawSin);
-		double rotated_Y_AbsVertZ = (absVertX * yawSin + absVertZ * yawCos);
+		double rotated_Y_AbsVertX = (vertX * yawCos - vertZ * yawSin);
+		double rotated_Y_AbsVertZ = (vertX * yawSin + vertZ * yawCos);
 
 		/* Rotation about X axis -- Camera Pitch */
 
-		double rotated_X_AbsVertY = (absVertY * pitchCos - rotated_Y_AbsVertZ
+		double rotated_X_AbsVertY = (vertY * pitchCos - rotated_Y_AbsVertZ
 				* pitchSin);
-		double rotated_X_AbsVertZ = (absVertY * pitchSin + rotated_Y_AbsVertZ
+		double rotated_X_AbsVertZ = (vertY * pitchSin + rotated_Y_AbsVertZ
 				* pitchCos);
-
-		rotated_Y_AbsVertX += focusX;
-		rotated_X_AbsVertY += focusY;
-		rotated_X_AbsVertZ += focusZ;
-
-		return new double[] { rotated_Y_AbsVertX - cameraX,
-				rotated_X_AbsVertY - cameraY, rotated_X_AbsVertZ - cameraZ };
+		
+		return new double[] { rotated_Y_AbsVertX, rotated_X_AbsVertY,
+				rotated_X_AbsVertZ };
 	}
-
 	/**
 	 * Sorts a trio of vertices by height so that y1 <= y2 <= y3 Implemented as
 	 * its own method with global variables so that triangle code can stay small
