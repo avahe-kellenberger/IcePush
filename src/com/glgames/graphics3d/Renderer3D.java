@@ -170,12 +170,11 @@ public class Renderer3D extends Renderer {
 				15, 15);
 	}
 
+	final int hw = width / 2, hh = height / 2;
 	public int[] worldToScreen(double x, double y, double z) {
 		int[] ret = new int[2];
-		int sW = width / 2, sH = height / 2;
-
-		ret[0] = sW + (int) (sW * x / z); // Fix for bug #433299297: Left and right are transposed
-		ret[1] = sH + (int) (sH * y / z);
+		ret[0] = hw + (int) (hw * x / z);
+		ret[1] = hh + (int) (hh * y / z);
 		return ret;
 	}
 	
