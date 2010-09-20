@@ -1,6 +1,10 @@
 package com.glgames.graphics3d;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class Object3D {
 	public double vertX[];
@@ -8,12 +12,11 @@ public class Object3D {
 	public double vertZ[];
 
 	public int faceVertices[][];
-	
+	public int faceCount;
 	public Color faceColors[];
 
 	public int screenX[];
 	public int screenY[];
-
 	public int vertexCount;
 
 	public double baseX, baseY, baseZ;
@@ -22,15 +25,19 @@ public class Object3D {
 	public double vertYRelCam[];
 	public double vertZRelCam[];
 	
-	public double clippedX[];
-	public double clippedY[];
-	public double clippedZ[];
+	public int[] U;
+	public int[] V;
+	public int numUV;
+	
+	public int[][] faceuv;
+	public int[] facetextid;
 	
 	public int rotationY;
 	public int rotationX;
 	
 	public static final double TWO_PI = 2 * Math.PI;
 	public static Object3D templates[];
+	public static int[][] textures;
 
 	public Object3D() {
 		vertexCount = 0;
@@ -43,15 +50,16 @@ public class Object3D {
 		screenY = new int[50];
 
 		faceVertices = new int[50][];
+		faceuv = new int[50][];
+		facetextid = new int[50];
 		faceColors = new java.awt.Color[50];
+		
+		U = new int[50];
+		V = new int[50];
 
 		vertXRelCam = new double[50];
 		vertYRelCam = new double[50];
 		vertZRelCam = new double[50];
-		
-		clippedX = new double[50];
-		clippedY = new double[50];
-		clippedZ = new double[50];
 	}
 
 	public void putVertex(double x, double y, double z) {
@@ -61,27 +69,49 @@ public class Object3D {
 		vertexCount++;
 	}
 	
+	public void putUV(int u, int v) {
+		U[numUV] = u;
+		V[numUV++] = v;
+	}
+	
+	private int[] tempvert, tempuv;
+	private int tempptr;
+	public void beginFace(int numPoints) {
+		tempvert = new int[numPoints];
+		tempuv = new int[numPoints];
+		tempptr = 0;
+	}
+	
+	public void putFaceVert(int pindex, int tindex) {
+		tempvert[tempptr] = pindex;
+		tempuv[tempptr++] = tindex;
+	}
+	
+	public void endFace(int texid) {
+		faceVertices[faceCount] = tempvert;
+		faceuv[faceCount] = tempuv;
+		facetextid[faceCount++] = texid;
+	}
+	
 
 	public Object3D(int vertices, int faces) {
-		vertexCount = vertices;
-
-		vertX = new double[vertexCount];
-		vertY = new double[vertexCount];
-		vertZ = new double[vertexCount];
-
-		screenX = new int[vertexCount];
-		screenY = new int[vertexCount];
+		System.out.println(vertices);
+		vertX = new double[vertices];
+		vertY = new double[vertices];
+		vertZ = new double[vertices];
+		vertXRelCam = new double[vertices];
+		vertYRelCam = new double[vertices];
+		vertZRelCam = new double[vertices];
+		
+		screenX = new int[vertices];
+		screenY = new int[vertices];
 
 		faceVertices = new int[faces][];
-		faceColors = new java.awt.Color[faces];
-
-		vertXRelCam = new double[vertexCount];
-		vertYRelCam = new double[vertexCount];
-		vertZRelCam = new double[vertexCount];
-		
-		clippedX = new double[vertexCount];
-		clippedY = new double[vertexCount];
-		clippedZ = new double[vertexCount];
+		faceColors = new Color[faces];
+		faceuv = new int[faces][];
+		facetextid = new int[faces];
+		U = new int[vertices];
+		V = new int[vertices];
 	}
 	
 
@@ -151,13 +181,11 @@ public class Object3D {
 		vertXRelCam = new double[vertexCount];
 		vertYRelCam = new double[vertexCount];
 		vertZRelCam = new double[vertexCount];
-
 		screenX = new int[vertexCount];
 		screenY = new int[vertexCount];
-		
-		clippedX = new double[vertexCount];
-		clippedY = new double[vertexCount];
-		clippedZ = new double[vertexCount];
+		faceuv = new int[0][];
+		facetextid = new int[0];
+		U = new int[0]; V = new int[0];
 	}
 
 	public Object3D(int type) {
@@ -173,14 +201,15 @@ public class Object3D {
 
 		faceVertices = orig.faceVertices.clone();
 		faceColors = orig.faceColors.clone();
+		faceuv = orig.faceuv.clone();
+		facetextid = orig.facetextid.clone();
+		
+		U = orig.U.clone();
+		V = orig.V.clone();
 
 		vertXRelCam = new double[vertexCount];
 		vertYRelCam = new double[vertexCount];
 		vertZRelCam = new double[vertexCount];
-		
-		clippedX = new double[vertexCount];
-		clippedY = new double[vertexCount];
-		clippedZ = new double[vertexCount];
 	}
 
 	private static Color scaleColor(Color c, double scale) {
@@ -228,10 +257,32 @@ public class Object3D {
 
 		templates[0] = new Object3D(treeLayerHeights, treeLayerScale,
 				treeLayerColors, null, null, 6);
-		templates[1] = new Object3D(smLayerHeights, smLayerScale,
-				smLayerColors, null, null, 50);
+		try {
+			templates[1] = ObjImporter.loadObj("models/snowman.obj");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		textures = new int[2][];
+		for(int k = 0; k < textures.length; k++)
+			loadTexture(k, "models/" + k + ".jpg");
+		
 	}
-	
+	public static void loadTexture(int index, String filename) {
+		try {
+			BufferedImage img = ImageIO.read(Object3D.class.getResource("/" + filename));
+			int w = img.getWidth();
+			int h = img.getHeight();
+			int size = w * h;
+			int[] pix = new int[size];
+			img.getRGB(0, 0, w, h, pix, 0, w);
+			
+			textures[index] = pix;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static class Plane extends Object3D {
 		public Plane(double x, double y, double z, int verticesX, int verticesZ, double tileSize) {

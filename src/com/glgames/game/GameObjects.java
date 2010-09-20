@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import com.glgames.ui.*;
 import com.glgames.graphics2d.SpriteLoader;
+import com.glgames.graphics3d.ObjImporter;
 import com.glgames.graphics3d.Object3D;
 
 public class GameObjects {

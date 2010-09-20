@@ -436,19 +436,19 @@ public class IcePush extends Applet {
 					break;
 				case KeyEvent.VK_W:
 					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.pitch -= 5;
+						renderer.pitch += 5;
 					break;
 				case KeyEvent.VK_S:
 					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.pitch += 5;
+						renderer.pitch -= 5;
 					break;
 				case KeyEvent.VK_A:
 					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.yaw -= 5;
+						renderer.yaw += 5;
 					break;
 				case KeyEvent.VK_D:
 					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.yaw += 5;
+						renderer.yaw -= 5;
 					break;
 				case KeyEvent.VK_2:
 					ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
@@ -467,6 +467,12 @@ public class IcePush extends Applet {
 					break;
 				case KeyEvent.VK_I:
 					renderer.cameraY += 5;
+					break;
+				case KeyEvent.VK_Y:
+					renderer.cameraZ += 5;
+					break;
+				case KeyEvent.VK_N:
+					renderer.cameraZ -= 5;
 					break;
 			}
 

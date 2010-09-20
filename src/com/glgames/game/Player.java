@@ -56,7 +56,7 @@ public class Player {
 		sprite.x = x;
 		sprite.y = y;
 		model.baseX = x;
-		model.baseZ = y;
+		model.baseZ = y; // ???
 	}
 
 	// ALL CODE IN COMMENTS HAS BEEN COMMENTED OUT
