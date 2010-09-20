@@ -25,7 +25,6 @@ public class ObjImporter {
 			} else if(command.equals("vt")) {
 				int u = (int) (TEX_SIDE * Double.parseDouble(parts[1]));
 				int v = (int) (TEX_SIDE * Double.parseDouble(parts[2]));
-				System.out.println(u + " " + v);
 				obj.putUV(u, v);
 			} else if(command.equals("f")) {
 				obj.beginFace(parts.length - 1); // -1 for 'f' part
@@ -36,7 +35,6 @@ public class ObjImporter {
 				obj.endFace(0);
 			}
 		}
-		System.out.println(Arrays.toString(obj.faceVertices[0]) + " " + Arrays.toString(obj.faceuv[0]));
 		return obj;
 	}
 }

@@ -93,9 +93,15 @@ public class Object3D {
 		facetextid[faceCount++] = texid;
 	}
 	
+	public void scale(float scaleFactor) {
+		for(int k = 0; k < vertX.length; k++) {
+			vertX[k] *= scaleFactor;
+			vertY[k] *= scaleFactor;
+			vertZ[k] *= scaleFactor;
+		}
+	}
 
 	public Object3D(int vertices, int faces) {
-		System.out.println(vertices);
 		vertX = new double[vertices];
 		vertY = new double[vertices];
 		vertZ = new double[vertices];
@@ -259,6 +265,7 @@ public class Object3D {
 				treeLayerColors, null, null, 6);
 		try {
 			templates[1] = ObjImporter.loadObj("models/snowman.obj");
+			templates[1].scale(0.3f);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
