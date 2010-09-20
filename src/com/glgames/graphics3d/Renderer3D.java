@@ -13,7 +13,7 @@ public class Renderer3D extends Renderer {
 	// 3D camera stuff
 	public double cameraX = 380.0;
 	public double cameraY = 390.0;
-	public double cameraZ = 110.0;
+	public double cameraZ = 330.0;
 	public int pitch = 270, yaw = 0;
 	private double yawSin, yawCos, pitchSin, pitchCos;
 
@@ -175,33 +175,28 @@ public class Renderer3D extends Renderer {
 		int sW = width / 2, sH = height / 2;
 
 		ret[0] = sW + (int) (sW * x / z); // Fix for bug #433299297: Left and right are transposed
-		ret[1] = sH - (int) (sH * y / z);
+		ret[1] = sH + (int) (sH * y / z);
 		return ret;
 	}
 	
 	public double[] transformPoint(double objBaseX, double objBaseY,
-			double objBaseZ, double vertX, double vertY, double vertZ) {
-		vertX -= cameraX;
-		vertY -= cameraY;
-		vertZ -= cameraZ;
+			double objBaseZ, double x, double y, double z) {
+		x -= cameraX;
+		y -= cameraY;
+		z -= cameraZ;
 		
-		vertX += objBaseX;
-		vertY += objBaseY;
-		vertZ += objBaseZ;
+		x += objBaseX;
+		y += objBaseY;
+		z += objBaseZ;
 		
-		/* Rotation about Y axis -- Camera Yaw */
-		double rotated_Y_AbsVertX = (vertX * yawCos - vertZ * yawSin);
-		double rotated_Y_AbsVertZ = (vertX * yawSin + vertZ * yawCos);
-
-		/* Rotation about X axis -- Camera Pitch */
-
-		double rotated_X_AbsVertY = (vertY * pitchCos - rotated_Y_AbsVertZ
-				* pitchSin);
-		double rotated_X_AbsVertZ = (vertY * pitchSin + rotated_Y_AbsVertZ
-				* pitchCos);
+		double transX, transY, transZ;
+		transX = (x * yawCos - z * yawSin);
+		transZ = (x * yawSin + z * yawCos);
 		
-		return new double[] { rotated_Y_AbsVertX, rotated_X_AbsVertY,
-				rotated_X_AbsVertZ };
+		transY = (y * pitchCos - transZ * pitchSin);
+		transZ = (y * pitchSin + transZ * pitchCos);
+		
+		return new double[] { transX, transY, transZ };
 	}
 	/**
 	 * Sorts a trio of vertices by height so that y1 <= y2 <= y3 Implemented as

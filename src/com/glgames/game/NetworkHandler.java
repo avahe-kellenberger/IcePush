@@ -127,7 +127,7 @@ public class NetworkHandler {
 			switch (opcode) {
 				case NEW_PLAYER:
 					id = pbuf.readShort();
-					type = pbuf.readByte(); // snowman or tree??
+					type = Opcodes.SNOWMAN; pbuf.readByte(); // snowman or tree??
 					username = pbuf.readString();
 					x = pbuf.readShort();
 					y = pbuf.readShort();
