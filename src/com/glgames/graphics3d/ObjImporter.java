@@ -3,7 +3,6 @@ package com.glgames.graphics3d;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 public class ObjImporter {
 	static final String COMMENT = "#";
@@ -23,8 +22,8 @@ public class ObjImporter {
 			if(command.equals("v")) {
 				obj.putVertex(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
 			} else if(command.equals("vt")) {
-				int u = (int) (TEX_SIDE * Double.parseDouble(parts[1]));
-				int v = (int) (TEX_SIDE * Double.parseDouble(parts[2]));
+				int u = (int) ((TEX_SIDE * Double.parseDouble(parts[1])));
+				int v = (int) (TEX_SIDE - (TEX_SIDE * Double.parseDouble(parts[2])));
 				obj.putUV(u, v);
 			} else if(command.equals("f")) {
 				obj.beginFace(parts.length - 1); // -1 for 'f' part
