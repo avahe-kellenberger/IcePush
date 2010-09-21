@@ -15,6 +15,7 @@ public class GameObjects {
 	public static String[] instructions, help;
 	public static BufferedImage logo;
 	public static BufferedImage background;
+	public static BufferedImage dbox;
 
 	public static BufferedImage button, button2;
 	public static TextBox serverBox, usernameBox;
@@ -63,7 +64,8 @@ public class GameObjects {
 
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");
-			button2 = SpriteLoader.getSprite("images/button2.png");			
+			button2 = SpriteLoader.getSprite("images/button2.png");		
+			dbox = SpriteLoader.getSprite("images/dbox.png");
 			
 			scenery = new Object3D[10]; 
 			scenery[0] = new Object3D.Plane(0, 0, 0, 20, 12, 40);

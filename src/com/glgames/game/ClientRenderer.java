@@ -8,7 +8,6 @@ import java.awt.RenderingHints;
 
 import com.glgames.graphics3d.Object3D;
 import com.glgames.graphics3d.Renderer3D;
-import com.glgames.shared.Opcodes;
 
 public class ClientRenderer extends Renderer3D {
 
@@ -63,23 +62,21 @@ public class ClientRenderer extends Renderer3D {
 	}
 
 	private void drawNames(Player[] players, Graphics g) {
-		/*for(Player p : players) if(p != null) {
+		for(Player p : players) if(p != null) {
 			Object3D o = p.model;
-			int height_variable_based_on_type = 0;
-			if(p.type == Opcodes.TREE) {
-				height_variable_based_on_type = 120;
-			} else if(p.type == Opcodes.SNOWMAN) {
-				height_variable_based_on_type = 50;
-			}
+			double maxy = 0;
+			for(int k = 0; k < o.vertY.length; k++)
+				if(o.vertY[k] > maxy)
+					maxy = o.vertY[k];
 			double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ,
-					-HALF_GAME_FIELD_WIDTH, height_variable_based_on_type, -HALF_GAME_FIELD_HEIGHT);
+					0, maxy + 25, 0);
 			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 			
 			int width = g.getFontMetrics().stringWidth(p.username) / 2;
 			g.setFont(namesFont);
 			g.setColor(Color.red);
 			g.drawString(p.username, scr[0] - width, scr[1]);
-		}*/
+		}
 	}
 
 	protected void renderScene2D(Player[] players, Graphics g) {
@@ -95,15 +92,15 @@ public class ClientRenderer extends Renderer3D {
 	}
 
 	private void drawDeathsBox(Graphics g) {
-		int x = 200, y = 340;
+		int x = 210, y = 280;
+		g.drawImage(GameObjects.dbox, x, y, null);
 		g.setColor(Color.white);
-		g.setFont(deathsBoxFont);
-		g.drawString("Deaths", x, y);
-		g.drawRect(x, y += 5, 400, 100);
+		g.setFont(chatsFont);
+		y += 35;
 		for (int k = 0; k < GameObjects.players.length; k++) {
 			if (GameObjects.players[k] == null) continue;
 			Player plr = GameObjects.players[k];
-			g.drawString(plr.username + " - " + plr.deaths, x + 15, y += 20);
+			g.drawString(plr.username + " - " + plr.deaths, x + 25, y += 15);
 		}
 	}
 
