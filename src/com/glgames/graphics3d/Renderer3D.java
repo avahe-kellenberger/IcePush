@@ -12,9 +12,9 @@ public class Renderer3D extends Renderer {
 
 	// 3D camera stuff
 	public double cameraX = 380.0;
-	public double cameraY = 390.0;
+	public double cameraY = 150.0;
 	public double cameraZ = 330.0;
-	public int pitch = 270, yaw = 0;
+	public int pitch = 230, yaw = 0;
 	private double yawSin, yawCos, pitchSin, pitchCos;
 
 	// 3D drawing stuff
@@ -26,9 +26,7 @@ public class Renderer3D extends Renderer {
 	static int triLen;
 
 	// 3D drawing constants
-	public static final int HALF_GAME_FIELD_WIDTH = (744 / 2);
-	public static final int HALF_GAME_FIELD_HEIGHT = (422 / 2);
-	int scaledWidth;
+	private int scaledWidth;
 
 	public Renderer3D(Component c, int w, int h) {
 		super(c, w, h);
@@ -55,10 +53,7 @@ public class Renderer3D extends Renderer {
 
 	private void doRender(Object3D[] objArray) {
 		faceIndex = 0;
-		while (pitch < 0)
-			pitch += 360;
-		while (pitch > 360)
-			pitch -= 360;
+		pitch %= 360; yaw %= 360;
 		
 		for (Object3D obj : objArray) {
 			if (obj == null)
@@ -123,11 +118,12 @@ public class Renderer3D extends Renderer {
 						int uvID = obj.faceuv[currentFace][currentVertex];
 						out.u[currentVertex] = obj.U[uvID];
 						out.v[currentVertex] = obj.V[uvID];
+						out.texID = obj.facetextid[currentFace];
 					}
 				}
 
 				if (!withinViewport)
-					continue;
+					;//continue;
 
 				faceCenterX /= vertexCount;
 				faceCenterY /= vertexCount;
@@ -157,8 +153,14 @@ public class Renderer3D extends Renderer {
 		int i = width * height;
 		for (int j = 0; j < i; j++)
 			// Set all pixels to black
-			pixels[j] = 0xFF000000;
+			pixels[j] = 0xff000000;
 	}
+	
+	public void updateCamera(int x, int y) {
+		cameraX = x;
+		cameraZ = y + 150;
+	}
+
 
 	public void drawDebug() {
 		if (bg == null)
@@ -499,6 +501,8 @@ public class Renderer3D extends Renderer {
 		float iz, uiz, viz;
 
 		while (y1 < y2) {
+			if(y1 >= height) break;
+			
 			x1 = (int) xa;
 			x2 = (int) xb;
 			if(x1 < 0)

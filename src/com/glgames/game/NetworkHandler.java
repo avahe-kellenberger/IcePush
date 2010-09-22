@@ -21,14 +21,12 @@ import static com.glgames.shared.Opcodes.VERSION;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.glgames.ui.*;
 import com.glgames.graphics2d.Renderer;
 import com.glgames.shared.ILoader;
-import com.glgames.shared.Opcodes;
 import com.glgames.shared.PacketBuffer;
+import com.glgames.ui.Action;
+import com.glgames.ui.Button;
 
 public class NetworkHandler {
 	static String DEFAULT_SERVER = "strictfp.com";
@@ -140,22 +138,22 @@ public class NetworkHandler {
 					break;
 				case PLAYER_MOVED:
 					id = pbuf.readShort(); // player ID
-					x = pbuf.readShort(); // x player will stop at
-					y = pbuf.readShort(); // y player will stop at
+					x = pbuf.readShort();
+					y = pbuf.readShort();
 					plr = GameObjects.players[id];
 					if (plr == null) {
-						System.out
-								.println("null player tried to move??? " + id);
+						System.out.println("null player tried to move??? " + id);
 						break;
 					}
 					plr.setPos(x, y);
+					if(id == NetworkHandler.id)
+						IcePush.renderer.updateCamera(x, y);
 					break;
 				case PLAYER_DIED:
 					id = pbuf.readShort();
 					plr = GameObjects.players[id];
 					if (plr == null)
 						break;
-					plr.bubbleAlpha = 1.0f;
 					plr.deaths = pbuf.readByte();
 					x = pbuf.readShort();
 					y = pbuf.readShort();
@@ -174,7 +172,6 @@ public class NetworkHandler {
 					String msg = pbuf.readString();
 					Renderer.chats.add(msg);
 					break;
-
 				case UPDATE:
 					try {
 						Class<?> clazz = NetworkHandler.class.getClassLoader()
@@ -191,8 +188,17 @@ public class NetworkHandler {
 
 	}
 
-	public static int moveID;
+	public static void sendChatMessage(String msg) {
+		try {
+			pbuf.beginPacket(CHAT_REQUEST);
+			pbuf.writeString(msg);
+			pbuf.endPacket();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
+	public static int moveID;
 	public static void sendMoveRequest(int dir) {
 		if (IcePush.state != IcePush.PLAY)
 			return;
@@ -209,48 +215,7 @@ public class NetworkHandler {
 			e.printStackTrace();
 		}
 	}
-
-	public static void sendChatMessage(String msg) {
-		try {
-			pbuf.beginPacket(CHAT_REQUEST);
-			pbuf.writeString(msg);
-			pbuf.endPacket();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static Map<String, Integer> getWorlds() {
-		Map<String, Integer> ret = new HashMap<String, Integer>();
-		try {
-			Socket s = new Socket(IcePush.DEBUG ? "localhost"
-					: Opcodes.WORLDSERVER, 2346);
-			s.getOutputStream().write(Opcodes.NUM_PLAYERS_REQUEST);
-			InputStream in = s.getInputStream();
-			int numWorlds = in.read();
-			for (int i = 0; i < numWorlds; i++) {
-				int strlen = in.read();
-				byte[] strb = new byte[strlen];
-				in.read(strb);
-				String server = new String(strb);
-				int num = in.read(); // num players
-				ret.put(server, num);
-			}
-			GameObjects.serverMode = GameObjects.LIST_FROM_SERVER;
-			ret.put("localhost@127.0.0.1", 0);
-		} catch (Exception e) {
-			e.printStackTrace();
-			GameObjects.serverMode = GameObjects.TYPE_IN_BOX;
-		}
-		return ret;
-	}
-
-	public static void ping() {
-		pingTime = System.currentTimeMillis();
-		pbuf.beginPacket(PING);
-		pbuf.endPacket();
-	}
-
+	
 	public static void endMoveRequest(int moveDir) {
 		if (IcePush.state != IcePush.PLAY)
 			return;
@@ -269,6 +234,12 @@ public class NetworkHandler {
 		}
 	}
 
+	public static void ping() {
+		pingTime = System.currentTimeMillis();
+		pbuf.beginPacket(PING);
+		pbuf.endPacket();
+	}
+	
 	public static void logOut() {
 		try {
 			if (pbuf == null)
