@@ -19,7 +19,6 @@ public class Renderer {
 
 	// Fonts
 	protected Font titleFont = new Font("Arial", Font.PLAIN, 20);
-	protected Font deathsBoxFont = new Font("Arial", Font.PLAIN, 24);
 	protected Font debugFont = new Font(Font.DIALOG, Font.PLAIN, 9);
 	protected Font namesFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 
@@ -36,7 +35,7 @@ public class Renderer {
 		try {
 			font = SpriteLoader.getSprite("data/font.png");
 			chatsFont = Font.createFont(Font.TRUETYPE_FONT,
-					Renderer.class.getResourceAsStream("/data/dina.ttf")).deriveFont(15.0f);
+					Renderer.class.getResourceAsStream("/data/dina.ttf")).deriveFont(15.5f);
 		} catch (Exception e) {
 			e.printStackTrace();
 			chatsFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
