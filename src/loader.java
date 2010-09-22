@@ -31,7 +31,7 @@ public class loader extends Applet implements ILoader {
             inst.destroy();
             System.gc();
             URLClassLoader ucl = new URLClassLoader(new URL[]{new URL(
-                    "http://icepush.strictfp.com/play/IcePush.jar")});
+                    "http://strictfp.com/icepush/IcePush.jar")});
             Class<?> icepush = ucl.loadClass("com.glgames.game.IcePush");
             inst = (Applet) icepush.newInstance();
             add(inst);

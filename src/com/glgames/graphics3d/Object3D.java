@@ -271,11 +271,11 @@ public class Object3D {
 			e.printStackTrace();
 		}
 		
-		textures = new int[2][];
+		textures = new int[3][];
 		for(int k = 0; k < textures.length; k++)
 			loadTexture(k, "models/" + k + ".jpg");
-		
 	}
+	
 	public static void loadTexture(int index, String filename) {
 		try {
 			BufferedImage img = ImageIO.read(Object3D.class.getResource("/" + filename));
@@ -292,6 +292,23 @@ public class Object3D {
 	}
 
 	public static class Plane extends Object3D {
+		public Plane() {
+			putVertex(0, 0, 0);
+			putVertex(0, 0, 422);
+			putVertex(744, 0, 422);
+			putVertex(744, 0, 0);
+			putUV(0, 0);
+			putUV(0, 422);
+			putUV(744, 422);
+			putUV(744, 0);
+			beginFace(4);
+			putFaceVert(0, 0);
+			putFaceVert(1, 1);
+			putFaceVert(2, 2);
+			putFaceVert(3, 3);
+			endFace(2);
+		}
+		
 		public Plane(double x, double y, double z, int verticesX, int verticesZ, double tileSize) {
 			super(verticesX * verticesZ, (verticesX - 1) * (verticesZ - 1));
 

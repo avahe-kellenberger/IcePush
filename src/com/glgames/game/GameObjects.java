@@ -2,10 +2,10 @@ package com.glgames.game;
 
 import java.awt.image.BufferedImage;
 
-import com.glgames.ui.*;
 import com.glgames.graphics2d.SpriteLoader;
-import com.glgames.graphics3d.ObjImporter;
 import com.glgames.graphics3d.Object3D;
+import com.glgames.ui.TextBox;
+import com.glgames.ui.UI;
 
 public class GameObjects {
 	public static UI ui;
@@ -68,7 +68,7 @@ public class GameObjects {
 			dbox = SpriteLoader.getSprite("images/dbox.png");
 			
 			scenery = new Object3D[10]; 
-			scenery[0] = new Object3D.Plane(0, 0, 0, 20, 12, 40);
+			scenery[0] = new Object3D.Plane();//(0, 0, 0, 20, 12, 40);
 			
 			background = SpriteLoader.getSprite("images/icepush.png");
 			loaded = true;

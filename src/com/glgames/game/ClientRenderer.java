@@ -10,7 +10,6 @@ import com.glgames.graphics3d.Object3D;
 import com.glgames.graphics3d.Renderer3D;
 
 public class ClientRenderer extends Renderer3D {
-
 	public static final int SOFTWARE_2D = 0;
 	public static final int SOFTWARE_3D = 1;
 	public static final int HARDWARE_3D = 2;
@@ -23,8 +22,7 @@ public class ClientRenderer extends Renderer3D {
 	public void renderScene(Graphics g) {
 		if(GRAPHICS_MODE == SOFTWARE_2D) {
 			renderScene2D(GameObjects.players, g);
-		}
-		if(GRAPHICS_MODE == SOFTWARE_3D) {
+		} else if(GRAPHICS_MODE == SOFTWARE_3D) {
 			Object3D objs[] = new Object3D[GameObjects.players.length];
 			for(int i = 0; i < objs.length; i++) {
 				if(GameObjects.players[i] != null) {
@@ -113,5 +111,4 @@ public class ClientRenderer extends Renderer3D {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 	}
-
 }

@@ -3,12 +3,8 @@ package com.glgames.game;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
 
 import com.glgames.graphics3d.Object3D;
-import com.glgames.graphics2d.SpriteLoader;
 
 public class Player {
 	public Object3D model;
@@ -24,9 +20,6 @@ public class Player {
 	//private long endTime;
 	
 	public int deaths;
-	public float bubbleAlpha;
-
-	private static BufferedImage bubble = SpriteLoader.getSprite("images/bubble.png");
 
 	public Player(int type, String username) {
 		this.type = type;
@@ -42,14 +35,6 @@ public class Player {
 		g.setColor(Color.red);
 		g.setFont(nameFont);
 		g.drawString(username, screenX, screenY);
-		if(bubbleAlpha > 0.0f) {
-			float[] scales = {
-					1f, 1f, 1f, bubbleAlpha -= 0.05f };
-			float[] offsets = new float[4];
-			RescaleOp rop = new RescaleOp(scales, offsets, null);
-			
-			((Graphics2D) g).drawImage(bubble, rop, screenX, screenY);
-		}
 	}
 
 	public void setPos(int x, int y) {
