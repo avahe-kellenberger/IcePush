@@ -393,21 +393,25 @@ public class IcePush extends Applet {
 		} else if(!keys[KeyEvent.VK_DOWN] && previous[KeyEvent.VK_DOWN]) {
 			NetworkHandler.move(KeyEvent.VK_DOWN, true);
 		}
-		if(keys[KeyEvent.VK_LEFT]) {
-			if(!previous[KeyEvent.VK_LEFT])
-				NetworkHandler.move(KeyEvent.VK_LEFT, false);
-			renderer.yaw += 3;
-			renderer.updateCamera();
+		if(keys[KeyEvent.VK_LEFT] && !previous[KeyEvent.VK_LEFT]) {
+			NetworkHandler.move(KeyEvent.VK_LEFT, false);
 		} else if(!keys[KeyEvent.VK_LEFT] && previous[KeyEvent.VK_LEFT]) {
 			NetworkHandler.move(KeyEvent.VK_LEFT, true);
 		}
-		if(keys[KeyEvent.VK_RIGHT]) {
-			if(!previous[KeyEvent.VK_RIGHT])
-				NetworkHandler.move(KeyEvent.VK_RIGHT, false);
-			renderer.yaw -= 3;
-			renderer.updateCamera();
+		if(keys[KeyEvent.VK_RIGHT] && !previous[KeyEvent.VK_RIGHT]) {
+			NetworkHandler.move(KeyEvent.VK_RIGHT, false);
 		} else if(!keys[KeyEvent.VK_RIGHT] && previous[KeyEvent.VK_RIGHT]) {
 			NetworkHandler.move(KeyEvent.VK_RIGHT, true);
+		}
+		
+		if(keys[KeyEvent.VK_A]) {
+			renderer.yaw += 3;
+			renderer.updateCamera();
+		}
+		
+		if(keys[KeyEvent.VK_D]) {
+			renderer.yaw -= 3;
+			renderer.updateCamera();
 		}
 		
 		if(keys[KeyEvent.VK_2])
