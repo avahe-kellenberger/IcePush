@@ -377,9 +377,9 @@ public class IcePush extends Applet {
 			int dx = x - lastX;
 			if(dx != 0) {
 				if(dx > 0)
-					renderer.yaw -= 2;
+					renderer.yaw -= 3;
 				else
-					renderer.yaw += 2;
+					renderer.yaw += 3;
 				renderer.updateCamera();
 			}
 		}
@@ -459,7 +459,7 @@ public class IcePush extends Applet {
 		if(keys[KeyEvent.VK_LEFT]) {
 			if(!previous[KeyEvent.VK_LEFT])
 				NetworkHandler.move(KeyEvent.VK_LEFT, false);
-			renderer.yaw += 2;
+			renderer.yaw += 3;
 			renderer.updateCamera();
 		} else if(!keys[KeyEvent.VK_LEFT] && previous[KeyEvent.VK_LEFT]) {
 			NetworkHandler.move(KeyEvent.VK_LEFT, true);
@@ -467,7 +467,7 @@ public class IcePush extends Applet {
 		if(keys[KeyEvent.VK_RIGHT]) {
 			if(!previous[KeyEvent.VK_RIGHT])
 				NetworkHandler.move(KeyEvent.VK_RIGHT, false);
-			renderer.yaw -= 2;
+			renderer.yaw -= 3;
 			renderer.updateCamera();
 		} else if(!keys[KeyEvent.VK_RIGHT] && previous[KeyEvent.VK_RIGHT]) {
 			NetworkHandler.move(KeyEvent.VK_RIGHT, true);
@@ -477,6 +477,8 @@ public class IcePush extends Applet {
 			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
 		if(keys[KeyEvent.VK_3])
 			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
+		if(keys[KeyEvent.VK_C])
+			Renderer.chats_visible = !Renderer.chats_visible;
 		System.arraycopy(keys, 0, previous, 0, 256);
 	}
 

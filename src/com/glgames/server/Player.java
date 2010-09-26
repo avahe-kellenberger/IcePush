@@ -177,8 +177,8 @@ public class Player extends RigidBody {
 	}
 
 	private void setBit(int bit) {
-		xa = sines[bit & 0xff] / 2;
-		ya = cosines[bit & 0xff] / 2;
+		xa = sines[bit & 0xff];
+		ya = cosines[bit & 0xff];
 	}
 
 	private void clearBit(int bit) {

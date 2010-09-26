@@ -251,7 +251,6 @@ public class NetworkHandler {
 			code = 192;
 		else
 			code = 64;
-		System.out.println("facing: " + code);
 		if (end)
 			endMoveRequest(code);
 		else
@@ -261,7 +260,6 @@ public class NetworkHandler {
 	private static void move3D(int keycode, boolean end) {
 		if(keycode == KeyEvent.VK_LEFT || keycode == KeyEvent.VK_RIGHT) return;
 		int angle = (IcePush.renderer.yaw + 128) & 0xff;
-		System.out.println("facing: " + angle);
 		if (end)
 			endMoveRequest(angle);
 		else
