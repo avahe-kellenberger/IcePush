@@ -177,16 +177,14 @@ public class Player extends RigidBody {
 	}
 
 	private void setBit(int bit) {
-		xa += sines[bit & 0xff] / 1.5; // scale so largest is 0.5
-		ya += cosines[bit & 0xff] / 1.5; // just like original system
+		// scale down by 2 so that the values are between 
+		// -0.5 and +0.5, like the original version
+		xa += sines[bit & 0xff] / 2f;
+		ya += cosines[bit & 0xff] / 2f;
 	}
 
 	private void clearBit(int bit) {
-		xa = 0;
-		ya = 0;
-		/*if(bit == UP) ya = 0;
-		if(bit == DOWN) ya = 0;
-		if(bit == LEFT) xa = 0;
-		if(bit == RIGHT) xa = 0;*/
+		xa -= sines[bit & 0xff] / 2f;
+		ya -= cosines[bit & 0xff] / 2f;
 	}
 }
