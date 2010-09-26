@@ -184,7 +184,9 @@ public class Player extends RigidBody {
 	}
 
 	private void clearBit(int bit) {
-		xa -= sines[bit & 0xff] / 2f;
-		ya -= cosines[bit & 0xff] / 2f;
+		// this is slightly wrong and results in the following bug:
+		// if you press one direction and then another, and release the first
+		// you do not move in the second direction
+		xa = 0; ya = 0;
 	}
 }
