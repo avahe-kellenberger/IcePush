@@ -111,4 +111,17 @@ public class ClientRenderer extends Renderer3D {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 	}
+
+	public void updateCamera(int x, int y) {
+		cameraX = (64.0 * sines[yaw]) + x;
+		cameraZ = (64.0 * cosines[yaw]) + y;
+	}
+
+	public void updateCamera() {
+		pitch &= 0xff; yaw &= 0xff;
+		Player pl = GameObjects.players[NetworkHandler.id];
+		if(pl == null) return;
+		cameraX = (64.0 * sines[yaw]) + pl.sprite.x;
+		cameraZ = (64.0 * cosines[yaw]) + pl.sprite.y;
+	}
 }
