@@ -47,7 +47,8 @@ public class Player extends RigidBody {
 	}
 
 	public void handleMove() {
-		if(x < 4 || y < 5 || x > 752 || y > 428) {
+		//		if(x < 4 || y < 5 || x > 752 || y > 428) {
+		if(!Server.mapClass.currentPath.contains(x, y)) {
 			System.out.println("PLAYER " + username + " IS OUT OF RANGE!");
 			playerDied();
 			return;
