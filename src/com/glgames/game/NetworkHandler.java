@@ -18,6 +18,7 @@ import static com.glgames.shared.Opcodes.UPDATE;
 import static com.glgames.shared.Opcodes.USER_IN_USE;
 import static com.glgames.shared.Opcodes.VERSION;
 
+import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -232,6 +233,39 @@ public class NetworkHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void move(int keycode, boolean end) {
+		if(ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_2D)
+			move2D(keycode, end);
+		else move3D(keycode, end);
+	}
+	
+	private static void move2D(int keycode, boolean end) {
+		int code;
+		if(keycode == KeyEvent.VK_UP)
+			code = 128;
+		else if(keycode == KeyEvent.VK_DOWN)
+			code = 0;
+		else if(keycode == KeyEvent.VK_LEFT)
+			code = 192;
+		else
+			code = 64;
+		System.out.println("facing: " + code);
+		if (end)
+			endMoveRequest(code);
+		else
+			sendMoveRequest(code);
+	}
+	
+	private static void move3D(int keycode, boolean end) {
+		if(keycode == KeyEvent.VK_LEFT || keycode == KeyEvent.VK_RIGHT) return;
+		int angle = (IcePush.renderer.yaw + 128) & 0xff;
+		System.out.println("facing: " + angle);
+		if (end)
+			endMoveRequest(angle);
+		else
+			sendMoveRequest(angle);
 	}
 
 	public static void ping() {

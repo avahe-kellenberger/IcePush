@@ -7,6 +7,17 @@ import static com.glgames.shared.Opcodes.*;
 import java.util.ArrayList;
 
 public class Player extends RigidBody {
+	// Length of arrays can be adjusted for more precision
+	public static final float[] sines = new float[256];
+	public static final float[] cosines = new float[256];
+	static {
+		double d = (2.0d * Math.PI) / 256.0d;
+		for(int k = 0; k < 256; k++) {
+			sines[k] = (float) Math.sin(k * d);
+			cosines[k] = (float) Math.cos(k * d);
+		}
+	}
+	
 	public int id;
 	public int deaths;
 	public int type;
@@ -73,8 +84,9 @@ public class Player extends RigidBody {
 	}
 
 	void initPosition() {
-		boolean good = false;
-		while(true) {
+		boolean good;
+		
+		do {
 			good = true;
 			x = (float)(Math.random() * 744);
 			y = (float)(Math.random() * 422);
@@ -92,9 +104,8 @@ public class Player extends RigidBody {
 
 				if(dist < sum*sum) good = false;
 			}
-			if(good)
-				break;
-		}
+		} while(!good);
+		
 		dx = dy = xa = ya = 0;
 	}
 
@@ -166,16 +177,16 @@ public class Player extends RigidBody {
 	}
 
 	private void setBit(int bit) {
-		if(bit == UP) ya = -0.5F;
-		if(bit == DOWN) ya = 0.5F;
-		if(bit == LEFT) xa = -0.5F;
-		if(bit == RIGHT) xa = 0.5F;
+		xa = sines[bit & 0xff] / 2;
+		ya = cosines[bit & 0xff] / 2;
 	}
 
 	private void clearBit(int bit) {
-		if(bit == UP) ya = 0;
+		xa = 0;
+		ya = 0;
+		/*if(bit == UP) ya = 0;
 		if(bit == DOWN) ya = 0;
 		if(bit == LEFT) xa = 0;
-		if(bit == RIGHT) xa = 0;
+		if(bit == RIGHT) xa = 0;*/
 	}
 }

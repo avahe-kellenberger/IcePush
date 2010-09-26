@@ -38,6 +38,7 @@ public class Object3D {
 	public static final double TWO_PI = 2 * Math.PI;
 	public static Object3D templates[];
 	public static int[][] textures;
+	public static int[] texsidelens;
 
 	public Object3D() {
 		vertexCount = 0;
@@ -271,7 +272,8 @@ public class Object3D {
 			e.printStackTrace();
 		}
 		
-		textures = new int[3][];
+		textures = new int[4][];
+		texsidelens = new int[4];
 		for(int k = 0; k < textures.length; k++)
 			loadTexture(k, "models/" + k + ".jpg");
 	}
@@ -286,6 +288,7 @@ public class Object3D {
 			img.getRGB(0, 0, w, h, pix, 0, w);
 			
 			textures[index] = pix;
+			texsidelens[index] = w;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

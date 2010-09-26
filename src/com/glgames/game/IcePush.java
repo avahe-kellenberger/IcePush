@@ -1,9 +1,5 @@
 package com.glgames.game;
 
-import static com.glgames.shared.Opcodes.DOWN;
-import static com.glgames.shared.Opcodes.LEFT;
-import static com.glgames.shared.Opcodes.RIGHT;
-import static com.glgames.shared.Opcodes.UP;
 import static java.awt.AWTEvent.KEY_EVENT_MASK;
 import static java.awt.AWTEvent.MOUSE_EVENT_MASK;
 import static java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK;
@@ -23,7 +19,6 @@ import com.glgames.ui.MapCanvas;
 import com.glgames.ui.TextBox;
 
 public class IcePush extends Applet {
-
 	public static boolean DEBUG = false;
 
 	public static IcePush instance;
@@ -48,9 +43,8 @@ public class IcePush extends Applet {
 
 	private InterthreadQueue<TimedKeyEvent> keyEvents;
 	private InterthreadQueue<MouseEvent> mouseEvents;
-
-	private int moveKeyFlags;
-
+	private static boolean[] keys = new boolean[256], previous = new boolean[256];
+	
 	public static String username;
 
 	public static void main(String[] args) {
@@ -335,6 +329,8 @@ public class IcePush extends Applet {
 				mouseReleased(me);
 			} else if (id == MouseEvent.MOUSE_MOVED) {
 				mouseMoved(me);
+			} else if (id == MouseEvent.MOUSE_DRAGGED) {
+				mouseDragged(me);
 			}
 		}
 	}
@@ -365,7 +361,7 @@ public class IcePush extends Applet {
 		int y = e.getY();
 		GameObjects.ui.handleAction(Actions.RELEASE, x, y);
 	}
-
+	
 	private void mouseClicked(MouseEvent e) {
 		if (DEBUG)
 			System.out.println("Clicked");
@@ -374,6 +370,24 @@ public class IcePush extends Applet {
 		GameObjects.ui.handleAction(Actions.CLICK, x, y);
 	}
 
+	private int lastX, lastY;
+	private void mouseDragged(MouseEvent e) {
+		int x = e.getX(), y = e.getY();
+		if(ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D) {
+			int dx = x - lastX;
+			if(dx != 0) {
+				if(dx > 0)
+					renderer.yaw -= 2;
+				else
+					renderer.yaw += 2;
+				renderer.updateCamera();
+			}
+		}
+		
+		lastX = x;
+		lastY = y;
+	}
+	
 	private void mouseMoved(MouseEvent e) {
 		int x = e.getX();
 		int y = e.getY();
@@ -383,8 +397,7 @@ public class IcePush extends Applet {
 	private void keyPressed(KeyEvent e) {
 		if (IcePush.DEBUG)
 			System.out.println("key pressed");
-
-		int moveDir = 0;
+		keys[e.getKeyCode()] = true;
 		if (IcePush.state == IcePush.WELCOME || IcePush.state == IcePush.HELP) {
 			int code = e.getKeyCode();
 			if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
@@ -407,80 +420,6 @@ public class IcePush extends Applet {
 				NetworkHandler.sendChatMessage(Renderer.curChat.trim());
 				Renderer.curChat = "";
 			}
-		} else if (!is_chat)
-			switch (e.getKeyCode()) {
-				case KeyEvent.VK_ESCAPE:
-					if (!isApplet)
-						cleanup();
-					break;
-				case KeyEvent.VK_Q:
-					NetworkHandler.onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
-					break;
-				case KeyEvent.VK_UP:
-					moveDir = UP;
-					break;
-				case KeyEvent.VK_DOWN:
-					moveDir = DOWN;
-					break;
-				case KeyEvent.VK_LEFT:
-					moveDir = LEFT;
-					break;
-				case KeyEvent.VK_RIGHT:
-					moveDir = RIGHT;
-					break;
-				case KeyEvent.VK_P:
-					NetworkHandler.ping();
-					break;
-				case KeyEvent.VK_C:
-					Renderer.chats_visible = !Renderer.chats_visible;
-					break;
-				case KeyEvent.VK_W:
-					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.pitch += 5;
-					break;
-				case KeyEvent.VK_S:
-					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.pitch -= 5;
-					break;
-				case KeyEvent.VK_A:
-					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.yaw += 5;
-					break;
-				case KeyEvent.VK_D:
-					if (ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D)
-						renderer.yaw -= 5;
-					break;
-				case KeyEvent.VK_2:
-					ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
-					break;
-				case KeyEvent.VK_3:
-					ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
-					break;
-				case KeyEvent.VK_J:
-					renderer.cameraX -= 5;
-					break;
-				case KeyEvent.VK_L:
-					renderer.cameraX += 5;
-					break;
-				case KeyEvent.VK_M:
-					renderer.cameraY -= 5;
-					break;
-				case KeyEvent.VK_I:
-					renderer.cameraY += 5;
-					break;
-				case KeyEvent.VK_Y:
-					renderer.cameraZ += 5;
-					break;
-				case KeyEvent.VK_N:
-					renderer.cameraZ -= 5;
-					break;
-			}
-
-		if (moveDir != 0) {
-			if ((moveKeyFlags | moveDir) != moveKeyFlags) {
-				moveKeyFlags |= moveDir;
-				NetworkHandler.sendMoveRequest(moveDir);
-			}
 		}
 	}
 
@@ -498,29 +437,47 @@ public class IcePush extends Applet {
 	private void keyReleased(KeyEvent e) {
 		if (IcePush.DEBUG)
 			System.out.println("key released");
-		int moveDir = 0;
-		switch (e.getKeyCode()) {
-			case KeyEvent.VK_UP:
-				moveDir = UP;
-				break;
-			case KeyEvent.VK_DOWN:
-				moveDir = DOWN;
-				break;
-			case KeyEvent.VK_LEFT:
-				moveDir = LEFT;
-				break;
-			case KeyEvent.VK_RIGHT:
-				moveDir = RIGHT;
-				break;
-		}
-		if (moveDir != 0) {
-			moveKeyFlags &= (~moveDir);
-			NetworkHandler.endMoveRequest(moveDir);
-		}
+		keys[e.getKeyCode()] = false;
 	}
 
 	private static void updatePlayers() {
-
+		if(is_chat) return;
+		if(keys[KeyEvent.VK_ESCAPE] && !isApplet)
+			cleanup();
+		if(keys[KeyEvent.VK_Q])
+			NetworkHandler.onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
+		if(keys[KeyEvent.VK_UP] && !previous[KeyEvent.VK_UP]) {
+			NetworkHandler.move(KeyEvent.VK_UP, false);
+		} else if(!keys[KeyEvent.VK_UP] && previous[KeyEvent.VK_UP]) {
+			NetworkHandler.move(KeyEvent.VK_UP, true);
+		}
+		if(keys[KeyEvent.VK_DOWN] && !previous[KeyEvent.VK_DOWN]) {
+			NetworkHandler.move(KeyEvent.VK_DOWN, false);
+		} else if(!keys[KeyEvent.VK_DOWN] && previous[KeyEvent.VK_DOWN]) {
+			NetworkHandler.move(KeyEvent.VK_DOWN, true);
+		}
+		if(keys[KeyEvent.VK_LEFT]) {
+			if(!previous[KeyEvent.VK_LEFT])
+				NetworkHandler.move(KeyEvent.VK_LEFT, false);
+			renderer.yaw += 2;
+			renderer.updateCamera();
+		} else if(!keys[KeyEvent.VK_LEFT] && previous[KeyEvent.VK_LEFT]) {
+			NetworkHandler.move(KeyEvent.VK_LEFT, true);
+		}
+		if(keys[KeyEvent.VK_RIGHT]) {
+			if(!previous[KeyEvent.VK_RIGHT])
+				NetworkHandler.move(KeyEvent.VK_RIGHT, false);
+			renderer.yaw -= 2;
+			renderer.updateCamera();
+		} else if(!keys[KeyEvent.VK_RIGHT] && previous[KeyEvent.VK_RIGHT]) {
+			NetworkHandler.move(KeyEvent.VK_RIGHT, true);
+		}
+		
+		if(keys[KeyEvent.VK_2])
+			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
+		if(keys[KeyEvent.VK_3])
+			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
+		System.arraycopy(keys, 0, previous, 0, 256);
 	}
 
 	public Dimension getPreferredSize() {

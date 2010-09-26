@@ -9,13 +9,22 @@ import java.util.Arrays;
 import com.glgames.graphics2d.Renderer;
 
 public class Renderer3D extends Renderer {
-
+	// Length of arrays can be adjusted for more precision
+	public static final float[] sines = new float[256];
+	public static final float[] cosines = new float[256];
+	static {
+		double d = (2.0d * Math.PI) / 256.0d;
+		for(int k = 0; k < 256; k++) {
+			sines[k] = (float) Math.sin(k * d);
+			cosines[k] = (float) Math.cos(k * d);
+		}
+	}
+	
 	// 3D camera stuff
 	public double cameraX = 380.0;
 	public double cameraY = 150.0;
 	public double cameraZ = 330.0;
-	public int pitch = 230, yaw = 0;
-	private double yawSin, yawCos, pitchSin, pitchCos;
+	public int pitch = 164, yaw = 0;
 
 	// 3D drawing stuff
 	protected MemoryImageSource memsrc;
@@ -53,20 +62,12 @@ public class Renderer3D extends Renderer {
 
 	private void doRender(Object3D[] objArray) {
 		faceIndex = 0;
-		pitch %= 360; yaw %= 360;
+		pitch &= 0xff; yaw &= 0xff;
 		
 		for (Object3D obj : objArray) {
 			if (obj == null)
 				continue;
 			
-			double yawRad = Math.toRadians(yaw);
-			yawSin = Math.sin(yawRad);
-			yawCos = Math.cos(yawRad);
-
-			double pitchRad = Math.toRadians(pitch);
-			pitchSin = Math.sin(pitchRad);
-			pitchCos = Math.cos(pitchRad);
-
 			int vertexCount;
 			for (int currentFace = 0; currentFace < obj.faceVertices.length; currentFace++) {
 				boolean withinViewport = false;
@@ -142,7 +143,7 @@ public class Renderer3D extends Renderer {
 		for(int k = faceIndex - 1; k >= 0; k--) {
 			Face f = faceArray[k];
 			if(f.color == -1) {
-				perspectiveCorrectPolygon(f.x, f.y, f.z, f.u, f.v, Object3D.textures[f.texID], 512);
+				perspectiveCorrectPolygon(f.x, f.y, f.z, f.u, f.v, Object3D.textures[f.texID], Object3D.texsidelens[f.texID]);
 			} else {
 				fillPolygon(f.x, f.y, f.color);
 			}
@@ -156,12 +157,6 @@ public class Renderer3D extends Renderer {
 			pixels[j] = 0xff000000;
 	}
 	
-	public void updateCamera(int x, int y) {
-		cameraX = x;
-		cameraZ = y + 150;
-	}
-
-
 	public void drawDebug() {
 		if (bg == null)
 			return;
@@ -191,11 +186,11 @@ public class Renderer3D extends Renderer {
 		z += objBaseZ;
 		
 		double transX, transY, transZ;
-		transX = (x * yawCos - z * yawSin);
-		transZ = (x * yawSin + z * yawCos);
+		transX = (x * cosines[yaw] - z * sines[yaw]);
+		transZ = (x * sines[yaw] + z * cosines[yaw]);
 		
-		transY = (y * pitchCos - transZ * pitchSin);
-		transZ = (y * pitchSin + transZ * pitchCos);
+		transY = (y * cosines[pitch] - transZ * sines[pitch]);
+		transZ = (y * sines[pitch] + transZ * cosines[pitch]);
 		
 		return new double[] { transX, transY, transZ };
 	}
@@ -399,7 +394,6 @@ public class Renderer3D extends Renderer {
 			tempf = uiz2; uiz2 = uiz3; uiz3 = tempf;
 			tempf = viz2; viz2 = viz3; viz3 = tempf;
 		}
-
 		y1i = (int) y1;
 		y2i = (int) y2;
 		y3i = (int) y3;
@@ -411,7 +405,7 @@ public class Renderer3D extends Renderer {
 
 		if (det == 0)
 			return;
-
+		
 		det = 1 / det;
 		dizdx = ((iz3 - iz1) * (y2 - y1) - (iz2 - iz1) * (y3 - y1)) * det;
 		duizdx = ((uiz3 - uiz1) * (y2 - y1) - (uiz2 - uiz1) * (y3 - y1)) * det;
@@ -516,18 +510,20 @@ public class Renderer3D extends Renderer {
 			viz = viza + dx * dvizdx;
 			scr = y1 * width + x1;
 			
-			while (x1++ < x2) {
-				if(scr < 0 || scr > pixels.length - 1)
-					continue;
-				z = 1 / iz;
-				u = uiz * z;
-				v = viz * z;
-				
-				idx = ((int) v & (sidelen - 1)) * sidelen + ((int) u & (sidelen - 1));
-				pixels[scr++] = tex[idx];
+			while (x1 < x2) {
+				if(scr > 0 && scr < pixels.length - 1) {
+					z = 1 / iz;
+					u = uiz * z;
+					v = viz * z;
+					
+					idx = ((int) v & (sidelen - 1)) * sidelen + ((int) u & (sidelen - 1));
+					pixels[scr] = tex[idx];
+				}
 				iz += dizdx;
 				uiz += duizdx;
 				viz += dvizdx;
+				x1++;
+				scr++;
 			}
 			xa += dxdya;
 			xb += dxdyb;
