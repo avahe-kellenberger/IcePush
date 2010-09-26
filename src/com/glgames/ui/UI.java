@@ -33,7 +33,7 @@ public class UI extends Container {
 		super(0, 0, width, height);
 
 		String[] instructionsText = new String[] {"Push the other players off the ice!", "Try not to fall off!"};
-		String[] helpText = new String[] {"Arrow keys - move", "Q - logout", "2 - 2D view", "3 - 3D view", "C - chat"};
+		String[] helpText = new String[] {"Arrow keys - move", "PgUp/PgDn - zoom camera", "Q - logout", "2 - 2D view", "3 - 3D view", "C - chat"};
 
 		// Create screen containers
 		welcomeScreenContainer = new Container(0, 0, width, height);

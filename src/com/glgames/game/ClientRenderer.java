@@ -15,6 +15,8 @@ public class ClientRenderer extends Renderer3D {
 	public static final int HARDWARE_3D = 2;
 	public static int GRAPHICS_MODE = SOFTWARE_2D;
 
+	public int cameraZoom = 256;
+	
 	public ClientRenderer(Component c, int w, int h) {
 		super(c, w, h);
 	}
@@ -67,12 +69,12 @@ public class ClientRenderer extends Renderer3D {
 				if(o.vertY[k] > maxy)
 					maxy = o.vertY[k];
 			double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ,
-					0, maxy + 25, 0);
+					0, maxy + 10, 0);
 			int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 			
 			int width = g.getFontMetrics().stringWidth(p.username) / 2;
-			g.setFont(namesFont);
-			g.setColor(Color.red);
+			g.setFont(chatsFont);
+			g.setColor(Color.white);
 			g.drawString(p.username, scr[0] - width, scr[1]);
 		}
 	}
@@ -113,15 +115,15 @@ public class ClientRenderer extends Renderer3D {
 	}
 
 	public void updateCamera(int x, int y) {
-		cameraX = (64.0 * sines[yaw]) + x;
-		cameraZ = (64.0 * cosines[yaw]) + y;
+		cameraX = (cameraZoom * sines[yaw]) + x;
+		cameraZ = (cameraZoom * cosines[yaw]) + y;
 	}
 
 	public void updateCamera() {
 		pitch &= 0xff; yaw &= 0xff;
 		Player pl = GameObjects.players[NetworkHandler.id];
 		if(pl == null) return;
-		cameraX = (64.0 * sines[yaw]) + pl.sprite.x;
-		cameraZ = (64.0 * cosines[yaw]) + pl.sprite.y;
+		cameraX = (cameraZoom * sines[yaw]) + pl.sprite.x;
+		cameraZ = (cameraZoom * cosines[yaw]) + pl.sprite.y;
 	}
 }
