@@ -110,6 +110,12 @@ public class Player extends RigidBody {
 		dx = dy = xa = ya = 0;
 	}
 
+	public void updateRoundTime(int time) {
+		pbuf.beginPacket(UPDATE_ROUNDTIME);
+		pbuf.writeShort(time);
+		pbuf.endPacket();
+	}		
+
 	public void processIncomingPackets() {
 		if (!pbuf.synch()) {
 			Server.logoutPlayer(this); // Log out player if connection has been lost
@@ -163,8 +169,8 @@ public class Player extends RigidBody {
 	}
 
 	private void setBit(int bit) {
-		xa = sines[bit & 0xff];
-		ya = cosines[bit & 0xff];
+		xa = sines[bit & 0xff] / 1.5f;
+		ya = cosines[bit & 0xff] / 1.5f;
 	}
 
 	private void clearBit(int bit) {
