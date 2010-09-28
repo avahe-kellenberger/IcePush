@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.FontMetrics;
 import java.awt.RenderingHints;
 
 import com.glgames.graphics3d.Object3D;
@@ -14,6 +15,8 @@ public class ClientRenderer extends Renderer3D {
 	public static final int SOFTWARE_3D = 1;
 	public static final int HARDWARE_3D = 2;
 	public static int GRAPHICS_MODE = SOFTWARE_2D;
+	public int roundTime;
+	public String winner;
 
 	public ClientRenderer(Component c, int w, int h) {
 		super(c, w, h);
@@ -35,6 +38,7 @@ public class ClientRenderer extends Renderer3D {
 		drawDeathsBox(g);
 		if(chats_visible)
 			drawNewChats(g);
+		drawRoundTime(g);
 	}
 
 	private void drawNewChats(Graphics g) {
@@ -123,5 +127,19 @@ public class ClientRenderer extends Renderer3D {
 		if(pl == null) return;
 		cameraX = (64.0 * sines[yaw]) + pl.sprite.x;
 		cameraZ = (64.0 * cosines[yaw]) + pl.sprite.y;
+	}
+
+	private void drawRoundTime(Graphics g) {
+		int timesec = roundTime / 1000;
+		String mins = Integer.toString(timesec / 60);
+		String secs = Integer.toString(timesec % 60);
+		if(secs.length() == 1) secs = '0' + secs;
+		String time = "Time remaining: " + mins + ':' + secs;
+		FontMetrics fm = g.getFontMetrics();
+		int a = fm.getAscent();
+		int y = a + 34;
+		String str = (winner == null) ? "<No winner>" : winner;
+		g.drawString(time, (width - fm.stringWidth(time)) / 2 , y);
+		g.drawString(str, (width - fm.stringWidth(str)) / 2, y + a + fm.getDescent());
 	}
 }

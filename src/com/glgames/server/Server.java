@@ -46,7 +46,7 @@ public class Server implements Runnable {
 
 	public static final int ROUND_LENGTH = 10000;
 
-	private int roundTimeout = 0;
+	private int timeRemaining = ROUND_LENGTH;
 
 	public Server() {
 		settings = loadSettings("config");
@@ -90,9 +90,14 @@ public class Server implements Runnable {
 			physics.update();
 			updatePlayers();
 			try {
-				Thread.sleep(30);
+				Thread.sleep(20);
 			} catch (Exception e) {
 
+			}
+			timeRemaining -= 20;
+			if(timeRemaining <= 0) {
+			//	resetDeaths();
+				timeRemaining = ROUND_LENGTH;
 			}
 		}
 	}
@@ -295,17 +300,19 @@ public class Server implements Runnable {
 			p.processIncomingPackets();
 			p.handleMove();
 			p.writePendingChats(chats);
+			if(timeRemaining % 1000 == 0) p.updateRoundTime(timeRemaining);
 			
 	//		focusX += p.area.x - 422; // Distance from center X
 	//		focusZ += p.area.y - 211; // Distance from center Y
 		}
-		int nP = getNumPlayers();
-		if (nP == 0)
-			return;
+
+	//	int nP = getNumPlayers();
+	//	if (nP == 0)
+	//		return;
 	//	focusX /= nP;
 	//	focusZ /= nP;
-		// For tilting ice but not sure how to do this yet
-		//System.out.println(focusX + " " + focusZ);
+	// For tilting ice but not sure how to do this yet
+	//	System.out.println(focusX + " " + focusZ);
 	}
 
 	public static void main(String[] args) {
