@@ -41,8 +41,6 @@ public class IcePush extends Applet {
 	public static boolean isApplet = false;
 	public static boolean is_chat = false;
 
-	private InterthreadQueue<TimedKeyEvent> keyEvents;
-	private InterthreadQueue<MouseEvent> mouseEvents;
 	private static boolean[] keys = new boolean[256], previous = new boolean[256];
 	
 	public static String username;
@@ -77,8 +75,6 @@ public class IcePush extends Applet {
 	public IcePush() {
 		enableEvents(MOUSE_EVENT_MASK | MOUSE_MOTION_EVENT_MASK
 				| KEY_EVENT_MASK);
-		keyEvents = new InterthreadQueue<TimedKeyEvent>();
-		mouseEvents = new InterthreadQueue<MouseEvent>();
 	}
 
 	public void init() {
@@ -109,27 +105,23 @@ public class IcePush extends Applet {
 	}
 
 	public void run() {
-		Thread painter = new Thread() {
-			public void run() {
-				while (running) {
-					repaint();
-					try {
-						Thread.sleep(20);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		};
-		painter.start();
-
 		while (running) {
+			long start = System.nanoTime();
 			if (state == PLAY) {
 				gameLoop();
 			}
-			processEvents();
+			Graphics bg = renderer.getBufferGraphics();
+			if (state == WELCOME || state == HELP || state == MAPEDITOR) {
+				renderer.drawWelcomeScreen(bg);
+			} else if (state == PLAY) {
+				renderer.renderScene(bg);
+			}
+			GameObjects.ui.draw(bg);
+			getGraphics().drawImage(renderer.getBuffer(), 0, 0, null);
+			long end = 20 - ((System.nanoTime() - start) / 1000000L);
 			try {
-				Thread.sleep(20);
+				if(end > 0)
+					Thread.sleep(end);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -150,21 +142,11 @@ public class IcePush extends Applet {
 	private static void gameLoop() {
 		// update positions and such
 		NetworkHandler.handlePackets();
-		updatePlayers();
+		checkKeys();
 	}
 
 	public void paint(Graphics g) {
-		if (!GameObjects.loaded)
-			return;
-
-		Graphics bg = renderer.getBufferGraphics();
-		if ((state == WELCOME) || (state == HELP) || (state == MAPEDITOR)) {
-			renderer.drawWelcomeScreen(bg);
-		} else if (state == PLAY) {
-			renderer.renderScene(bg);
-		}
-		GameObjects.ui.draw(bg);
-		g.drawImage(renderer.getBuffer(), 0, 0, this);
+		
 	}
 	
 	public void update(Graphics g) {
@@ -278,62 +260,30 @@ public class IcePush extends Applet {
 	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 
 	protected void processMouseEvent(MouseEvent me) {
-		mouseEvents.push(me);
+		int id = me.getID();
+		if (id == MouseEvent.MOUSE_CLICKED) {
+			mouseClicked(me);
+		} else if (id == MouseEvent.MOUSE_PRESSED) {
+			mousePressed(me);
+		} else if (id == MouseEvent.MOUSE_RELEASED) {
+			mouseReleased(me);
+		}
 	}
 
 	protected void processMouseMotionEvent(MouseEvent me) {
-		mouseEvents.push(me);
+		int id = me.getID();
+		if (id == MouseEvent.MOUSE_MOVED) {
+			mouseMoved(me);
+		} else if (id == MouseEvent.MOUSE_DRAGGED) {
+			mouseDragged(me);
+		}
 	}
 
 	protected void processKeyEvent(KeyEvent ke) {
-		keyEvents.push(new TimedKeyEvent(ke));
+		sendKeyEventInternal(ke);
 	}
 
 	// --- --------------------------------------------- --- //
-
-	private void processEvents() {
-		TimedKeyEvent tke = null;
-		MouseEvent me = null;
-		int id;
-
-		while ((tke = keyEvents.pull()) != null) {
-			id = tke.event.getID();
-			if (id == KeyEvent.KEY_RELEASED) {
-				try {
-					Thread.sleep(2); // If this is a spurious released/pressed
-										// pair, allow time for the EDT to queue
-										// the pressed event
-				} catch (Exception e) {
-				}
-				TimedKeyEvent tke2 = keyEvents.pull();
-				if (tke2 == null) { // This is the final key release
-					// System.out.println("final");
-					keyReleased(tke.event);
-				} else if ((tke2.time - tke.time) > 1
-						|| tke.event.getID() != KeyEvent.KEY_PRESSED) {
-					keyReleased(tke.event);
-					sendKeyEventInternal(tke2.event);
-				}
-			} else {
-				sendKeyEventInternal(tke.event);
-			}
-		}
-
-		while ((me = mouseEvents.pull()) != null) {
-			id = me.getID();
-			if (id == MouseEvent.MOUSE_CLICKED) {
-				mouseClicked(me);
-			} else if (id == MouseEvent.MOUSE_PRESSED) {
-				mousePressed(me);
-			} else if (id == MouseEvent.MOUSE_RELEASED) {
-				mouseReleased(me);
-			} else if (id == MouseEvent.MOUSE_MOVED) {
-				mouseMoved(me);
-			} else if (id == MouseEvent.MOUSE_DRAGGED) {
-				mouseDragged(me);
-			}
-		}
-	}
 
 	private void sendKeyEventInternal(KeyEvent ke) {
 		int id = ke.getID();
@@ -369,26 +319,13 @@ public class IcePush extends Applet {
 		int y = e.getY();
 		GameObjects.ui.handleAction(Actions.CLICK, x, y);
 	}
-
-	private int lastX, lastY;
+	
 	private void mouseDragged(MouseEvent e) {
-		int x = e.getX(), y = e.getY();
-		if(ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_3D) {
-			int dx = x - lastX;
-			if(dx != 0) {
-				if(dx > 0)
-					renderer.yaw -= 3;
-				else
-					renderer.yaw += 3;
-				renderer.updateCamera();
-			}
-		}
-		
-		lastX = x;
-		lastY = y;
+
 	}
 	
 	private void mouseMoved(MouseEvent e) {
+		if(!GameObjects.loaded) return;
 		int x = e.getX();
 		int y = e.getY();
 		GameObjects.ui.handleAction(Actions.HOVER, x, y);
@@ -440,7 +377,7 @@ public class IcePush extends Applet {
 		keys[e.getKeyCode()] = false;
 	}
 
-	private static void updatePlayers() {
+	private static void checkKeys() {
 		if(is_chat) return;
 		if(keys[KeyEvent.VK_ESCAPE] && !isApplet)
 			cleanup();
@@ -456,29 +393,42 @@ public class IcePush extends Applet {
 		} else if(!keys[KeyEvent.VK_DOWN] && previous[KeyEvent.VK_DOWN]) {
 			NetworkHandler.move(KeyEvent.VK_DOWN, true);
 		}
-		if(keys[KeyEvent.VK_LEFT]) {
-			if(!previous[KeyEvent.VK_LEFT])
-				NetworkHandler.move(KeyEvent.VK_LEFT, false);
-			renderer.yaw += 3;
-			renderer.updateCamera();
+		if(keys[KeyEvent.VK_LEFT] && !previous[KeyEvent.VK_LEFT]) {
+			NetworkHandler.move(KeyEvent.VK_LEFT, false);
 		} else if(!keys[KeyEvent.VK_LEFT] && previous[KeyEvent.VK_LEFT]) {
 			NetworkHandler.move(KeyEvent.VK_LEFT, true);
 		}
-		if(keys[KeyEvent.VK_RIGHT]) {
-			if(!previous[KeyEvent.VK_RIGHT])
-				NetworkHandler.move(KeyEvent.VK_RIGHT, false);
-			renderer.yaw -= 3;
-			renderer.updateCamera();
+		if(keys[KeyEvent.VK_RIGHT] && !previous[KeyEvent.VK_RIGHT]) {
+			NetworkHandler.move(KeyEvent.VK_RIGHT, false);
 		} else if(!keys[KeyEvent.VK_RIGHT] && previous[KeyEvent.VK_RIGHT]) {
 			NetworkHandler.move(KeyEvent.VK_RIGHT, true);
+		}
+		
+		if(keys[KeyEvent.VK_A]) {
+			renderer.yaw += 3;
+			renderer.updateCamera();
+		}
+		
+		if(keys[KeyEvent.VK_D]) {
+			renderer.yaw -= 3;
+			renderer.updateCamera();
 		}
 		
 		if(keys[KeyEvent.VK_2])
 			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
 		if(keys[KeyEvent.VK_3])
 			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
-		if(keys[KeyEvent.VK_C])
+		if(keys[KeyEvent.VK_C] && !previous[KeyEvent.VK_C])
 			Renderer.chats_visible = !Renderer.chats_visible;
+		
+		if(keys[KeyEvent.VK_PAGE_UP] && renderer.cameraZoom < 512) {
+			renderer.cameraZoom += 8;
+			renderer.updateCamera();
+		}
+		if(keys[KeyEvent.VK_PAGE_DOWN] && renderer.cameraZoom > 32) {
+			renderer.cameraZoom -= 8;
+			renderer.updateCamera();
+		}
 		System.arraycopy(keys, 0, previous, 0, 256);
 	}
 

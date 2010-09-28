@@ -245,8 +245,11 @@ public class NetworkHandler {
 	}
 	
 	private static void move3D(int keycode, boolean end) {
-		if(keycode == KeyEvent.VK_LEFT || keycode == KeyEvent.VK_RIGHT) return;
-		int angle = (IcePush.renderer.yaw + (keycode == KeyEvent.VK_DOWN ? 0 : 128)) & 0xff;
+		int angle = IcePush.renderer.yaw;
+		if(keycode == KeyEvent.VK_UP) angle += 128;
+		else if(keycode == KeyEvent.VK_LEFT) angle += 192;
+		else if(keycode == KeyEvent.VK_RIGHT) angle += 64;
+		angle &= 0xff;
 		if (end)
 			endMoveRequest(angle);
 		else
