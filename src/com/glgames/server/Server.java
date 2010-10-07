@@ -44,9 +44,9 @@ public class Server implements Runnable {
 
 	int blockCount;
 
-	public static final int ROUND_LENGTH = 10000;
+	public static final int ROUND_LENGTH = 90000;
 
-	private int timeRemaining = ROUND_LENGTH;
+	private static int timeRemaining = ROUND_LENGTH;
 
 	public Server() {
 		settings = loadSettings("config");
@@ -94,10 +94,12 @@ public class Server implements Runnable {
 			} catch (Exception e) {
 
 			}
-			timeRemaining -= 20;
-			if(timeRemaining <= 0) {
-			//	resetDeaths();
-				timeRemaining = ROUND_LENGTH;
+			if(getNumPlayers() > 1) {
+				timeRemaining -= 20;
+				if(timeRemaining <= 0) {
+				//	resetDeaths();
+					timeRemaining = ROUND_LENGTH;
+				}
 			}
 		}
 	}
@@ -269,6 +271,10 @@ public class Server implements Runnable {
 			System.out.println("Logged out: " + p.id);
 			
 			syncNumPlayers();
+			if(getNumPlayers() < 2) {
+				timeRemaining = -1;
+				//System.out.println(getNumPlayers());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -300,7 +306,7 @@ public class Server implements Runnable {
 			p.processIncomingPackets();
 			p.handleMove();
 			p.writePendingChats(chats);
-			if(timeRemaining % 1000 == 0) p.updateRoundTime(timeRemaining);
+			if(getNumPlayers() > 1 && timeRemaining % 1000 == 0) p.updateRoundTime(timeRemaining / 1000);
 			
 	//		focusX += p.area.x - 422; // Distance from center X
 	//		focusZ += p.area.y - 211; // Distance from center Y

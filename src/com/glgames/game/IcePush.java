@@ -413,6 +413,15 @@ public class IcePush extends Applet {
 			renderer.yaw -= 3;
 			renderer.updateCamera();
 		}
+
+		if(keys[KeyEvent.VK_W]) {
+			renderer.pitch += 3;
+			renderer.updateCamera();
+		}
+		if(keys[KeyEvent.VK_S]) {
+			renderer.pitch -= 3;
+			renderer.updateCamera();
+		}
 		
 		if(keys[KeyEvent.VK_2])
 			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;

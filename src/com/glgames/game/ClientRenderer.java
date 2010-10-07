@@ -15,8 +15,10 @@ public class ClientRenderer extends Renderer3D {
 	public static final int SOFTWARE_3D = 1;
 	public static final int HARDWARE_3D = 2;
 	public static int GRAPHICS_MODE = SOFTWARE_2D;
-	public int roundTime;
+	private int roundTime = -1;
 	public String winner;
+
+	int cameraZoom = 64;
 
 	public ClientRenderer(Component c, int w, int h) {
 		super(c, w, h);
@@ -117,22 +119,51 @@ public class ClientRenderer extends Renderer3D {
 	}
 
 	public void updateCamera(int x, int y) {
-		cameraX = (64.0 * sines[yaw]) + x;
-		cameraZ = (64.0 * cosines[yaw]) + y;
+		cameraX = (cameraZoom * sines[yaw]) + x;
+		cameraZ = (cameraZoom * cosines[yaw]) + y;
 	}
 
 	public void updateCamera() {
 		pitch &= 0xff; yaw &= 0xff;
 		Player pl = GameObjects.players[NetworkHandler.id];
 		if(pl == null) return;
-		cameraX = (64.0 * sines[yaw]) + pl.sprite.x;
-		cameraZ = (64.0 * cosines[yaw]) + pl.sprite.y;
+		cameraX = (cameraZoom * sines[yaw]) + pl.sprite.x;
+		cameraZ = (cameraZoom * cosines[yaw]) + pl.sprite.y;
+	}
+
+	public void setRoundTime(int time) {
+		//System.out.println("Time being set to " + time);
+		if(roundTime > 0 && time > roundTime) {
+		//	System.out.println("time="+time+" roundTime="+roundTime);
+			winner = getWinner();
+		}
+		roundTime = time;
+	}
+
+	private String getWinner() {
+		int minDeaths = Integer.MAX_VALUE;
+		String winner = null;
+		int tieCount = 1;
+		for(Player p : GameObjects.players) {
+			if(p != null) {
+				if(p.deaths < minDeaths) {
+					minDeaths = p.deaths;
+					winner = p.username + " HAS WON AND IS NOW THE WINNER";
+					tieCount = 1;
+				} else if(p.deaths == minDeaths) {
+					tieCount++;
+					winner = "<" + tieCount + " way tie>";
+				}
+			}
+		}
+		return winner;
 	}
 
 	private void drawRoundTime(Graphics g) {
-		int timesec = roundTime / 1000;
-		String mins = Integer.toString(timesec / 60);
-		String secs = Integer.toString(timesec % 60);
+		//int timesec = roundTime / 1000;
+		if(roundTime < 0) return;						// Not in any round
+		String mins = Integer.toString(roundTime / 60);
+		String secs = Integer.toString(roundTime  % 60);
 		if(secs.length() == 1) secs = '0' + secs;
 		String time = "Time remaining: " + mins + ':' + secs;
 		FontMetrics fm = g.getFontMetrics();

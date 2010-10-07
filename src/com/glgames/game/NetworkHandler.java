@@ -168,7 +168,7 @@ public class NetworkHandler {
 					}
 					break;
 				case UPDATE_ROUNDTIME:
-					IcePush.instance.renderer.roundTime = pbuf.readShort();
+					IcePush.instance.renderer.setRoundTime(pbuf.readShort());
 					break;
 			}
 			pbuf.closePacket();
