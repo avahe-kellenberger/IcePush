@@ -1,0 +1,29 @@
+<project name="IcePush" basedir="." default="build">
+
+    <property name="src.dir" value="src"/>
+    <property name="bin.dir" value="bin"/>
+    <property name="main-class" value="com.glgames.game.IcePush"/>
+
+    <target name="clean">
+        <delete includeemptydirs="true">
+            <fileset dir="${bin.dir}" includes="**/*" defaultexcludes="no"/>
+        </delete>
+    </target>
+
+    <target name="compile">
+        <javac srcdir="${src.dir}" destdir="${bin.dir}"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="IcePush.jar" basedir="${bin.dir}" excludes="**/com/glgames/test/,**/com/glgames/server/">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+            <fileset dir="${src.dir}" casesensitive="yes" includes="**/images/*,**/data/*,**/models/*"/>
+        </jar>
+    </target>
+
+    <target name="package" depends="clean,jar"/>
+    <target name="build" depends="package"/>
+
+</project>
