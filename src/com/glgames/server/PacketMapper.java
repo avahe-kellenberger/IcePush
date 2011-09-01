@@ -75,7 +75,7 @@ public class PacketMapper {
 			pbuf.closePacket();
 			return false;
 		}
-		System.out.println(target.getClass().toString());
+		//System.out.println(target.getClass().toString());
 	/*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	  ALL CODE TO THE END OF THIS METHOD IS STILL VULNERABLE TO EXPLOITATION BECAUSE IT DOES NOT PROPERLY VALIDATE WELL-FORMEDNESS OF INPUTS
 	  THE POTENTIAL THING HERE IS THAT THE CLIENT CAN SPECIFY STRINGS THAT ARE OUT OF BOUNDS AND CAUSE THIS CODE TO THROW AN EXCEPTION

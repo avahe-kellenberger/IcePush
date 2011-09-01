@@ -15,6 +15,7 @@ public class Player extends RigidBody {
 	public boolean connected;
 	
 	public PacketBuffer pbuf;
+	private int numSet;
 
 	// Length of arrays can be adjusted for more precision
 	public static final float[] sines = new float[256];
@@ -150,6 +151,7 @@ public class Player extends RigidBody {
 	}
 
 	private void playerDied() {
+		numSet = 0;
 		try {
 			deaths++;
 			initPosition();
@@ -169,6 +171,7 @@ public class Player extends RigidBody {
 	}
 
 	private void setBit(int bit) {
+		numSet++;
 		// scale down by 2 so that the values are between 
 		// -0.5 and +0.5, like the original version
 		xa += sines[bit & 0xff] / 2f;
@@ -176,9 +179,9 @@ public class Player extends RigidBody {
 	}
 
 	private void clearBit(int bit) {
-		// this is slightly wrong and results in the following bug:
-		// if you press one direction and then another, and release the first
-		// you do not move in the second direction
-		xa = 0; ya = 0;
+		if(numSet == 0) return;
+		numSet--;
+		xa -= sines[bit & 0xff] / 2f;
+		ya -= cosines[bit & 0xff] / 2f;
 	}
 }

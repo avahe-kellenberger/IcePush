@@ -186,7 +186,7 @@ public class NetworkHandler {
 		}
 	}
 
-	public static int moveID;
+	private static int moveID;
 	public static void sendMoveRequest(int dir) {
 		if (IcePush.state != IcePush.PLAY)
 			return;
