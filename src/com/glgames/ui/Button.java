@@ -16,51 +16,59 @@ public class Button extends UIComponent {
 	
 	Button (int x, int y, int width, int height) {
 		super(x, y, width, height);
-		hoverAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setBG(HOVER_BGCOLOR);
+		hoverAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setBG(HOVER_BGCOLOR);
 			}
 		};
-		unhoverAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setBG(NORMAL_BGCOLOR);
-				component.setDepressed(false);
+		unhoverAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setBG(NORMAL_BGCOLOR);
+				comp.setDepressed(false);
 			}
 		};
-		mousePressAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setBG(NORMAL_BGCOLOR);
-				component.setDepressed(true);
+		mousePressAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setBG(NORMAL_BGCOLOR);
+				comp.setDepressed(true);
 			}
 		};
-		mouseReleaseAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setDepressed(false);
+		mouseReleaseAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setDepressed(false);
 			}
 		};
 	}
 	Button (int width, int height) {
 		super(width, height);
-		hoverAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setBG(HOVER_BGCOLOR);
+		hoverAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setBG(HOVER_BGCOLOR);
 			}
 		};
-		unhoverAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setBG(NORMAL_BGCOLOR);
-				component.setDepressed(false);
+		unhoverAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setBG(NORMAL_BGCOLOR);
+				comp.setDepressed(false);
 			}
 		};
-		mousePressAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setBG(NORMAL_BGCOLOR);
-				component.setDepressed(true);
+		mousePressAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setBG(NORMAL_BGCOLOR);
+				comp.setDepressed(true);
 			}
 		};
-		mouseReleaseAction = new Action<Button>() {
-			public void doAction(Button component, int x, int y) {
-				component.setDepressed(false);
+		mouseReleaseAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				Button comp = (Button) uiComp;
+				comp.setDepressed(false);
 			}
 		};
 	}

@@ -1,5 +1,5 @@
 package com.glgames.ui;
 
-public interface Action<T extends UIComponent> {
-	public void doAction(T component, int x, int y);
+public interface Action {
+	public void doAction(UIComponent uiComp, int x, int y);
 }

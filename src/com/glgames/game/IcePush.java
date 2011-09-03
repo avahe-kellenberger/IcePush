@@ -17,6 +17,7 @@ import com.glgames.ui.Actions;
 import com.glgames.ui.Button;
 import com.glgames.ui.MapCanvas;
 import com.glgames.ui.TextBox;
+import com.glgames.ui.UIComponent;
 
 public class IcePush extends Applet {
 	public static boolean DEBUG = false;
@@ -153,8 +154,8 @@ public class IcePush extends Applet {
 		paint(g);
 	}
 
-	public static Action<Button> onHelpButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onHelpButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			IcePush.state = IcePush.HELP;
 			GameObjects.ui.setVisibleRecursive(false);
 			GameObjects.ui.setVisible(true);
@@ -162,8 +163,8 @@ public class IcePush extends Applet {
 		}
 	};
 	
-	public static Action<Button> onMapEditorButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onMapEditorButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			IcePush.state = IcePush.MAPEDITOR;
 			GameObjects.ui.setVisibleRecursive(false);
 			GameObjects.ui.setVisible(true);
@@ -171,8 +172,8 @@ public class IcePush extends Applet {
 		}
 	};
 
-	public static Action<Button> onBackButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onBackButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			IcePush.state = IcePush.WELCOME;
 			GameObjects.ui.setVisibleRecursive(false);
 			GameObjects.ui.setVisible(true);
@@ -185,77 +186,61 @@ public class IcePush extends Applet {
 		}
 	};
 
-	public static Action<TextBox> onUsernameTextBoxClick = new Action<TextBox>() {
-		public void doAction(TextBox component, int x, int y) {
+	public static Action onUsernameTextBoxClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.serverTextBox.unfocus();
 			GameObjects.ui.usernameTextBox.focus();
 		}
 	};
 
-	public static Action<TextBox> onServerTextBoxClick = new Action<TextBox>() {
-		public void doAction(TextBox component, int x, int y) {
+	public static Action onServerTextBoxClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.usernameTextBox.unfocus();
 			GameObjects.ui.serverTextBox.focus();
 		}
 	};
 
-	public static Action<Button> onSelectButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onSelectButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.SELECT);
 		}
 	};
 
-	public static Action<Button> onLineButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onLineButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.LINE);
 		}
 	};
 	
-	public static Action<Button> onQuadButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onQuadButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.QUADRATIC);
 		}
 	};
 
-	public static Action<Button> onCubicButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onCubicButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.CUBIC);
 		}
 	};
 
-	public static Action<Button> onCloseButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onCloseButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.closePath();
 		}
 	};
 
-	public static Action<Button> onExportButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onExportButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.exportPath();
 		}
 	};
 
-	public static Action<Button> onImportButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onImportButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			GameObjects.ui.mapCanvas.importPath();
 		}
 	};
-
-	/*public static Action<ServerList> onServerListClick = new Action<ServerList>() {
-		public void doAction(ServerList component, int x, int y) {
-			if (IcePush.state != IcePush.WELCOME 
-					|| GameObjects.serverMode != GameObjects.LIST_FROM_SERVER)
-				return;
-			int index = y / component.getFontHeight();
-			if(IcePush.DEBUG)
-				System.out.println(index);
-			synchronized(component) {
-				if(index < 0 || index > component.getItems().length - 1)
-					return;
-				component.setSelected(index);
-			}
-		}
-	};*/
 
 	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 

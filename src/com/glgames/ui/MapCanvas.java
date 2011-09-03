@@ -27,10 +27,11 @@ public class MapCanvas extends Container {
 
 	MapCanvas (int x, int y, int width, int height) {
 		super(x, y, width, height);
-		clickAction = new Action<MapCanvas>() {
-			public void doAction(MapCanvas component, int x, int y) {
-				component.queue.add(new Point(x, y));
-				component.checkQueue();
+		clickAction = new Action() {
+			public void doAction(UIComponent uiComp, int x, int y) {
+				MapCanvas comp = (MapCanvas) uiComp;
+				comp.queue.add(new Point(x, y));
+				comp.checkQueue();
 			}
 		};
 	}

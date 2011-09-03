@@ -12,6 +12,7 @@ import com.glgames.shared.ILoader;
 import com.glgames.shared.PacketBuffer;
 import com.glgames.ui.Action;
 import com.glgames.ui.Button;
+import com.glgames.ui.UIComponent;
 
 public class NetworkHandler {
 	static String DEFAULT_SERVER = "strictfp.com";
@@ -22,12 +23,10 @@ public class NetworkHandler {
 	private static PacketBuffer pbuf;
 	private static long pingTime;
 
-	public static Action<Button> onLoginButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onLoginButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			String server = "";
-			/*if (GameObjects.serverMode == GameObjects.LIST_FROM_SERVER) {
-				server = GameObjects.ui.serverList.getSelected();
-			} else */if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
+			if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
 				server = GameObjects.ui.serverTextBox.getText();
 			} else {
 				server = DEFAULT_SERVER;
@@ -39,8 +38,8 @@ public class NetworkHandler {
 		}
 	};
 
-	public static Action<Button> onLogoutButtonClick = new Action<Button>() {
-		public void doAction(Button component, int x, int y) {
+	public static Action onLogoutButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
 			NetworkHandler.logOut();
 			GameObjects.ui.setVisibleRecursive(false);
 			GameObjects.ui.setVisible(true);
