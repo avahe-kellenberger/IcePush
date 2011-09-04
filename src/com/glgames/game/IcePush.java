@@ -244,40 +244,40 @@ public class IcePush extends Applet {
 
 	// --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 
-	protected void processMouseEvent(MouseEvent me) {
-		int id = me.getID();
+	protected void processMouseEvent(MouseEvent e) {
+		int id = e.getID();
 		if (id == MouseEvent.MOUSE_CLICKED) {
-			mouseClicked(me);
+			mouseClicked(e);
 		} else if (id == MouseEvent.MOUSE_PRESSED) {
-			mousePressed(me);
+			mousePressed(e);
 		} else if (id == MouseEvent.MOUSE_RELEASED) {
-			mouseReleased(me);
+			mouseReleased(e);
 		}
 	}
 
-	protected void processMouseMotionEvent(MouseEvent me) {
-		int id = me.getID();
+	protected void processMouseMotionEvent(MouseEvent e) {
+		int id = e.getID();
 		if (id == MouseEvent.MOUSE_MOVED) {
-			mouseMoved(me);
+			mouseMoved(e);
 		} else if (id == MouseEvent.MOUSE_DRAGGED) {
-			mouseDragged(me);
+			mouseDragged(e);
 		}
 	}
 
-	protected void processKeyEvent(KeyEvent ke) {
-		sendKeyEventInternal(ke);
+	protected void processKeyEvent(KeyEvent e) {
+		sendKeyEventInternal(e);
 	}
 
 	// --- --------------------------------------------- --- //
 
-	private void sendKeyEventInternal(KeyEvent ke) {
-		int id = ke.getID();
+	private void sendKeyEventInternal(KeyEvent e) {
+		int id = e.getID();
 		if (id == KeyEvent.KEY_PRESSED) {
-			keyPressed(ke);
+			keyPressed(e);
 		} else if (id == KeyEvent.KEY_TYPED) {
-			keyTyped(ke);
+			keyTyped(e);
 		} else if (id == KeyEvent.KEY_RELEASED) {
-			keyReleased(ke);
+			keyReleased(e);
 		}
 	}
 
