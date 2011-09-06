@@ -317,7 +317,14 @@ public class IcePush extends Applet {
 	private void keyPressed(KeyEvent e) {
 		if (IcePush.DEBUG)
 			System.out.println("key pressed");
-		keys[e.getKeyCode()] = true;
+		
+		try {
+			keys[e.getKeyCode()] = true;
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			if (IcePush.DEBUG)
+				System.out.println("Unrecognized key pressed!");
+		}
+		
 		if (IcePush.state == IcePush.WELCOME || IcePush.state == IcePush.HELP) {
 			int code = e.getKeyCode();
 			if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_TAB) {
@@ -357,7 +364,12 @@ public class IcePush extends Applet {
 	private void keyReleased(KeyEvent e) {
 		if (IcePush.DEBUG)
 			System.out.println("key released");
-		keys[e.getKeyCode()] = false;
+		try {
+			keys[e.getKeyCode()] = false;
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			if (IcePush.DEBUG)
+				System.out.println("Unrecognized key released!");
+		}
 	}
 
 	private static void checkKeys() {
