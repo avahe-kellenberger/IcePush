@@ -81,6 +81,7 @@ public class IcePush extends Applet {
 		String s = getParameter("server");
 		String u = getParameter("username");
 		if(s != null) NetworkHandler.DEFAULT_SERVER = s;
+		else NetworkHandler.DEFAULT_SERVER = getCodeBase().getHost();
 		if(u != null) username = u;
 		GameObjects.serverMode = GameObjects.USE_DEFAULT;
 	}
