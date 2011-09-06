@@ -1,6 +1,23 @@
 package com.glgames.game;
 
-import static com.glgames.shared.Opcodes.*;
+import static com.glgames.shared.Opcodes.BAD_VERSION;
+import static com.glgames.shared.Opcodes.CHAT_REQUEST;
+import static com.glgames.shared.Opcodes.END_MOVE;
+import static com.glgames.shared.Opcodes.KEEP_ALIVE;
+import static com.glgames.shared.Opcodes.LOGOUT;
+import static com.glgames.shared.Opcodes.MOVE_REQUEST;
+import static com.glgames.shared.Opcodes.NEW_CHAT_MESSAGE;
+import static com.glgames.shared.Opcodes.NEW_PLAYER;
+import static com.glgames.shared.Opcodes.PING;
+import static com.glgames.shared.Opcodes.PLAYER_DIED;
+import static com.glgames.shared.Opcodes.PLAYER_LOGGED_OUT;
+import static com.glgames.shared.Opcodes.PLAYER_MOVED;
+import static com.glgames.shared.Opcodes.SUCCESS_LOG;
+import static com.glgames.shared.Opcodes.TOO_MANY_PL;
+import static com.glgames.shared.Opcodes.UPDATE;
+import static com.glgames.shared.Opcodes.UPDATE_ROUNDTIME;
+import static com.glgames.shared.Opcodes.USER_IN_USE;
+import static com.glgames.shared.Opcodes.VERSION;
 
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
@@ -11,7 +28,6 @@ import com.glgames.graphics2d.Renderer;
 import com.glgames.shared.ILoader;
 import com.glgames.shared.PacketBuffer;
 import com.glgames.ui.Action;
-import com.glgames.ui.Button;
 import com.glgames.ui.UIComponent;
 
 public class NetworkHandler {

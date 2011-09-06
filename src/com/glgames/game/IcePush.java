@@ -11,12 +11,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import com.glgames.graphics2d.Renderer;
-import com.glgames.shared.InterthreadQueue;
 import com.glgames.ui.Action;
 import com.glgames.ui.Actions;
-import com.glgames.ui.Button;
 import com.glgames.ui.MapCanvas;
-import com.glgames.ui.TextBox;
 import com.glgames.ui.UIComponent;
 
 public class IcePush extends Applet {

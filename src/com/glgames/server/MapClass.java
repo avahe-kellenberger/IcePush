@@ -1,10 +1,8 @@
 package com.glgames.server;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
-
 import java.awt.geom.Path2D;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 public class MapClass {
