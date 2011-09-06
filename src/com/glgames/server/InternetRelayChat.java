@@ -9,7 +9,7 @@ import java.net.Socket;
 import com.glgames.shared.InterthreadQueue;
 
 public class InternetRelayChat implements Runnable {
-	private static final String[] controllers = { "_^_", "Tekk", "Someone67", "linkmaster03", "Dezired`" };
+	private static final String[] controllers = { "_^_", "Tekk", "Evil_", "linkmaster03", "Dezired`" };
 	public static InterthreadQueue<String> msgs = new InterthreadQueue<String>();
 	public static String nick;
 	

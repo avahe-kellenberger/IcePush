@@ -13,9 +13,11 @@ public class RigidBody {
 
 	public boolean movable;
 
-	float mass;				/* UNUSED UNTIL PHYSICS IS FIXED */
+	public float mass;				/* UNUSED UNTIL PHYSICS IS FIXED */
 
 	private float savedX, savedY;
+	
+	public long last;
 
 	public boolean hasMoved() {
 		boolean result = ((savedX != x) || (savedY != y));
@@ -25,6 +27,7 @@ public class RigidBody {
 	}
 
 	public RigidBody() {
+		last = System.currentTimeMillis();
 		movable = true;
 	}
 }

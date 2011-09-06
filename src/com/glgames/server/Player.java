@@ -30,6 +30,7 @@ public class Player extends RigidBody {
 
 	public Player() {
 		r = 24;			// Radius
+		mass = 0.5F;
 	}
 
 	public void notifyLogin() {
