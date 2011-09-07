@@ -3,6 +3,7 @@
     <property name="src.dir" value="src"/>
     <property name="bin.dir" value="bin"/>
     <property name="main-class" value="com.glgames.game.IcePush"/>
+    <property name="main-class-server" value="com.glgames.server.Server"/>
 
     <target name="clean">
         <delete includeemptydirs="true">
@@ -22,8 +23,18 @@
             <fileset dir="${src.dir}" casesensitive="yes" includes="**/images/*,**/data/*,**/models/*"/>
         </jar>
     </target>
+    <target name="jar-server" depends="compile">
+		<jar destfile="IcePushServer.jar" basedir="${bin.dir}" 
+			excludes="**/com/glgames/game/,**/com/glgames/graphics2d/,**/com/glgames/graphics3d/,**/com/glgames/ui/,**/com/glgames/test/">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class-server}"/>
+            </manifest>
+        </jar>
+    </target>
 
     <target name="package" depends="clean,jar"/>
+    <target name="package-server" depends="clean,jar-server"/>
     <target name="build" depends="package"/>
+    <target name="build-server" depends="package-server"/>
 
 </project>
