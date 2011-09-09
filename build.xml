@@ -2,8 +2,8 @@
 
     <property name="src.dir" value="src"/>
     <property name="bin.dir" value="bin"/>
-    <property name="main-class" value="com.glgames.game.IcePush"/>
-    <property name="main-class-server" value="com.glgames.server.Server"/>
+    <property name="main-class" value="net.threesided.game.IcePush"/>
+    <property name="main-class-server" value="net.threesided.server.Server"/>
 
     <target name="clean">
         <delete includeemptydirs="true">
@@ -16,16 +16,16 @@
     </target>
 
     <target name="jar" depends="compile">
-        <jar destfile="IcePush.jar" basedir="${bin.dir}" excludes="**/com/glgames/test/,**/com/glgames/server/">
+        <jar destfile="IcePush.jar" basedir="${bin.dir}" excludes="**/net/threesided/test/,**/net/threesided/server/">
             <manifest>
                 <attribute name="Main-Class" value="${main-class}"/>
             </manifest>
-            <fileset dir="${src.dir}" casesensitive="yes" includes="**/images/*,**/data/*,**/models/*"/>
+            <fileset dir="." casesensitive="yes" includes="**/images/*,**/data/*,**/models/*"/>
         </jar>
     </target>
     <target name="jar-server" depends="compile">
 		<jar destfile="IcePushServer.jar" basedir="${bin.dir}" 
-			excludes="**/com/glgames/game/,**/com/glgames/graphics2d/,**/com/glgames/graphics3d/,**/com/glgames/ui/,**/com/glgames/test/">
+			excludes="**/net/threesided/game/,**/net/threesided/graphics2d/,**/net/threesided/graphics3d/,**/net/threesided/ui/,**/net/threesided/test/">
             <manifest>
                 <attribute name="Main-Class" value="${main-class-server}"/>
             </manifest>
