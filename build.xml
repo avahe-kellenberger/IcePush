@@ -12,18 +12,22 @@
     </target>
 
     <target name="compile">
-        <javac srcdir="${src.dir}" destdir="${bin.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" excludes="loader.java,Updater.java,**/net/threesided/test/,**/net/threesided/server/"/>
+    </target>
+
+    <target name="compile-server">
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" excludes="loader.java,Updater.java,**/net/threesided/test/"/>
     </target>
 
     <target name="jar" depends="compile">
-        <jar destfile="IcePush.jar" basedir="${bin.dir}" excludes="**/net/threesided/test/,**/net/threesided/server/">
+        <jar destfile="IcePush.jar" basedir="${bin.dir}" excludes="**/net/threesided/test/">
             <manifest>
                 <attribute name="Main-Class" value="${main-class}"/>
             </manifest>
             <fileset dir="." casesensitive="yes" includes="**/images/*,**/data/*,**/models/*"/>
         </jar>
     </target>
-    <target name="jar-server" depends="compile">
+    <target name="jar-server" depends="compile-server">
 		<jar destfile="IcePushServer.jar" basedir="${bin.dir}" 
 			excludes="**/net/threesided/game/,**/net/threesided/graphics2d/,**/net/threesided/graphics3d/,**/net/threesided/ui/,**/net/threesided/test/">
             <manifest>
