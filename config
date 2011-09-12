@@ -1,0 +1,7 @@
+irc-server:irc.strictfp.com
+port:6667
+channel:#icepush
+host:TestServer
+bind-port:2345
+worldserver-addr:localhost
+show-in-list:true
