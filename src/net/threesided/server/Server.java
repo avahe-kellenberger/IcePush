@@ -104,6 +104,13 @@ public class Server implements Runnable {
 		}
 	}
 
+	private void resetDeaths() {
+		for(Player plr : players) {
+			if(plr == null) continue;
+			plr.resetDeaths();
+		}
+	}
+
 	private void processIncomingConnection(Socket s) {
 		System.out.println("Connection accepted: " + s.toString());
 		String host = s.getInetAddress().getHostName();

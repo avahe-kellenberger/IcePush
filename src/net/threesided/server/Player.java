@@ -171,6 +171,19 @@ public class Player extends RigidBody {
 		}
 	}
 
+	public void resetDeaths() {
+		for (Player plr : Server.players) {
+			if (plr == null)
+				continue;
+			pbuf.beginPacket(PLAYER_DIED);
+			pbuf.writeShort(plr.id);
+			pbuf.writeByte(0);		// Number of times died
+			pbuf.writeShort((int)plr.x); // new location
+			pbuf.writeShort((int)plr.y);
+			pbuf.endPacket();
+		}
+	}
+
 	private void setBit(int bit) {
 		numSet++;
 		// scale down by 2 so that the values are between 
@@ -184,5 +197,6 @@ public class Player extends RigidBody {
 		numSet--;
 		xa -= sines[bit & 0xff] / 2f;
 		ya -= cosines[bit & 0xff] / 2f;
+		if(numSet == 0) xa = ya = 0;
 	}
 }

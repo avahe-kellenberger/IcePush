@@ -114,6 +114,9 @@ public class NetworkHandler {
 		if (!pbuf.synch()) {
 			IcePush.state = IcePush.WELCOME;
 			GameObjects.ui.networkStatus.setText("Connection with server was lost.");
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.welcomeScreenContainer.setVisibleRecursive(true);
 			return;
 		}
 
