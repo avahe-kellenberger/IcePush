@@ -15,14 +15,14 @@ public class RigidBody {
 
 	public float mass;				/* UNUSED UNTIL PHYSICS IS FIXED */
 
-	private float savedX, savedY;
+	private int savedX, savedY;
 	
 	public long last;
 
 	public boolean hasMoved() {
-		boolean result = ((savedX != x) || (savedY != y));
-		savedX = x;
-		savedY = y;
+		boolean result = ((savedX != (int)x) || (savedY != (int)y));
+		savedX = (int)x;
+		savedY = (int)y;
 		return result;
 	}
 

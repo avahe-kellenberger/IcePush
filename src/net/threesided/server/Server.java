@@ -105,10 +105,7 @@ public class Server implements Runnable {
 	}
 
 	private void resetDeaths() {
-		for(Player plr : players) {
-			if(plr == null) continue;
-			plr.resetDeaths();
-		}
+		for(Player p : players) if(p != null) for(Player plr : players) if(plr != null) p.resetDeaths(plr);
 	}
 
 	private void processIncomingConnection(Socket s) {
@@ -203,7 +200,6 @@ public class Server implements Runnable {
 	}
 
 	private void loginPlayer(Socket s) {
-		Player p = new Player();
 		try {
 			InputStream in = s.getInputStream();
 			OutputStream out = s.getOutputStream();
@@ -216,7 +212,7 @@ public class Server implements Runnable {
 			int len = in.read();
 			byte[] strb = new byte[len];
 			in.read(strb);
-
+			Player p = new Player(s);
 			p.username = new String(strb);
 
 			for (int k = 0; k < players.length; k++) {
@@ -246,16 +242,18 @@ public class Server implements Runnable {
 			p.id = index;
 			p.type = index % 2;
 
-			p.initPosition();
+			p.initPosition(players, mapClass.currentPath);
 			out.write(SUCCESS_LOG); // success
 			out.write(p.id);
 			out.flush();
 
-			p.pbuf = new PacketBuffer(s); //net.threesided.test.DebugPacketBuffer(s);
 			p.connected = true;
 			players[p.id] = p;
-			p.notifyLogin(players);											// Tell p about all players already logged in
-			for(Player plr : players) if(plr != p) plr.notifyLogin(new Player[]{ p });		// Tell all already logged in players about p
+			for(Player plr : players)
+				if(plr != null) {
+					p.notifyLogin(plr);		// Tell p about all players already logged in
+					plr.notifyLogin(p);		// Tell all already logged in players about p
+				}
 			System.out.println("Player logged in: " + p.username + ", id: " + p.id);
 			syncNumPlayers();
 		} catch(Exception e) {
@@ -269,9 +267,7 @@ public class Server implements Runnable {
 				if (plr == null || plr == p)
 					continue;
 
-				plr.pbuf.beginPacket(PLAYER_LOGGED_OUT);
-				plr.pbuf.writeShort(p.id);
-				plr.pbuf.endPacket();
+				plr.loggedOut(p);
 			}
 			
 			p.connected = false;
@@ -301,8 +297,6 @@ public class Server implements Runnable {
 	}
 
 	private void updatePlayers() {
-	//	int focusX = 0, focusZ = 0;
-		
 		ArrayList<String> chats = new ArrayList<String>();
 		String msg;
 		while((msg = InternetRelayChat.msgs.pull()) != null)
@@ -311,26 +305,31 @@ public class Server implements Runnable {
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
-			if(!p.processIncomingPackets()) {
+			if(!p.processIncomingPackets() || p.logOut) {
 				logoutPlayer(p);
 			} else {
-				p.handleMove();
 				p.writePendingChats(chats);
+				if(p.chatMessage != null) {
+					InternetRelayChat.sendMessage(p.chatMessage);
+					InternetRelayChat.msgs.push(p.chatMessage);
+					p.chatMessage = null;
+				}
+
+				if(!mapClass.currentPath.contains(p.x, p.y)) {
+					System.out.println("PLAYER " + p.username + " IS OUT OF RANGE!");
+					p.deaths++;
+					p.initPosition(players, mapClass.currentPath);
+					for(Player plr : players) if(plr != null) plr.playerDied(p);	// plr cycles through every player; p is the player who just died
+					continue;
+				}
+
+				if(p.hasMoved()) {
+					for(Player plr : Server.players) if(plr != null) plr.handleMove(p);
+				}
 			}
 
 			if(getNumPlayers() > 1 && timeRemaining % 1000 == 0) p.updateRoundTime(timeRemaining / 1000);
-			
-	//		focusX += p.area.x - 422; // Distance from center X
-	//		focusZ += p.area.y - 211; // Distance from center Y
 		}
-
-	//	int nP = getNumPlayers();
-	//	if (nP == 0)
-	//		return;
-	//	focusX /= nP;
-	//	focusZ /= nP;
-	// For tilting ice but not sure how to do this yet
-	//	System.out.println(focusX + " " + focusZ);
 	}
 
 	public static void main(String[] args) {

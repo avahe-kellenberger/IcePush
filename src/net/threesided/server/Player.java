@@ -5,6 +5,9 @@ import net.threesided.shared.PacketBuffer;
 import static net.threesided.shared.Opcodes.*;
 
 import java.util.ArrayList;
+import java.net.Socket;
+import java.io.IOException;
+import java.awt.geom.Path2D;
 
 public class Player extends RigidBody {
 	public int id;
@@ -14,8 +17,11 @@ public class Player extends RigidBody {
 	public boolean canMove;
 	public boolean connected;
 	
-	public PacketBuffer pbuf;
+	private PacketBuffer pbuf;
 	private int numSet;
+
+	public boolean logOut;
+	String chatMessage;
 
 	// Length of arrays can be adjusted for more precision
 	public static final float[] sines = new float[256];
@@ -28,55 +34,29 @@ public class Player extends RigidBody {
 		}
 	}
 
-	public Player() {
+	public Player(Socket s) throws IOException {
 		r = 24;			// Radius
 		mass = 0.5F;
+		pbuf = new PacketBuffer(s);
 	}
 
-	public void notifyLogin(Player players[]) {	// Sends this player the login information of the players given in the array
-		for (Player plr : players) {
-			if (plr == null)
-				continue;
-			// Tell this client about that player...
-			pbuf.beginPacket(NEW_PLAYER);
-			pbuf.writeShort(plr.id);
-			pbuf.writeByte(plr.type);
-			pbuf.writeString(plr.username);
-			pbuf.writeShort((int)plr.x);
-			pbuf.writeShort((int)plr.y);
-			pbuf.writeShort(plr.deaths);
-			pbuf.endPacket();
-
-			/*
-			// Tell that client about this player
-			plr.pbuf.beginPacket(NEW_PLAYER); // new player has entered
-			plr.pbuf.writeShort(id);
-			plr.pbuf.writeByte(type);
-			plr.pbuf.writeString(username);
-			plr.pbuf.writeShort((int)x); // x
-			plr.pbuf.writeShort((int)y); // y
-			plr.pbuf.writeShort(deaths);
-			plr.pbuf.endPacket();	*/
-		}
+	public void notifyLogin(Player p) {	// Sends this player the login information for newly logged in player p
+		pbuf.beginPacket(NEW_PLAYER);
+		pbuf.writeShort(p.id);
+		pbuf.writeByte(p.type);
+		pbuf.writeString(p.username);
+		pbuf.writeShort((int)p.x);
+		pbuf.writeShort((int)p.y);
+		pbuf.writeShort(p.deaths);
+		pbuf.endPacket();
 	}
 
-	public void handleMove() {
-		//		if(x < 4 || y < 5 || x > 752 || y > 428) {
-		if(!Server.mapClass.currentPath.contains(x, y)) {
-			System.out.println("PLAYER " + username + " IS OUT OF RANGE!");
-			playerDied();
-			return;
-		}
-		
-		if(hasMoved()) {
-			for(Player p : Server.players) if(p != null) {
-				p.pbuf.beginPacket(PLAYER_MOVED);
-				p.pbuf.writeShort(id);
-				p.pbuf.writeShort((int)x);
-				p.pbuf.writeShort((int)y);
-				p.pbuf.endPacket();
-			}
-		}
+	public void handleMove(Player p) {
+		pbuf.beginPacket(PLAYER_MOVED);
+		pbuf.writeShort(p.id);
+		pbuf.writeShort((int)p.x);
+		pbuf.writeShort((int)p.y);
+		pbuf.endPacket();
 	}
 
 	public void writePendingChats(ArrayList<String> chats) {
@@ -87,13 +67,17 @@ public class Player extends RigidBody {
 		}
 	}
 
-	void initPosition() {
+	public void initPosition(Player[] players, Path2D path) {	// Resets this players position, making sure it intersects none of the players in the array and is within path
 		boolean good = false;
 		while(true) {
 			good = true;
-			x = (float)(Math.random() * 744);
-			y = (float)(Math.random() * 422);
-			for(Player p : Server.players) {
+
+			do {
+				x = (float)(Math.random() * 744);
+				y = (float)(Math.random() * 422);
+			} while(!path.contains(x, y));
+
+			for(Player p : players) {
 				if(p == null || p == this) {
 					continue;
 				}
@@ -107,10 +91,11 @@ public class Player extends RigidBody {
 
 				if(dist < sum*sum) good = false;
 			}
+
 			if(good)
 				break;
 		}
-		dx = dy = xa = ya = 0;
+		dx = dy = xa = ya = numSet = 0;
 	}
 
 	public void updateRoundTime(int time) {
@@ -127,22 +112,20 @@ public class Player extends RigidBody {
 
 	public void MOVE_REQUEST(int moveDir, int moveId) {
 		setBit(moveDir);
-		if(Server.DEBUG) System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveId + " , TIME: " + System.currentTimeMillis());
+		//if(Serv er.DEBUG) System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveId + " , TIME: " + System.currentTimeMillis());
 	}
 
 	public void END_MOVE(int moveDir, int moveId) {	
 		clearBit(moveDir);
-		if(Server.DEBUG) System.out.println("END MOVE REQUEST - ID = " + moveId + " - TIME = " + System.currentTimeMillis());
+		//if(Serv er.DEBUG) System.out.println("END MOVE REQUEST - ID = " + moveId + " - TIME = " + System.currentTimeMillis());
 	}
 
 	public void LOGOUT() {
-		Server.logoutPlayer(this);
+		logOut = true;
 	}
 
 	public void CHAT_REQUEST(String msg) {
-		String full = "<" + username + "> " + msg;
-		InternetRelayChat.sendMessage(full);
-		InternetRelayChat.msgs.push(full);
+		chatMessage = "<" + username + "> " + msg;
 	}
 
 	public void PING() {
@@ -150,37 +133,28 @@ public class Player extends RigidBody {
 		pbuf.endPacket();
 	}
 
-	private void playerDied() {
-		numSet = 0;
-		try {
-			deaths++;
-			initPosition();
-			for (Player plr : Server.players) {
-				if (plr == null)
-					continue;
-				plr.pbuf.beginPacket(PLAYER_DIED);
-				plr.pbuf.writeShort(id);
-				plr.pbuf.writeByte(deaths);
-				plr.pbuf.writeShort((int)x); // new location
-				plr.pbuf.writeShort((int)y);
-				plr.pbuf.endPacket();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void loggedOut(Player p) {		// Tell this player that player p logged out
+		pbuf.beginPacket(PLAYER_LOGGED_OUT);
+		pbuf.writeShort(p.id);
+		pbuf.endPacket();
 	}
 
-	public void resetDeaths() {
-		for (Player plr : Server.players) {
-			if (plr == null)
-				continue;
-			pbuf.beginPacket(PLAYER_DIED);
-			pbuf.writeShort(plr.id);
-			pbuf.writeByte(0);		// Number of times died
-			pbuf.writeShort((int)plr.x); // new location
-			pbuf.writeShort((int)plr.y);
-			pbuf.endPacket();
-		}
+	public void playerDied(Player p) {			// Notify this player that player p has died
+		pbuf.beginPacket(PLAYER_DIED);
+		pbuf.writeShort(p.id);
+		pbuf.writeByte(p.deaths);
+		pbuf.writeShort((int)p.x);				// new location
+		pbuf.writeShort((int)p.y);
+		pbuf.endPacket();
+	}
+
+	public void resetDeaths(Player p) {			// Tells this player to reset deaths for player p to 0
+		pbuf.beginPacket(PLAYER_DIED);
+		pbuf.writeShort(p.id);
+		pbuf.writeByte(0);					// Number of times died
+		pbuf.writeShort((int)p.x);				// new location
+		pbuf.writeShort((int)p.y);
+		pbuf.endPacket();
 	}
 
 	private void setBit(int bit) {
