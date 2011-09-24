@@ -17,7 +17,7 @@ public class RigidBody {
 
 	private int savedX, savedY;
 	
-	public long last;
+	//public long last;
 
 	public boolean hasMoved() {
 		boolean result = ((savedX != (int)x) || (savedY != (int)y));
@@ -27,7 +27,7 @@ public class RigidBody {
 	}
 
 	public RigidBody() {
-		last = System.currentTimeMillis();
+		//last = System.currentTimeMillis();
 		movable = true;
 	}
 }

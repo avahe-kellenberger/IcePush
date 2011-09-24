@@ -28,37 +28,43 @@ import net.threesided.shared.Opcodes;
 import net.threesided.shared.PacketBuffer;
 
 public class Server implements Runnable {
-	public static boolean DEBUG = false;
-	public static Player[] players;
-	public static Map<String, String> settings;
-	private static Socket worldserver;
+	private boolean DEBUG = false;
+	private Player[] players;
+	private Map<String, String> settings;
+	//private Socket worldserver;
 
-	private static Physics2D physics;
-	private static UpdateServer updates;
-	static MapClass mapClass;
+	private Physics2D physics;
+	//private UpdateServer updates;
+	private MapClass mapClass;
 	
-	static boolean run = true;
+	private boolean run = true;
 	private ServerSocket listener;
 	private InterthreadQueue<Socket> incomingConnections;
 	private InternetRelayChat irc;
+	private ArrayList<String> chats;
 
-	int blockCount;
+	private int blockCount;
 
-	public static final int ROUND_LENGTH = 90000;
-
+	private static final int ROUND_LENGTH = 90000;
 	private static int timeRemaining = ROUND_LENGTH;
 
-	public Server() {
+	public static void main(String[] args) {
+		new Server(args);
+	}
+
+	private Server(String[] args) {
+		if(args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
+		players = new Player[30];
 		settings = loadSettings("config");
 
-		if(Boolean.parseBoolean(settings.get("show-in-list")))
-			worldserver = connectToWorldServer(settings
-					.get("worldserver-addr"), Opcodes.WORLDPORT);
+		//if(Boolean.parseBoolean(settings.get("show-in-list")))
+		//	worldserver = connectToWorldServer(settings
+		//			.get("worldserver-addr"), Opcodes.WORLDPORT);
 
 		incomingConnections = new InterthreadQueue<Socket>();
 
-		irc = new InternetRelayChat(settings.get("irc-server"), Integer.parseInt(settings.get("port")),
-				settings.get("channel"), settings.get("host").replace(".", "-"));
+		irc = new InternetRelayChat(settings.get("irc-server"), Integer.parseInt(settings.get("irc-port")),
+				settings.get("irc-channel"), settings.get("irc-nick"));
 		Thread t = new Thread(irc);
 		t.setDaemon(true);
 		t.start();
@@ -74,8 +80,8 @@ public class Server implements Runnable {
 		new Thread(this).start();
 
 		physics = new Physics2D(players);
-		updates = new UpdateServer(new File(settings.get("update-path")));
-		updates.start();
+		//updates = new UpdateServer(new File(settings.get("update-path")));
+		//updates.start();
 		mapClass = new MapClass();
 
 		try {
@@ -87,6 +93,7 @@ public class Server implements Runnable {
 		while (run) {
 			Socket s = incomingConnections.pull();
 			if (s != null) processIncomingConnection(s);
+			updateIrc();
 			physics.update();
 			updatePlayers();
 			try {
@@ -104,40 +111,6 @@ public class Server implements Runnable {
 		}
 	}
 
-	private void resetDeaths() {
-		for(Player p : players) if(p != null) for(Player plr : players) if(plr != null) p.resetDeaths(plr);
-	}
-
-	private void processIncomingConnection(Socket s) {
-		System.out.println("Connection accepted: " + s.toString());
-		String host = s.getInetAddress().getHostName();
-		if(host.endsWith("mia.bellsouth.net") || host.endsWith("anchorfree.com")) {
-			blockCount++;
-			if((blockCount % 10) == 1)
-				System.out.println("Blocked: " + blockCount + " times");
-			try {
-				s.close();
-			} catch (Exception e) {
-			}
-			return;
-		} else {
-			try {
-				s.setTcpNoDelay(true);
-				int type = s.getInputStream().read();
-				if (type == 0) { // connecting client
-					loginPlayer(s);
-				} else if (type == 2) {
-					s.getOutputStream().write(getNumPlayers());
-				} else if(type == 3) {
-					updates.incomingConnections.push(s);	// THIS SERVER IS HELD TOGETHER WITH DUCT TAPE
-				}
-			} catch(IOException ioe) {
-				System.out.println("Error processing connection!");
-				ioe.printStackTrace();
-			}
-		}
-	}
-	
 	private Map<String, String> loadSettings(String fn) {
 		try {
 			Map<String, String> ret = new HashMap<String, String>();
@@ -153,7 +126,6 @@ public class Server implements Runnable {
 			}
 			return ret;
 		} catch(Exception e) {
-			e.printStackTrace();
 			return defaults;
 		}
 	}
@@ -178,25 +150,48 @@ public class Server implements Runnable {
 			return null;
 		}
 	}
-	
-	public static void syncNumPlayers() {
-		if((worldserver == null) || !worldserver.isConnected())
-			return;
-		try {
-			OutputStream out = worldserver.getOutputStream();
-			out.write(Opcodes.NUM_PLAYERS_NOTIFY);
-			out.write(getNumPlayers());
-			out.flush();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+
+	public void run() {
+		while (run)
+			try {
+				incomingConnections.push(listener.accept());
+				Thread.sleep(30);
+			} catch (Exception ioe) {
+				System.out.println("Error accepting connections!");
+				ioe.printStackTrace();
+				run = false;
+				//updates.run = false;
+			}
 	}
-	
-	private static int getNumPlayers() {
-		int count = 0;
-		for(Player p : players) if(p != null)
-			count++;
-		return count;
+
+	private void processIncomingConnection(Socket s) {
+		System.out.println("Connection accepted: " + s.toString());
+		String host = s.getInetAddress().getHostName();
+		if(host.endsWith("mia.bellsouth.net") || host.endsWith("anchorfree.com")) {
+			blockCount++;
+			if((blockCount % 10) == 1)
+				System.out.println("Blocked: " + blockCount + " times");
+			try {
+				s.close();
+			} catch (Exception e) {
+			}
+			return;
+		} else {
+			try {
+				s.setTcpNoDelay(true);
+				int type = s.getInputStream().read();
+				if (type == 0) { // connecting client
+					loginPlayer(s);
+				} else if (type == 2) {
+					s.getOutputStream().write(getNumPlayers());
+				} else if(type == 3) {
+					//updates.incomingConnections.push(s);	// THIS SERVER IS HELD TOGETHER WITH DUCT TAPE
+				}
+			} catch(IOException ioe) {
+				System.out.println("Error processing connection!");
+				ioe.printStackTrace();
+			}
+		}
 	}
 
 	private void loginPlayer(Socket s) {
@@ -260,48 +255,40 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void logoutPlayer(Player p) {
-		try {
-			for (Player plr : Server.players) {
-				if (plr == null || plr == p)
-					continue;
 
-				plr.loggedOut(p);
-			}
-			
-			p.connected = false;
-			players[p.id] = null;
-			System.out.println("Logged out: " + p.id);
-			
-			syncNumPlayers();
-			if(getNumPlayers() < 2) {
-				timeRemaining = -1;
-				//System.out.println(getNumPlayers());
-			}
-		} catch (Exception e) {
+	private void syncNumPlayers() {
+	/*	if((worldserver == null) || !worldserver.isConnected())
+			return;
+		try {
+			OutputStream out = worldserver.getOutputStream();
+			out.write(Opcodes.NUM_PLAYERS_NOTIFY);
+			out.write(getNumPlayers());
+			out.flush();
+		} catch(Exception e) {
 			e.printStackTrace();
+		}*/
+	}
+
+	private void updateIrc() {
+		irc.processInput();
+		chats = new ArrayList<String>();
+		String msg;
+		while((msg = InternetRelayChat.msgs.pull()) != null) chats.add(msg);
+		String kick;
+		while((kick = InternetRelayChat.kicks.pull()) != null) {
+			for (Player p : players) {
+				if (p != null) {
+					if (p.username.toLowerCase().equals(kick)) {
+						logoutPlayer(p);
+						InternetRelayChat.sendMessage("Player " + kick + " has been kicked.");
+						continue;
+					}
+				}
+			}
 		}
 	}
 
-	public void run() {
-		while (run)
-			try {
-				incomingConnections.push(listener.accept());
-				Thread.sleep(30);
-			} catch (Exception ioe) {
-				System.out.println("Error accepting connections!");
-				ioe.printStackTrace();
-				run = false;
-			}
-	}
-
 	private void updatePlayers() {
-		ArrayList<String> chats = new ArrayList<String>();
-		String msg;
-		while((msg = InternetRelayChat.msgs.pull()) != null)
-			chats.add(msg);
-		
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
@@ -324,7 +311,7 @@ public class Server implements Runnable {
 				}
 
 				if(p.hasMoved()) {
-					for(Player plr : Server.players) if(plr != null) plr.handleMove(p);
+					for(Player plr : players) if(plr != null) plr.handleMove(p);
 				}
 			}
 
@@ -332,24 +319,55 @@ public class Server implements Runnable {
 		}
 	}
 
-	public static void main(String[] args) {
-		if(args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
-		players = new Player[30];
-		new Server();
-	}
-	
-	private static final Map<String, String> defaults;
-	static {
-		defaults = new HashMap<String, String>();
+	private void logoutPlayer(Player p) {
 		try {
-			defaults.put("host", InetAddress.getLocalHost().getHostName());
-			defaults.put("bind-port", "2345");
-			defaults.put("worldserver-addr", "99.198.122.53");
-			defaults.put("show-in-list", "true");
-			defaults.put("update-path", "/home/icepush/data");
-			defaults.put("irc-server", "irc.quirlion.com");
-		} catch(Exception e) {
+			for (Player plr : players) {
+				if (plr == null || plr == p)
+					continue;
+
+				plr.loggedOut(p);
+			}
+			
+			p.connected = false;
+			players[p.id] = null;
+			System.out.println("Logged out: " + p.id);
+			
+			syncNumPlayers();
+			if(getNumPlayers() < 2) {
+				timeRemaining = -1;
+				//System.out.println(getNumPlayers());
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private int getNumPlayers() {
+		int count = 0;
+		for(Player p : players) if(p != null)
+			count++;
+		return count;
+	}
+
+	private void resetDeaths() {
+		for(Player p : players) if(p != null) for(Player plr : players) if(plr != null) p.resetDeaths(plr);
+	}
+
+	private static Map<String, String> defaults;
+
+	static {
+		defaults = new HashMap<String, String>();
+
+		defaults.put("bind-port", "2345");
+
+		defaults.put("irc-server", "irc.strictfp.com");
+		defaults.put("irc-channel", "#icepush");
+		defaults.put("irc-port", "6667");
+		defaults.put("irc-nick", "TestServer");
+
+		/* Worldserver and updateserver temporarily disabled for the time being */
+		//defaults.put("worldserver-addr", "99.198.122.53");
+		//defaults.put("show-in-list", "true");
+		//defaults.put("update-path", "/home/icepush/data");
 	}
 }

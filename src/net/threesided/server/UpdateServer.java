@@ -19,6 +19,8 @@ public class UpdateServer extends Thread {
 	private ArrayList<Entry> index;
 	private int dirNameLen;
 
+	public boolean run;
+
 	InterthreadQueue<Socket> incomingConnections;
 	private Con connections[];
 
@@ -89,7 +91,7 @@ public class UpdateServer extends Thread {
 	}
 
 	private void serveUpdates() {
-		while(Server.run) {
+		while(run) {
 			Socket sock = incomingConnections.pull();
 			if(sock != null) {
 				int i = -1;

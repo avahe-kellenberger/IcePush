@@ -27,9 +27,9 @@ public class Physics2D {
 				a.dy *= 1 - friction;
 				a.dx += a.xa;
 				a.dy += a.ya;
-				a.x += a.dx*((double) a.last/System.currentTimeMillis());
-				a.y += a.dy*((double) a.last/System.currentTimeMillis());
-				a.last = System.currentTimeMillis();
+				a.x += a.dx;//*((double) a.last/System.currentTimeMillis());
+				a.y += a.dy;//*((double) a.last/System.currentTimeMillis());
+				//a.last = System.currentTimeMillis();
 			}
 
 			for(int j = 1 + i; j < bodies.length; j++) {
