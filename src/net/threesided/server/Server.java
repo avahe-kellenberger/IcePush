@@ -254,7 +254,8 @@ public class Server implements Runnable {
 			p.pbuf = new PacketBuffer(s); //net.threesided.test.DebugPacketBuffer(s);
 			p.connected = true;
 			players[p.id] = p;
-			p.notifyLogin();
+			p.notifyLogin(players);											// Tell p about all players already logged in
+			for(Player plr : players) if(plr != p) plr.notifyLogin(new Player[]{ p });		// Tell all already logged in players about p
 			System.out.println("Player logged in: " + p.username + ", id: " + p.id);
 			syncNumPlayers();
 		} catch(Exception e) {
@@ -310,9 +311,13 @@ public class Server implements Runnable {
 		for (Player p : players) {
 			if (p == null || !p.connected)
 				continue;
-			p.processIncomingPackets();
-			p.handleMove();
-			p.writePendingChats(chats);
+			if(!p.processIncomingPackets()) {
+				logoutPlayer(p);
+			} else {
+				p.handleMove();
+				p.writePendingChats(chats);
+			}
+
 			if(getNumPlayers() > 1 && timeRemaining % 1000 == 0) p.updateRoundTime(timeRemaining / 1000);
 			
 	//		focusX += p.area.x - 422; // Distance from center X

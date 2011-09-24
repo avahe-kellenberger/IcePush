@@ -33,8 +33,8 @@ public class Player extends RigidBody {
 		mass = 0.5F;
 	}
 
-	public void notifyLogin() {
-		for (Player plr : Server.players) {
+	public void notifyLogin(Player players[]) {	// Sends this player the login information of the players given in the array
+		for (Player plr : players) {
 			if (plr == null)
 				continue;
 			// Tell this client about that player...
@@ -47,6 +47,7 @@ public class Player extends RigidBody {
 			pbuf.writeShort(plr.deaths);
 			pbuf.endPacket();
 
+			/*
 			// Tell that client about this player
 			plr.pbuf.beginPacket(NEW_PLAYER); // new player has entered
 			plr.pbuf.writeShort(id);
@@ -55,7 +56,7 @@ public class Player extends RigidBody {
 			plr.pbuf.writeShort((int)x); // x
 			plr.pbuf.writeShort((int)y); // y
 			plr.pbuf.writeShort(deaths);
-			plr.pbuf.endPacket();
+			plr.pbuf.endPacket();	*/
 		}
 	}
 
@@ -118,12 +119,10 @@ public class Player extends RigidBody {
 		pbuf.endPacket();
 	}		
 
-	public void processIncomingPackets() {
-		if (!pbuf.synch()) {
-			Server.logoutPlayer(this); // Log out player if connection has been lost
-			return;
-		}
-		PacketMapper.handlePackets(pbuf, this);
+	public boolean processIncomingPackets() {
+		if (!pbuf.synch()) return false;
+		PacketMapper.handlePackets(pbuf, this);		// TODO: Figure out whether this dependency is appropriate or not
+		return true;
 	}
 
 	public void MOVE_REQUEST(int moveDir, int moveId) {
