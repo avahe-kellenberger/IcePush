@@ -16,8 +16,10 @@ public class RigidBody {
 	public float mass;				/* UNUSED UNTIL PHYSICS IS FIXED */
 
 	private int savedX, savedY;
-	
-	//public long last;
+
+	public long last;
+
+	public float elasticity = 1f;
 
 	public boolean hasMoved() {
 		boolean result = ((savedX != (int)x) || (savedY != (int)y));
