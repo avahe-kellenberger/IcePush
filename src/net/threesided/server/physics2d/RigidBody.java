@@ -17,6 +17,8 @@ public class RigidBody {
 
 	private int savedX, savedY;
 	
+	private float prevX, prevY; //for physics purposes
+	
 	//public long last;
 
 	public boolean hasMoved() {
@@ -24,6 +26,27 @@ public class RigidBody {
 		savedX = (int)x;
 		savedY = (int)y;
 		return result;
+	}
+	
+	public void update() {
+		if (movable) {
+			prevX = x;
+			prevY = y;
+			dx *= 1 - Physics2D.FRICTION;
+			dy *= 1 - Physics2D.FRICTION;
+			dx += xa;
+			dy += ya;
+			x += dx;
+			y += dy;
+		}
+	}
+	
+	public float getPrevX() {
+		return prevX;
+	}
+	
+	public float getPrevY() {
+		return prevY;
 	}
 
 	public RigidBody() {
