@@ -40,7 +40,8 @@ public class Player extends RigidBody {
 		pbuf = new PacketBuffer(s);
 	}
 
-	public void notifyLogin(Player p) {	// Sends this player the login information for newly logged in player p
+	// Sends this player the login information for newly logged in player p
+	public void notifyLogin(Player p) {
 		pbuf.beginPacket(NEW_PLAYER);
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(p.type);
@@ -51,6 +52,7 @@ public class Player extends RigidBody {
 		pbuf.endPacket();
 	}
 
+	// Notifies this player that player p has moved
 	public void handleMove(Player p) {
 		pbuf.beginPacket(PLAYER_MOVED);
 		pbuf.writeShort(p.id);
@@ -98,6 +100,7 @@ public class Player extends RigidBody {
 		dx = dy = xa = ya = numSet = 0;
 	}
 
+	// Notify this player of how much time is remaining in the current round
 	public void updateRoundTime(int time) {
 		pbuf.beginPacket(UPDATE_ROUNDTIME);
 		pbuf.writeShort(time);
@@ -148,7 +151,8 @@ public class Player extends RigidBody {
 		pbuf.endPacket();
 	}
 
-	public void resetDeaths(Player p) {			// Tells this player to reset deaths for player p to 0
+	// Tells this player to reset deaths for player p to 0
+	public void resetDeaths(Player p) {
 		pbuf.beginPacket(PLAYER_DIED);
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(0);					// Number of times died

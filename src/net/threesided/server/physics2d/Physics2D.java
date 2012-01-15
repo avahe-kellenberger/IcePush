@@ -105,8 +105,7 @@ public class Physics2D {
 	}*/
 
 	private double computeBounceAngle(double moveAngle, double surfaceAngle) {
-		double perp = Math.PI/2 + surfaceAngle;
-		return Math.PI + (2*perp - moveAngle);
+		return 2*surfaceAngle - moveAngle;
 	}
 
 	private double computeAngle(double deltaX, double deltaY){

@@ -71,7 +71,7 @@ public class PacketMapper {
 		if(opcode == -1) return false;
 		MethodHandle handle = methodTable.get(opcode);
 		if(handle == null) {
-			System.out.println("Unknown packet: " + opcode);
+		//	System.out.println("Unknown packet: " + opcode);
 			pbuf.closePacket();
 			return false;
 		}

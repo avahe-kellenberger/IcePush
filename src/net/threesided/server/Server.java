@@ -305,6 +305,7 @@ public class Server implements Runnable {
 				if(!mapClass.currentPath.contains(p.x, p.y)) {
 					System.out.println("PLAYER " + p.username + " IS OUT OF RANGE!");
 					p.deaths++;
+					p.deaths %= 128;
 					p.initPosition(players, mapClass.currentPath);
 					for(Player plr : players) if(plr != null) plr.playerDied(p);	// plr cycles through every player; p is the player who just died
 					continue;
