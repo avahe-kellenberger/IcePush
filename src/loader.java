@@ -1,4 +1,4 @@
-import net.threesided.shared.ILoader;
+import com.glgames.shared.ILoader;
 
 import java.applet.Applet;
 import java.awt.*;

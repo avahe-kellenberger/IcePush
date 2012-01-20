@@ -79,8 +79,7 @@ public class Server implements Runnable {
 		System.out.println("Client listener started on port " + port);
 		new Thread(this).start();
 
-		//physics = new Physics2D(players);
-		physics = new Physics2D();
+		physics = new Physics2D(players);
 		//updates = new UpdateServer(new File(settings.get("update-path")));
 		//updates.start();
 		mapClass = new MapClass();
@@ -95,7 +94,7 @@ public class Server implements Runnable {
 			Socket s = incomingConnections.pull();
 			if (s != null) processIncomingConnection(s);
 			updateIrc();
-			//physics.update();
+			physics.update();
 			updatePlayers();
 			try {
 				Thread.sleep(20);
@@ -271,7 +270,7 @@ public class Server implements Runnable {
 	}
 
 	private void updateIrc() {
-		InternetRelayChat.processInput();
+		irc.processInput();
 		chats = new ArrayList<String>();
 		String msg;
 		while((msg = InternetRelayChat.msgs.pull()) != null) chats.add(msg);
@@ -311,14 +310,9 @@ public class Server implements Runnable {
 					for(Player plr : players) if(plr != null) plr.playerDied(p);	// plr cycles through every player; p is the player who just died
 					continue;
 				}
-				p.update();
+
 				if(p.hasMoved()) {
-					for(Player plr : players) {
-						if(plr != null) {
-							physics.checkCollision(p, plr);
-							plr.handleMove(p);
-						}
-					}
+					for(Player plr : players) if(plr != null) plr.handleMove(p);
 				}
 			}
 
