@@ -32,90 +32,90 @@ public class Physics2D {
 
 			for(int j = 1 + i; j < bodies.length; j++) {
 				if((b = bodies[j]) == null || (b == a)) continue;
-
-				if(doCollision(a, b)) {
+				doCollision(a, b);
+				//if(doCollision(a, b)) {
 					//a.x = prevx;
 					//a.y = prevy;
-				}
+				//}
 			}
 		}
 	}
 
-	private boolean doCollision(RigidBody a, RigidBody b) {
-		double distX = a.x - b.x;
-		double distY = a.y - b.y;
-		double dist = Math.sqrt(distX * distX + distY * distY);
-		double radius = a.r + b.r;
-		if (dist <= radius) {
-			while (dist <= radius) {
-				if (a.x > b.x) {
-					a.x++;
-					b.x--;
-				} else {
-					a.x--;
-					b.x++;
-				}
-				if (a.y > b.y) {
-					a.y++;
-					b.y--;
-				} else {
-					a.y--;
-					b.y++;
-				}
-				distX = a.x - b.x;
-				distY = a.y - b.y;
-				dist = Math.sqrt(distX * distX + distY * distY);
-			}
-
-			float ar = a.r;
-			float br = b.r;
-
-			float dX = a.x - b.x + (ar - br);
-			float dY = a.y - b.y + (ar - br);
-
-			double bounceAngleA = computeBounceAngle(computeAngle(a.dx, a.dy), computeAngle(dX, dY));
-			double bounceAngleB = computeBounceAngle(computeAngle(b.dx, b.dy), computeAngle(dX, dY));
-
-			float aInitialX = a.dx;
-			float aInitialY = a.dy;
-
-			a.dx = ((a.dx * (a.mass-b.mass) + (2 * b.mass * b.dx)) / (a.mass+b.mass)) / a.elasticity;
-			a.dy = ((a.dy * (a.mass-b.mass) + (2 * b.mass * b.dy)) / (a.mass+b.mass)) / a.elasticity;
-			b.dx = ((b.dx * (b.mass-a.mass) + (2 * a.mass * aInitialX)) / (a.mass+b.mass)) / b.elasticity;
-			b.dy = ((b.dy * (b.mass-a.mass) + (2 * a.mass * aInitialY)) / (a.mass+b.mass)) / b.elasticity;
-
-			double aRad = Math.sqrt(a.dx*a.dx + a.dy*a.dy);
-			double bRad = Math.sqrt(b.dx*b.dx + b.dy*b.dy);
-
-			a.dx = (float)(aRad*Math.cos(bounceAngleA));
-			a.dy = (float)(aRad*Math.sin(bounceAngleA));
-
-			b.dx = (float)(bRad*Math.cos(bounceAngleB));
-			b.dy = (float)(bRad*Math.sin(bounceAngleB));
-
-			return true;
-		}
-		return false;
+        private void doCollision(RigidBody a, RigidBody b) {
+                float distX = a.x - b.x;
+                float distY = a.y - b.y;
+                float d = (float) Math.sqrt(distX * distX + distY * distY);
+                float radius = a.r + b.r;
+               
+                if (d <= radius) {
+                        while (d <= radius) {
+                if (a.x > b.x) {
+                    a.x++;
+                    b.x--;
+                } else {
+                    a.x--;
+                    b.x++;
+                }
+                if (a.y > b.y) {
+                    a.y++;
+                    b.y--;
+                } else {
+                    a.y--;
+                    b.y++;
+                }
+                distX = a.x - b.x;
+                distY = a.y - b.y;
+                d = (float)Math.sqrt(distX * distX + distY * distY);
+            }
+               
+                        // min trans dist
+                        float mtdX = distX*((radius-d)/d);
+                        float mtdY = distY*((radius-d)/d);
+               
+                        // inverse mass
+                        float invMassA = 1/a.mass;
+                        float invMassB = 1/b.mass;
+                       
+                        // pos based off mass
+                        float scaleX = mtdX*(invMassA/(invMassA+invMassB));
+                        float scaleY = mtdY*(invMassA/(invMassA+invMassB));
+                        a.x = a.x+scaleX;
+                        a.y = a.y+scaleY;
+                        b.x = b.x+scaleX;
+                        b.y = b.y+scaleY;
+                       
+                        // impact velocity
+                        float impactVelocityX = a.dx-b.dx;
+                        float impactVelocityY = a.dy-b.dy;
+                        float mtdDelta = (float) Math.sqrt(mtdX * mtdX + mtdY * mtdY);
+                        float mtdX2 = mtdX/mtdDelta;
+                        float mtdY2 = mtdY/mtdDelta;
+                        float vn = dotProduct(impactVelocityX, mtdX2, impactVelocityY, mtdY2);
+                       
+                        // collision impulse
+                        float i = (-(restitution)*vn)/(invMassA+invMassB);
+                        float impulseX = mtdX*i;
+                        float impulseY = mtdY*i;
+                        float impulseAX = impulseX*invMassA;
+                        float impulseAY = impulseY*invMassA;
+                        float impulseBX = impulseX*invMassB;
+                        float impulseBY = impulseY*invMassB;
+                       
+                        // change velocity
+                        a.dx = a.dx+impulseAX;
+                        a.dy = a.dy+impulseAY;
+                        b.dx = b.dx-impulseBX;
+                        b.dy = b.dy-impulseBY;
+                       
+                     //   return true;
+                }
+              //  return false;
+        }
+	
+	public float dotProduct(float x1, float x2, float y1, float y2) {
+		return (float) (x1*x2+y1*y2);
 	}
 
-	/*private float computeBounceAngle(float dX, float dY, float xDir, float yDir) {
-		float vecAngle = computeAngle(xDir, yDir);
-		float linePerp = Math.PI/2 + computeAngle(dX, dY);
-		return Math.PI + (2*linePerp - vecAngle);
-	}*/
-
-	private double computeBounceAngle(double moveAngle, double surfaceAngle) {
-		return 2*surfaceAngle - moveAngle;
-	}
-
-	private double computeAngle(double deltaX, double deltaY){
-		if(deltaX == 0)
-			return deltaY < 0? Math.PI/2 : -Math.PI/2;
-		double result = Math.atan(deltaY/deltaX);
-		if(deltaX > 0) result += Math.PI;
-		return result;
-	}
-
-	double spring = 0.10;
+	float restitution = 1.15f; // aka collision friction
 	double friction = 0.028;
 }

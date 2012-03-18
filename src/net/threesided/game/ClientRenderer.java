@@ -24,7 +24,7 @@ public class ClientRenderer extends Renderer3D {
 		super(c, w, h);
 	}
 
-	public void renderScene(Graphics g) {
+	public void renderScene(Graphics g, boolean in_chat) {
 		if(GRAPHICS_MODE == SOFTWARE_2D) {
 			renderScene2D(GameObjects.players, g);
 		} else if(GRAPHICS_MODE == SOFTWARE_3D) {
@@ -39,11 +39,11 @@ public class ClientRenderer extends Renderer3D {
 		}
 		drawDeathsBox(g);
 		if(chats_visible)
-			drawNewChats(g);
+			drawNewChats(g, in_chat);
 		drawRoundTime(g);
 	}
 
-	private void drawNewChats(Graphics g) {
+	private void drawNewChats(Graphics g, boolean in_chat) {
 		String chat;
 		
 		g.setColor(chatsBoxColor);
@@ -61,7 +61,7 @@ public class ClientRenderer extends Renderer3D {
 		if(p == null)
 			return;
 		
-		String str = IcePush.is_chat ? "<" + p.username + "> " + curChat + "_" : "<enter> to chat";
+		String str = in_chat ? "<" + p.username + "> " + curChat + "_" : "<enter> to chat";
 		g.drawString(str, 70, 172);
 	}
 

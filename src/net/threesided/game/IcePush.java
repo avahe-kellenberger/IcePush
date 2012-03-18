@@ -113,7 +113,7 @@ public class IcePush extends Applet {
 			if (state == WELCOME || state == HELP || state == MAPEDITOR) {
 				renderer.drawWelcomeScreen(bg);
 			} else if (state == PLAY) {
-				renderer.renderScene(bg);
+				renderer.renderScene(bg, is_chat);
 			}
 			GameObjects.ui.draw(bg);
 			getGraphics().drawImage(renderer.getBuffer(), 0, 0, null);
