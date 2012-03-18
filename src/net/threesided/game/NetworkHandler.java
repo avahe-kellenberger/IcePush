@@ -130,13 +130,11 @@ public class NetworkHandler {
 					id = pbuf.readShort();
 					type = pbuf.readByte(); // snowman or tree??
 					username = pbuf.readString();
-					x = pbuf.readShort();
-					y = pbuf.readShort();
 					int deaths = pbuf.readShort();
 					plr = new Player(type, username);
-					plr.setPos(x, y);
 					plr.username = username;
 					plr.deaths = deaths;
+                    //plr.setPos(-1, -1);
 					GameObjects.players[id] = plr;
 					break;
 				case PLAYER_MOVED:
@@ -158,9 +156,7 @@ public class NetworkHandler {
 					if (plr == null)
 						break;
 					plr.deaths = pbuf.readByte();
-					x = pbuf.readShort();
-					y = pbuf.readShort();
-					plr.setPos(x, y);
+                    //plr.setPos(-1, -1);
 					break;
 				case PLAYER_LOGGED_OUT:
 					id = pbuf.readShort();

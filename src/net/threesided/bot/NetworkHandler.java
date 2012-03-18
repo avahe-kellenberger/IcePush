@@ -92,10 +92,8 @@ public class NetworkHandler extends Thread {
                     charId = buffer.readShort();
                     buffer.readByte(); // char type
                     String username = buffer.readString();
-                    charX = buffer.readShort();
-                    charY = buffer.readShort();
                     int deaths = buffer.readShort();
-                    bot.onNewPlayer(charId, username, charX, charY, deaths);
+                    bot.onNewPlayer(charId, username, deaths);
                     break;
                 case PLAYER_MOVED:
                     charId = buffer.readShort();
@@ -106,9 +104,7 @@ public class NetworkHandler extends Thread {
                 case PLAYER_DIED:
                     charId = buffer.readShort();
                     deaths = buffer.readByte();
-                    charX = buffer.readShort();
-                    charY = buffer.readShort();
-                    bot.onDied(charId, deaths, charX, charY);
+                    bot.onDied(charId, deaths);
                     break;
                 case PLAYER_LOGGED_OUT:
                     charId = buffer.readShort();

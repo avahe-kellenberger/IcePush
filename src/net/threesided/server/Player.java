@@ -14,8 +14,9 @@ public class Player extends RigidBody {
 	public int deaths;
 	public int type;
 	public String username;
-	public boolean canMove;
 	public boolean connected;
+    public boolean isDead = false;
+    public int timeDead = 0;
 	
 	private PacketBuffer pbuf;
 	private int numSet;
@@ -35,8 +36,8 @@ public class Player extends RigidBody {
 	}
 
 	public Player(Socket s) throws IOException {
-		r = 24;			// Radius
-		mass = 0.5;
+		r = 20;			// Radius
+		mass = 5;
 		pbuf = new PacketBuffer(s);
 	}
 
@@ -46,8 +47,6 @@ public class Player extends RigidBody {
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(p.type);
 		pbuf.writeString(p.username);
-		pbuf.writeShort((int)p.x);
-		pbuf.writeShort((int)p.y);
 		pbuf.writeShort(p.deaths);
 		pbuf.endPacket();
 	}
@@ -92,12 +91,20 @@ public class Player extends RigidBody {
                 double dist = dx*dx + dy*dy;
 
 				if(dist < sum*sum) good = false;
+                if (good)
+                    p.handleMove(this);
 			}
 
 			if(good)
 				break;
 		}
 		dx = dy = xa = ya = numSet = 0;
+        for(Player p : players) {
+            if(p == null) {
+                continue;
+            }
+            p.handleMove(this);
+        }
 	}
 
 	// Notify this player of how much time is remaining in the current round
@@ -146,8 +153,6 @@ public class Player extends RigidBody {
 		pbuf.beginPacket(PLAYER_DIED);
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(p.deaths);
-		pbuf.writeShort((int)p.x);				// new location
-		pbuf.writeShort((int)p.y);
 		pbuf.endPacket();
 	}
 
@@ -156,8 +161,6 @@ public class Player extends RigidBody {
 		pbuf.beginPacket(PLAYER_DIED);
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(0);					// Number of times died
-		pbuf.writeShort((int)p.x);				// new location
-		pbuf.writeShort((int)p.y);
 		pbuf.endPacket();
 	}
 

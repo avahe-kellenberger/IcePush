@@ -1,5 +1,7 @@
 package net.threesided.server.physics2d;
 
+import net.threesided.server.Player;
+
 public class Physics2D {
 
     private RigidBody bodies[];
@@ -17,26 +19,22 @@ public class Physics2D {
         for (int i = 0; i < bodies.length; i++) {
             if ((a = bodies[i]) == null) continue;
 
-            //float prevx = a.x;
-            //float prevy = a.y;
+            if(a.getClass().isAssignableFrom(Player.class) && ((Player) a).isDead)
+                continue; // if it's a dead player, don't update
 
             if (a.movable) {
-                a.dx *= 1 - FRICTION;
-                a.dy *= 1 - FRICTION;
+                // because screw proper physics, this is icepush!
+                a.dx *= 1 - (FRICTION*a.mass);
+                a.dy *= 1 - (FRICTION*a.mass);
                 a.dx += a.xa;
                 a.dy += a.ya;
-                a.x += a.dx;//*((double) a.last/System.currentTimeMillis());
-                a.y += a.dy;//*((double) a.last/System.currentTimeMillis());
-                //a.last = System.currentTimeMillis();
+                a.x += a.dx;
+                a.y += a.dy;
             }
 
             for (int j = 1 + i; j < bodies.length; j++) {
                 if ((b = bodies[j]) == null || (b == a)) continue;
                 doCollision(a, b);
-                //if(doCollision(a, b)) {
-                //a.x = prevx;
-                //a.y = prevy;
-                //}
             }
         }
     }
@@ -44,11 +42,10 @@ public class Physics2D {
     private void doCollision(RigidBody a, RigidBody b) {
         double distX = a.x - b.x;
         double distY = a.y - b.y;
-        double d = (float) Math.sqrt(distX * distX + distY * distY);
+        double d = Math.sqrt(distX * distX + distY * distY);
         double radius = a.r + b.r;
 
         if (d <= radius) {
-
             // someone's bad already intersecting fix code
             while (d <= radius) {
                 if (a.x > b.x) {
@@ -89,13 +86,13 @@ public class Physics2D {
             // impact velocity
             double impactVelocityX = a.dx - b.dx;
             double impactVelocityY = a.dy - b.dy;
-            double mtdDelta = (double) Math.sqrt(mtdX * mtdX + mtdY * mtdY);
+            double mtdDelta = Math.sqrt(mtdX * mtdX + mtdY * mtdY);
             double mtdX2 = mtdX / mtdDelta;
             double mtdY2 = mtdY / mtdDelta;
-            double vn = dotProduct(impactVelocityX, mtdX2, impactVelocityY, mtdY2);
+            double vn = impactVelocityX * mtdX2 + impactVelocityY * mtdY2;
 
             // collision impulse
-            double i = (-(RESTITUTION) * vn) / (invMassA + invMassB);
+            double i = (-(ELASTICITY) * vn) / (invMassA + invMassB);
             double impulseX = mtdX * i;
             double impulseY = mtdY * i;
             double impulseAX = impulseX * invMassA;
@@ -111,10 +108,6 @@ public class Physics2D {
         }
     }
 
-    public double dotProduct(double x1, double x2, double y1, double y2) {
-        return x1 * x2 + y1 * y2;
-    }
-
-    static final double RESTITUTION = 1.10;
-    static final double FRICTION = 0.028;
+    private static final double ELASTICITY = 1.0;
+    private static final double FRICTION = 0.0046;
 }

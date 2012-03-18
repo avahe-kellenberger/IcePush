@@ -25,7 +25,7 @@ public class IcePushBot extends Thread {
     }
 
     // handling functions for various events
-    public void onNewPlayer(int charId, String username, int charX, int charY, int deaths) {
+    public void onNewPlayer(int charId, String username, int deaths) {
 
     }
 
@@ -37,7 +37,7 @@ public class IcePushBot extends Thread {
 
     }
 
-    public void onDied(int id, int deaths, int spawnX, int spawnY) {
+    public void onDied(int id, int deaths) {
 
     }
 
