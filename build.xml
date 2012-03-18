@@ -4,6 +4,7 @@
     <property name="bin.dir" value="bin"/>
     <property name="main-class" value="net.threesided.game.IcePush"/>
     <property name="main-class-server" value="net.threesided.server.Server"/>
+    <property name="main-class-bot" value="net.threesided.bot.IcePushBot"/>
 
     <target name="clean">
         <delete includeemptydirs="true">
@@ -17,6 +18,10 @@
 
     <target name="compile-server">
 		<javac srcdir="${src.dir}" destdir="${bin.dir}" excludes="loader.java,Updater.java,**/net/threesided/test/"/>
+    </target>
+
+    <target name="compile-bot">
+        <javac srcdir="${src.dir}" destdir="${bin.dir}" excludes="loader.java,Updater.java,**/net/threesided/game/,**/net/threesided/graphics2d/,**/net/threesided/graphics3d/,**/net/threesided/ui/,**/net/threesided/test/,**/net/threesided/server/"/>
     </target>
 
     <target name="jar" depends="compile">
@@ -35,10 +40,20 @@
             </manifest>
         </jar>
     </target>
+    <target name="jar-bot" depends="compile-bot">
+        <jar destfile="IcePushBot.jar" basedir="${bin.dir}"
+             excludes="**/net/threesided/game/,**/net/threesided/graphics2d/,**/net/threesided/graphics3d/,**/net/threesided/ui/,**/net/threesided/test/,**/net/threesided/server/">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class-bot}"/>
+            </manifest>
+        </jar>
+    </target>
 
     <target name="package" depends="clean,jar"/>
     <target name="package-server" depends="clean,jar-server"/>
+    <target name="package-bot" depends="clean,jar-bot"/>
     <target name="build" depends="package"/>
     <target name="build-server" depends="package-server"/>
+    <target name="build-bot" depends="package-bot"/>
 
 </project>
