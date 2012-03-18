@@ -37,7 +37,8 @@ public class ClientRenderer extends Renderer3D {
 			renderScene3D(objs, GameObjects.scenery);
 			drawNames(GameObjects.players, g);
 		}
-		drawDeathsBox(g);
+		if (deaths_visible)
+            drawDeathsBox(g);
 		if(chats_visible)
 			drawNewChats(g, in_chat);
 		drawRoundTime(g);
@@ -162,6 +163,8 @@ public class ClientRenderer extends Renderer3D {
 	private void drawRoundTime(Graphics g) {
 		//int timesec = roundTime / 1000;
 		if(roundTime < 0) return;						// Not in any round
+        g.setFont(chatsFont);
+        g.setColor(Color.white);
 		String mins = Integer.toString(roundTime / 60);
 		String secs = Integer.toString(roundTime  % 60);
 		if(secs.length() == 1) secs = '0' + secs;

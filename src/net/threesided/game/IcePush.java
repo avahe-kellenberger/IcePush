@@ -424,6 +424,10 @@ public class IcePush extends Applet {
 			ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
 		if(keys[KeyEvent.VK_C] && !previous[KeyEvent.VK_C])
 			Renderer.chats_visible = !Renderer.chats_visible;
+        if(keys[KeyEvent.VK_F1])
+            Renderer.deaths_visible = true;
+        if(!keys[KeyEvent.VK_F1])
+            Renderer.deaths_visible = false;
 		
 		if(keys[KeyEvent.VK_PAGE_UP] && renderer.cameraZoom < 512) {
 			renderer.cameraZoom += 8;

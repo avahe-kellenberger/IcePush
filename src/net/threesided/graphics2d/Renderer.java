@@ -22,6 +22,8 @@ public class Renderer {
 	protected Font debugFont = new Font(Font.DIALOG, Font.PLAIN, 9);
 	protected Font namesFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 
+    public static boolean deaths_visible;
+
 
 	// Chat stuff
 	public static final Color chatsBoxColor = new Color(0, 0, 0, 150);
