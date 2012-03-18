@@ -11,7 +11,7 @@ import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 
-public class TreeTest extends Frame {
+public class PhysicsTest extends Frame {
 
 	private static int width = 800;
 	private static int height = 600;
@@ -24,7 +24,7 @@ public class TreeTest extends Frame {
 		new TreeTest();
 	}
 
-	TreeTest() {
+    PhysicsTest() {
 		super("QUADRATIC TREE TEST");
 		tree = new QuadTree(width, height);
 		enableEvents(WINDOW_EVENT_MASK | MOUSE_EVENT_MASK);

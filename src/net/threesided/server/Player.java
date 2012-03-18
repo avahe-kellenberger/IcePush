@@ -36,7 +36,7 @@ public class Player extends RigidBody {
 
 	public Player(Socket s) throws IOException {
 		r = 24;			// Radius
-		mass = 0.5F;
+		mass = 0.5;
 		pbuf = new PacketBuffer(s);
 	}
 
@@ -75,8 +75,8 @@ public class Player extends RigidBody {
 			good = true;
 
 			do {
-				x = (float)(Math.random() * 744);
-				y = (float)(Math.random() * 422);
+				x = (Math.random() * 744);
+				y = (Math.random() * 422);
 			} while(!path.contains(x, y));
 
 			for(Player p : players) {
@@ -84,12 +84,12 @@ public class Player extends RigidBody {
 					continue;
 				}
 
-				float dx = x - p.x;
-				float dy = y - p.y;
+                double dx = x - p.x;
+                double dy = y - p.y;
 
-				float sum = r + p.r;
+                double sum = r + p.r;
 
-				float dist = dx*dx + dy*dy;
+                double dist = dx*dx + dy*dy;
 
 				if(dist < sum*sum) good = false;
 			}

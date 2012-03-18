@@ -13,3 +13,4 @@ IcePushServer.jar
 IcePush.iml
 *.bat
 *.sh
+config
