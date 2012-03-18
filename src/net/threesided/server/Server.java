@@ -1,9 +1,7 @@
 package net.threesided.server;
 
-import static net.threesided.shared.Opcodes.BAD_VERSION;
+import static net.threesided.shared.Opcodes.FAILURE;
 import static net.threesided.shared.Opcodes.SUCCESS_LOG;
-import static net.threesided.shared.Opcodes.TOO_MANY_PL;
-import static net.threesided.shared.Opcodes.USER_IN_USE;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -44,6 +42,10 @@ public class Server implements Runnable {
     private static int timeRemaining = roundLength;
 
     private static int deathLength;
+    
+    private static final String BAD_VERSION = "Your client is outdated.";
+    private static final String USER_IN_USE = "Username is in use";
+    private static final String TOO_MANY_PL = "There are too many players online.";
 
     public static void main(String[] args) {
         new Server(args);
@@ -200,7 +202,9 @@ public class Server implements Runnable {
             OutputStream out = s.getOutputStream();
             int version = in.read();
             if (version != Opcodes.VERSION) {
-                out.write(BAD_VERSION); // bad version
+                out.write(FAILURE); // bad version
+                out.write(BAD_VERSION.length() & 0xFF);
+                out.write(BAD_VERSION.getBytes());
                 out.flush();
                 return;
             }
@@ -214,7 +218,9 @@ public class Server implements Runnable {
                 if (players[k] != null) {
                     String user = players[k].username;
                     if (user != null && user.equals(p.username)) {
-                        out.write(USER_IN_USE); // name in use
+                        out.write(FAILURE); // name in use
+                        out.write(USER_IN_USE.length() & 0xFF);
+                        out.write(USER_IN_USE.getBytes());
                         out.flush();
                         return;
                     }
@@ -229,7 +235,9 @@ public class Server implements Runnable {
                 }
 
             if (index == -1) {
-                out.write(TOO_MANY_PL);
+                out.write(FAILURE);
+                out.write(TOO_MANY_PL.length() & 0xFF);
+                out.write(TOO_MANY_PL.getBytes());
                 out.flush();
                 return;
             }
@@ -304,6 +312,16 @@ public class Server implements Runnable {
                     p.chatMessage = null;
                 }
 
+                if (p.isDead) {
+                    if (p.timeDead >= deathLength) {
+                        p.isDead = false;
+                        p.timeDead = 0;
+                        p.initPosition(players, mapClass.currentPath);
+                    } else {
+                        p.timeDead += 20;
+                    }
+                }
+
                 if (!mapClass.currentPath.contains(p.x, p.y) && !p.isDead) {
                     System.out.println("PLAYER " + p.username + " IS OUT OF RANGE!");
                     p.deaths++;
@@ -315,18 +333,8 @@ public class Server implements Runnable {
                             plr.playerDied(p);    // plr cycles through every player; p is the player who just died
                 }
 
-                if (p.hasMoved()) {
+                if (p.hasMoved() && !p.isDead) {
                     for (Player plr : players) if (plr != null) plr.handleMove(p);
-                }
-
-                if (p.isDead) {
-                    if (p.timeDead >= deathLength) {
-                        p.isDead = false;
-                        p.timeDead = 0;
-                        p.initPosition(players, mapClass.currentPath);
-                    } else {
-                        p.timeDead += 20;
-                    }
                 }
             }
 

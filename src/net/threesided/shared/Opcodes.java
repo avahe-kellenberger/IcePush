@@ -9,10 +9,8 @@ public class Opcodes {
 	public static final int NUM_PLAYERS_NOTIFY = 2;
 	// Login protocol
 	public static final int VERSION = 105;
-	public static final int BAD_VERSION = 1;
-	public static final int USER_IN_USE = 2;
-	public static final int TOO_MANY_PL = 3;
-	public static final int SUCCESS_LOG = 4;
+	public static final int FAILURE = 1;
+	public static final int SUCCESS_LOG = 2;
 
 	// Packet opcodes Server to Client
 	public static final int NEW_PLAYER = 5;

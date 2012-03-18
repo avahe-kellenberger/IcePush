@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import net.threesided.game.GameObjects;
 import net.threesided.shared.PacketBuffer;
 
 public class NetworkHandler extends Thread {
@@ -50,13 +51,16 @@ public class NetworkHandler extends Thread {
             outStream.flush();
 
             int retu = inStream.read();
-            if (retu == 2) {
-                System.out.println("username in use");
-            } else if (retu == 1) {
-                System.out.println("updated");
-            } else if (retu == 3) {
-                System.out.println("too many players logged in");
-            } else if (retu == 4) {
+            if (retu == 1) {
+                int len = inStream.read() & 0xFF;
+                byte[] buf = new byte[len];
+                int read = inStream.read(buf, 0, len);
+                if (read < len) System.out.println("invalid response");
+                else {
+                    String str = new String(buf);
+                    System.out.println(str);
+                }
+            } else if (retu == 2) {
                 int id = inStream.read();
                 buffer = new PacketBuffer(sock);
                 return id;
