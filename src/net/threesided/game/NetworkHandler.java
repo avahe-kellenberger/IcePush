@@ -231,28 +231,16 @@ public class NetworkHandler {
         else move3D(keycode, end);
     }
 
-    private static void move2D(int keycode, boolean end) {
-        int code;
-        if (keycode == KeyEvent.VK_UP)
-            code = 128;
-        else if (keycode == KeyEvent.VK_DOWN)
-            code = 0;
-        else if (keycode == KeyEvent.VK_LEFT)
-            code = 192;
-        else
-            code = 64;
+    private static void move2D(int code, boolean end) {
         if (end)
             endMoveRequest(code);
         else
             sendMoveRequest(code);
     }
 
-    private static void move3D(int keycode, boolean end) {
+    private static void move3D(int code, boolean end) {
         int angle = IcePush.renderer.yaw;
-        if (keycode == KeyEvent.VK_UP) angle += 128;
-        else if (keycode == KeyEvent.VK_LEFT) angle += 192;
-        else if (keycode == KeyEvent.VK_RIGHT) angle += 64;
-        angle &= 0xff;
+        angle += code;
         if (end)
             endMoveRequest(angle);
         else

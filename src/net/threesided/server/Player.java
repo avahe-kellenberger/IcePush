@@ -168,15 +168,15 @@ public class Player extends RigidBody {
 		numSet++;
 		// scale down by 2 so that the values are between 
 		// -0.5 and +0.5, like the original version
-		xa += sines[bit & 0xff] / 2f;
-		ya += cosines[bit & 0xff] / 2f;
+		xa = sines[bit & 0xff] / 2f;
+		ya = cosines[bit & 0xff] / 2f;
 	}
 
 	private void clearBit(int bit) {
 		if(numSet == 0) return;
 		numSet--;
-		xa -= sines[bit & 0xff] / 2f;
-		ya -= cosines[bit & 0xff] / 2f;
+		xa = sines[bit & 0xff] / 2f;
+		ya = cosines[bit & 0xff] / 2f;
 		if(numSet == 0) xa = ya = 0;
 	}
 }

@@ -24,8 +24,8 @@ public class Physics2D {
 
             if (a.movable) {
                 // because screw proper physics, this is icepush!
-                a.dx *= 1 - (FRICTION*a.mass);
-                a.dy *= 1 - (FRICTION*a.mass);
+                a.dx *= 1 - (FRICTION *a.mass);
+                a.dy *= 1 - (FRICTION *a.mass);
                 a.dx += a.xa;
                 a.dy += a.ya;
                 a.x += a.dx;
@@ -76,12 +76,12 @@ public class Physics2D {
             double invMassB = 1 / b.mass;
 
             // pos based off mass
-            double scaleX = mtdX * (invMassA / (invMassA + invMassB));
-            double scaleY = mtdY * (invMassA / (invMassA + invMassB));
-            a.x = a.x + scaleX;
-            a.y = a.y + scaleY;
-            b.x = b.x + scaleX;
-            b.y = b.y + scaleY;
+            //double scaleX = mtdX * (invMassA / (invMassA + invMassB));
+            //double scaleY = mtdY * (invMassA / (invMassA + invMassB));
+            //a.x = a.x + scaleX;
+            //a.y = a.y + scaleY;
+            //b.x = b.x + scaleX;
+            //b.y = b.y + scaleY;
 
             // impact velocity
             double impactVelocityX = a.dx - b.dx;
@@ -108,6 +108,6 @@ public class Physics2D {
         }
     }
 
-    private static final double ELASTICITY = 1.0;
+    private static final double ELASTICITY = 1;
     private static final double FRICTION = 0.0046;
 }
