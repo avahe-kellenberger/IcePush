@@ -69,7 +69,7 @@ public class Server implements Runnable {
                 settings.get("irc-channel"), settings.get("irc-nick"));
         Thread t = new Thread(irc);
         t.setDaemon(true);
-        t.start();
+        //t.start();
 
         int port = Integer.parseInt(settings.get("bind-port"));
         try {
