@@ -144,7 +144,7 @@ public class BitmapTest extends Frame {
 
 
 	public void drawString(Bitmap font, int x, int y, String str) {
-		int charWidth = font.width / 95;		// TODO: Read this data from the font description
+		int charWidth = font.width / 95;
 		Bitmap b = new Bitmap(width, height, pixels);
 		for(int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);

@@ -19,17 +19,14 @@ public class Physics2D {
         for (int i = 0; i < bodies.length; i++) {
             if ((a = bodies[i]) == null) continue;
 
-            if(a.getClass().isAssignableFrom(Player.class) && ((Player) a).isDead)
+            if (a.getClass().isAssignableFrom(Player.class) && ((Player) a).isDead)
                 continue; // if it's a dead player, don't update
 
             if (a.movable) {
                 // because screw proper physics, this is icepush!
-                a.dx *= 1 - (FRICTION *a.mass);
-                a.dy *= 1 - (FRICTION *a.mass);
-                a.dx += a.xa;
-                a.dy += a.ya;
-                a.x += a.dx;
-                a.y += a.dy;
+                a.velocity.multiply(1 - (FRICTION * a.mass));
+                a.velocity.add(a.acceleration);
+                a.position.add(a.velocity);
             }
 
             for (int j = 1 + i; j < bodies.length; j++) {
@@ -40,74 +37,50 @@ public class Physics2D {
     }
 
     private void doCollision(RigidBody a, RigidBody b) {
-        double distX = a.x - b.x;
-        double distY = a.y - b.y;
-        double d = Math.sqrt(distX * distX + distY * distY);
-        double radius = a.r + b.r;
-
-        if (d <= radius) {
-            // someone's bad already intersecting fix code
-            while (d <= radius) {
-                if (a.x > b.x) {
-                    a.x++;
-                    b.x--;
-                } else {
-                    a.x--;
-                    b.x++;
-                }
-                if (a.y > b.y) {
-                    a.y++;
-                    b.y--;
-                } else {
-                    a.y--;
-                    b.y++;
-                }
-                distX = a.x - b.x;
-                distY = a.y - b.y;
-                d = (float) Math.sqrt(distX * distX + distY * distY);
+        Vector2D delta = new Vector2D(a.position).subtract(b.position);
+        double d = delta.getLength();
+        double r = a.r + b.r;
+       
+        if (d > r) return;
+        /*while (d <= r) {
+            if (a.position.getX() > b.position.getX()) {
+                a.position.setX(a.position.getX() + 1);
+                b.position.setX(b.position.getX() - 1);
+            } else {
+                a.position.setX(a.position.getX() - 1);
+                b.position.setX(b.position.getX() + 1);
             }
+            if (a.position.getY() > b.position.getY()) {
+                a.position.setY(a.position.getY() + 1);
+                b.position.setY(b.position.getY() - 1);
+            } else {
+                a.position.setY(a.position.getY() - 1);
+                b.position.setY(b.position.getY() + 1);
+            }
+            delta = new Vector2D(a.position).subtract(b.position);
+            d = delta.getLength();
+        }*/
 
-            // min trans dist
-            double mtdX = distX * ((radius - d) / d);
-            double mtdY = distY * ((radius - d) / d);
+        Vector2D mtd = new Vector2D(delta).multiply((r - d) / d);
 
-            // inverse mass
-            double invMassA = 1 / a.mass;
-            double invMassB = 1 / b.mass;
+        double invMassA = 1 / a.mass;
+        double invMassB = 1 / b.mass;
+        double invMass = invMassA + invMassB;
 
-            // pos based off mass
-            //double scaleX = mtdX * (invMassA / (invMassA + invMassB));
-            //double scaleY = mtdY * (invMassA / (invMassA + invMassB));
-            //a.x = a.x + scaleX;
-            //a.y = a.y + scaleY;
-            //b.x = b.x + scaleX;
-            //b.y = b.y + scaleY;
+        // push the balls proportionate to mass
+        a.position.add(new Vector2D(mtd).multiply(invMassA / invMass));
+        b.position.subtract(new Vector2D(mtd).multiply(invMassB / invMass));
 
-            // impact velocity
-            double impactVelocityX = a.dx - b.dx;
-            double impactVelocityY = a.dy - b.dy;
-            double mtdDelta = Math.sqrt(mtdX * mtdX + mtdY * mtdY);
-            double mtdX2 = mtdX / mtdDelta;
-            double mtdY2 = mtdY / mtdDelta;
-            double vn = impactVelocityX * mtdX2 + impactVelocityY * mtdY2;
+        Vector2D impactVelocity = new Vector2D(a.velocity).subtract(b.velocity);
+        double normalVelocity = impactVelocity.dot(mtd.normalize());
 
-            // collision impulse
-            double i = (-(ELASTICITY) * vn) / (invMassA + invMassB);
-            double impulseX = mtdX * i;
-            double impulseY = mtdY * i;
-            double impulseAX = impulseX * invMassA;
-            double impulseAY = impulseY * invMassA;
-            double impulseBX = impulseX * invMassB;
-            double impulseBY = impulseY * invMassB;
+        double i = (-((1.0 + ELASTICITY) * normalVelocity) / invMass);
+        Vector2D impulse = new Vector2D(mtd).multiply(i);
 
-            // change velocity
-            a.dx = a.dx + impulseAX;
-            a.dy = a.dy + impulseAY;
-            b.dx = b.dx - impulseBX;
-            b.dy = b.dy - impulseBY;
-        }
+        a.velocity.add(new Vector2D(impulse).multiply(invMassA));
+        b.velocity.subtract(new Vector2D(impulse).multiply(invMassB));
     }
 
-    private static final double ELASTICITY = 1;
+    private static final double ELASTICITY = 1.5;
     private static final double FRICTION = 0.0046;
 }

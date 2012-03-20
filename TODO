@@ -2,6 +2,5 @@
 - Key remapping option window
 - Death animation
 - Rewrite the server to use a polar coordinate system
-- Rewrite the client movement code to only send movement angle
 - Projectiles
 - Dynamic maps and camera scrolling

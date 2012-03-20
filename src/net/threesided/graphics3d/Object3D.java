@@ -268,7 +268,6 @@ public class Object3D {
 			templates[1] = ObjImporter.loadObj("models/snowman.obj");
 			templates[1].scale(0.3f);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

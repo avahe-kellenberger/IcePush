@@ -63,7 +63,7 @@ public class PacketMapper {
 	};
 
 	public static void handlePackets(PacketBuffer pbuf, Object target) {
-		while(handlePacket(pbuf, target)) continue;
+		while(handlePacket(pbuf, target));
 	}
 
 	private static boolean handlePacket(PacketBuffer pbuf, Object target) {	// TARGET OBJECT SHOULD BE PROVIDED FROM SOME OTHER INTERFACE
@@ -102,15 +102,15 @@ public class PacketMapper {
 						break;
 					case BYTE:
 						if(b) { System.out.println("Reading BYTE"); }
-						args[i] = new Integer(pbuf.readByte());
+						args[i] = pbuf.readByte();
 						break;
 					case SHORT:
 						if(b) { System.out.println("Reading SHORT"); }
-						args[i] = new Integer(pbuf.readShort());
+						args[i] = pbuf.readShort();
 						break;					
 					case INTEGER:
 						if(b) { System.out.println("Reading INTEGER"); }		
-						args[i] = new Integer(pbuf.readInt());
+						args[i] = pbuf.readInt();
 						break;
 				}
 			} catch(RuntimeException re) {

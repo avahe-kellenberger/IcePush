@@ -1,6 +1,5 @@
 package net.threesided.game;
 
-import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -144,7 +143,8 @@ public class NetworkHandler {
                     if (plr == null)
                         break;
                     plr.deaths = pbuf.readByte();
-                    plr.isDead = true;
+                    if (plr.deaths != 0) // death reset, not dead
+                        plr.isDead = true;
                     break;
                 case PLAYER_LOGGED_OUT:
                     id = pbuf.readShort();
@@ -169,8 +169,16 @@ public class NetworkHandler {
                         e.printStackTrace();
                     }
                     break;
-                case UPDATE_ROUNDTIME:
-                    IcePush.instance.renderer.setRoundTime(pbuf.readShort());
+                case UPDATE_TIME:
+                    int time_type = pbuf.readByte();
+                    int time = pbuf.readShort();
+                    switch (time_type) {
+                        case 1:
+                            IcePush.renderer.setRoundTime(time);
+                            break;
+                        case 2:
+                            IcePush.renderer.setDeathTime(time);
+                    }
                     break;
             }
             pbuf.closePacket();

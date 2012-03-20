@@ -21,7 +21,7 @@ public class Opcodes {
 	public static final int PLAYER_STOPPED_MOVING = 15;
 	public static final int NEW_CHAT_MESSAGE = 17;
 	public static final int UPDATE = 19;
-	public static final int UPDATE_ROUNDTIME = 18;
+	public static final int UPDATE_TIME = 18;
 
 	// Client to Server
 	public static final int MOVE_REQUEST = 8;

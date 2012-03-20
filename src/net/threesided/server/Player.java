@@ -55,8 +55,8 @@ public class Player extends RigidBody {
 	public void handleMove(Player p) {
 		pbuf.beginPacket(PLAYER_MOVED);
 		pbuf.writeShort(p.id);
-		pbuf.writeShort((int)p.x);
-		pbuf.writeShort((int)p.y);
+		pbuf.writeShort((int)p.position.getX());
+		pbuf.writeShort((int)p.position.getY());
 		pbuf.endPacket();
 	}
 
@@ -74,17 +74,16 @@ public class Player extends RigidBody {
 			good = true;
 
 			do {
-				x = (Math.random() * 744);
-				y = (Math.random() * 422);
-			} while(!path.contains(x, y));
+				position.setD(Math.random() * 744, Math.random() * 422);
+			} while(!path.contains(position.getX(), position.getY()));
 
 			for(Player p : players) {
 				if(p == null || p == this) {
 					continue;
 				}
 
-                double dx = x - p.x;
-                double dy = y - p.y;
+                double dx = position.getX() - p.position.getX();
+                double dy = position.getY() - p.position.getY();
 
                 double sum = r + p.r;
 
@@ -98,7 +97,9 @@ public class Player extends RigidBody {
 			if(good)
 				break;
 		}
-		dx = dy = xa = ya = numSet = 0;
+        velocity.setD(0, 0);
+        acceleration.setD(0, 0);
+		numSet = 0;
         for(Player p : players) {
             if(p == null) {
                 continue;
@@ -109,12 +110,20 @@ public class Player extends RigidBody {
 
 	// Notify this player of how much time is remaining in the current round
 	public void updateRoundTime(int time) {
-		pbuf.beginPacket(UPDATE_ROUNDTIME);
+		pbuf.beginPacket(UPDATE_TIME);
+        pbuf.writeByte(1);
 		pbuf.writeShort(time);
 		pbuf.endPacket();
-	}		
+	}
 
-	public boolean processIncomingPackets() {
+    public void updateDeathTime(int time) {
+        pbuf.beginPacket(UPDATE_TIME);
+        pbuf.writeByte(2);
+        pbuf.writeShort(time);
+        pbuf.endPacket();
+    }
+
+    public boolean processIncomingPackets() {
 		if (!pbuf.synch()) return false;
 		PacketMapper.handlePackets(pbuf, this);		// TODO: Figure out whether this dependency is appropriate or not
 		return true;
@@ -168,15 +177,13 @@ public class Player extends RigidBody {
 		numSet++;
 		// scale down by 2 so that the values are between 
 		// -0.5 and +0.5, like the original version
-		xa = sines[bit & 0xff] / 2f;
-		ya = cosines[bit & 0xff] / 2f;
+	    acceleration.setD(sines[bit & 0xff] / 2f, cosines[bit & 0xff] / 2f);
 	}
 
 	private void clearBit(int bit) {
 		if(numSet == 0) return;
 		numSet--;
-		xa = sines[bit & 0xff] / 2f;
-		ya = cosines[bit & 0xff] / 2f;
-		if(numSet == 0) xa = ya = 0;
+        acceleration.setD(0,0);
+		if(numSet == 0) acceleration.setD(0,0);
 	}
 }

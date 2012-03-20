@@ -41,8 +41,8 @@ public class Server implements Runnable {
     private static int roundLength;
     private static int timeRemaining = roundLength;
 
-    private static int deathLength;
-    
+    public static int deathLength;
+
     private static final String BAD_VERSION = "Your client is outdated.";
     private static final String USER_IN_USE = "Username is in use";
     private static final String TOO_MANY_PL = "There are too many players online.";
@@ -106,7 +106,7 @@ public class Server implements Runnable {
             if (getNumPlayers() > 1) {
                 timeRemaining -= 20;
                 if (timeRemaining <= 0) {
-                    //	resetDeaths();
+                    resetDeaths();
                     timeRemaining = roundLength;
                 }
             }
@@ -313,24 +313,28 @@ public class Server implements Runnable {
                 }
 
                 if (p.isDead) {
-                    if (p.timeDead >= deathLength) {
+                    if (p.timeDead >= 0) {
+                        p.timeDead -= 20;
+                    } else {
                         p.isDead = false;
                         p.timeDead = 0;
                         p.initPosition(players, mapClass.currentPath);
-                    } else {
-                        p.timeDead += 20;
                     }
+                    if (p.timeDead % 1000 == 0) p.updateDeathTime(p.timeDead / 1000);
                 }
 
-                if (!mapClass.currentPath.contains(p.x, p.y) && !p.isDead) {
+                if (!mapClass.currentPath.contains(p.position.getX(), p.position.getY()) && !p.isDead) {
                     System.out.println("PLAYER " + p.username + " IS OUT OF RANGE!");
                     p.deaths++;
                     p.deaths %= 128;
                     p.isDead = true;
+                    p.timeDead = deathLength;
 
                     for (Player plr : players)
-                        if (plr != null)
+                        if (plr != null) {
                             plr.playerDied(p);    // plr cycles through every player; p is the player who just died
+                            p.updateDeathTime(p.timeDead / 1000);
+                        }
                 }
 
                 if (p.hasMoved() && !p.isDead) {
@@ -374,7 +378,9 @@ public class Server implements Runnable {
     }
 
     private void resetDeaths() {
-        for (Player p : players) if (p != null) for (Player plr : players) if (plr != null) p.resetDeaths(plr);
+        for (Player p : players)
+            if (p != null)
+                p.deaths = 0;
     }
 
     private static Map<String, String> defaults;

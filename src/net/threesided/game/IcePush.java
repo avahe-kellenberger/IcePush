@@ -33,7 +33,6 @@ public class IcePush extends Applet {
 
     public static final int WIDTH = 800;
     public static final int HEIGHT = 480;
-    public static transient boolean stable = true;
     public static boolean running = true;
 
     public static boolean isApplet = false;
@@ -143,16 +142,15 @@ public class IcePush extends Applet {
     private static void gameLoop() {
         // update positions and such
         NetworkHandler.handlePackets();
-        prev_angle = angle;
-        angle = 0;
         checkKeys();
         if (angle != prev_angle) {
             if (prev_angle != -1)
                 NetworkHandler.move(prev_angle, true);
             if (angle != -1)
                 NetworkHandler.move(angle, false);
-
         }
+        prev_angle = angle;
+        angle = -1;
     }
 
     public void paint(Graphics g) {
@@ -391,13 +389,6 @@ public class IcePush extends Applet {
             NetworkHandler.onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
 
         // TODO make this not so bad
-        if (keys[KeyEvent.VK_UP]) {
-            angle = 128;
-            if (keys[KeyEvent.VK_LEFT])
-                angle += 32;
-            else if (keys[KeyEvent.VK_RIGHT])
-                angle -= 32;
-        }
         if (keys[KeyEvent.VK_DOWN]) {
             angle = 0;
             if (keys[KeyEvent.VK_LEFT])
@@ -412,23 +403,19 @@ public class IcePush extends Applet {
             else if (keys[KeyEvent.VK_DOWN])
                 angle -= 32;
         }
+        if (keys[KeyEvent.VK_UP]) {
+            angle = 128;
+            if (keys[KeyEvent.VK_LEFT])
+                angle += 32;
+            else if (keys[KeyEvent.VK_RIGHT])
+                angle -= 32;
+        }
         if (keys[KeyEvent.VK_LEFT]) {
             angle = 192;
             if (keys[KeyEvent.VK_UP])
                 angle -= 32;
             else if (keys[KeyEvent.VK_DOWN])
                 angle += 32;
-        }
-        //if (keys[KeyEvent.VK_LEFT]) {
-        //    angle += 32;
-        //} else if (keys[KeyEvent.VK_RIGHT]) {
-        //    angle += 32;
-        //}
-        if (!keys[KeyEvent.VK_UP]
-                && !keys[KeyEvent.VK_DOWN]
-                && !keys[KeyEvent.VK_RIGHT]
-                && !keys[KeyEvent.VK_LEFT]) {
-            angle = -1;
         }
 
         if (keys[KeyEvent.VK_A]) {
@@ -456,10 +443,8 @@ public class IcePush extends Applet {
             ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
         if (keys[KeyEvent.VK_C] && !previous[KeyEvent.VK_C])
             Renderer.chats_visible = !Renderer.chats_visible;
-        if (keys[KeyEvent.VK_F1])
-            Renderer.deaths_visible = true;
-        if (!keys[KeyEvent.VK_F1])
-            Renderer.deaths_visible = false;
+        if (keys[KeyEvent.VK_X] && !previous[KeyEvent.VK_X])
+            Renderer.deaths_visible = !Renderer.deaths_visible;
 
         if (keys[KeyEvent.VK_PAGE_UP] && renderer.cameraZoom < 512) {
             renderer.cameraZoom += 8;
