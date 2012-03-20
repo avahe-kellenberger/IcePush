@@ -7,7 +7,7 @@ import java.net.Socket;
 import net.threesided.game.GameObjects;
 import net.threesided.shared.PacketBuffer;
 
-public class NetworkHandler extends Thread {
+public class NetworkHandler {
 
     private PacketBuffer buffer;
     private IcePushBot bot;
@@ -73,13 +73,9 @@ public class NetworkHandler extends Thread {
         return -1;
     }
 
-    public void run() {
-        while (true) {
-            if(!handlePackets()) {
-                bot.stopThread();
-                break;
-            }
-        }
+    public void pulse() {
+        if (!handlePackets())
+            bot.stopThread();
     }
 
     public boolean handlePackets() {

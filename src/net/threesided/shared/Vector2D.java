@@ -1,4 +1,4 @@
-package net.threesided.server.physics2d;
+package net.threesided.shared;
 
 public class Vector2D {
 
@@ -13,11 +13,6 @@ public class Vector2D {
     public Vector2D(Vector2D v2) {
         this.setX(v2.getX());
         this.setY(v2.getY());
-    }
-
-    public Vector2D(double x, double y) {
-        this.setX(x);
-        this.setY(y);
     }
 
     public void setX(double x) {
@@ -72,12 +67,6 @@ public class Vector2D {
         return this;
     }
 
-    public Vector2D divide(double scaleFactor) {
-        setX(this.getX() / scaleFactor);
-        setY(this.getY() / scaleFactor);
-        return this;
-    }
-
     public Vector2D normalize() {
         double len = getLength();
         if (len != 0.0) {
@@ -92,11 +81,6 @@ public class Vector2D {
 
     public String toString() {
         return "X: " + getX() + " Y: " + getY();
-    }
-
-    public Vector2D tangent() {
-        setD(getY(), -getX());
-        return this;
     }
 }
 

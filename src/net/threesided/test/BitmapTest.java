@@ -19,8 +19,8 @@ import net.threesided.graphics2d.Bitmap;
 
 public class BitmapTest extends Frame {
 
-	public static final int TEST_BLT = 0;
-	public static final int TEST_FONT = 1;
+	//public static final int TEST_BLT = 0;
+	//public static final int TEST_FONT = 1;
 
 	int insx, insy;
 
@@ -33,8 +33,8 @@ public class BitmapTest extends Frame {
 	Bitmap sprite;
 	Bitmap font;
 
-	int foreGround = 0xffff00;;
-	int backGround;
+	int foreGround = 0xffff00;
+	//int backGround;
 
 	public static void main(String args[]) throws Exception {
 		new BitmapTest();

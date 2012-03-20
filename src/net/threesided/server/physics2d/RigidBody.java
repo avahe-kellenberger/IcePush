@@ -1,5 +1,7 @@
 package net.threesided.server.physics2d;
 
+import net.threesided.shared.Vector2D;
+
 public class RigidBody {
 
 	public final static int RBTYPE_CIRCLE = 1;

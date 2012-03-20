@@ -1,6 +1,7 @@
 package net.threesided.server.physics2d;
 
 import net.threesided.server.Player;
+import net.threesided.shared.Vector2D;
 
 public class Physics2D {
 
@@ -10,12 +11,8 @@ public class Physics2D {
         this.bodies = bodies;
     }
 
-    public Physics2D() {
-        bodies = new RigidBody[100];
-    }
-
     public void update() {
-        RigidBody a = null, b = null;
+        RigidBody a, b;
         for (int i = 0; i < bodies.length; i++) {
             if ((a = bodies[i]) == null) continue;
 
@@ -31,6 +28,8 @@ public class Physics2D {
 
             for (int j = 1 + i; j < bodies.length; j++) {
                 if ((b = bodies[j]) == null || (b == a)) continue;
+                if (b.getClass().isAssignableFrom(Player.class) && ((Player) b).isDead)
+                    continue; // if it's a dead player, don't attempt to collide
                 doCollision(a, b);
             }
         }

@@ -21,7 +21,7 @@ import net.threesided.shared.InterthreadQueue;
 import net.threesided.shared.Opcodes;
 
 public class Server implements Runnable {
-    private boolean DEBUG = false;
+    //private boolean DEBUG = false;
     private Player[] players;
     private Map<String, String> settings;
     //private Socket worldserver;
@@ -52,7 +52,7 @@ public class Server implements Runnable {
     }
 
     private Server(String[] args) {
-        if (args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
+        //if (args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
         players = new Player[30];
         settings = loadSettings("config");
 
@@ -69,7 +69,7 @@ public class Server implements Runnable {
                 settings.get("irc-channel"), settings.get("irc-nick"));
         Thread t = new Thread(irc);
         t.setDaemon(true);
-        //t.start();
+        t.start();
 
         int port = Integer.parseInt(settings.get("bind-port"));
         try {
@@ -291,7 +291,6 @@ public class Server implements Runnable {
                     if (p.username.toLowerCase().equals(kick)) {
                         logoutPlayer(p);
                         InternetRelayChat.sendMessage("Player " + kick + " has been kicked.");
-                        continue;
                     }
                 }
             }
@@ -325,16 +324,18 @@ public class Server implements Runnable {
 
                 if (!mapClass.currentPath.contains(p.position.getX(), p.position.getY()) && !p.isDead) {
                     System.out.println("PLAYER " + p.username + " IS OUT OF RANGE!");
-                    p.deaths++;
-                    p.deaths %= 128;
+                    if (getNumPlayers() > 1) {
+                        p.deaths++;
+                        p.deaths %= 128;
+                    }
                     p.isDead = true;
                     p.timeDead = deathLength;
+                    p.updateDeathTime(p.timeDead / 1000);
 
                     for (Player plr : players)
-                        if (plr != null) {
+                        if (plr != null)
                             plr.playerDied(p);    // plr cycles through every player; p is the player who just died
-                            p.updateDeathTime(p.timeDead / 1000);
-                        }
+
                 }
 
                 if (p.hasMoved() && !p.isDead) {
@@ -395,7 +396,7 @@ public class Server implements Runnable {
         defaults.put("irc-port", "6667");
         defaults.put("irc-nick", "TestServer");
 
-        defaults.put("death-length", "2000");
+        defaults.put("death-length", "0");
         defaults.put("round-length", "90000");
 
         /* Worldserver and updateserver temporarily disabled for the time being */

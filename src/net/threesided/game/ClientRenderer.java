@@ -88,11 +88,9 @@ public class ClientRenderer extends Renderer3D {
     }
 
     protected void renderScene2D(Player[] players, Graphics g) {
-        g = (Graphics2D) g;
         g.drawImage(GameObjects.background, 0, 0, null);
 
-        for (int k = 0; k < players.length; k++) {
-            Player p = players[k];
+        for (Player p : players) {
             if (p == null)
                 continue;
             p.draw(g);
