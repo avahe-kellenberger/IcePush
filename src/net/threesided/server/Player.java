@@ -27,7 +27,7 @@ public class Player extends RigidBody {
 	public static final float[] sines = new float[256];
 	public static final float[] cosines = new float[256];
 	static {
-		double d = (2.0 * Math.PI) / 256.0;
+		double d = (2.0 * Math.PI) / 256;
 		for(int k = 0; k < 256; k++) {
 			sines[k] = (float) Math.sin(k * d);
 			cosines[k] = (float) Math.cos(k * d);

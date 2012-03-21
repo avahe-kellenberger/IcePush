@@ -21,7 +21,7 @@ public class Physics2D {
 
             if (a.movable) {
                 // because screw proper physics, this is icepush!
-                a.velocity.multiply(1 - (FRICTION * a.mass));
+                a.velocity.multiply(1 - FRICTION);
                 a.velocity.add(a.acceleration);
                 a.position.add(a.velocity);
             }
