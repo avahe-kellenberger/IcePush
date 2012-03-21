@@ -3,7 +3,6 @@ package net.threesided.bot;
 import net.threesided.shared.Vector2D;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class IcePushBot extends Thread {
@@ -12,7 +11,6 @@ public class IcePushBot extends Thread {
 
     public boolean running = true;
     private int id;
-    private NetworkHandler networking;
     private int angle = -1;
     private int prev_angle = -1;
     private String username;
@@ -27,7 +25,7 @@ public class IcePushBot extends Thread {
     }
 
     public void run() {
-        networking = new NetworkHandler(this);
+        NetworkHandler networking = new NetworkHandler(this);
         if ((id = networking.login(NetworkHandler.DEFAULT_SERVER, BASE_NAME + username)) == -1)
             return;
 
@@ -35,7 +33,7 @@ public class IcePushBot extends Thread {
             networking.pulse();
             if (angle != prev_angle) {
                 if (prev_angle != -1)
-                    networking.endMoveRequest(prev_angle);
+                    networking.endMoveRequest();
                 if (angle != -1)
                     networking.sendMoveRequest(angle);
             }
@@ -69,28 +67,13 @@ public class IcePushBot extends Thread {
         return closest_player;
     }
 
-    // handling functions for various events
     public void onNewPlayer(int id, String username, int deaths) {
         playerMap.put(id, new Player(username));
     }
 
     public void onMove(int id, int x, int y) {
-        playerMap.get(id).getPosition().setD(x, y);
+        playerMap.get(id).getPosition().set(x, y);
         playerMap.get(id).setDead(false);
-    }
-
-    // an awful way of calculating the angle, make this better
-    public double getAngle(double x1, double x2, double y1, double y2) {
-        double angle = Math.atan2(y2 - y1, x2 - x1) * 64 / Math.PI;
-        angle -= 32;
-        if (angle > 0) {
-            double prev_angle = angle;
-            angle = 128;
-            angle -= prev_angle;
-            angle = -angle;
-        }
-        angle = Math.abs(angle);
-        return angle;
     }
 
     public void onChat(String message) {
@@ -108,6 +91,20 @@ public class IcePushBot extends Thread {
 
     public void stopThread() {
         running = false;
+    }
+
+    // an awful way of calculating the angle, make this better
+    public double getAngle(double x1, double x2, double y1, double y2) {
+        double angle = Math.atan2(y2 - y1, x2 - x1) * 64 / Math.PI;
+        angle -= 32;
+        if (angle > 0) {
+            double prev_angle = angle;
+            angle = 128;
+            angle -= prev_angle;
+            angle = -angle;
+        }
+        angle = Math.abs(angle);
+        return angle;
     }
 
 }

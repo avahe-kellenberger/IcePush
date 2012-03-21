@@ -24,8 +24,8 @@ public class IcePush extends Applet {
     public static GameFrame frame;
 
     // state stuff
-    public static final int NONE = 0;
-    public static final int WELCOME = 1 << 0;
+    //public static final int NONE = 0;
+    public static final int WELCOME = 1;
     public static final int HELP = 1 << 1;
     public static final int PLAY = 1 << 2;
     public static final int MAPEDITOR = 1 << 3;
@@ -267,7 +267,7 @@ public class IcePush extends Applet {
         if (id == MouseEvent.MOUSE_MOVED) {
             mouseMoved(e);
         } else if (id == MouseEvent.MOUSE_DRAGGED) {
-            mouseDragged(e);
+            //mouseDragged(e);
         }
     }
 
@@ -312,9 +312,9 @@ public class IcePush extends Applet {
         GameObjects.ui.handleAction(Actions.CLICK, x, y);
     }
 
-    private void mouseDragged(MouseEvent e) {
+    //private void mouseDragged(MouseEvent e) {
 
-    }
+    //}
 
     private void mouseMoved(MouseEvent e) {
         if (!GameObjects.loaded) return;

@@ -3,7 +3,7 @@ package net.threesided.game;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import static net.threesided.shared.Opcodes.*;
+import static net.threesided.shared.Constants.*;
 
 import net.threesided.graphics2d.SpriteLoader;
 

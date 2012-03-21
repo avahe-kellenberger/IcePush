@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import net.threesided.game.GameObjects;
 import net.threesided.shared.PacketBuffer;
 
 public class NetworkHandler {
@@ -142,27 +141,22 @@ public class NetworkHandler {
         try {
             buffer.beginPacket(MOVE_REQUEST);
             buffer.writeByte(moveType);
-            buffer.writeByte(0);
+            //buffer.writeByte(0);
             buffer.endPacket();
         } catch (Exception localException) {
             localException.printStackTrace();
         }
     }
 
-    public void endMoveRequest(int moveType) {
+    public void endMoveRequest() {
         try {
             buffer.beginPacket(END_MOVE);
-            buffer.writeByte(moveType);
-            buffer.writeByte(0);
+            //buffer.writeByte(moveType);
+            //buffer.writeByte(0);
             buffer.endPacket();
         } catch (Exception localException) {
             localException.printStackTrace();
         }
-    }
-
-    public void ping() {
-        buffer.beginPacket(PING);
-        buffer.endPacket();
     }
 
     public void logout() {

@@ -10,7 +10,7 @@ import net.threesided.shared.PacketBuffer;
 import net.threesided.ui.Action;
 import net.threesided.ui.UIComponent;
 
-import static net.threesided.shared.Opcodes.*;
+import static net.threesided.shared.Constants.*;
 
 public class NetworkHandler {
     static String DEFAULT_SERVER = "strictfp.com";
@@ -23,7 +23,7 @@ public class NetworkHandler {
 
     public static Action onLoginButtonClick = new Action() {
         public void doAction(UIComponent uiComp, int x, int y) {
-            String server = "";
+            String server;
             if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
                 server = GameObjects.ui.serverTextBox.getText();
             } else {
@@ -208,7 +208,7 @@ public class NetworkHandler {
                         + System.currentTimeMillis());
             pbuf.beginPacket(MOVE_REQUEST);
             pbuf.writeByte(dir);
-            pbuf.writeByte(moveID);
+            //pbuf.writeByte(moveID);
             pbuf.endPacket();
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,10 +224,10 @@ public class NetworkHandler {
                         + ", ID: " + moveID + " - TIME: "
                         + System.currentTimeMillis());
             pbuf.beginPacket(END_MOVE);
-            pbuf.writeByte(moveDir);
-            pbuf.writeByte(moveID);
+            //pbuf.writeByte(moveDir);
+            //pbuf.writeByte(moveID);
             pbuf.endPacket();
-            moveID = (moveID + 1) & 255;
+            //moveID = (moveID + 1) & 255;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -255,11 +255,11 @@ public class NetworkHandler {
             sendMoveRequest(angle);
     }
 
-    public static void ping() {
+    /*public static void ping() {
         pingTime = System.currentTimeMillis();
         pbuf.beginPacket(PING);
         pbuf.endPacket();
-    }
+    } */
 
     public static void logOut() {
         try {

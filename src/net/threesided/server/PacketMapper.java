@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 import net.threesided.shared.PacketBuffer;
 
-import static net.threesided.shared.Opcodes.*;
+import static net.threesided.shared.Constants.*;
 
 public class PacketMapper {
 
@@ -55,8 +55,8 @@ public class PacketMapper {
 	}
 
 	public static int packetFormats[][] = new int[][]{
-		{ BYTE, BYTE },		// MOVE_REQUEST
-		{ BYTE, BYTE },		// END_MOVE
+		{ BYTE },		// MOVE_REQUEST
+		{ },		// END_MOVE
 		{ },				// LOGOUT
 		{ },				// PING
 		{ STRING }			// CHAT_REQUEST
@@ -84,7 +84,7 @@ public class PacketMapper {
 
 		Object args[] = new Object[handle.format.length];
 
-		int format[] = handle.format;
+		//int format[] = handle.format;
 
 		boolean b = !printed[opcode];
 		if(b) printed[opcode] = true;

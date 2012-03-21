@@ -31,7 +31,7 @@ public class Vector2D {
         return y;
     }
 
-    public void setD(double x, double y) {
+    public void set(double x, double y) {
         this.setX(x);
         this.setY(y);
     }

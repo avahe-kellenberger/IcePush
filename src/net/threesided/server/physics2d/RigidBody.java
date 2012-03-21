@@ -4,8 +4,6 @@ import net.threesided.shared.Vector2D;
 
 public class RigidBody {
 
-	public final static int RBTYPE_CIRCLE = 1;
-
 	public Vector2D position = new Vector2D();		// x, y coordinates
 	public Vector2D velocity = new Vector2D();		// change in x, y with respect to time
 	public Vector2D acceleration = new Vector2D();		// change in dx, dy with respect to time
@@ -19,8 +17,6 @@ public class RigidBody {
 
 	private int savedX, savedY;
 
-	public long last;
-
 	public boolean hasMoved() {
 		boolean result = ((savedX != (int) position.getX()) || (savedY != (int) position.getY()));
 		savedX = (int)position.getX();
@@ -29,7 +25,6 @@ public class RigidBody {
 	}
 
 	public RigidBody() {
-		//last = System.currentTimeMillis();
 		movable = true;
 	}
 }

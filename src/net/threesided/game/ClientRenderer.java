@@ -13,7 +13,7 @@ import net.threesided.graphics3d.Renderer3D;
 public class ClientRenderer extends Renderer3D {
     public static final int SOFTWARE_2D = 0;
     public static final int SOFTWARE_3D = 1;
-    public static final int HARDWARE_3D = 2;
+    //public static final int HARDWARE_3D = 2;
     public static int GRAPHICS_MODE = SOFTWARE_2D;
     private int roundTime = -1;
     private int deathTime = -1;

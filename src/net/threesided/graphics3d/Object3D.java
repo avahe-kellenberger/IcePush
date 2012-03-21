@@ -32,8 +32,8 @@ public class Object3D {
 	public int[][] faceuv;
 	public int[] facetextid;
 	
-	public int rotationY;
-	public int rotationX;
+	//public int rotationY;
+	//public int rotationX;
 	
 	public static final double TWO_PI = 2 * Math.PI;
 	public static Object3D templates[];
@@ -123,7 +123,7 @@ public class Object3D {
 	
 
 	public Object3D(double layerHeights[], double layerScale[],
-			Color layerColors[], Color top, Color bottom, int baseSides) {
+			Color layerColors[], int baseSides) {
 		double basePointX[] = new double[baseSides], basePointZ[] = new double[baseSides];
 
 		for (int i = 0; i < baseSides; i++) {
@@ -247,13 +247,13 @@ public class Object3D {
 	}
 
 	static {
-		double smLayerHeights[] = new double[] { -20, 7, 10, 7, 5, 2.5, 2.5,
-				2.5, 2.5 };
-		double smLayerScale[] = new double[] { 5, 10, 10, 7, 6, 2.5, 4, 4, 2.5 };
-		Color smLayerColors[] = new Color[8];
-		smLayerColors[0] = Color.white;
-		for (int i = 1; i < 8; i++)
-			smLayerColors[i] = Color.white;
+		//double smLayerHeights[] = new double[] { -20, 7, 10, 7, 5, 2.5, 2.5,
+		//		2.5, 2.5 };
+		//double smLayerScale[] = new double[] { 5, 10, 10, 7, 6, 2.5, 4, 4, 2.5 };
+		//Color smLayerColors[] = new Color[8];
+		//smLayerColors[0] = Color.white;
+		//for (int i = 1; i < 8; i++)
+		//	smLayerColors[i] = Color.white;
 
 		double treeLayerHeights[] = new double[] { -20, 20, 0, 100 };
 		double treeLayerScale[] = new double[] { 7, 10, 25, 0 };
@@ -263,7 +263,7 @@ public class Object3D {
 		templates = new Object3D[4];
 
 		templates[0] = new Object3D(treeLayerHeights, treeLayerScale,
-				treeLayerColors, null, null, 6);
+				treeLayerColors, 6);
 		try {
 			templates[1] = ObjImporter.loadObj("models/snowman.obj");
 			templates[1].scale(0.3f);
@@ -311,7 +311,7 @@ public class Object3D {
 			endFace(2);
 		}
 		
-		public Plane(double x, double y, double z, int verticesX, int verticesZ, double tileSize) {
+		/*public Plane(double x, double y, double z, int verticesX, int verticesZ, double tileSize) {
 			super(verticesX * verticesZ, (verticesX - 1) * (verticesZ - 1));
 
 			//System.out.println("X = " + verticesX + " Z = " + verticesZ + " length: " + vertX.length);
@@ -343,6 +343,6 @@ public class Object3D {
 				}
 				faceVert++;
 			}
-		}
+		}  */
 	}
 }

@@ -106,7 +106,7 @@ public class BitmapTest extends Frame {
 		g.drawImage(bbuf, insx, insy, null);
 	}
 
-	Bitmap genSprite() {
+	/*Bitmap genSprite() {
 		int[] texture = new int[4096];
 		for(int i = 0; i < 64; i++) {
 			for(int j = 0; j < 64; j++) {
@@ -119,7 +119,7 @@ public class BitmapTest extends Frame {
 			}
 		}
 		return new Bitmap(64, 64, texture);
-	}
+	}*/
 
 	public int stringWidth(String str, Bitmap font) {
 		return str.length()*font.width / 95;

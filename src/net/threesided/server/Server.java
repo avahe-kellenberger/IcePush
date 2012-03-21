@@ -1,7 +1,7 @@
 package net.threesided.server;
 
-import static net.threesided.shared.Opcodes.FAILURE;
-import static net.threesided.shared.Opcodes.SUCCESS_LOG;
+import static net.threesided.shared.Constants.FAILURE;
+import static net.threesided.shared.Constants.SUCCESS_LOG;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,22 +18,19 @@ import java.io.IOException;
 import net.threesided.server.physics2d.Physics2D;
 
 import net.threesided.shared.InterthreadQueue;
-import net.threesided.shared.Opcodes;
+import net.threesided.shared.Constants;
 
 public class Server implements Runnable {
     //private boolean DEBUG = false;
     private Player[] players;
-    private Map<String, String> settings;
     //private Socket worldserver;
 
-    private Physics2D physics;
     //private UpdateServer updates;
     private MapClass mapClass;
 
     private boolean run = true;
     private ServerSocket listener;
     private InterthreadQueue<Socket> incomingConnections;
-    private InternetRelayChat irc;
     private ArrayList<String> chats;
 
     private int blockCount;
@@ -54,22 +51,22 @@ public class Server implements Runnable {
     private Server(String[] args) {
         //if (args.length > 0 && args[0].equalsIgnoreCase("-debug")) DEBUG = true;
         players = new Player[30];
-        settings = loadSettings("config");
+        Map<String, String> settings = loadSettings("config");
 
         roundLength = Integer.parseInt(settings.get("round-length"));
         deathLength = Integer.parseInt(settings.get("death-length"));
 
         //if(Boolean.parseBoolean(settings.get("show-in-list")))
         //	worldserver = connectToWorldServer(settings
-        //			.get("worldserver-addr"), Opcodes.WORLDPORT);
+        //			.get("worldserver-addr"), Constants.WORLDPORT);
 
         incomingConnections = new InterthreadQueue<Socket>();
 
-        irc = new InternetRelayChat(settings.get("irc-server"), Integer.parseInt(settings.get("irc-port")),
+        InternetRelayChat irc = new InternetRelayChat(settings.get("irc-server"), Integer.parseInt(settings.get("irc-port")),
                 settings.get("irc-channel"), settings.get("irc-nick"));
         Thread t = new Thread(irc);
         t.setDaemon(true);
-        //t.start();
+        t.start();
 
         int port = Integer.parseInt(settings.get("bind-port"));
         try {
@@ -81,7 +78,7 @@ public class Server implements Runnable {
         System.out.println("Client listener started on port " + port);
         new Thread(this).start();
 
-        physics = new Physics2D(players);
+        Physics2D physics = new Physics2D(players);
         //updates = new UpdateServer(new File(settings.get("update-path")));
         //updates.start();
         mapClass = new MapClass();
@@ -101,7 +98,7 @@ public class Server implements Runnable {
             try {
                 Thread.sleep(20);
             } catch (Exception e) {
-
+                 e.printStackTrace();
             }
             if (getNumPlayers() > 1) {
                 timeRemaining -= 20;
@@ -132,14 +129,14 @@ public class Server implements Runnable {
         }
     }
 
-    private Socket connectToWorldServer(String server, int port) {
+    /*private Socket connectToWorldServer(String server, int port) {
         System.out.print("Connecting to worldserver: " + server + ":" + port + "...");
         try {
             Socket sock = new Socket(server, port);
             System.out.print("connected...");
             OutputStream out = sock.getOutputStream();
-            out.write(Opcodes.NEW_SERVER);
-            System.out.print("Opcodes.NEW_SERVER sent...");
+            out.write(Constants.NEW_SERVER);
+            System.out.print("Constants.NEW_SERVER sent...");
             String host = settings.get("host");
             System.out.print("host (" + host + ") sent...");
             out.write(host.length());
@@ -151,7 +148,7 @@ public class Server implements Runnable {
         } catch (Exception e) {
             return null;
         }
-    }
+    }*/
 
     public void run() {
         while (run)
@@ -176,8 +173,8 @@ public class Server implements Runnable {
             try {
                 s.close();
             } catch (Exception e) {
+                e.printStackTrace();
             }
-            return;
         } else {
             try {
                 s.setTcpNoDelay(true);
@@ -201,7 +198,7 @@ public class Server implements Runnable {
             InputStream in = s.getInputStream();
             OutputStream out = s.getOutputStream();
             int version = in.read();
-            if (version != Opcodes.VERSION) {
+            if (version != Constants.VERSION) {
                 out.write(FAILURE); // bad version
                 out.write(BAD_VERSION.length() & 0xFF);
                 out.write(BAD_VERSION.getBytes());
@@ -210,13 +207,15 @@ public class Server implements Runnable {
             }
             int len = in.read();
             byte[] strb = new byte[len];
-            in.read(strb);
+            int read = in.read(strb);
+            if(len != read)
+                return;
             Player p = new Player(s);
             p.username = new String(strb);
 
-            for (int k = 0; k < players.length; k++) {
-                if (players[k] != null) {
-                    String user = players[k].username;
+            for (Player player : players) {
+                if (player != null) {
+                    String user = player.username;
                     if (user != null && user.equals(p.username)) {
                         out.write(FAILURE); // name in use
                         out.write(USER_IN_USE.length() & 0xFF);
@@ -271,7 +270,7 @@ public class Server implements Runnable {
               return;
           try {
               OutputStream out = worldserver.getOutputStream();
-              out.write(Opcodes.NUM_PLAYERS_NOTIFY);
+              out.write(Constants.NUM_PLAYERS_NOTIFY);
               out.write(getNumPlayers());
               out.flush();
           } catch(Exception e) {
@@ -280,7 +279,7 @@ public class Server implements Runnable {
     }
 
     private void updateIrc() {
-        irc.processInput();
+        InternetRelayChat.processInput();
         chats = new ArrayList<String>();
         String msg;
         while ((msg = InternetRelayChat.msgs.pull()) != null) chats.add(msg);

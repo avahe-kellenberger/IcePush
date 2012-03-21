@@ -2,7 +2,7 @@ package net.threesided.server;
 
 import net.threesided.server.physics2d.*;
 import net.threesided.shared.PacketBuffer;
-import static net.threesided.shared.Opcodes.*;
+import static net.threesided.shared.Constants.*;
 
 import java.util.ArrayList;
 import java.net.Socket;
@@ -19,7 +19,6 @@ public class Player extends RigidBody {
     public int timeDead = 0;
 	
 	private PacketBuffer pbuf;
-	private int numSet;
 
 	public boolean logOut;
 	String chatMessage;
@@ -28,7 +27,7 @@ public class Player extends RigidBody {
 	public static final float[] sines = new float[256];
 	public static final float[] cosines = new float[256];
 	static {
-		double d = (2.0d * Math.PI) / 256.0d;
+		double d = (2.0 * Math.PI) / 256.0;
 		for(int k = 0; k < 256; k++) {
 			sines[k] = (float) Math.sin(k * d);
 			cosines[k] = (float) Math.cos(k * d);
@@ -69,12 +68,12 @@ public class Player extends RigidBody {
 	}
 
 	public void initPosition(Player[] players, Path2D path) {	// Resets this players position, making sure it intersects none of the players in the array and is within path
-		boolean good = false;
+		boolean good;
 		while(true) {
 			good = true;
 
 			do {
-				position.setD(Math.random() * 744, Math.random() * 422);
+				position.set(Math.random() * 744, Math.random() * 422);
 			} while(!path.contains(position.getX(), position.getY()));
 
 			for(Player p : players) {
@@ -97,9 +96,8 @@ public class Player extends RigidBody {
 			if(good)
 				break;
 		}
-        velocity.setD(0, 0);
-        acceleration.setD(0, 0);
-		numSet = 0;
+        velocity.set(0, 0);
+        acceleration.set(0, 0);
         for(Player p : players) {
             if(p == null) {
                 continue;
@@ -129,13 +127,13 @@ public class Player extends RigidBody {
 		return true;
 	}
 
-	public void MOVE_REQUEST(int moveDir, int moveId) {
+	public void MOVE_REQUEST(int moveDir) {
 		setBit(moveDir);
 		//if(Serv er.DEBUG) System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveId + " , TIME: " + System.currentTimeMillis());
 	}
 
-	public void END_MOVE(int moveDir, int moveId) {	
-		clearBit(moveDir);
+	public void END_MOVE() {
+		clearBit();
 		//if(Serv er.DEBUG) System.out.println("END MOVE REQUEST - ID = " + moveId + " - TIME = " + System.currentTimeMillis());
 	}
 
@@ -166,24 +164,20 @@ public class Player extends RigidBody {
 	}
 
 	// Tells this player to reset deaths for player p to 0
-	public void resetDeaths(Player p) {
+	/*public void resetDeaths(Player p) {
 		pbuf.beginPacket(PLAYER_DIED);
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(0);					// Number of times died
 		pbuf.endPacket();
-	}
+	} */
 
 	private void setBit(int bit) {
-		numSet++;
 		// scale down by 2 so that the values are between 
 		// -0.5 and +0.5, like the original version
-	    acceleration.setD(sines[bit & 0xff] / 2f, cosines[bit & 0xff] / 2f);
+	    acceleration.set(sines[bit & 0xff] / 2, cosines[bit & 0xff] / 2);
 	}
 
-	private void clearBit(int bit) {
-		if(numSet == 0) return;
-		numSet--;
-        acceleration.setD(0,0);
-		if(numSet == 0) acceleration.setD(0,0);
+	private void clearBit() {
+        acceleration.set(0, 0);
 	}
 }

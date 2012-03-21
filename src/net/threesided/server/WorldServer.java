@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.threesided.shared.Opcodes;
+import net.threesided.shared.Constants;
 
 public class WorldServer implements Runnable {
 	private int port;
@@ -34,7 +34,7 @@ public class WorldServer implements Runnable {
 					if (in.available() == 0)
 						continue;
 					int req = in.read();
-					if (req == Opcodes.NUM_PLAYERS_NOTIFY) {
+					if (req == Constants.NUM_PLAYERS_NOTIFY) {
 						int amt = in.read();
 						servers.put(srv, amt);
 						System.out.println(":: " + srv + " updated to " + amt);
@@ -62,7 +62,7 @@ public class WorldServer implements Runnable {
 					OutputStream out = s.getOutputStream();
 					int type = in.read();
 					System.out.println(type);
-					if(type == Opcodes.NEW_SERVER) {
+					if(type == Constants.NEW_SERVER) {
 						// omg new server connecting
 						int len = in.read();
 						byte[] strb = new byte[len];
@@ -74,7 +74,7 @@ public class WorldServer implements Runnable {
 						servers.put(name, count);
 						System.out.println("-- " + name + " connected with "
 								+ count + " players");
-					} else if(type == Opcodes.NUM_PLAYERS_REQUEST) {
+					} else if(type == Constants.NUM_PLAYERS_REQUEST) {
 						// client is requesting number of people
 						System.out.println(":: World list requested");
 						out.write(servers.size());
