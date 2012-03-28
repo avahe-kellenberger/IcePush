@@ -26,6 +26,7 @@ public class Player {
         this.type = type;
         model = new Object3D(type);
         sprite = new Object2D(type);
+
         this.username = username;
     }
 
