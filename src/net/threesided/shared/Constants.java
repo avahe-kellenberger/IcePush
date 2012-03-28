@@ -29,10 +29,12 @@ public class Constants {
 	public static final int LOGOUT = 10;
 	public static final int PING = 14;
 	public static final int CHAT_REQUEST = 16;
+	public static final int PROJECTILE_REQUEST = 15;
 
-	// Player types
+	// Object types
 	public static final int TREE = 0;
 	public static final int SNOWMAN = 1;
+	public static final int BALL = 2;
 
 	// Movement directions
 	//public static final int LEFT = 1 << 0;

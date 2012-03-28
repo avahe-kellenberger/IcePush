@@ -310,6 +310,7 @@ public class IcePush extends Applet {
         int x = e.getX();
         int y = e.getY();
         GameObjects.ui.handleAction(Actions.CLICK, x, y);
+		handleProjectiles(x, y);
     }
 
     //private void mouseDragged(MouseEvent e) {
@@ -456,6 +457,19 @@ public class IcePush extends Applet {
         }
         System.arraycopy(keys, 0, previous, 0, 256);
     }
+
+
+	private void handleProjectiles(int x, int y) {
+		//System.out.println(e);
+		Player you = GameObjects.players[NetworkHandler.id];
+		if(you != null && !you.isDead) {
+			x = x - you.sprite.x - you.sprite.width/2;
+			y = you.sprite.y + you.sprite.height/2 - y;
+			int a = (int)((128*Math.atan2(y, x))/Math.PI);
+			if(a < 0) a += 256;
+			NetworkHandler.sendProjectileRequest(a);
+		}
+	}
 
     public Dimension getPreferredSize() {
         return new Dimension(WIDTH, HEIGHT);

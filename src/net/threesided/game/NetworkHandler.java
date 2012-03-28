@@ -186,6 +186,12 @@ public class NetworkHandler {
 
     }
 
+	public static void sendProjectileRequest(int direction) {
+		pbuf.beginPacket(PROJECTILE_REQUEST);
+		pbuf.writeByte(direction);
+		pbuf.endPacket();
+	}
+
     public static void sendChatMessage(String msg) {
         try {
             pbuf.beginPacket(CHAT_REQUEST);

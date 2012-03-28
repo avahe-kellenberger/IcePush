@@ -13,6 +13,7 @@ public class Object2D extends GameObject {
 
 	private static BufferedImage tree = SpriteLoader.getSprite("images/tree.png");
 	private static BufferedImage snowman = SpriteLoader.getSprite("images/snowman.png");
+	private static BufferedImage ball = SpriteLoader.getSprite("images/ball.png");
 
 	public Object2D(String spriteName, int type) {
 		super(type);
@@ -25,6 +26,7 @@ public class Object2D extends GameObject {
 		super(type);
 		if(type == TREE) sprite = tree;
 		if(type == SNOWMAN) sprite = snowman;
+		if(type == BALL) sprite = ball;
 		if(sprite == null) throw new IllegalArgumentException();
 		width = sprite.getWidth();
 		height = sprite.getHeight();
