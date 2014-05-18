@@ -265,14 +265,16 @@ public class Object3D {
 		templates[0] = new Object3D(treeLayerHeights, treeLayerScale,
 				treeLayerColors, 6);
 		try {
+			templates[0] = ObjImporter.loadObj("models/icetree.obj");
+			for(int i = 0; i < templates[0].facetextid.length; i++) templates[0].facetextid[i] = 3;
 			templates[1] = ObjImporter.loadObj("models/snowman.obj");
 			templates[1].scale(0.3f);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		textures = new int[4][];
-		texsidelens = new int[4];
+		textures = new int[5][];
+		texsidelens = new int[5];
 		for(int k = 0; k < textures.length; k++)
 			loadTexture(k, "models/" + k + ".jpg");
 	}

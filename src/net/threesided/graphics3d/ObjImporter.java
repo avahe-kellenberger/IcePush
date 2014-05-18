@@ -11,7 +11,7 @@ public class ObjImporter {
 	// this is hackery but it works and makes sense to me
 	public static Object3D loadObj(String name) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(ObjImporter.class.getResourceAsStream("/" + name)));
-		Object3D obj = new Object3D(300, 500); // big enough for all models currently
+		Object3D obj = new Object3D(500, 500); // big enough for all models currently
 		String line;
 		while((line = br.readLine()) != null) {
 			if(line.startsWith(COMMENT) || line.isEmpty())
