@@ -91,7 +91,7 @@ public class IcePush extends Applet {
         instance = new IcePush();
         instance.setFocusTraversalKeysEnabled(false);
         renderer = new ClientRenderer(instance, WIDTH, HEIGHT);
-        frame = new GameFrame();
+        frame = new GameFrame("IcePush", instance);
         renderer.initGraphics();
     }
 
@@ -138,6 +138,11 @@ public class IcePush extends Applet {
         instance = null;
         System.gc();
     }
+
+	public void removeNotify() {
+		super.removeNotify();
+		stop();
+	}
 
     private static void gameLoop() {
         // update positions and such
