@@ -4,13 +4,16 @@ import java.awt.image.BufferedImage;
 
 import net.threesided.graphics2d.SpriteLoader;
 import net.threesided.graphics3d.Object3D;
+import net.threesided.ui.UIComponent;
+import net.threesided.ui.MapCanvas;
 import net.threesided.ui.TextBox;
+import net.threesided.ui.Action;
 import net.threesided.ui.UI;
 
 public class GameObjects {
 	public static UI ui;
 
-	public static boolean loaded = false;
+//	public static boolean loaded = false;
 	
 	public static String[] instructions, help;
 	public static BufferedImage logo;
@@ -31,10 +34,68 @@ public class GameObjects {
 	public static final int USE_DEFAULT = 3;
 	public static int serverMode = TYPE_IN_BOX;
 	
-	public static void load() {
+
+	public static Action onUsernameTextBoxClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.serverTextBox.unfocus();
+			ui.usernameTextBox.focus();
+		}
+	};
+
+	public static Action onServerTextBoxClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.usernameTextBox.unfocus();
+			ui.serverTextBox.focus();
+		}
+	};
+
+	public static Action onSelectButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.setTool(MapCanvas.Tool.SELECT);
+		}
+	};
+
+	public static Action onLineButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.setTool(MapCanvas.Tool.LINE);
+		}
+	};
+
+	public static Action onQuadButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.setTool(MapCanvas.Tool.QUADRATIC);
+		}
+	};
+
+	public static Action onCubicButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.setTool(MapCanvas.Tool.CUBIC);
+		}
+	};
+
+	public static Action onCloseButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.closePath();
+		}
+	};
+
+	public static Action onExportButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.exportPath();
+		}
+	};
+
+	public static Action onImportButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			ui.mapCanvas.importPath();
+		}
+	};
+
+
+	public static void load(int width, int height) {
 
 		try {
-			ui = new UI(IcePush.WIDTH, IcePush.HEIGHT);
+			ui = new UI(width, height);
 			if(serverMode == LIST_FROM_SERVER) {
 				ui.serverTextBox.setVisible(false);
 			} else if(serverMode == TYPE_IN_BOX) {
@@ -44,23 +105,15 @@ public class GameObjects {
 				//ui.serverList.setVisible(false);
 			}
 			
-			ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
-			if(IcePush.username != null) ui.usernameTextBox.setText(IcePush.username);
-			ui.serverTextBox.setClickAction(IcePush.onServerTextBoxClick);
-			ui.usernameTextBox.setClickAction(IcePush.onUsernameTextBoxClick);
-			//ui.serverList.setClickAction(ServerList.onServerListClick);
-			ui.loginButton.setClickAction(NetworkHandler.onLoginButtonClick);
-			ui.logoutButton.setClickAction(NetworkHandler.onLogoutButtonClick);
-			ui.helpButton.setClickAction(IcePush.onHelpButtonClick);
-			ui.mapEditorButton.setClickAction(IcePush.onMapEditorButtonClick);
-			ui.backButton.setClickAction(IcePush.onBackButtonClick);
-			ui.selectButton.setClickAction(IcePush.onSelectButtonClick);
-			ui.lineButton.setClickAction(IcePush.onLineButtonClick);
-			ui.quadButton.setClickAction(IcePush.onQuadButtonClick);
-			ui.cubicButton.setClickAction(IcePush.onCubicButtonClick);
-			ui.closeButton.setClickAction(IcePush.onCloseButtonClick);
-			ui.exportButton.setClickAction(IcePush.onExportButtonClick);
-			ui.importButton.setClickAction(IcePush.onImportButtonClick);
+			ui.serverTextBox.setClickAction(onServerTextBoxClick);
+			ui.usernameTextBox.setClickAction(onUsernameTextBoxClick);
+			ui.selectButton.setClickAction(onSelectButtonClick);
+			ui.lineButton.setClickAction(onLineButtonClick);
+			ui.quadButton.setClickAction(onQuadButtonClick);
+			ui.cubicButton.setClickAction(onCubicButtonClick);
+			ui.closeButton.setClickAction(onCloseButtonClick);
+			ui.exportButton.setClickAction(onExportButtonClick);
+			ui.importButton.setClickAction(onImportButtonClick);
 
 			logo = SpriteLoader.getSprite("images/logo.png");
 			button = SpriteLoader.getSprite("images/button.png");
@@ -71,7 +124,7 @@ public class GameObjects {
 			scenery[0] = new Object3D.Plane();//(0, 0, 0, 20, 12, 40);
 			
 			background = SpriteLoader.getSprite("images/icepush.png");
-			loaded = true;
+	//		loaded = true;
 		} catch(Exception e) {
 			error = e.toString();
 			e.printStackTrace();

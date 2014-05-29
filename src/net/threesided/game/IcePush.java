@@ -16,6 +16,10 @@ import net.threesided.ui.Actions;
 import net.threesided.ui.MapCanvas;
 import net.threesided.ui.UIComponent;
 
+import net.threesided.shared.PacketBuffer;
+import static net.threesided.shared.Constants.*;
+import net.threesided.shared.ILoader;
+
 public class IcePush extends Applet {
     public static boolean DEBUG = false;
 
@@ -51,6 +55,7 @@ public class IcePush extends Applet {
                 instance.init();
             } else if (args[i].equalsIgnoreCase("-debug")) {
                 DEBUG = true;
+		NetworkHandler.DEBUG = true;
             } else if (args[i].equalsIgnoreCase("-server")) {
                 if (i + 1 == args.length) {
                     System.out.println("No server argument provided to -server option");
@@ -66,7 +71,8 @@ public class IcePush extends Applet {
                 username = args[i + 1];
             }
         }
-        GameObjects.load();
+        GameObjects.load(WIDTH, HEIGHT);
+	instance.initClientUI();
         instance.run();
         cleanup();
     }
@@ -99,10 +105,21 @@ public class IcePush extends Applet {
         setFocusTraversalKeysEnabled(false);
         renderer = new ClientRenderer(this, WIDTH, HEIGHT);
         renderer.initGraphics();
-        GameObjects.load();
+        GameObjects.load(WIDTH, HEIGHT);
+	initClientUI();
         run();
         cleanup();
     }
+
+	private void initClientUI() {
+		GameObjects.ui.serverTextBox.setText(NetworkHandler.DEFAULT_SERVER);
+		if(username != null) GameObjects.ui.usernameTextBox.setText(username);
+		GameObjects.ui.loginButton.setClickAction(onLoginButtonClick);
+		GameObjects.ui.logoutButton.setClickAction(onLogoutButtonClick);
+		GameObjects.ui.helpButton.setClickAction(onHelpButtonClick);
+		GameObjects.ui.mapEditorButton.setClickAction(onMapEditorButtonClick);
+		GameObjects.ui.backButton.setClickAction(onBackButtonClick);
+	}
 
     public void run() {
         while (running) {
@@ -144,19 +161,114 @@ public class IcePush extends Applet {
 		stop();
 	}
 
-    private static void gameLoop() {
+    private void gameLoop() {
         // update positions and such
-        NetworkHandler.handlePackets();
+        handlePackets();
         checkKeys();
         if (angle != prev_angle) {
+		boolean in2dmode = ClientRenderer.GRAPHICS_MODE == ClientRenderer.SOFTWARE_2D;
             if (prev_angle != -1)
-                NetworkHandler.move(prev_angle, true);
+                NetworkHandler.move(in2dmode ? prev_angle : prev_angle + renderer.yaw, true);
             if (angle != -1)
-                NetworkHandler.move(angle, false);
+                NetworkHandler.move(in2dmode ? angle : angle + renderer.yaw, false);
         }
         prev_angle = angle;
         angle = -1;
     }
+
+	private void handlePackets() {
+		//if (IcePush.state == IcePush.WELCOME)
+		//	return;
+
+		if (!NetworkHandler.pbuf.synch()) {
+			state = WELCOME;
+			GameObjects.ui.networkStatus.setText("Connection with server was lost.");
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.welcomeScreenContainer.setVisibleRecursive(true);
+			return;
+		}
+
+		int opcode;
+		int id, type, x, y;
+		String username;
+		Player plr;
+		PacketBuffer pbuf = NetworkHandler.pbuf;
+
+		while ((opcode = pbuf.openPacket()) != -1) {
+			switch (opcode) {
+				case NEW_PLAYER:
+					id = pbuf.readShort();
+					type = pbuf.readByte(); // snowman or tree??
+					username = pbuf.readString();
+					int deaths = pbuf.readShort();
+					plr = new Player(type, username);
+					plr.username = username;
+					plr.deaths = deaths;
+					plr.isDead = true;
+					GameObjects.players[id] = plr;
+					break;
+				case PLAYER_MOVED:
+					id = pbuf.readShort(); // player ID
+					x = pbuf.readShort();
+					y = pbuf.readShort();
+					plr = GameObjects.players[id];
+					if (plr == null) {
+						System.out.println("null player tried to move??? " + id);
+						break;
+					}
+					plr.isDead = false;
+					plr.setPos(x, y);
+					if (id == NetworkHandler.id)
+						IcePush.renderer.updateCamera(x, y);
+					break;
+				case PLAYER_DIED:
+					id = pbuf.readShort();
+					plr = GameObjects.players[id];
+					if (plr == null)
+						break;
+					plr.deaths = pbuf.readByte();
+					if (plr.deaths != 0) // death reset, not dead
+						plr.isDead = true;
+					break;
+				case PLAYER_LOGGED_OUT:
+					id = pbuf.readShort();
+					GameObjects.players[id] = null;
+				case KEEP_ALIVE:
+					break;
+				case PING:
+					System.out.println("Ping response recieved: "
+							+ (System.currentTimeMillis() - NetworkHandler.pingTime));
+					break;
+				case NEW_CHAT_MESSAGE:
+					String msg = pbuf.readString();
+					Renderer.chats.add(msg);
+					break;
+				case UPDATE:
+					try {
+						Class<?> clazz = NetworkHandler.class.getClassLoader()
+								.loadClass("loader");
+						ILoader loader = (ILoader) clazz.newInstance();
+						loader.restart();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					break;
+				case UPDATE_TIME:
+					int time_type = pbuf.readByte();
+					int time = pbuf.readShort();
+					switch (time_type) {
+						case 1:
+							IcePush.renderer.setRoundTime(time);
+							break;
+						case 2:
+							IcePush.renderer.setDeathTime(time);
+					}
+					break;
+			}
+			pbuf.closePacket();
+		}
+	}
 
     public void paint(Graphics g) {
 
@@ -198,61 +310,39 @@ public class IcePush extends Applet {
         }
     };
 
-    public static Action onUsernameTextBoxClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.serverTextBox.unfocus();
-            GameObjects.ui.usernameTextBox.focus();
-        }
-    };
+	public static Action onLoginButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			String server;
+			if (GameObjects.serverMode == GameObjects.TYPE_IN_BOX) {
+				server = GameObjects.ui.serverTextBox.getText();
+			} else {
+				server = NetworkHandler.DEFAULT_SERVER;
+			}
+			if (!server.isEmpty()) {
+				GameObjects.ui.networkStatus.setText("Logging in...");
+				if(NetworkHandler.login(server, GameObjects.ui.usernameTextBox.getText())){
+					GameObjects.ui.setVisibleRecursive(false);
+					GameObjects.ui.setVisible(true);
+					GameObjects.ui.logoutButton.setVisible(true);
+					GameObjects.players = new Player[50];
+					IcePush.state = IcePush.PLAY;
+				} else {
+					GameObjects.ui.networkStatus.setText(NetworkHandler.message);
+				}
+			}
+		}
+	};
 
-    public static Action onServerTextBoxClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.usernameTextBox.unfocus();
-            GameObjects.ui.serverTextBox.focus();
-        }
-    };
-
-    public static Action onSelectButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.SELECT);
-        }
-    };
-
-    public static Action onLineButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.LINE);
-        }
-    };
-
-    public static Action onQuadButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.QUADRATIC);
-        }
-    };
-
-    public static Action onCubicButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.setTool(MapCanvas.Tool.CUBIC);
-        }
-    };
-
-    public static Action onCloseButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.closePath();
-        }
-    };
-
-    public static Action onExportButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.exportPath();
-        }
-    };
-
-    public static Action onImportButtonClick = new Action() {
-        public void doAction(UIComponent uiComp, int x, int y) {
-            GameObjects.ui.mapCanvas.importPath();
-        }
-    };
+	public static Action onLogoutButtonClick = new Action() {
+		public void doAction(UIComponent uiComp, int x, int y) {
+			NetworkHandler.logOut();
+			GameObjects.ui.setVisibleRecursive(false);
+			GameObjects.ui.setVisible(true);
+			GameObjects.ui.welcomeScreenContainer.setVisibleRecursive(true);
+			state = WELCOME;
+			GameObjects.ui.networkStatus.setText("Select a username.");
+		}
+	};
 
     // --- THIS CODE IS RUN ON THE EVENT DISPATCH THREAD --- //
 
@@ -323,10 +413,9 @@ public class IcePush extends Applet {
     //}
 
     private void mouseMoved(MouseEvent e) {
-        if (!GameObjects.loaded) return;
         int x = e.getX();
         int y = e.getY();
-        GameObjects.ui.handleAction(Actions.HOVER, x, y);
+        if(GameObjects.ui != null)GameObjects.ui.handleAction(Actions.HOVER, x, y);
     }
 
     private void keyPressed(KeyEvent e) {
@@ -392,7 +481,7 @@ public class IcePush extends Applet {
         if (keys[KeyEvent.VK_ESCAPE] && !isApplet)
             cleanup();
         if (keys[KeyEvent.VK_Q])
-            NetworkHandler.onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
+            onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
 
         // TODO make this not so bad
         if (keys[KeyEvent.VK_DOWN]) {
