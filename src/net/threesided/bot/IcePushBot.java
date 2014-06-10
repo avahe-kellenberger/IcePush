@@ -7,8 +7,6 @@ import java.util.Map;
 
 public class IcePushBot extends Thread {
 
-    public static final String BASE_NAME = "bot";
-
     public boolean running = true;
     private int id;
     private int angle = -1;
@@ -21,12 +19,16 @@ public class IcePushBot extends Thread {
     }
 
     public static void main(String[] argv) {
-        new IcePushBot("1").start();
+        if (argv.length != 1) {
+            System.out.println("Missing parameter 'bot name'");
+            return;
+        }
+        new IcePushBot(argv[0]).start();
     }
 
     public void run() {
         NetworkHandler networking = new NetworkHandler(this);
-        if ((id = networking.login(NetworkHandler.DEFAULT_SERVER, BASE_NAME + username)) == -1)
+        if ((id = networking.login(NetworkHandler.DEFAULT_SERVER, username)) == -1)
             return;
 
         while (running) {
@@ -56,7 +58,8 @@ public class IcePushBot extends Thread {
         double closest_dist = Double.MAX_VALUE;
         Player closest_player = null;
         for (Player p2 : playerMap.values()) {
-            if (p2.getUsername().startsWith(BASE_NAME) || p2.getDead()) continue;
+            if (p2.getUsername().equals(username) || p2.getDead())
+                continue;
             Vector2D player_pos = p2.getPosition();
             double dist = my_pos.getDistance(player_pos);
             if (dist < closest_dist) {

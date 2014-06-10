@@ -5,8 +5,7 @@ syntax: glob
 *.swp
 
 # Ignore compiled code
-IcePush.jar
-IcePushServer.jar
+*.jar
 *.class
 
 # Ignore developer-specific scripts
