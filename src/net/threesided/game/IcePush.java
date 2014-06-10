@@ -40,7 +40,7 @@ public class IcePush extends Applet {
     public static boolean running = true;
 
     public static boolean isApplet = false;
-    public static boolean is_chat = false;
+    public static boolean in_chat = false;
 
     private static boolean[] keys = new boolean[256], previous = new boolean[256];
     private static int angle = -1;
@@ -131,7 +131,7 @@ public class IcePush extends Applet {
             if (state == WELCOME || state == HELP || state == MAPEDITOR) {
                 renderer.drawWelcomeScreen(bg);
             } else if (state == PLAY) {
-                renderer.renderScene(bg, is_chat);
+                renderer.renderScene(bg, in_chat);
             }
             GameObjects.ui.draw(bg);
             getGraphics().drawImage(renderer.getBuffer(), 0, 0, null);
@@ -152,6 +152,8 @@ public class IcePush extends Applet {
     public static void cleanup() {
         running = false;
         NetworkHandler.logOut();
+	GameFrame fr = frame;
+	if(fr != null) fr.dispose();
         instance = null;
         System.gc();
     }
@@ -446,16 +448,18 @@ public class IcePush extends Applet {
                     GameObjects.ui.usernameTextBox.append(e.getKeyChar());
             }
         } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            is_chat = !is_chat;
-            if (!is_chat && !Renderer.curChat.trim().isEmpty()) {
-                NetworkHandler.sendChatMessage(Renderer.curChat.trim());
-                Renderer.curChat = "";
-            }
-        }
-    }
+			if(Renderer.chats_visible) {
+				if (in_chat && !Renderer.curChat.trim().isEmpty()) {
+					NetworkHandler.sendChatMessage(Renderer.curChat.trim());
+					Renderer.curChat = "";
+				}
+				in_chat = !in_chat;
+			}
+		}
+	}
 
     private void keyTyped(KeyEvent e) {
-        if (is_chat) {
+        if (in_chat && state == PLAY) {
             char c = e.getKeyChar();
             if (c == 8 && Renderer.curChat.length() > 0)
                 Renderer.curChat = Renderer.curChat.substring(0,
@@ -476,12 +480,39 @@ public class IcePush extends Applet {
         }
     }
 
-    private static void checkKeys() {
-        if (is_chat) return;
+	private static void checkKeys() {
+		if(!in_chat) {
+			if (keys[KeyEvent.VK_A]) {
+				renderer.yaw += 3;
+				renderer.updateCamera();
+			}
+
+			if (keys[KeyEvent.VK_D]) {
+				renderer.yaw -= 3;
+				renderer.updateCamera();
+			}
+
+			if (keys[KeyEvent.VK_W]) {
+				renderer.pitch += 3;
+				renderer.updateCamera();
+			}
+			if (keys[KeyEvent.VK_S]) {
+				renderer.pitch -= 3;
+				renderer.updateCamera();
+			}
+
+			if (keys[KeyEvent.VK_2])
+				ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
+			if (keys[KeyEvent.VK_3])
+				ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
+			if (keys[KeyEvent.VK_C] && !previous[KeyEvent.VK_C])
+				Renderer.chats_visible = !Renderer.chats_visible;
+			if (keys[KeyEvent.VK_X] && !previous[KeyEvent.VK_X])
+				Renderer.deaths_visible = !Renderer.deaths_visible;
+			if (keys[KeyEvent.VK_Q]) onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
+		}
         if (keys[KeyEvent.VK_ESCAPE] && !isApplet)
             cleanup();
-        if (keys[KeyEvent.VK_Q])
-            onLogoutButtonClick.doAction(GameObjects.ui.logoutButton, 0, 0);
 
         // TODO make this not so bad
         if (keys[KeyEvent.VK_DOWN]) {
@@ -512,34 +543,6 @@ public class IcePush extends Applet {
             else if (keys[KeyEvent.VK_DOWN])
                 angle += 32;
         }
-
-        if (keys[KeyEvent.VK_A]) {
-            renderer.yaw += 3;
-            renderer.updateCamera();
-        }
-
-        if (keys[KeyEvent.VK_D]) {
-            renderer.yaw -= 3;
-            renderer.updateCamera();
-        }
-
-        if (keys[KeyEvent.VK_W]) {
-            renderer.pitch += 3;
-            renderer.updateCamera();
-        }
-        if (keys[KeyEvent.VK_S]) {
-            renderer.pitch -= 3;
-            renderer.updateCamera();
-        }
-
-        if (keys[KeyEvent.VK_2])
-            ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_2D;
-        if (keys[KeyEvent.VK_3])
-            ClientRenderer.GRAPHICS_MODE = ClientRenderer.SOFTWARE_3D;
-        if (keys[KeyEvent.VK_C] && !previous[KeyEvent.VK_C])
-            Renderer.chats_visible = !Renderer.chats_visible;
-        if (keys[KeyEvent.VK_X] && !previous[KeyEvent.VK_X])
-            Renderer.deaths_visible = !Renderer.deaths_visible;
 
         if (keys[KeyEvent.VK_PAGE_UP] && renderer.cameraZoom < 512) {
             renderer.cameraZoom += 8;
