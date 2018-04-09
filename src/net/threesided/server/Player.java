@@ -15,10 +15,14 @@ public class Player extends RigidBody {
 	public int type;
 	public String username;
 	public boolean connected;
-    public boolean isDead = false;
-    public int timeDead = 0;
+	public int nameLen;
+	public boolean readVer;
+	public boolean readName;
+	//public boolean loginComplete;
+	public boolean isDead = false;
+	public int timeDead = 0;
 	
-	private PacketBuffer pbuf;
+	PacketBuffer pbuf;
 
 	public boolean logOut;
 	String chatMessage;
@@ -34,10 +38,11 @@ public class Player extends RigidBody {
 		}
 	}
 
-	public Player(Socket s) throws IOException {
+	public Player(PacketBuffer pb) throws IOException {
 		r = 20;			// Radius
 		mass = 5;
-		pbuf = new PacketBuffer(s);
+		pbuf = pb;
+		id = -1;
 	}
 
 	// Sends this player the login information for newly logged in player p
@@ -81,35 +86,36 @@ public class Player extends RigidBody {
 					continue;
 				}
 
-                double dx = position.getX() - p.position.getX();
-                double dy = position.getY() - p.position.getY();
+				double dx = position.getX() - p.position.getX();
+				double dy = position.getY() - p.position.getY();
 
-                double sum = r + p.r;
+				double sum = r + p.r;
 
-                double dist = dx*dx + dy*dy;
+				double dist = dx*dx + dy*dy;
 
 				if(dist < sum*sum) good = false;
-                if (good)
-                    p.handleMove(this);
+				//if (good) p.handleMove(this);
 			}
 
 			if(good)
 				break;
 		}
-        velocity.set(0, 0);
-        acceleration.set(0, 0);
-        for(Player p : players) {
-            if(p == null) {
-                continue;
-            }
-            p.handleMove(this);
-        }
+		
+		velocity.set(0, 0);
+		acceleration.set(0, 0);
+		
+		for(Player p : players) {
+			if(p == null) {
+				continue;
+			}
+			p.handleMove(this);
+		}
 	}
 
 	// Notify this player of how much time is remaining in the current round
 	public void updateRoundTime(int time) {
 		pbuf.beginPacket(UPDATE_TIME);
-        pbuf.writeByte(1);
+	        pbuf.writeByte(1);
 		pbuf.writeShort(time);
 		pbuf.endPacket();
 	}

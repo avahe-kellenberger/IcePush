@@ -23,6 +23,7 @@ import net.threesided.shared.Constants;
 public class Server implements Runnable {
     //private boolean DEBUG = false;
     private Player[] players;
+    private Player[] incomplete = new Player[20];
     //private Socket worldserver;
 
     //private UpdateServer updates;
@@ -94,6 +95,7 @@ public class Server implements Runnable {
             if (s != null) processIncomingConnection(s);
             updateIrc();
             physics.update();
+            loginPlayers();
             updatePlayers();
             try {
                 Thread.sleep(20);
@@ -178,14 +180,14 @@ public class Server implements Runnable {
         } else {
             try {
                 s.setTcpNoDelay(true);
-                int type = s.getInputStream().read();
-                if (type == 0) { // connecting client
-                    loginPlayer(s);
-                } else if (type == 2) {
+             //   int type = s.getInputStream().read();
+             //   if (type == 0) { // connecting client
+                    addLogin(new Player(new WebSocketBuffer(s)));
+             /*   } else if (type == 2) {
                     s.getOutputStream().write(getNumPlayers());
                 } else if (type == 3) {
                     //updates.incomingConnections.push(s);	// THIS SERVER IS HELD TOGETHER WITH DUCT TAPE
-                }
+                }*/
             } catch (IOException ioe) {
                 System.out.println("Error processing connection!");
                 ioe.printStackTrace();
@@ -193,77 +195,182 @@ public class Server implements Runnable {
         }
     }
 
-    private void loginPlayer(Socket s) {
-        try {
-            InputStream in = s.getInputStream();
-            OutputStream out = s.getOutputStream();
-            int version = in.read();
-            if (version != Constants.VERSION) {
-                out.write(FAILURE); // bad version
-                out.write(BAD_VERSION.length() & 0xFF);
-                out.write(BAD_VERSION.getBytes());
-                out.flush();
-                return;
-            }
-            int len = in.read();
-            byte[] strb = new byte[len];
-            int read = in.read(strb);
-            if(len != read)
-                return;
-            Player p = new Player(s);
-            p.username = new String(strb);
+	void addLogin(Player p) {
+		System.out.println("logging in");
+		WebSocketBuffer wsb = (WebSocketBuffer)p.pbuf;
+		int i = 0;
+		boolean found = false;
+		while(i < incomplete.length) {
+			if(incomplete[i] == null) {
+				incomplete[i] = p;
+				found = true;
+				break;
+			}
+			i++;
+		}
+		if(!found) {
+			notifyFull(p);
+		}
+	}
 
-            for (Player player : players) {
-                if (player != null) {
-                    String user = player.username;
-                    if (user != null && user.equals(p.username)) {
-                        out.write(FAILURE); // name in use
-                        out.write(USER_IN_USE.length() & 0xFF);
-                        out.write(USER_IN_USE.getBytes());
-                        out.flush();
-                        return;
-                    }
-                }
-            }
+	void notifyFull(Player p) {
+		WebSocketBuffer wsb = (WebSocketBuffer)p.pbuf;
+		wsb.writeByte(FAILURE);
+		wsb.writeString(TOO_MANY_PL);
+		wsb.synch();
+	}
 
-            int index = -1;
-            for (int k = 0; k < players.length; k++)
-                if (players[k] == null) {
-                    index = k;
-                    break;
-                }
+	private void loginPlayers() {
+		int i = 0;
+		while(i != incomplete.length) {
+			loginPlayer(i);
+			i++;
+		}
+	}
 
-            if (index == -1) {
-                out.write(FAILURE);
-                out.write(TOO_MANY_PL.length() & 0xFF);
-                out.write(TOO_MANY_PL.getBytes());
-                out.flush();
-                return;
-            }
+	private void loginPlayer(int i) {
+		Player p = incomplete[i];
+		if(p == null) return;
 
-            p.id = index;
-            p.type = index % 2;
+		try {
+			WebSocketBuffer wsb = (WebSocketBuffer)p.pbuf;
+			/*InputStream in = s.getInputStream();
+			OutputStream out = s.getOutputStream();*/
+			
+			if(!wsb.synch()) {
+				incomplete[i] = null;
+				return;
+			}
 
-            out.write(SUCCESS_LOG); // success
-            out.write(p.id);
-            out.flush();
+			//System.out.println("Logging in player: " + p.username + " " + p.readVer + " " + p.id);
 
-            p.connected = true;
-            players[p.id] = p;
-            for (Player plr : players)
-                if (plr != null) {
-                    p.notifyLogin(plr);        // Tell p about all players already logged in
-                    plr.notifyLogin(p);        // Tell all already logged in players about p
-                    p.handleMove(plr);
-                    plr.handleMove(p);
-                }
-            p.initPosition(players, mapClass.currentPath);
-            System.out.println("Player logged in: " + p.username + ", id: " + p.id);
-            syncNumPlayers();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			if(!p.readVer) {
+				if(wsb.available() < 3) {
+					return;
+				}
+				int type = wsb.readByte();
+				int version = wsb.readByte();
+				int nameLen = wsb.readByte();
+				p.nameLen = nameLen;
+				p.readVer = true;
+				if (version != Constants.VERSION) {
+					wsb.writeByte(FAILURE); // bad version
+					//wsb.writeByte(BAD_VERSION.length() & 0xFF);
+					wsb.writeString(BAD_VERSION);
+					wsb.synch();//flush();
+					incomplete[i] = null;
+					return;
+				}
+				System.out.println("Type = " + type + " ver = " + version + " len = " + nameLen);
+			}
+
+			if(!p.readName) {
+				if(wsb.available() < p.nameLen) {
+					return;
+				}
+				int j = 0;
+				byte[] name = new byte[p.nameLen];
+				System.out.println("NAME LEN = " + p.nameLen + " AVAIL: " + wsb.available());
+				while(j != p.nameLen) {
+					name[j] = (byte)wsb.readByte();
+					j++;
+				}
+
+				p.readName = true;
+				p.username = new String(name);
+
+				for (Player player : players) {
+					if (player != null) {
+						String user = player.username;
+						if (user != null && user.equals(p.username) && player != p) {
+							wsb.writeByte(FAILURE); // name in use
+							//wsb.write(USER_IN_USE.length() & 0xFF);
+							wsb.writeString(USER_IN_USE);
+							wsb.synch();
+							incomplete[i] = null;
+							System.out.println("Username already in use: " + p.username);
+							return;
+						}
+					}
+				}
+
+				System.out.println("Player logged in: " + new String(name));
+			}
+            
+		/*int type = wsb.readByte();
+		int version = wsb.readByte();
+		if (version != Constants.VERSION) {
+			wsb.writeByte(FAILURE); // bad version
+			//wsb.writeByte(BAD_VERSION.length() & 0xFF);
+			wsb.writeString(BAD_VERSION);
+			wsb.synch();//flush();
+			return;
+		}
+            
+		/*  int len = wsb.readByte(); //in.read();
+		byte[] strb = new byte[len];
+		int i = 0;
+		byte[] name = new byte[len];
+		while(i != len) {
+			strb[i] = (byte)wsb.readByte();
+			i++;
+		}
+		//c.readName = true;
+		System.out.println("Player logged in: " + new String(strb));
+		int read = in.read(strb);
+		if(len != read)
+		return;*/
+		//Player p = new Player(wsb);
+		//p.username = new String(strb);
+
+			int index = -1;
+			for (int k = 0; k < players.length; k++) {
+				if (players[k] == null) {
+					index = k;
+					break;
+				}
+			}
+
+			if(index == -1) {
+				wsb.writeByte(FAILURE);
+				//out.writeByte(TOO_MANY_PL.length() & 0xFF);
+				//out.writeByte(TOO_MANY_PL.getBytes());
+				wsb.writeString(TOO_MANY_PL);
+				wsb.synch();
+				incomplete[i] = null;
+				return;
+			}
+
+			p.id = index;
+			p.connected = true;
+			System.out.println("p.id = " + p.id);
+			p.type = index % 2;
+			incomplete[i] = null;
+			players[index] = p;
+
+			wsb.writeByte(SUCCESS_LOG); // success
+			wsb.writeByte(p.id);
+			wsb.synch();
+			//System.out.println("Notifying login of new player " + p.username);
+			for(Player plr : players) {
+				if(plr != null && plr != p) {
+					p.notifyLogin(plr);        // Tell p about all players already logged in
+					plr.notifyLogin(p);        // Tell all already logged in players about p
+					p.handleMove(plr);
+					plr.handleMove(p);
+				}
+			}
+
+			p.notifyLogin(p);
+
+			p.initPosition(players, mapClass.currentPath);
+			
+			System.out.println("Player logged in: " + p.username + ", id: " + p.id);
+			syncNumPlayers();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
     private void syncNumPlayers() {
         /*	if((worldserver == null) || !worldserver.isConnected())
@@ -357,7 +464,7 @@ public class Server implements Runnable {
 
             p.connected = false;
             players[p.id] = null;
-            System.out.println("Logged out: " + p.id);
+            System.out.println("Logged out: " + p.username);
 
             syncNumPlayers();
             if (getNumPlayers() < 2) {

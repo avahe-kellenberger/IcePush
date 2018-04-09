@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import javax.net.ssl.*;
+import java.util.*;
+
 import net.threesided.shared.InterthreadQueue;
 
 public class InternetRelayChat implements Runnable {
@@ -31,12 +34,14 @@ public class InternetRelayChat implements Runnable {
 	
 	public void run() {				// This method runs on its own dedicated thread
 		try {
-			s = new Socket(server, port);
+			s = createTheSocket(server, port); //new Socket(server, port);
 			bw = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
 			br = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			
 			bw.write("NICK " + nick + " \n");
+			bw.flush();
 			bw.write("USER IcePush * * :IcePush Client Server\n");
+			bw.flush();
 			bw.write("JOIN " + channel + "\n");
 			bw.flush();
 			
@@ -45,7 +50,28 @@ public class InternetRelayChat implements Runnable {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-	} 
+	}
+
+	private Socket createTheSocket(String server, int port) throws java.io.IOException {
+		//SSLTool.disableCertificateValidation();
+		SSLSocket client = (SSLSocket)(SSLTool.disableCertificateValidation().getSocketFactory().createSocket(server, port));
+		System.out.println(java.util.Arrays.toString(client.getSupportedCipherSuites()));
+		//client.setEnabledCipherSuites(new String[] {"SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA"});
+
+		String[] supported = client.getSupportedCipherSuites();
+
+			List<String> list= new ArrayList<String>();
+			for(int i = 0; i < supported.length; i++) {
+				if(supported[i].indexOf("_anon_") > 0) {
+				list.add(supported[i]);
+			}
+		}
+
+		String[] anonCipherSuites = list.toArray(new String[0]);
+		//client.setEnabledCipherSuites(anonCipherSuites);
+		return client;
+
+	}
 	
 	public static void processInput() {		// This method runs on the application thread
 		String input;
