@@ -150,6 +150,18 @@ public class InternetRelayChat implements Runnable {
 			if(args.length > 1) kicks.push(args[1]);
 			else	sendMessage("Not enough arguments for command");
 		}
+		if(args[0].equals("join")) {
+			if(args.length > 1) {
+				System.out.println(args[1]);
+				try {
+					bw.write("JOIN " + args[1] + "\n");
+					bw.flush();
+				} catch (Exception ioe) {
+					ioe.printStackTrace();
+				}
+			}
+			else	sendMessage("Not enough arguments for command");
+		}	
 	}
 
 	private static void processLine(String input) {
