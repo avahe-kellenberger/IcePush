@@ -1,0 +1,273 @@
+<html5 lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>IcePush Online</title>
+
+		<style> 
+			body {
+				background : #E0E0FF;
+			}
+
+			fieldset {
+				border: 1px solid #888888;
+				background: #F0F0F0;
+				margin-right: auto;
+				margin-left: auto;
+			}
+
+			legend {
+				font-size: 1.4em;
+			}
+
+			.trim {
+				margin-right: 15%;
+				margin-left: 15%;
+			}
+
+			.center {
+				text-align: center;
+				margin-right: 25%;
+				margin-left: 25%;
+			}
+
+			.white {
+				background: white;
+				margin: 5%;
+				padding: 1%;
+				margin-right: auto;
+				margin-left: auto;
+				
+			}
+
+			canvas { 
+				font-family: chatFont;
+			}
+
+			@font-face {
+				font-family: chatFont;
+				src: url('./data/dina.ttf');
+				src: url('../data/dina.ttf');
+			}
+		</style>
+		<script src="./js/UI.js"></script>
+		<script src="./js/PacketBuffer.js"></script>
+		<script src="./js/IcePush.js"></script>
+		<script>
+
+			var selectedCol = '#0040FF';
+			var deselectedCol = '#001040';
+			var selectedBox;
+			var img;
+			var logOut;
+
+			//var width, height;
+			
+			var MOVE_REQUEST = 8;
+			var END_MOVE = 9;
+			var LOGOUT = 10;
+			var PING = 14;
+			var CHAT_REQUEST = 16;
+
+			var WELCOME = 0, HELP = 1, PLAY = 2;
+			var state = WELCOME;
+			var globalContext;
+
+			function isArrow(code) {
+				if(code === KEY_LEFT||code === KEY_UP||
+				code === KEY_RIGHT||code === KEY_DOWN) return true;
+				return false;
+			}
+
+			function oneChar(s) {
+				return (s.length === 1);
+			}
+
+			function nonAlpha(code) {
+				if(code < 32 || code > 126||isArrow(code)) return true;
+				return false;
+			}
+	
+			window.onload = function() {
+	
+				var canvas = document.getElementById("clientCanvas");
+				width = canvas.width;
+				height = canvas.height;
+				var ct = canvas.getContext("2d");
+				ct.translate(0.5, 0.5);	// This fixes lots of problems with lines getting drawn over pixel boundaries because of a design error in the canvas element
+				globalContext = ct;
+				img = document.createElement('img');
+				
+				img.onload = function() {
+					initUI(ct, img, width, height);
+					addHandlers();
+				};
+
+				img.src = runLocal ? '../images/icepush.png' : 'images/icepush.png';
+			}
+
+			function addHandlers() {
+
+				var canvas = document.getElementById("clientCanvas");
+
+				canvas.onmousemove = function(event) {
+					var brect = canvas.getBoundingClientRect();
+					var x = event.clientX - Math.floor(brect.left);
+					var y = event.clientY - Math.floor(brect.top);
+
+					var select = false;
+					select = loginButton.containsPoint(x, y);
+					if(select !== loginButton.selected && state === WELCOME) {
+						loginButton.selected = select;
+						loginButton.drawButton(globalContext);
+					}
+					
+					select = helpButton.containsPoint(x, y);
+					if(select !== helpButton.selected && state === WELCOME) {
+						helpButton.selected = select;
+						helpButton.drawButton(globalContext);
+					}
+					
+					if(state === PLAY) {
+						select = logoutButton.containsPoint(x, y);
+						if(select !== logoutButton.selected) {
+							logoutButton.selected = select;
+							logoutButton.drawButton(globalContext);
+						}
+					}
+
+					if(state === HELP) {
+						select = backButton.containsPoint(x, y);
+						if(select !== backButton.selected) {
+							backButton.selected = select;
+							backButton.drawButton(globalContext);
+						}
+					}
+				};
+
+				function handleKey(e) {
+					if(e) {
+						e.preventDefault(); // Stops page from unloading when deleting characters from the text fields
+					}
+					console.log(e);
+				
+					var keyCode = e.keyCode;
+
+					if(isArrow(keyCode) && loggedIn) {
+						arrowArray[keyCode] = true;
+						return;
+					}
+					
+					if(keyCode !== 8 && keyCode !== 13 && !oneChar(e.key)) {
+						return;
+					}
+
+					if(keyCode !== 8 && keyCode !== 13) {
+						keyCode = e.key.charCodeAt(0);
+						console.log('new keycode: ' + keyCode);
+					}
+
+					if(!loggedIn) {
+						if(keyCode === 8) {
+							selectedBox.append(8);
+							selectedBox.drawComponent(globalContext);
+						} else {
+							var c = String.fromCharCode(keyCode);
+							selectedBox.append(c);
+							selectedBox.drawComponent(globalContext);
+						}
+					} else {
+						keyArray[keyCode] = true;
+					}
+				}
+
+				window.onkeydown = function(e) {
+					console.log('key down');
+					handleKey(e);
+				};
+
+				window.onkeypress = function(e) {
+					console.log('key press');
+					handleKey(e);
+				};
+
+				window.onkeyup = function(e) {
+					console.log('keyup: ' + e.keyCode);
+					var code = e.keyCode;
+					if(isArrow(code)) {
+						arrowArray[code] = false;
+					} else {
+						keyArray[e.keyCode] = false;
+					}
+				}
+
+				canvas.onclick = function(event) {
+					var brect = canvas.getBoundingClientRect();
+					var x = event.clientX - Math.floor(brect.left);
+					var y = event.clientY - Math.floor(brect.top);
+					
+					var comps = [usernameTextBox, serverTextBox, helpButton, loginButton];
+					if(usernameTextBox.containsPoint(x,y) && (!loggedIn) ) {
+						selectedBox = usernameTextBox;
+						usernameTextBox.drawComponent(globalContext);
+						serverTextBox.drawComponent(globalContext);
+					}
+
+					if(serverTextBox.containsPoint(x,y) && (!loggedIn)) {
+						selectedBox = serverTextBox;
+						serverTextBox.drawComponent(globalContext);
+						usernameTextBox.drawComponent(globalContext);
+					}
+
+					if(helpButton.containsPoint(x, y) && state === WELCOME) {
+						console.log('help clicked');
+						ct.drawImage(img, 0, 0);
+						state = HELP;
+						showHelpPage(ct);
+						backButton.drawButton(globalContext);
+						return;
+					}
+
+					if(loginButton.containsPoint(x, y) && state === WELCOME) {
+
+						if(!loggedIn) login(usernameTextBox.value);
+						loginButton.selected = false;
+					}
+
+					if(logoutButton.containsPoint(x, y)) {
+						console.log('logout clicked ' + loggedIn);
+						if(loggedIn) logOut = true;
+						return;
+					}
+
+					if(backButton.containsPoint(x, y)  && state === HELP) {
+						console.log('back clicked state =' + state);
+						state = WELCOME;
+						canvas.onmousemove(event);
+						renderClient(ct, img);
+					}
+
+					if(state === PLAY) {
+						addProjectile = true;
+						projectileX = x;
+						projectileY = y;
+					}
+						
+				};
+
+				document.body.onmousedown = canvas.onmousedown = function(e) {
+					e.preventDefault();
+					return false;
+				};
+			};
+		</script>
+
+	</head>
+	<body>
+	<div class="white">
+		<fieldset class="center">
+			<legend>Play IcePush.</legend>
+			<canvas id="clientCanvas" height="480" width="800"></canvas>
+		</fieldset>
+	</div>	
+	</body>
+</html>
