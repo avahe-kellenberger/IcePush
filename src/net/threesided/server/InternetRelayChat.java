@@ -42,11 +42,16 @@ public class InternetRelayChat implements Runnable {
 			bw.flush();
 			bw.write("USER IcePush * * :IcePush Client Server\n");
 			bw.flush();
-			bw.write("JOIN " + channel + "\n");
-			bw.flush();
-			
+
 			String input;
-			while((input = br.readLine()) != null) inputs.push(input);
+			boolean joined = false;
+			while((input = br.readLine()) != null) {
+				inputs.push(input);
+				if(input.contains("MODE") && !joined) {
+					inputs.push(":_^_!triangle@internal PRIVMSG :.join " + channel);	// Attempt to join channel only after first time umode is set
+					joined = true;
+				}
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
