@@ -85,7 +85,7 @@ public class InternetRelayChat implements Runnable {
 					ioe.printStackTrace();
 				}
 			}
-            processLine(input);
+			processLine(input);
 		}
 	}
 	
@@ -153,18 +153,19 @@ public class InternetRelayChat implements Runnable {
 			final String cmd = partsSpace[1].toUpperCase();
 			if (cmd.equals("PRIVMSG")) {
 				final String from = partsSpace[0].split("!")[0].substring(1);
-				final String msg = partsColon[partsSpace.length - 1];
+				final String msg = partsColon[partsColon.length - 1];
 				if (msg.startsWith(".")) {
-                    handleCommand(from, msg.substring(1));
-                }
+					handleCommand(from, msg.substring(1));
+				}
 				if (!msg.contains("\u0001")) {
-                    msgs.push("<" + from + "> " + msg);
-                }
+					msgs.push("<" + from + "> " + msg);
+				}
 			} else if (cmd.equals("KICK") || cmd.equals("INVITE")) {
 				bw.write("JOIN " + channel + "\n");
 				bw.flush();
 			}
 		} catch(Exception e) {
+			System.out.print("Exception while processing IRC line: ");
 			e.printStackTrace();
 		}
 	}
