@@ -85,25 +85,7 @@ public class InternetRelayChat implements Runnable {
 					ioe.printStackTrace();
 				}
 			}
-
-			try {
-				String[] partsColon = input.split(":", 3);
-				String[] partsSpace = input.split(" ");
-				String cmd = partsSpace[1].toUpperCase();
-				if(cmd.equals("PRIVMSG")) {
-					String from = partsSpace[0].split("!")[0].substring(1);
-					String msg = partsColon[2];
-					if(msg.startsWith(".")) handleCommand(from, msg.substring(1));
-					if(!msg.contains("\u0001")) {
-						msgs.push("<" + from + "> " + msg);
-					} else if(cmd.equals("KICK") || cmd.equals("INVITE")) {
-						bw.write("JOIN " + channel + "\n");
-						bw.flush();
-					}
-				}
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
+            processLine(input);
 		}
 	}
 	
@@ -166,17 +148,19 @@ public class InternetRelayChat implements Runnable {
 
 	private static void processLine(String input) {
 		try {
-			String[] partsColon = input.split(":", 3);
-			String[] partsSpace = input.split(" ");
-			String cmd = partsSpace[1].toUpperCase();
-			if(cmd.equals("PRIVMSG")) {
-				String from = partsSpace[0].split("!")[0].substring(1);
-				String msg = partsColon[2];
-				if(msg.startsWith("."))
-					handleCommand(from, msg.substring(1));
-				if(!msg.contains("\u0001"))
-					msgs.push("<" + from + "> " + msg);
-			} else if(cmd.equals("KICK") || cmd.equals("INVITE")) {
+			final String[] partsColon = input.split(":");
+			final String[] partsSpace = input.split(" ");
+			final String cmd = partsSpace[1].toUpperCase();
+			if (cmd.equals("PRIVMSG")) {
+				final String from = partsSpace[0].split("!")[0].substring(1);
+				final String msg = partsColon[partsSpace.length - 1];
+				if (msg.startsWith(".")) {
+                    handleCommand(from, msg.substring(1));
+                }
+				if (!msg.contains("\u0001")) {
+                    msgs.push("<" + from + "> " + msg);
+                }
+			} else if (cmd.equals("KICK") || cmd.equals("INVITE")) {
 				bw.write("JOIN " + channel + "\n");
 				bw.flush();
 			}
