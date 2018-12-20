@@ -1,3 +1,6 @@
+const selectedCol = '#0040FF';
+const deselectedCol = '#001040';
+
 var serverTextBox,
 usernameTextBox,
 helpButton,

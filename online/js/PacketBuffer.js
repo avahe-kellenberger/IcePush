@@ -1,4 +1,4 @@
-var PING = -37;
+const PING = -37;
 
 function PacketBuffer(ws) {
 	var p = {};

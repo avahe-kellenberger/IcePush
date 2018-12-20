@@ -1,0 +1,240 @@
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>IcePush Online</title>
+
+    <style>
+        body {
+            background: #E0E0FF;
+        }
+
+        fieldset {
+            border: 1px solid #888888;
+            background: #F0F0F0;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        legend {
+            font-size: 1.4em;
+        }
+
+        .center {
+            text-align: center;
+            margin-right: 25%;
+            margin-left: 25%;
+        }
+
+        .white {
+            background: white;
+            padding: 1%;
+            margin: 5% auto;
+
+        }
+
+        canvas {
+            font-family: chatFont, serif;
+        }
+
+        @font-face {
+            font-family: chatFont;
+            src: url('./data/dina.ttf');
+        }
+    </style>
+    <script src="online/js/UI.js"></script>
+    <script src="online/js/PacketBuffer.js"></script>
+    <script src="online/js/IcePush.js"></script>
+    <script>
+
+        var selectedBox;
+        let img;
+        let logOut;
+
+        const WELCOME = 0, HELP = 1, PLAY = 2;
+        let state = WELCOME;
+        let globalContext;
+
+        function isArrow(code) {
+            return code === KEY_LEFT || code === KEY_UP ||
+                   code === KEY_RIGHT || code === KEY_DOWN;
+        }
+
+        function oneChar(s) {
+            return s.length === 1;
+        }
+
+        window.onload = function () {
+            const canvas = document.getElementById("clientCanvas");
+            width = canvas.width;
+            height = canvas.height;
+            const ct = canvas.getContext('2d');
+            // This fixes lots of problems with lines getting drawn over pixel boundaries because of a design error in the canvas element
+            ct.translate(0.5, 0.5);	globalContext = ct;
+            img = document.createElement('img');
+
+            img.onload = function () {
+                initUI(ct, img, width, height);
+                addHandlers();
+            };
+
+            img.src = './images/icepush.png';
+        };
+
+        function addHandlers() {
+
+            const canvas = document.getElementById("clientCanvas");
+
+            canvas.onmousemove = function (event) {
+                const brect = canvas.getBoundingClientRect();
+                const x = event.clientX - Math.floor(brect.left);
+                const y = event.clientY - Math.floor(brect.top);
+
+                let select = loginButton.containsPoint(x, y);
+                if (select !== loginButton.selected && state === WELCOME) {
+                    loginButton.selected = select;
+                    loginButton.drawButton(globalContext);
+                }
+
+                select = helpButton.containsPoint(x, y);
+                if (select !== helpButton.selected && state === WELCOME) {
+                    helpButton.selected = select;
+                    helpButton.drawButton(globalContext);
+                }
+
+                if (state === PLAY) {
+                    select = logoutButton.containsPoint(x, y);
+                    if (select !== logoutButton.selected) {
+                        logoutButton.selected = select;
+                        logoutButton.drawButton(globalContext);
+                    }
+                }
+
+                if (state === HELP) {
+                    select = backButton.containsPoint(x, y);
+                    if (select !== backButton.selected) {
+                        backButton.selected = select;
+                        backButton.drawButton(globalContext);
+                    }
+                }
+            };
+
+            function handleKey(e) {
+                if (e) {
+                    // Stops page from unloading when deleting characters from the text fields.
+                    e.preventDefault();
+                }
+
+                let keyCode = e.keyCode;
+
+                if (isArrow(keyCode) && loggedIn) {
+                    arrowArray[keyCode] = true;
+                    return;
+                }
+
+                if (keyCode !== 8 && keyCode !== 13 && !oneChar(e.key)) {
+                    return;
+                }
+
+                if (keyCode !== 8 && keyCode !== 13) {
+                    keyCode = e.key.charCodeAt(0);
+                }
+
+                if (!loggedIn) {
+                    if (keyCode === 8) {
+                        selectedBox.append(8);
+                        selectedBox.drawComponent(globalContext);
+                    } else {
+                        selectedBox.append(String.fromCharCode(keyCode));
+                        selectedBox.drawComponent(globalContext);
+                    }
+                } else {
+                    keyArray[keyCode] = true;
+                }
+            }
+
+            window.onkeydown = function (e) {
+                handleKey(e);
+            };
+
+            window.onkeypress = function (e) {
+                handleKey(e);
+            };
+
+            window.onkeyup = function (e) {
+                if (isArrow(e.keyCode)) {
+                    arrowArray[e.keyCode] = false;
+                } else {
+                    keyArray[e.keyCode] = false;
+                }
+            };
+
+            canvas.onclick = function (event) {
+                var brect = canvas.getBoundingClientRect();
+                var x = event.clientX - Math.floor(brect.left);
+                var y = event.clientY - Math.floor(brect.top);
+
+                const comps = [usernameTextBox, serverTextBox, helpButton, loginButton];
+                if (usernameTextBox.containsPoint(x, y) && (!loggedIn)) {
+                    selectedBox = usernameTextBox;
+                    usernameTextBox.drawComponent(globalContext);
+                    serverTextBox.drawComponent(globalContext);
+                }
+
+                if (serverTextBox.containsPoint(x, y) && (!loggedIn)) {
+                    selectedBox = serverTextBox;
+                    serverTextBox.drawComponent(globalContext);
+                    usernameTextBox.drawComponent(globalContext);
+                }
+
+                if (helpButton.containsPoint(x, y) && state === WELCOME) {
+                    ct.drawImage(img, 0, 0);
+                    state = HELP;
+                    showHelpPage(ct);
+                    backButton.drawButton(globalContext);
+                    return;
+                }
+
+                if (loginButton.containsPoint(x, y) && state === WELCOME) {
+                    if (!loggedIn){
+                        login(usernameTextBox.value);
+                    }
+                    loginButton.selected = false;
+                }
+
+                if (logoutButton.containsPoint(x, y)) {
+                    if (loggedIn){
+                        logOut = true;
+                    }
+                    return;
+                }
+
+                if (backButton.containsPoint(x, y) && state === HELP) {
+                    state = WELCOME;
+                    canvas.onmousemove(event);
+                    renderClient(ct, img);
+                }
+
+                if (state === PLAY) {
+                    addProjectile = true;
+                    projectileX = x;
+                    projectileY = y;
+                }
+
+            };
+            document.body.onmousedown = canvas.onmousedown = function (e) {
+                e.preventDefault();
+                return false;
+            };
+        }
+    </script>
+
+</head>
+<body>
+<div class="white">
+    <fieldset class="center">
+        <legend>Play IcePush.</legend>
+        <canvas id="clientCanvas" height="480" width="800"></canvas>
+    </fieldset>
+</div>
+</body>
+</html>
