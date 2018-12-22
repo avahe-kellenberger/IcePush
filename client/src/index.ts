@@ -1,4 +1,5 @@
 import {IcePush} from "./ts/icepush/IcePush";
+import {ClientAssets} from "./ts/icepush/asset/ClientAssets";
 
 console.log('[IcePush] Loading canvas...');
 
@@ -9,6 +10,9 @@ if (ctx == null) {
     throw Error('Failed to load canvas rendering context!');
 }
 
-const icepush: IcePush = new IcePush(ctx);
-icepush.start();
-console.log('[IcePush] Game Started.');
+const assetPromise: Promise<void> = ClientAssets.load();
+assetPromise.then(() => {
+    const icepush: IcePush = new IcePush(ctx);
+    icepush.start();
+    console.log('[IcePush] Game Started.');
+});

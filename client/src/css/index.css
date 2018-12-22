@@ -2,24 +2,21 @@ body {
     background: #E0E0FF;
 }
 
-fieldset {
-    border: 1px solid #888888;
-    background: #F0F0F0;
-    margin-right: auto;
-    margin-left: auto;
-}
-
 legend {
     font-size: 1.4em;
 }
 
-.center {
+.container {
     text-align: center;
-    margin-right: 25%;
-    margin-left: 25%;
+    border: 1px solid #888888;
+    background: #F0F0F0;
+    padding: 1%;
+    display: inline-block;
+    margin: 0 auto;
 }
 
 .white {
+    text-align: center;
     background: white;
     padding: 1%;
     margin: 5% auto;
