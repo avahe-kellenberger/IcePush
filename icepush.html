@@ -2,48 +2,9 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>IcePush Online</title>
-
-	<style>
-		body {
-			background: #E0E0FF;
-		}
-
-		fieldset {
-			border: 1px solid #888888;
-			background: #F0F0F0;
-			margin-right: auto;
-			margin-left: auto;
-		}
-
-		legend {
-			font-size: 1.4em;
-		}
-
-		.center {
-			text-align: center;
-			margin-right: 25%;
-			margin-left: 25%;
-		}
-
-		.white {
-			background: white;
-			padding: 1%;
-			margin: 5% auto;
-
-		}
-
-		canvas {
-			font-family: chatFont, serif;
-		}
-
-		@font-face {
-			font-family: chatFont;
-			src: url('./data/dina.ttf');
-		}
-	</style>
-	<script src="online/js/UI.js"></script>
-	<script src="online/js/PacketBuffer.js"></script>
-	<script src="online/js/IcePush.js"></script>
+	<script src="client/js/UI.js"></script>
+	<script src="client/js/PacketBuffer.js"></script>
+	<script src="client/js/IcePush.js"></script>
 	<script>
 
 		window.onload = function () {
@@ -51,8 +12,7 @@
 			width = canvas.width;
 			height = canvas.height;
 			const ct = canvas.getContext('2d');
-			// This fixes lots of problems with lines getting drawn over pixel boundaries because of a design error in the canvas element
-			ct.translate(0.5, 0.5);	globalContext = ct;
+			globalContext = ct;
 			img = document.createElement('img');
 
 			img.onload = function () {
@@ -60,18 +20,19 @@
 				addHandlers();
 			};
 
-			img.src = './images/icepush.png';
+			img.src = 'resources/images/icepush.png';
 			document.body.onmousedown = canvas.onmousedown = function (e) {
 				e.preventDefault();
 				return false;
 			};
 		};
 	</script>
+	<link rel="stylesheet" href="client/css/index.css">
 </head>
 <body>
 <div class="white">
 	<fieldset class="center">
-		<legend>Play IcePush.</legend>
+		<legend>Play IcePush</legend>
 		<canvas id="clientCanvas" height="480" width="800"></canvas>
 	</fieldset>
 </div>

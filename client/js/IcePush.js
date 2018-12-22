@@ -135,7 +135,7 @@ function checkKeys() {
 }
 
 const sprites = [document.createElement('img'), document.createElement('img'), document.createElement('img')];
-const imageBase = "./images/";
+const imageBase = "resources/images/";
 sprites[0].src = imageBase + 'tree.png';
 sprites[1].src = imageBase + 'snowman.png';
 sprites[2].src = imageBase + 'present.png';
@@ -214,11 +214,6 @@ function checkInput() {
 		const dy = projectileY - (players[myId].y + (img.height / 2));
 		if (dx === 0 && dy === 0) {
 			return;
-		}
-
-		let angle = Math.floor((128 * Math.atan2(dx, dy)) / (Math.PI));
-		if (angle < 0) {
-			angle += 256;
 		}
 		addProjectile = false;
 	}
