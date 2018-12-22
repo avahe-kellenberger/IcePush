@@ -1,39 +1,16 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>IcePush Online</title>
-	<script src="client/js/UI.js"></script>
-	<script src="client/js/PacketBuffer.js"></script>
-	<script src="client/js/IcePush.js"></script>
-	<script>
-
-		window.onload = function () {
-			const canvas = document.getElementById("clientCanvas");
-			width = canvas.width;
-			height = canvas.height;
-			const ct = canvas.getContext('2d');
-			globalContext = ct;
-			img = document.createElement('img');
-
-			img.onload = function () {
-				initUI(ct, img, width, height);
-				addHandlers();
-			};
-
-			img.src = 'resources/images/icepush.png';
-			document.body.onmousedown = canvas.onmousedown = function (e) {
-				e.preventDefault();
-				return false;
-			};
-		};
-	</script>
 	<link rel="stylesheet" href="client/css/index.css">
+	<script async="async" src="client/dist/bundle.js"></script>
 </head>
 <body>
 <div class="white">
 	<fieldset class="center">
 		<legend>Play IcePush</legend>
-		<canvas id="clientCanvas" height="480" width="800"></canvas>
+		<canvas id="canvas" height="480" width="800"></canvas>
 	</fieldset>
 </div>
 </body>
