@@ -31,5 +31,5 @@ canvas {
 
 @font-face {
     font-family: chatFont;
-    src: url('../../resources/dina.ttf');
+    src: url('../../../resources/dina.ttf');
 }

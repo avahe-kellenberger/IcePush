@@ -5,7 +5,7 @@ import {Entity} from "./Entity";
 export class Game implements Updatable {
 
     protected readonly ctx: CanvasRenderingContext2D;
-    protected readonly gameEngine: GameEngine;
+    protected gameEngine: GameEngine|undefined;
     protected readonly entities: Set<Entity>;
 
     /**
@@ -14,22 +14,29 @@ export class Game implements Updatable {
      */
     protected constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
-        this.gameEngine = new GameEngine(this);
         this.entities = new Set();
     }
 
     /**
      * Starts the game.
+     * @return If the game was not running and was successfully started.
      */
     public start(): boolean {
+        if (this.gameEngine === undefined) {
+            this.gameEngine = new GameEngine(this);
+        }
         return this.gameEngine.start();
     }
 
     /**
      * Pauses the game.
+     * @return If the game was running and was successfully paused.
      */
     public pause(): boolean {
-        return this.gameEngine.stop();
+        if (this.gameEngine !== undefined) {
+            return this.gameEngine.stop();
+        }
+        return false;
     }
 
     /**

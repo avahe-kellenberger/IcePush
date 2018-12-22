@@ -1,15 +1,16 @@
 {
-  "compileOnSave": true,
+  "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./dist",
-    "baseUrl": "node_modules",
-    "module": "commonjs",
-    "allowSyntheticDefaultImports": true,
+    "outDir": "./src/dist",
+    "baseUrl": "./node_modules",
     "target": "es2017",
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": true,
-    "strict": true,
+    "strictFunctionTypes": false,
     "noImplicitReturns": true,
-    "strictFunctionTypes": false
-  }
+    "strict": true
+  },
+  "include": [
+    "src/ts/**/*"
+  ]
 }

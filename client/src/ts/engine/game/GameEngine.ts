@@ -26,7 +26,7 @@ export class GameEngine {
         }
         this.game.update(Time.msToSeconds(elapsed));
         this.game.render();
-        requestAnimationFrame(this.loop);
+        requestAnimationFrame((time) => this.loop(time));
     }
 
     /**
@@ -38,7 +38,7 @@ export class GameEngine {
             return false;
         }
         this.stopped = false;
-        requestAnimationFrame(this.loop);
+        requestAnimationFrame((time) => this.loop(time));
         return true;
     }
 
