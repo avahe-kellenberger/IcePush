@@ -1,5 +1,6 @@
 import {IcePush} from "./ts/icepush/IcePush";
 import {ClientAssets} from "./ts/icepush/asset/ClientAssets";
+import {HomeScreen} from "./ts/icepush/ui/HomeScreen";
 
 console.log('[IcePush] Loading canvas...');
 
@@ -12,7 +13,7 @@ if (ctx == null) {
 
 const assetPromise: Promise<void> = ClientAssets.load();
 assetPromise.then(() => {
-    const icepush: IcePush = new IcePush(ctx);
+    const icepush: IcePush = new IcePush(new HomeScreen(), ctx);
     icepush.start();
     console.log('[IcePush] Game Started.');
 });

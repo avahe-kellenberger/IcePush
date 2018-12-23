@@ -1,21 +1,16 @@
 import {Game} from "../engine/game/Game";
-import {ClientAssets} from "./asset/ClientAssets";
+import {Scene} from "../engine/game/Scene";
 
 export class IcePush extends Game {
 
     /**
      *
      */
-    constructor(ctx: CanvasRenderingContext2D) {
-        super(ctx);
-    }
-
-    /**
-     * @override
-     */
-    public render(): void {
-        super.render();
-        this.ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
+    constructor(scene: Scene, ctx: CanvasRenderingContext2D) {
+        super(scene, ctx);
+        /**
+         * TODO: Add entities to render.
+         */
     }
 
 }

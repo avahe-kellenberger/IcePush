@@ -1,28 +1,15 @@
-import {Renderable} from "../../engine/game/Renderable";
+import {Scene} from "../../engine/game/Scene";
+import {ClientAssets} from "../asset/ClientAssets";
 
-export class HomeScreen implements Renderable {
-
-    /**
-     *
-     */
-    constructor() {
-
-    }
-
+export class HomeScreen extends Scene {
 
     /**
      * @override
      */
     public render(ctx: CanvasRenderingContext2D): void {
-        /*
-         * TODO: Render home screen components.
-         *
-         * 1. Server text box
-         * 2. Username text box
-         * 3. Login button
-         * 4. Help button
-         * 5. All strings next to components, etc.
-         */
+        // Render the background image.
+        ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
+        super.render(ctx);
     }
 
 }

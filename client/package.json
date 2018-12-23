@@ -10,7 +10,8 @@
   },
   "dependencies": {},
   "scripts": {
-    "webpack-devel": "npx webpack --mode development",
-    "webpack-production": "npx webpack --mode production"
+    "watch-webpack": "npx webpack --mode development --watch",
+    "build-webpack-devel": "npx webpack --mode development --watch",
+    "build-webpack-production": "npx webpack --mode production --watch"
   }
 }

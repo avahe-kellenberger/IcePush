@@ -1,5 +1,5 @@
 import {Updatable} from "./Updatable";
-import {Renderable} from "./Renderable";
+import {Renderable} from "../ui/Renderable";
 
 /**
  * @author Prestige

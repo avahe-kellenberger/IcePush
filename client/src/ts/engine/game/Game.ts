@@ -1,20 +1,43 @@
-import {Updatable} from "./Updatable";
+import {Updatable} from "./entity/Updatable";
 import {GameEngine} from "./GameEngine";
-import {Entity} from "./Entity";
+import {Scene} from "./Scene";
 
 export class Game implements Updatable {
 
     protected readonly ctx: CanvasRenderingContext2D;
     protected gameEngine: GameEngine|undefined;
-    protected readonly entities: Set<Entity>;
+    protected currentScene: Scene;
 
     /**
      * Creates a game which is rendered on the given ctx.
+     * @param scene
      * @param ctx The 2d context of the game ctx.
      */
-    protected constructor(ctx: CanvasRenderingContext2D) {
+    protected constructor(scene: Scene, ctx: CanvasRenderingContext2D) {
+        this.currentScene = scene;
         this.ctx = ctx;
-        this.entities = new Set();
+    }
+
+    /**
+     * @return The `Game`'s current `Scene`.
+     */
+    public getScene(): Scene {
+        return this.currentScene;
+    }
+
+    /**
+     * Sets the current screen of the game.
+     * Only one screen may be shown at a time.
+     *
+     * @param scene The screen to display.
+     * @return If the screen was changed.
+     */
+    public setScene(scene: Scene): boolean {
+        if (this.currentScene === scene) {
+            return false;
+        }
+        this.currentScene = scene;
+        return true;
     }
 
     /**
@@ -40,35 +63,17 @@ export class Game implements Updatable {
     }
 
     /**
-     * Adds an `Entity` to the game.
-     * @param entity The Entity to add.
-     * @return If the entity was added successfully.
-     */
-    public add(entity: Entity): boolean {
-        return this.entities.size !== this.entities.add(entity).size;
-    }
-
-    /**
-     * Removes an `Entity` from the game.
-     * @param entity The Entity to remove.
-     * @return If the entity was removed successfully.
-     */
-    public remove(entity: Entity): boolean {
-        return this.entities.delete(entity);
-    }
-
-    /**
      * @override
      */
     public update(delta: number): void {
-        this.entities.forEach(e => e.update(delta));
+        this.currentScene.update(delta);
     }
 
     /**
-     * Renders the contents of the game.
+     * Renders the current scene.
      */
     public render(): void {
-        this.entities.forEach(e => e.render(this.ctx));
+        this.currentScene.render(this.ctx);
     }
 
 }
