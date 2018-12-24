@@ -6,24 +6,19 @@ export class Game implements Updatable {
 
     protected readonly ctx: CanvasRenderingContext2D;
     protected gameEngine: GameEngine|undefined;
-    protected currentScene: Scene;
+    protected currentScene: Scene|undefined;
 
     /**
      * Creates a game which is rendered on the given ctx.
-     * @param scene
      * @param ctx The 2d context of the game ctx.
      */
-    protected constructor(scene: Scene, ctx: CanvasRenderingContext2D) {
-        this.currentScene = scene;
+    constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
-
-        // Notify the initial Scene.
-        this.currentScene.onSwitchedToCurrent();
     }
     /**
      * @return The `Game`'s current `Scene`.
      */
-    public getScene(): Scene {
+    public getScene(): Scene|undefined {
         return this.currentScene;
     }
 
@@ -38,11 +33,13 @@ export class Game implements Updatable {
         if (this.currentScene === scene) {
             return false;
         }
-        const oldScene: Scene = this.currentScene;
+        const oldScene: Scene|undefined = this.currentScene;
         this.currentScene = scene;
 
         // Notify the Scenes AFTER they have been set.
-        oldScene.onSwitchedFromCurrent();
+        if (oldScene !== undefined) {
+            oldScene.onSwitchedFromCurrent();
+        }
         this.currentScene.onSwitchedToCurrent();
         return true;
     }
@@ -73,14 +70,18 @@ export class Game implements Updatable {
      * @override
      */
     public update(delta: number): void {
-        this.currentScene.update(delta);
+        if (this.currentScene !== undefined) {
+            this.currentScene.update(delta);
+        }
     }
 
     /**
      * Renders the current scene.
      */
     public render(): void {
-        this.currentScene.render(this.ctx);
+        if (this.currentScene !== undefined) {
+            this.currentScene.render(this.ctx);
+        }
     }
 
 }

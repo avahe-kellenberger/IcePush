@@ -1,14 +1,17 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
+import {Game} from "../../engine/game/Game";
+import {GameScene} from "./GameScene";
 
-export class HomeScreen extends Scene {
+export class HomeScene extends Scene {
 
     private readonly inputUsername: HTMLInputElement;
     private readonly btnLogin: HTMLButtonElement;
     private readonly btnHelp: HTMLButtonElement;
 
-    constructor() {
-        super();
+    constructor(game: Game) {
+        super(game);
+        console.log(`game undefined? ${this.game === undefined}`);
         this.inputUsername = document.createElement("input");
         this.inputUsername.type = 'text';
         this.inputUsername.placeholder = 'Username';
@@ -44,6 +47,7 @@ export class HomeScreen extends Scene {
      */
     private login(): boolean {
         console.log(`Attempting login as \'${this.inputUsername.value}\'`);
+        this.game.setScene(new GameScene(this.game));
         return false;
     }
 
