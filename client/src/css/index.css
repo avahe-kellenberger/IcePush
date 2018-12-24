@@ -19,11 +19,8 @@ canvas {
     z-index: -1;
 }
 
-.btn-login {
+.on-canvas {
     position: absolute;
-    top: 72%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     text-align: center;
     border: 1px solid #aaaaaa;
     background: #eeeeee;
