@@ -49,6 +49,9 @@ export class Game implements Updatable {
      * @return If the game was not running and was successfully started.
      */
     public start(): boolean {
+        if (this.currentScene === undefined) {
+            throw new Error('Cannot start an undefined Scene.');
+        }
         if (this.gameEngine === undefined) {
             this.gameEngine = new GameEngine(this);
         }
