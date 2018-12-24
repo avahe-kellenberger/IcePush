@@ -21,7 +21,6 @@ canvas {
 
 .on-canvas {
     position: absolute;
-    text-align: center;
     border: 1px solid #aaaaaa;
     background: #eeeeee;
     padding: 4px 16px 4px 16px;
