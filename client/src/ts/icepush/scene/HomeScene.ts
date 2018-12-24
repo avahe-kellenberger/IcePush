@@ -1,17 +1,19 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
-import {Game} from "../../engine/game/Game";
-import {GameScene} from "./GameScene";
+import {IcePush} from "../IcePush";
 
 export class HomeScene extends Scene {
+
+    // Override the type of `game` in the superclass.
+    protected readonly game: IcePush;
 
     private readonly inputUsername: HTMLInputElement;
     private readonly btnLogin: HTMLButtonElement;
     private readonly btnHelp: HTMLButtonElement;
 
-    constructor(game: Game) {
+    constructor(game: IcePush) {
         super(game);
-        console.log(`game undefined? ${this.game === undefined}`);
+        this.game = game;
         this.inputUsername = document.createElement("input");
         this.inputUsername.type = 'text';
         this.inputUsername.placeholder = 'Username';
@@ -45,38 +47,28 @@ export class HomeScene extends Scene {
     /**
      * Attempt to log in.
      */
-    private login(): boolean {
+    private login(): void {
+        // TODO: Validate login with server.
         console.log(`Attempting login as \'${this.inputUsername.value}\'`);
-        this.game.setScene(new GameScene(this.game));
-        return false;
+        this.game.showGameScene();
     }
 
     /**
      * Show the help screen.
      */
     private showHelp(): void {
+        // TODO: Make a help Scene or help dialog.
         console.log(`Clicked \'${this.btnHelp.innerText}\'`);
     }
 
     // region Overridden functions
 
     /**
-     * Retrieves the container element on the DOM.
-     */
-    private getDOMContainer(): HTMLElement {
-        const container: HTMLElement|null = document.getElementById('container');
-        if (container === null) {
-            throw new Error('Failed to get DOM element');
-        }
-        return container;
-    }
-
-    /**
      * @override
      */
     public onSwitchedToCurrent(): void {
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.getDOMContainer();
+        const container: HTMLElement = this.game.getDOMContainer();
         container.appendChild(this.inputUsername);
         container.appendChild(this.btnLogin);
         container.appendChild(this.btnHelp);
@@ -87,7 +79,7 @@ export class HomeScene extends Scene {
      */
     public onSwitchedFromCurrent(): void {
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.getDOMContainer();
+        const container: HTMLElement = this.game.getDOMContainer();
         container.removeChild(this.inputUsername);
         container.removeChild(this.btnLogin);
         container.removeChild(this.btnHelp);

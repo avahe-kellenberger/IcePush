@@ -15,18 +15,7 @@ canvas {
     font-size: 1.4em;
 }
 
-#canvas {
-    z-index: -1;
-}
-
-.on-canvas {
-    position: absolute;
-    border: 1px solid #aaaaaa;
-    background: #eeeeee;
-    padding: 4px 16px 4px 16px;
-}
-
-.center {
+#container {
     position: relative;
     text-align: center;
     border: 1px solid #888888;
@@ -34,6 +23,35 @@ canvas {
     padding: 1%;
     display: inline-block;
     margin: 0 auto;
+}
+
+#canvas-container {
+    position: relative;
+    text-align: center;
+    background: #F0F0F0;
+    margin: 0 auto;
+}
+
+#canvas {
+    z-index: -1;
+}
+
+#chatbox {
+    background-color: rgba(100, 100, 100, 0.5);
+    color: white;
+    width: 65%;
+    height: 35%;
+    top: 0;
+    left: 50%;
+    resize: none;
+    outline-color: transparent;
+}
+
+.on-canvas {
+    position: absolute;
+    border: 1px solid #aaaaaa;
+    background: #eeeeee;
+    padding: 4px 16px 4px 16px;
 }
 
 .white {

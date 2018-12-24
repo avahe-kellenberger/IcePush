@@ -1,6 +1,5 @@
 import {ClientAssets} from "./ts/icepush/asset/ClientAssets";
-import {Game} from "./ts/engine/game/Game";
-import {HomeScene} from "./ts/icepush/scene/HomeScene";
+import {IcePush} from "./ts/icepush/IcePush";
 
 // Queue asset loading as soon as possible.
 console.log('[IcePush] Loading assets...');
@@ -17,8 +16,8 @@ if (ctx == null) {
 // Assets loaded successfully.
 assetPromise.then(() => {
     console.log('[IcePush] Assets loaded.');
-    const icepush: Game = new Game(ctx);
-    icepush.setScene(new HomeScene(icepush));
+    const icepush: IcePush = new IcePush(ctx);
+    icepush.showHomeScene();
     icepush.start();
     console.log('[IcePush] Game Started.');
 });

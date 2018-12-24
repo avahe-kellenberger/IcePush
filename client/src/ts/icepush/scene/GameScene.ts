@@ -1,14 +1,20 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {Rectangle} from "../../engine/geom/Rectangle";
-import {Game} from "../../engine/game/Game";
+import {IcePush} from "../IcePush";
 
 export class GameScene extends Scene {
 
-    private gameArea: Rectangle;
+    // Override the type of `game` in the superclass.
+    protected readonly game: IcePush;
 
-    constructor(game: Game) {
+    private readonly gameArea: Rectangle;
+    private readonly btnLogout: HTMLButtonElement;
+    private readonly chatBox: HTMLTextAreaElement;
+
+    constructor(game: IcePush) {
         super(game);
+        this.game = game;
         /*
          * NOTE: These values were taken directly from the background image,
          * and assumes the canvas fits the same size.
@@ -17,6 +23,49 @@ export class GameScene extends Scene {
          * image, which would prevent this poor coding style of hard-coding magic values.
          */
         this.gameArea = new Rectangle(28, 30, 746, 424);
+
+        this.btnLogout = document.createElement('button');
+        this.btnLogout.innerHTML = 'Logout';
+        this.btnLogout.className = 'on-canvas';
+        this.btnLogout.style.top = '0%';
+        this.btnLogout.style.left = '100%';
+        this.btnLogout.style.transform = 'translate(-100%, 0%)';
+        this.btnLogout.addEventListener('click', this.logout.bind(this));
+
+        this.chatBox = document.createElement('textarea');
+        this.chatBox.id = 'chatbox';
+        this.chatBox.className = 'on-canvas';
+        this.chatBox.style.transform = 'translate(-50%, 0%)';
+    }
+
+    /**
+     * Attempt to log out.
+     */
+    private logout(): void {
+        // TODO: Verify logout event with the server.
+        this.game.showHomeScene();
+    }
+
+    // region Overridden functions
+
+    /**
+     * @override
+     */
+    public onSwitchedToCurrent(): void {
+        // Call getter every time, in case the DOM is modified.
+        const container: HTMLElement = this.game.getDOMContainer();
+        container.appendChild(this.btnLogout);
+        container.appendChild(this.chatBox);
+    }
+
+    /**
+     * @override
+     */
+    public onSwitchedFromCurrent(): void {
+        // Call getter every time, in case the DOM is modified.
+        const container: HTMLElement = this.game.getDOMContainer();
+        container.removeChild(this.btnLogout);
+        container.removeChild(this.chatBox);
     }
 
     /**
@@ -28,18 +77,6 @@ export class GameScene extends Scene {
         super.render(ctx);
     }
 
-    /**
-     * @override
-     */
-    public onSwitchedToCurrent(): void {
-        // TODO: Show DOM elements
-    }
-
-    /**
-     * @override
-     */
-    public onSwitchedFromCurrent(): void {
-        // TODO: Remove DOM elements
-    }
+    // endregion
 
 }
