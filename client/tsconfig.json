@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./src/dist",
+    "outDir": "./src/js",
     "baseUrl": "./node_modules",
     "target": "es2017",
     "allowSyntheticDefaultImports": true,

@@ -16,8 +16,10 @@ export class Game implements Updatable {
     protected constructor(scene: Scene, ctx: CanvasRenderingContext2D) {
         this.currentScene = scene;
         this.ctx = ctx;
-    }
 
+        // Notify the initial Scene.
+        this.currentScene.onSwitchedToCurrent();
+    }
     /**
      * @return The `Game`'s current `Scene`.
      */
@@ -36,7 +38,12 @@ export class Game implements Updatable {
         if (this.currentScene === scene) {
             return false;
         }
+        const oldScene: Scene = this.currentScene;
         this.currentScene = scene;
+
+        // Notify the Scenes AFTER they have been set.
+        oldScene.onSwitchedFromCurrent();
+        this.currentScene.onSwitchedToCurrent();
         return true;
     }
 

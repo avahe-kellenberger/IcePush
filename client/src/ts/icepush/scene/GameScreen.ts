@@ -1,7 +1,7 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 
-export class HomeScreen extends Scene {
+export class GameScreen extends Scene {
 
     /**
      * @override
@@ -10,6 +10,20 @@ export class HomeScreen extends Scene {
         // Render the background image.
         ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
         super.render(ctx);
+    }
+
+    /**
+     * @override
+     */
+    public onSwitchedToCurrent(): void {
+        // TODO: Show DOM elements
+    }
+
+    /**
+     * @override
+     */
+    public onSwitchedFromCurrent(): void {
+        // TODO: Remove DOM elements
     }
 
 }

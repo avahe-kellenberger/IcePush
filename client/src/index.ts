@@ -1,6 +1,6 @@
 import {IcePush} from "./ts/icepush/IcePush";
 import {ClientAssets} from "./ts/icepush/asset/ClientAssets";
-import {HomeScreen} from "./ts/icepush/ui/HomeScreen";
+import {HomeScreen} from "./ts/icepush/scene/HomeScreen";
 
 // Queue asset loading as soon as possible.
 console.log('[IcePush] Loading assets...');

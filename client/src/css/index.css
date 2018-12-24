@@ -1,12 +1,37 @@
+@font-face {
+    font-family: chatFont;
+    src: url('../../../resources/dina.ttf');
+}
+
 body {
     background: #E0E0FF;
 }
 
-legend {
+canvas {
+    font-family: chatFont, serif;
+}
+
+#legend {
     font-size: 1.4em;
 }
 
-.container {
+#canvas {
+    z-index: -1;
+}
+
+.btn-login {
+    position: absolute;
+    top: 72%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    border: 1px solid #aaaaaa;
+    background: #eeeeee;
+    padding: 4px 16px 4px 16px;
+}
+
+.center {
+    position: relative;
     text-align: center;
     border: 1px solid #888888;
     background: #F0F0F0;
@@ -20,13 +45,4 @@ legend {
     background: white;
     padding: 1%;
     margin: 5% auto;
-}
-
-canvas {
-    font-family: chatFont, serif;
-}
-
-@font-face {
-    font-family: chatFont;
-    src: url('../../../resources/dina.ttf');
 }

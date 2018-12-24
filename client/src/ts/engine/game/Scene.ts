@@ -15,6 +15,16 @@ export class Scene implements Entity {
     }
 
     /**
+     * Invoked when the `Game`'s current `Scene` is set as `this` scene.
+     */
+    public onSwitchedToCurrent(): void {}
+
+    /**
+     * Invoked when the `Game`'s current `Scene` is switched from `this` scene to another.
+     */
+    public onSwitchedFromCurrent(): void {}
+
+    /**
      * Adds an `Entity` to the game.
      * @param entity The Entity to add.
      * @return If the entity was added successfully.
