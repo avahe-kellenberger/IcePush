@@ -47,10 +47,14 @@ export class HomeScene extends Scene {
     /**
      * Attempt to log in.
      */
-    private login(): void {
+    private login(): boolean {
+        if (this.inputUsername.value.length < 1 || this.inputUsername.value.match(/^[a-zA-Z0-9]*$/g) === null) {
+            alert('Username must be alphanumeric with no spaces.');
+            return false;
+        }
         // TODO: Validate login with server.
-        console.log(`Attempting login as \'${this.inputUsername.value}\'`);
-        this.game.showGameScene();
+        this.game.showGameScene(this.inputUsername.value);
+        return true;
     }
 
     /**

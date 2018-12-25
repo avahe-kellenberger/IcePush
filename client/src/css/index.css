@@ -5,14 +5,16 @@
 
 body {
     background: #E0E0FF;
-}
-
-canvas {
-    font-family: chatFont, serif;
+    tab-index: -1;
 }
 
 #legend {
     font-size: 1.4em;
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
 }
 
 #container {
@@ -33,7 +35,9 @@ canvas {
 }
 
 #canvas {
+    font-family: chatFont, serif;
     z-index: -1;
+    outline-color: transparent;
 }
 
 #chatbox {
@@ -63,6 +67,13 @@ canvas {
     border: 1px solid #aaaaaa;
     background: #eeeeee;
     padding: 4px 16px 4px 16px;
+    tab-index: -1;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
 }
 
 .white {

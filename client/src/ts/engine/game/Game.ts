@@ -4,7 +4,7 @@ import {Scene} from "./Scene";
 
 export class Game implements Updatable {
 
-    protected readonly ctx: CanvasRenderingContext2D;
+    public readonly ctx: CanvasRenderingContext2D;
     protected gameEngine: GameEngine|undefined;
     protected currentScene: Scene|undefined;
 
@@ -14,7 +14,9 @@ export class Game implements Updatable {
      */
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
+        this.ctx.canvas.tabIndex = 0;
     }
+
     /**
      * @return The `Game`'s current `Scene`.
      */

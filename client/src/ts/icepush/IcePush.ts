@@ -5,7 +5,6 @@ import {GameScene} from "./scene/GameScene";
 export class IcePush extends Game {
 
     private homeScene: HomeScene|undefined;
-    private gameScene: GameScene|undefined;
 
     /**
      *
@@ -30,16 +29,10 @@ export class IcePush extends Game {
 
     /**
      * Shows the `GameScene`.
-     * @return If the scene was switched.
+     * @param nick The local player's nick name.
      */
-    public showGameScene(): boolean {
-        if (this.gameScene === undefined) {
-            this.gameScene = new GameScene(this);
-        } else if (this.currentScene === this.gameScene) {
-            return false;
-        }
-        this.setScene(this.gameScene);
-        return true;
+    public showGameScene(nick: string): void {
+        this.setScene(new GameScene(this, nick));
     }
 
     /**
