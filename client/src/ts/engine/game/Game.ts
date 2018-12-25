@@ -1,6 +1,7 @@
 import {Updatable} from "./entity/Updatable";
 import {GameEngine} from "./GameEngine";
 import {Scene} from "./Scene";
+import {EventHandler} from "../event/EventHandler";
 
 export class Game implements Updatable {
 
@@ -16,6 +17,8 @@ export class Game implements Updatable {
         this.ctx = ctx;
         this.ctx.canvas.tabIndex = 0;
     }
+
+    // region Scene Handling
 
     /**
      * @return The `Game`'s current `Scene`.
@@ -46,6 +49,8 @@ export class Game implements Updatable {
         return true;
     }
 
+    // endregion
+
     /**
      * Starts the game.
      * @return If the game was not running and was successfully started.
@@ -71,6 +76,28 @@ export class Game implements Updatable {
         return false;
     }
 
+    // region EventHandlers
+
+    /**
+     * Adds an `EventHandler` to the DOM.
+     * @param handler The event handler.
+     */
+    public addEventHandler(handler: EventHandler): void {
+        document.addEventListener(handler.type, handler.listener);
+    }
+
+    /**
+     * Removes an `EventHandler` from the DOM.
+     * @param handler The event handler.
+     */
+    public removeEventHandler(handler: EventHandler): void {
+        document.removeEventListener(handler.type, handler.listener);
+    }
+
+    // endregion
+
+    // region Overridden functions
+
     /**
      * @override
      */
@@ -88,5 +115,7 @@ export class Game implements Updatable {
             this.currentScene.render(this.ctx);
         }
     }
+
+    // endregion
 
 }

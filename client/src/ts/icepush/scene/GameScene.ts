@@ -2,15 +2,7 @@ import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {Rectangle} from "../../engine/geom/Rectangle";
 import {IcePush} from "../IcePush";
-
-/**
- *
- */
-interface EventListener {
-    type: string,
-    handler: (e: Event) => void;
-}
-
+import {EventHandler} from "../../engine/event/EventHandler";
 
 export class GameScene extends Scene {
 
@@ -22,7 +14,7 @@ export class GameScene extends Scene {
 
     // region Event Listeners
 
-    private readonly keyListener: EventListener;
+    private readonly keyEventHandler: EventHandler;
 
     // endregion
 
@@ -54,9 +46,9 @@ export class GameScene extends Scene {
         this.gameArea = new Rectangle(28, 30, 746, 424);
 
         // region Event Handlers
-        this.keyListener = {
+        this.keyEventHandler = {
             type: 'keydown',
-            handler: (e: KeyboardEvent) => {
+            listener: (e: KeyboardEvent) => {
                 if (e.key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
                     this.chatInput.value += e.key;
                 } else if (this.chatInput.value.length > 0) {
@@ -128,17 +120,17 @@ export class GameScene extends Scene {
     // region Event Listeners
 
     /**
-     * Attaches scene specific listeners to the document.
+     * Attaches scene specific event handlers.
      */
     private attachListeners(): void {
-        document.addEventListener(this.keyListener.type, this.keyListener.handler);
+        this.game.addEventHandler(this.keyEventHandler);
     }
 
     /**
-     * Removes scene specific listeners from the document.
+     * Removes scene specific event handlers.
      */
     private removeListeners(): void {
-        document.removeEventListener(this.keyListener.type, this.keyListener.handler);
+        this.game.removeEventHandler(this.keyEventHandler);
     }
 
     // endregion
@@ -179,8 +171,9 @@ export class GameScene extends Scene {
      * @override
      */
     public onSwitchedFromCurrent(): void {
-        this.removeDOMElements();
+        // Remove listeners before removing DOM elements to prevent input errors.
         this.removeListeners();
+        this.removeDOMElements();
     }
 
     /**
