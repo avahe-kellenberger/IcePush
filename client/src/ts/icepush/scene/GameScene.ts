@@ -11,6 +11,7 @@ export class GameScene extends Scene {
     private readonly gameArea: Rectangle;
     private readonly btnLogout: HTMLButtonElement;
     private readonly chatBox: HTMLTextAreaElement;
+    private readonly chatInput: HTMLInputElement;
 
     constructor(game: IcePush) {
         super(game);
@@ -25,17 +26,24 @@ export class GameScene extends Scene {
         this.gameArea = new Rectangle(28, 30, 746, 424);
 
         this.btnLogout = document.createElement('button');
-        this.btnLogout.innerHTML = 'Logout';
         this.btnLogout.className = 'on-canvas';
+        this.btnLogout.innerHTML = 'Logout';
         this.btnLogout.style.top = '0%';
         this.btnLogout.style.left = '100%';
         this.btnLogout.style.transform = 'translate(-100%, 0%)';
         this.btnLogout.addEventListener('click', this.logout.bind(this));
 
         this.chatBox = document.createElement('textarea');
-        this.chatBox.id = 'chatbox';
         this.chatBox.className = 'on-canvas';
+        this.chatBox.id = 'chatbox';
+        this.chatBox.disabled = true;
         this.chatBox.style.transform = 'translate(-50%, 0%)';
+
+
+        this.chatInput = document.createElement('input');
+        this.chatInput.className = 'on-canvas';
+        this.chatInput.id = 'chat-input';
+        this.chatInput.style.transform = 'translate(-50%, 0%)';
     }
 
     /**
@@ -56,6 +64,7 @@ export class GameScene extends Scene {
         const container: HTMLElement = this.game.getDOMContainer();
         container.appendChild(this.btnLogout);
         container.appendChild(this.chatBox);
+        container.appendChild(this.chatInput);
     }
 
     /**
@@ -66,6 +75,7 @@ export class GameScene extends Scene {
         const container: HTMLElement = this.game.getDOMContainer();
         container.removeChild(this.btnLogout);
         container.removeChild(this.chatBox);
+        container.removeChild(this.chatInput);
     }
 
     /**

@@ -40,14 +40,25 @@ canvas {
     background-color: rgba(100, 100, 100, 0.5);
     color: white;
     width: 65%;
-    height: 35%;
+    height: 25%;
     top: 0;
     left: 50%;
     resize: none;
     outline-color: transparent;
 }
 
+#chat-input {
+    background-color: rgba(100, 100, 100, 0.5);
+    color: white;
+    width: 65%;
+    top: 27%;
+    left: 50%;
+    resize: none;
+    outline-color: transparent;
+}
+
 .on-canvas {
+    color: black;
     position: absolute;
     border: 1px solid #aaaaaa;
     background: #eeeeee;
