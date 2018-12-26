@@ -1,8 +1,9 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
-import {Rectangle} from "../../engine/geom/Rectangle";
+import {Rectangle} from "../../engine/math/geom/Rectangle";
 import {IcePush} from "../IcePush";
 import {EventHandler} from "../../engine/event/EventHandler";
+import {Vector2D} from "../../engine/math/Vector2D";
 
 export class GameScene extends Scene {
 
@@ -43,7 +44,7 @@ export class GameScene extends Scene {
          * It would be wise in the future to have an actual GameArea object that is rendered up a generic background
          * image, which would prevent this poor coding style of hard-coding magic values.
          */
-        this.gameArea = new Rectangle(28, 30, 746, 424);
+        this.gameArea = new Rectangle(new Vector2D(28, 30), 746, 424);
 
         // region Event Handlers
         this.keyEventHandler = {
