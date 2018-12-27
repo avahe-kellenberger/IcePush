@@ -2,7 +2,7 @@ import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {Rectangle} from "../../engine/math/geom/Rectangle";
 import {IcePush} from "../IcePush";
-import {EventHandler} from "../../engine/event/EventHandler";
+import {EventHandler} from "../../engine/input/EventHandler";
 import {Vector2D} from "../../engine/math/Vector2D";
 
 export class GameScene extends Scene {
@@ -47,9 +47,8 @@ export class GameScene extends Scene {
         this.gameArea = new Rectangle(new Vector2D(28, 30), 746, 424);
 
         // region Event Handlers
-        this.keyEventHandler = {
-            type: 'keydown',
-            listener: (e: KeyboardEvent) => {
+        this.keyEventHandler = new EventHandler('keydown',
+            (e: KeyboardEvent) => {
                 if (e.key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
                     this.chatInput.value += e.key;
                 } else if (this.chatInput.value.length > 0) {
@@ -61,7 +60,7 @@ export class GameScene extends Scene {
                     }
                 }
             }
-        };
+        );
         // endregion
 
         // region DOM Elements

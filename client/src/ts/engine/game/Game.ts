@@ -1,13 +1,15 @@
 import {Updatable} from "./entity/Updatable";
 import {GameEngine} from "./GameEngine";
 import {Scene} from "./Scene";
-import {EventHandler} from "../event/EventHandler";
+import {InputHandler, KeyListener} from "../input/InputHandler";
+import {EventHandler} from "../input/EventHandler";
 
 export class Game implements Updatable {
 
     public readonly ctx: CanvasRenderingContext2D;
     protected gameEngine: GameEngine|undefined;
     protected currentScene: Scene|undefined;
+    private inputHandler: InputHandler|undefined;
 
     /**
      * Creates a game which is rendered on the given ctx.
@@ -70,13 +72,10 @@ export class Game implements Updatable {
      * @return If the game was running and was successfully paused.
      */
     public pause(): boolean {
-        if (this.gameEngine !== undefined) {
-            return this.gameEngine.stop();
-        }
-        return false;
+        return this.gameEngine !== undefined ? this.gameEngine.stop() : false;
     }
 
-    // region EventHandlers
+    // region Event Handlers
 
     /**
      * Adds an `EventHandler` to the DOM.
@@ -93,6 +92,34 @@ export class Game implements Updatable {
     public removeEventHandler(handler: EventHandler): void {
         document.removeEventListener(handler.type, handler.listener);
     }
+
+
+    // region InputHandler
+
+    /**
+     * Adds a KeyListener.
+     * @param key The key of which to listen for state changes.
+     * @param listener The callback invoked when the state of the key changes.
+     * @return If the listener was added.
+     */
+    public addKeyListener(key: string, listener: KeyListener): boolean {
+        if (this.inputHandler === undefined) {
+            this.inputHandler = new InputHandler(document);
+        }
+        return this.inputHandler.addKeyListener(key, listener);
+    }
+
+    /**
+     * Removes a KeyListener.
+     * @param key The key of which to listen for state changes.
+     * @param listener The callback invoked when the state of the key changes.
+     * @return If the listener was removed.
+     */
+    public removeKeyListener(key: string, listener: KeyListener): boolean {
+        return this.inputHandler === undefined || this.inputHandler.removeKeyListener(key, listener);
+    }
+
+    // endregion
 
     // endregion
 
