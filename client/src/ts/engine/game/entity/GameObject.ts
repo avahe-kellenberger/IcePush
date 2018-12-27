@@ -1,23 +1,18 @@
 import {ILocatable, Locatable} from "./Locatable";
 import {Entity} from "./Entity";
 import {Vector2D} from "../../math/Vector2D";
-import {Collidable, ICollidable} from "./Collidable";
-import {CollisionHull} from "../../math/geom/collision/CollisionHull";
 
-export abstract class GameObject implements ILocatable, Locatable, Collidable, ICollidable, Entity {
+export abstract class GameObject implements ILocatable, Locatable, Entity {
 
     private location: Vector2D;
     private velocity: Vector2D;
-    private hull: CollisionHull | undefined;
 
     /**
      * @param location The location of the object.
-     * @param hull The object's hull used for collision detection.
      */
-    constructor(location: Vector2D, hull?: CollisionHull) {
+    constructor(location: Vector2D) {
         this.location = location;
         this.velocity = Vector2D.ZERO;
-        this.hull = hull;
     }
 
     /**
@@ -62,24 +57,6 @@ export abstract class GameObject implements ILocatable, Locatable, Collidable, I
             return false;
         }
         this.velocity = velocity;
-        return true;
-    }
-
-    /**
-     * @override
-     */
-    public getCollisionHull(): CollisionHull | undefined {
-        return this.hull;
-    }
-
-    /**
-     * @override
-     */
-    public setCollisionHull(hull: CollisionHull | undefined): boolean {
-        if (this.hull === hull) {
-            return false;
-        }
-        this.hull = hull;
         return true;
     }
 
