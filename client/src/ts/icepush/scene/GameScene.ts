@@ -4,6 +4,7 @@ import {Rectangle} from "../../engine/math/geom/Rectangle";
 import {IcePush} from "../IcePush";
 import {EventHandler} from "../../engine/input/EventHandler";
 import {Vector2D} from "../../engine/math/Vector2D";
+import {KeyListener} from "../../engine/input/InputHandler";
 
 export class GameScene extends Scene {
 
@@ -13,9 +14,10 @@ export class GameScene extends Scene {
     private readonly nick: string;
     private readonly gameArea: Rectangle;
 
-    // region Event Listeners
+    // region Input Handlers
 
-    private readonly keyEventHandler: EventHandler;
+    private readonly chatKeyEventHandler: EventHandler;
+    private readonly keyListenerMap: Map<string, KeyListener>;
 
     // endregion
 
@@ -46,8 +48,8 @@ export class GameScene extends Scene {
          */
         this.gameArea = new Rectangle(new Vector2D(28, 30), 746, 424);
 
-        // region Event Handlers
-        this.keyEventHandler = new EventHandler('keydown',
+        // region Input Handlers
+        this.chatKeyEventHandler = new EventHandler('keydown',
             (e: KeyboardEvent) => {
                 if (e.key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
                     this.chatInput.value += e.key;
@@ -61,6 +63,18 @@ export class GameScene extends Scene {
                 }
             }
         );
+
+        // TODO: Example listeners. Network events will need to be dispatched from these keys.
+        this.keyListenerMap = new Map();
+        const arrowUp: KeyListener = new KeyListener(isDown => console.log(`Up: ${isDown}`));
+        this.keyListenerMap.set('ArrowUp', arrowUp);
+        const arrowDown: KeyListener = new KeyListener(isDown => console.log(`Down: ${isDown}`));
+        this.keyListenerMap.set('ArrowDown', arrowDown);
+        const arrowLeft: KeyListener = new KeyListener(isDown => console.log(`Left: ${isDown}`));
+        this.keyListenerMap.set('ArrowLeft', arrowLeft);
+        const arrowRight: KeyListener = new KeyListener(isDown => console.log(`right: ${isDown}`));
+        this.keyListenerMap.set('ArrowRight', arrowRight);
+
         // endregion
 
         // region DOM Elements
@@ -123,14 +137,16 @@ export class GameScene extends Scene {
      * Attaches scene specific event handlers.
      */
     private attachListeners(): void {
-        this.game.addEventHandler(this.keyEventHandler);
+        this.game.addEventHandler(this.chatKeyEventHandler);
+        this.keyListenerMap.forEach((listener, key) => this.game.addKeyListener(key, listener));
     }
 
     /**
      * Removes scene specific event handlers.
      */
     private removeListeners(): void {
-        this.game.removeEventHandler(this.keyEventHandler);
+        this.game.removeEventHandler(this.chatKeyEventHandler);
+        this.keyListenerMap.forEach((listener, key) => this.game.removeKeyListener(key, listener));
     }
 
     // endregion
