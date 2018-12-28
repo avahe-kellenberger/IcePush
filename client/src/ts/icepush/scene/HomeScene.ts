@@ -76,6 +76,7 @@ export class HomeScene extends Scene {
         container.appendChild(this.inputUsername);
         container.appendChild(this.btnLogin);
         container.appendChild(this.btnHelp);
+        this.inputUsername.focus();
     }
 
     /**

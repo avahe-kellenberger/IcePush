@@ -139,6 +139,7 @@ export class Game implements Updatable {
      */
     public render(): void {
         if (this.currentScene !== undefined) {
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
             this.currentScene.render(this.ctx);
         }
     }
