@@ -68,7 +68,9 @@ body {
     background: #eeeeee;
     padding: 4px 16px 4px 16px;
     tab-index: -1;
+}
 
+.unfocusable {
     user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;

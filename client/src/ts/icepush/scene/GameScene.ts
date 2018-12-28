@@ -38,7 +38,7 @@ export class GameScene extends Scene {
 
         // region DOM Elements
         this.btnLogout = document.createElement('button');
-        this.btnLogout.className = 'on-canvas';
+        this.btnLogout.className = 'on-canvas unfocusable';
         this.btnLogout.innerHTML = 'Logout';
         this.btnLogout.style.top = '0%';
         this.btnLogout.style.left = '100%';

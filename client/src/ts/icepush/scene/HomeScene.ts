@@ -21,7 +21,7 @@ export class HomeScene extends Scene {
 
         this.btnLogin = document.createElement('button');
         this.btnLogin.innerHTML = 'Login';
-        this.btnLogin.className = 'on-canvas';
+        this.btnLogin.className = 'on-canvas unfocusable';
         this.btnLogin.style.top = '40%';
         this.btnLogin.style.left = '50%';
         this.btnLogin.style.transform = 'translate(-112%, -50%)';
@@ -29,7 +29,7 @@ export class HomeScene extends Scene {
 
         this.btnHelp = document.createElement('button');
         this.btnHelp.innerHTML = 'Help';
-        this.btnHelp.className = 'on-canvas';
+        this.btnHelp.className = 'on-canvas unfocusable';
         this.btnHelp.style.top = '40%';
         this.btnHelp.style.left = '50%';
         this.btnHelp.style.transform = 'translate(12%, -50%)';
