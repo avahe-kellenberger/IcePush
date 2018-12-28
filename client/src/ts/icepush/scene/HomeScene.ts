@@ -1,6 +1,7 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {IcePush} from "../IcePush";
+import {KeyHandler} from "../../engine/input/InputHandler";
 
 export class HomeScene extends Scene {
 
@@ -21,11 +22,6 @@ export class HomeScene extends Scene {
         this.inputUsername.style.top = '30%';
         this.inputUsername.style.left = '50%';
         this.inputUsername.style.transform = 'translate(-50%, -50%)';
-        this.inputUsername.addEventListener('keydown', (e) => {
-           if (e.key === 'Enter') {
-               this.login();
-           }
-        });
 
         this.btnLogin = document.createElement('button');
         this.btnLogin.innerHTML = 'Login';
@@ -42,6 +38,9 @@ export class HomeScene extends Scene {
         this.btnHelp.style.left = '50%';
         this.btnHelp.style.transform = 'translate(12%, -50%)';
         this.btnHelp.addEventListener('click', this.showHelp.bind(this));
+
+        // Login with `Enter` key.
+        this.addKeyHandler(new KeyHandler(this.login.bind(this), (key, isDown) => key === 'Enter' && isDown));
     }
 
     /**
@@ -71,6 +70,7 @@ export class HomeScene extends Scene {
      * @override
      */
     public onSwitchedToCurrent(): void {
+        super.onSwitchedToCurrent();
         // Call getter every time, in case the DOM is modified.
         const container: HTMLElement = this.game.getDOMContainer();
         container.appendChild(this.inputUsername);
@@ -83,6 +83,7 @@ export class HomeScene extends Scene {
      * @override
      */
     public onSwitchedFromCurrent(): void {
+        super.onSwitchedFromCurrent();
         // Call getter every time, in case the DOM is modified.
         const container: HTMLElement = this.game.getDOMContainer();
         container.removeChild(this.inputUsername);

@@ -1,21 +1,43 @@
 /**
  * @author Avahe
+ * Handles events fired from the DOM.
  */
-export class KeyListener {
+export class EventHandler {
 
-    public readonly callback: (isDown: boolean) => void;
+    public readonly type: keyof GlobalEventHandlersEventMap;
+    public readonly listener: EventListener;
+
+    /**
+     * @param type The event type.
+     * @param listener The function which handles the event.
+     */
+    constructor(type: keyof GlobalEventHandlersEventMap, listener: EventListener) {
+        this.type = type;
+        this.listener = listener;
+    }
+
+}
+
+/**
+ * @author Avahe
+ */
+export class KeyHandler {
+
+    public readonly callback: (key: string, isDown: boolean) => void;
+    public readonly filter: ((key: string, isDown: boolean) => boolean)|undefined;
     public readonly notifyAll: boolean;
 
     /**
      * @param callback A callback invoked indicating if the state of the key is `down`.
      *                 This callback is invoked on `keydown`, `keyup`, and `blur` events.
-     *                 In the case of a `blur` event, all keys are notified as "not down".
-     * @param notifyAll If the listener should be notified of all `keyDown` events.
-     *                  If false, the listener will only be notified when the state changes (down to up, or up to down).
+     * @param filter The key filter. If this returns true or is undefined, the callback will be notified.
+     * @param notifyAll If the handler should be notified of all `keyDown` events.
+     *                  If false, the handler will only be notified when the state changes (down to up, or up to down).
      */
-    constructor(callback: (isDown: boolean) => void, notifyAll: boolean = false) {
-        this.notifyAll = notifyAll;
+    constructor(callback: (key: string, isDown: boolean) => void, filter?: ((key: string, isDown: boolean) => boolean), notifyAll: boolean = false) {
         this.callback = callback;
+        this.filter = filter;
+        this.notifyAll = notifyAll;
     }
 
 }
@@ -25,63 +47,81 @@ export class KeyListener {
  */
 export class InputHandler {
 
-    /**
-     * Map<key, isDown>
-     */
+    private readonly document: Document;
     private readonly keyMap: Map<string, boolean>;
-    private readonly listenerMap: Map<string, Set<KeyListener>>;
+    private readonly keyHandlers: Set<KeyHandler>;
 
     /**
-     * Attaches the listener to the given document.
+     * Attaches the handler to the given document.
      * @param document The document on which to listen for input events.
      */
     constructor(document: HTMLDocument) {
+        this.document = document;
         this.keyMap = new Map();
-        this.listenerMap = new Map();
+        this.keyHandlers = new Set();
 
         /*
-         * Attach `keydown` and `keyup` listeners to the canvas.
+         * Attach `keydown` and `keyup` handlers to the canvas.
          */
-        document.addEventListener('keydown', e => {
-            const changed: boolean = this.isKeyDown(e.key) !== true;
+        this.document.addEventListener('keydown', e => {
+            const changed: boolean = !this.isKeyDown(e.key);
             this.keyMap.set(e.key, true);
-            this.notifyListeners(e.key, true, changed);
+            this.notifyKeyHandlers(e.key, true, changed);
         });
-        document.addEventListener('keyup', e => {
-            const changed: boolean = this.isKeyDown(e.key) !== false;
+        this.document.addEventListener('keyup', e => {
+            const changed: boolean = this.isKeyDown(e.key);
             this.keyMap.set(e.key, false);
-            this.notifyListeners(e.key, false, changed);
+            this.notifyKeyHandlers(e.key, false, changed);
         });
 
         /*
          * If the canvas loses focus, it is the same as no keys being down on the game canvas.
-         * We notify all listeners that the keys are "not down", to prevent strange in-game behavior.
          */
-        document.addEventListener('blur', () => {
+        this.document.addEventListener('blur', () => {
             this.keyMap.forEach((isDown, key) => {
                this.keyMap.set(key, false);
             });
-            this.listenerMap.forEach((listeners: Set<KeyListener>) => {
-                listeners.forEach(listener => listener.callback(false));
-            });
+
+            // TODO: Focus listeners.
         });
     }
 
+    // region EventHandlers
+
     /**
-     * Notifies all KeyStateListeners that the state of a key has changed.
-     * @param key The key of which to notify the listeners.
+     * Adds an `EventHandler` to the DOM.
+     * @param handler The event handler.
+     */
+    public addEventHandler(handler: EventHandler): void {
+        this.document.addEventListener(handler.type, handler.listener);
+    }
+
+    /**
+     * Removes an `EventHandler` from the DOM.
+     * @param handler The event handler.
+     */
+    public removeEventHandler(handler: EventHandler): void {
+        this.document.removeEventListener(handler.type, handler.listener);
+    }
+
+    // endregion
+
+    // region KeyHandlers
+
+    /**
+     * Notifies all KeyHandlers of key events.
+     * @param key The key of which to notify the handlers.
      * @param isDown If the state of the key is currently `down`.
      * @param changed If the state of the key changed.
      */
-    private notifyListeners(key: string, isDown: boolean, changed: boolean): void {
-        const listeners: Set<KeyListener>|undefined = this.listenerMap.get(key);
-        if (listeners !== undefined) {
-            listeners.forEach(listener => {
-                if (listener.notifyAll || changed) {
-                    listener.callback(isDown);
+    private notifyKeyHandlers(key: string, isDown: boolean, changed: boolean): void {
+        this.keyHandlers.forEach(handler => {
+            if (handler.filter === undefined || handler.filter(key, isDown)) {
+                if (handler.notifyAll || changed) {
+                    handler.callback(key, isDown);
                 }
-            });
-        }
+            }
+        });
     }
 
     /**
@@ -94,31 +134,21 @@ export class InputHandler {
     }
 
     /**
-     * Adds a KeyListener.
-     * @param key The key of which to listen for state changes.
-     * @param listener The callback invoked when the state of the key changes.
-     * @return If the listener was added.
+     * @param handler The callback invoked when a key event occurs.
+     * @return If the handler was added.
      */
-    public addKeyListener(key: string, listener: KeyListener): boolean {
-        let listeners: Set<KeyListener>|undefined = this.listenerMap.get(key);
-        if (listeners === undefined) {
-            listeners = new Set();
-            listeners.add(listener);
-            this.listenerMap.set(key, listeners);
-            return true;
-        }
-        return listeners.size !== listeners.add(listener).size;
+    public addKeyHandler(handler: KeyHandler): boolean {
+        return this.keyHandlers.size !== this.keyHandlers.add(handler).size;
     }
 
     /**
-     * Removes a KeyListener.
-     * @param key The key of which to listen for state changes.
-     * @param listener The callback invoked when a key event occurs.
-     * @return If the listener was removed.
+     * @param handler The callback invoked when a key event occurs.
+     * @return If the handler was removed.
      */
-    public removeKeyListener(key: string, listener: KeyListener): boolean {
-        const listeners: Set<KeyListener>|undefined = this.listenerMap.get(key);
-        return listeners === undefined || listeners.delete(listener);
+    public removeKeyHandler(handler: KeyHandler): boolean {
+        return this.keyHandlers === undefined || this.keyHandlers.delete(handler);
     }
+
+    // endregion
 
 }

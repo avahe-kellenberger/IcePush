@@ -1,15 +1,14 @@
 import {Updatable} from "./entity/Updatable";
 import {GameEngine} from "./GameEngine";
 import {Scene} from "./Scene";
-import {InputHandler, KeyListener} from "../input/InputHandler";
-import {EventHandler} from "../input/EventHandler";
+import {InputHandler} from "../input/InputHandler";
 
 export class Game implements Updatable {
 
     public readonly ctx: CanvasRenderingContext2D;
+    public readonly inputHandler: InputHandler;
     protected gameEngine: GameEngine|undefined;
     protected currentScene: Scene|undefined;
-    private inputHandler: InputHandler|undefined;
 
     /**
      * Creates a game which is rendered on the given ctx.
@@ -18,6 +17,7 @@ export class Game implements Updatable {
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
         this.ctx.canvas.tabIndex = 0;
+        this.inputHandler = new InputHandler(document);
     }
 
     // region Scene Handling
@@ -74,54 +74,6 @@ export class Game implements Updatable {
     public pause(): boolean {
         return this.gameEngine !== undefined ? this.gameEngine.stop() : false;
     }
-
-    // region Event Handlers
-
-    /**
-     * Adds an `EventHandler` to the DOM.
-     * @param handler The event handler.
-     */
-    public addEventHandler(handler: EventHandler): void {
-        document.addEventListener(handler.type, handler.listener);
-    }
-
-    /**
-     * Removes an `EventHandler` from the DOM.
-     * @param handler The event handler.
-     */
-    public removeEventHandler(handler: EventHandler): void {
-        document.removeEventListener(handler.type, handler.listener);
-    }
-
-
-    // region InputHandler
-
-    /**
-     * Adds a KeyListener.
-     * @param key The key of which to listen for state changes.
-     * @param listener The callback invoked when the state of the key changes.
-     * @return If the listener was added.
-     */
-    public addKeyListener(key: string, listener: KeyListener): boolean {
-        if (this.inputHandler === undefined) {
-            this.inputHandler = new InputHandler(document);
-        }
-        return this.inputHandler.addKeyListener(key, listener);
-    }
-
-    /**
-     * Removes a KeyListener.
-     * @param key The key of which to listen for state changes.
-     * @param listener The callback invoked when the state of the key changes.
-     * @return If the listener was removed.
-     */
-    public removeKeyListener(key: string, listener: KeyListener): boolean {
-        return this.inputHandler === undefined || this.inputHandler.removeKeyListener(key, listener);
-    }
-
-    // endregion
-
-    // endregion
 
     // region Overridden functions
 

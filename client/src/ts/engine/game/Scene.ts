@@ -1,5 +1,6 @@
 import {Entity} from "./entity/Entity";
 import {Game} from "./Game";
+import {KeyHandler} from "../input/InputHandler";
 
 /**
  * Represents a Scene being displayed in a game.
@@ -8,6 +9,8 @@ export class Scene implements Entity {
 
     protected readonly game: Game;
     private readonly entities: Set<Entity>;
+
+    private keyListeners: Set<KeyHandler>|undefined;
 
     /**
      * Creates a new `Scene` which manages `Entity` objects.
@@ -18,6 +21,35 @@ export class Scene implements Entity {
     }
 
     /**
+     * Adds a KeyHandler.
+     * This handler is automatically removed when the Game's `Scene` changes, unless `persist` is set to `true`.
+     *
+     * @param handler The callback invoked when a key event occurs.
+     * @param persist If the handler should not be removed automatically when the `Scene` changes.
+     * @return If the handler was added.
+     */
+    public addKeyHandler(handler: KeyHandler, persist: boolean = false): boolean {
+        if (!persist) {
+            if (this.keyListeners === undefined) {
+                this.keyListeners = new Set();
+            }
+            this.keyListeners.add(handler);
+        }
+        return this.game.inputHandler.addKeyHandler(handler);
+    }
+
+    /**
+     * @param handler The handler to remove.
+     * @return If the handler was removed.
+     */
+    public removeKeyHandler(handler: KeyHandler): boolean {
+        if (this.keyListeners !== undefined) {
+            this.keyListeners.delete(handler);
+        }
+        return this.game.inputHandler.removeKeyHandler(handler);
+    }
+
+    /**
      * Invoked when the `Game`'s current `Scene` is set as `this` scene.
      */
     public onSwitchedToCurrent(): void {}
@@ -25,7 +57,14 @@ export class Scene implements Entity {
     /**
      * Invoked when the `Game`'s current `Scene` is switched from `this` scene to another.
      */
-    public onSwitchedFromCurrent(): void {}
+    public onSwitchedFromCurrent(): void {
+        if (this.keyListeners !== undefined) {
+            this.keyListeners.forEach(handler => {
+                this.game.inputHandler.removeKeyHandler(handler);
+            });
+            this.keyListeners.clear();
+        }
+    }
 
     /**
      * Adds an `Entity` to the game.

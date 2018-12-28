@@ -2,9 +2,8 @@ import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {Rectangle} from "../../engine/math/geom/Rectangle";
 import {IcePush} from "../IcePush";
-import {EventHandler} from "../../engine/input/EventHandler";
 import {Vector2D} from "../../engine/math/Vector2D";
-import {KeyListener} from "../../engine/input/InputHandler";
+import {KeyHandler} from "../../engine/input/InputHandler";
 
 export class GameScene extends Scene {
 
@@ -13,13 +12,6 @@ export class GameScene extends Scene {
 
     private readonly nick: string;
     private readonly gameArea: Rectangle;
-
-    // region Input Handlers
-
-    private readonly chatKeyEventHandler: EventHandler;
-    private readonly keyListenerMap: Map<string, KeyListener>;
-
-    // endregion
 
     // region DOM Elements
 
@@ -49,31 +41,26 @@ export class GameScene extends Scene {
         this.gameArea = new Rectangle(new Vector2D(28, 30), 746, 424);
 
         // region Input Handlers
-        this.chatKeyEventHandler = new EventHandler('keydown',
-            (e: KeyboardEvent) => {
-                if (e.key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
-                    this.chatInput.value += e.key;
+
+        this.addKeyHandler(
+            new KeyHandler(key => {
+                if (key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
+                    this.chatInput.value += key;
                 } else if (this.chatInput.value.length > 0) {
-                    if (e.key === 'Backspace') {
+                    if (key === 'Backspace') {
                         this.chatInput.value = this.chatInput.value.slice(0, -1);
-                    } else if (e.key === 'Enter') {
+                    } else if (key === 'Enter') {
                         this.sendMessage(this.chatInput.value);
                         this.chatInput.value = '';
                     }
                 }
-            }
+            }, (key, isDown) => isDown)
         );
 
-        // TODO: Example listeners. Network events will need to be dispatched from these keys.
-        this.keyListenerMap = new Map();
-        const arrowUp: KeyListener = new KeyListener(isDown => console.log(`Up: ${isDown}`));
-        this.keyListenerMap.set('ArrowUp', arrowUp);
-        const arrowDown: KeyListener = new KeyListener(isDown => console.log(`Down: ${isDown}`));
-        this.keyListenerMap.set('ArrowDown', arrowDown);
-        const arrowLeft: KeyListener = new KeyListener(isDown => console.log(`Left: ${isDown}`));
-        this.keyListenerMap.set('ArrowLeft', arrowLeft);
-        const arrowRight: KeyListener = new KeyListener(isDown => console.log(`right: ${isDown}`));
-        this.keyListenerMap.set('ArrowRight', arrowRight);
+        // TODO: Example KeyHandlers. Network events will need to be dispatched from these keys.
+        this.addKeyHandler(new KeyHandler((key, isDown) => console.log(`${key}: ${isDown ? 'keyup' : 'keydown'}`),
+                key => key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight'
+        ));
 
         // endregion
 
@@ -131,26 +118,6 @@ export class GameScene extends Scene {
         this.game.showHomeScene();
     }
 
-    // region Event Listeners
-
-    /**
-     * Attaches scene specific event handlers.
-     */
-    private attachListeners(): void {
-        this.game.addEventHandler(this.chatKeyEventHandler);
-        this.keyListenerMap.forEach((listener, key) => this.game.addKeyListener(key, listener));
-    }
-
-    /**
-     * Removes scene specific event handlers.
-     */
-    private removeListeners(): void {
-        this.game.removeEventHandler(this.chatKeyEventHandler);
-        this.keyListenerMap.forEach((listener, key) => this.game.removeKeyListener(key, listener));
-    }
-
-    // endregion
-
     // region DOM
 
     /**
@@ -179,16 +146,15 @@ export class GameScene extends Scene {
      * @override
      */
     public onSwitchedToCurrent(): void {
+        super.onSwitchedToCurrent();
         this.attachDOMElements();
-        this.attachListeners();
     }
 
     /**
      * @override
      */
     public onSwitchedFromCurrent(): void {
-        // Remove listeners before removing DOM elements to prevent input errors.
-        this.removeListeners();
+        super.onSwitchedFromCurrent();
         this.removeDOMElements();
     }
 
