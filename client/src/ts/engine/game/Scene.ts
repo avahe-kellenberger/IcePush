@@ -7,7 +7,7 @@ import {EventHandler, KeyHandler} from "../input/InputHandler";
  */
 export class Scene implements Entity {
 
-    protected readonly game: Game;
+    private readonly game: Game;
     private readonly entities: Set<Entity>;
 
     private keyHandlers: Set<KeyHandler>|undefined;
@@ -103,6 +103,13 @@ export class Scene implements Entity {
                this.game.inputHandler.removeEventHandler(handler);
             });
         }
+    }
+
+    /**
+     * @return The game to which this Scene belongs.
+     */
+    public getGame(): Game {
+        return this.game;
     }
 
     /**

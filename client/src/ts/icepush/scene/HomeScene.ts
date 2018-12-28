@@ -5,16 +5,12 @@ import {EventHandler, KeyHandler} from "../../engine/input/InputHandler";
 
 export class HomeScene extends Scene {
 
-    // Override the type of `game` in the superclass.
-    protected readonly game: IcePush;
-
     private readonly inputUsername: HTMLInputElement;
     private readonly btnLogin: HTMLButtonElement;
     private readonly btnHelp: HTMLButtonElement;
 
     constructor(game: IcePush) {
         super(game);
-        this.game = game;
         this.inputUsername = document.createElement("input");
         this.inputUsername.type = 'text';
         this.inputUsername.placeholder = 'Username';
@@ -38,13 +34,6 @@ export class HomeScene extends Scene {
         this.btnHelp.style.left = '50%';
         this.btnHelp.style.transform = 'translate(12%, -50%)';
         this.btnHelp.addEventListener('click', this.showHelp.bind(this));
-
-        // Focus the username input field when the canvas is focused or clicked.
-        this.addEventHandler(new EventHandler('focus', () => this.inputUsername.focus()));
-        this.addEventHandler(new EventHandler('click', () => this.inputUsername.focus()));
-
-        // Login with `Enter` key.
-        this.addKeyHandler(new KeyHandler(this.login.bind(this), (key, isDown) => key === 'Enter' && isDown));
     }
 
     /**
@@ -56,7 +45,7 @@ export class HomeScene extends Scene {
             return false;
         }
         // TODO: Validate login with server.
-        this.game.showGameScene(this.inputUsername.value);
+        this.getGame().showGameScene(this.inputUsername.value);
         return true;
     }
 
@@ -68,6 +57,17 @@ export class HomeScene extends Scene {
         console.log(`Clicked \'${this.btnHelp.innerText}\'`);
     }
 
+    /**
+     * Adds scene-specific input handlers.
+     */
+    private addInputHandlers(): void {
+        // Focus the username input field when the canvas is focused or clicked.
+        this.addEventHandler(new EventHandler('focus', () => this.inputUsername.focus()));
+        this.addEventHandler(new EventHandler('click', () => this.inputUsername.focus()));
+        // Login with `Enter` key.
+        this.addKeyHandler(new KeyHandler(this.login.bind(this), (key, isDown) => key === 'Enter' && isDown));
+    }
+
     // region Overridden functions
 
     /**
@@ -75,8 +75,12 @@ export class HomeScene extends Scene {
      */
     public onSwitchedToCurrent(): void {
         super.onSwitchedToCurrent();
+
+        // Add input handlers each time the scene is set as the Game's current scene.
+        this.addInputHandlers();
+
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.game.getDOMContainer();
+        const container: HTMLElement = this.getGame().getDOMContainer();
         container.appendChild(this.inputUsername);
         container.appendChild(this.btnLogin);
         container.appendChild(this.btnHelp);
@@ -89,10 +93,17 @@ export class HomeScene extends Scene {
     public onSwitchedFromCurrent(): void {
         super.onSwitchedFromCurrent();
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.game.getDOMContainer();
+        const container: HTMLElement = this.getGame().getDOMContainer();
         container.removeChild(this.inputUsername);
         container.removeChild(this.btnLogin);
         container.removeChild(this.btnHelp);
+    }
+
+    /**
+     * @override
+     */
+    public getGame(): IcePush {
+        return super.getGame() as IcePush;
     }
 
     /**

@@ -7,9 +7,6 @@ import {KeyHandler} from "../../engine/input/InputHandler";
 
 export class GameScene extends Scene {
 
-    // Override the type of `game` in the superclass.
-    protected readonly game: IcePush;
-
     private readonly nick: string;
     private readonly gameArea: Rectangle;
 
@@ -29,7 +26,6 @@ export class GameScene extends Scene {
      */
     constructor(game: IcePush, nick: string) {
         super(game);
-        this.game = game;
         this.nick = nick;
         /*
          * NOTE: These values were taken directly from the background image,
@@ -39,30 +35,6 @@ export class GameScene extends Scene {
          * image, which would prevent this poor coding style of hard-coding magic values.
          */
         this.gameArea = new Rectangle(new Vector2D(28, 30), 746, 424);
-
-        // region Input Handlers
-
-        this.addKeyHandler(
-            new KeyHandler(key => {
-                if (key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
-                    this.chatInput.value += key;
-                } else if (this.chatInput.value.length > 0) {
-                    if (key === 'Backspace') {
-                        this.chatInput.value = this.chatInput.value.slice(0, -1);
-                    } else if (key === 'Enter') {
-                        this.sendMessage(this.chatInput.value);
-                        this.chatInput.value = '';
-                    }
-                }
-            }, (key, isDown) => isDown)
-        );
-
-        // TODO: Example KeyHandlers. Network events will need to be dispatched from these keys.
-        this.addKeyHandler(new KeyHandler((key, isDown) => console.log(`${key}: ${isDown ? 'keyup' : 'keydown'}`),
-                key => key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight'
-        ));
-
-        // endregion
 
         // region DOM Elements
         this.btnLogout = document.createElement('button');
@@ -115,7 +87,32 @@ export class GameScene extends Scene {
      */
     private logout(): void {
         // TODO: Verify logout event with the server.
-        this.game.showHomeScene();
+        this.getGame().showHomeScene();
+    }
+
+    /**
+     * Adds scene-specific input handlers.
+     */
+    private addInputHandlers(): void {
+        this.addKeyHandler(
+            new KeyHandler(key => {
+                if (key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
+                    this.chatInput.value += key;
+                } else if (this.chatInput.value.length > 0) {
+                    if (key === 'Backspace') {
+                        this.chatInput.value = this.chatInput.value.slice(0, -1);
+                    } else if (key === 'Enter') {
+                        this.sendMessage(this.chatInput.value);
+                        this.chatInput.value = '';
+                    }
+                }
+            }, (key, isDown) => isDown)
+        );
+
+        // TODO: Example KeyHandlers. Network events will need to be dispatched from these keys.
+        this.addKeyHandler(new KeyHandler((key, isDown) => console.log(`${key}: ${isDown ? 'keyup' : 'keydown'}`),
+            key => key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight'
+        ));
     }
 
     // region DOM
@@ -125,7 +122,7 @@ export class GameScene extends Scene {
      */
     private attachDOMElements(): void {
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.game.getDOMContainer();
+        const container: HTMLElement = this.getGame().getDOMContainer();
         this.domElements.forEach(e => container.appendChild(e));
     }
 
@@ -134,7 +131,7 @@ export class GameScene extends Scene {
      */
     private removeDOMElements(): void {
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.game.getDOMContainer();
+        const container: HTMLElement = this.getGame().getDOMContainer();
         this.domElements.forEach(e => container.removeChild(e));
     }
 
@@ -148,6 +145,9 @@ export class GameScene extends Scene {
     public onSwitchedToCurrent(): void {
         super.onSwitchedToCurrent();
         this.attachDOMElements();
+
+        // Add input handlers each time the scene is set as the Game's current scene.
+        this.addInputHandlers();
     }
 
     /**
@@ -156,6 +156,13 @@ export class GameScene extends Scene {
     public onSwitchedFromCurrent(): void {
         super.onSwitchedFromCurrent();
         this.removeDOMElements();
+    }
+
+    /**
+     * @override
+     */
+    public getGame(): IcePush {
+        return super.getGame() as IcePush;
     }
 
     /**
