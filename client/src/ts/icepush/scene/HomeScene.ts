@@ -1,7 +1,7 @@
 import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {IcePush} from "../IcePush";
-import {KeyHandler} from "../../engine/input/InputHandler";
+import {EventHandler, KeyHandler} from "../../engine/input/InputHandler";
 
 export class HomeScene extends Scene {
 
@@ -38,6 +38,10 @@ export class HomeScene extends Scene {
         this.btnHelp.style.left = '50%';
         this.btnHelp.style.transform = 'translate(12%, -50%)';
         this.btnHelp.addEventListener('click', this.showHelp.bind(this));
+
+        // Focus the username input field when the canvas is focused or clicked.
+        this.addEventHandler(new EventHandler('focus', () => this.inputUsername.focus()));
+        this.addEventHandler(new EventHandler('click', () => this.inputUsername.focus()));
 
         // Login with `Enter` key.
         this.addKeyHandler(new KeyHandler(this.login.bind(this), (key, isDown) => key === 'Enter' && isDown));

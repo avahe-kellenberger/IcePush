@@ -1,6 +1,6 @@
 import {Entity} from "./entity/Entity";
 import {Game} from "./Game";
-import {KeyHandler} from "../input/InputHandler";
+import {EventHandler, KeyHandler} from "../input/InputHandler";
 
 /**
  * Represents a Scene being displayed in a game.
@@ -10,7 +10,8 @@ export class Scene implements Entity {
     protected readonly game: Game;
     private readonly entities: Set<Entity>;
 
-    private keyListeners: Set<KeyHandler>|undefined;
+    private keyHandlers: Set<KeyHandler>|undefined;
+    private eventHandlers: Set<EventHandler>|undefined;
 
     /**
      * Creates a new `Scene` which manages `Entity` objects.
@@ -19,6 +20,8 @@ export class Scene implements Entity {
         this.game = game;
         this.entities = new Set();
     }
+
+    // region Input Handlers.
 
     /**
      * Adds a KeyHandler.
@@ -30,10 +33,10 @@ export class Scene implements Entity {
      */
     public addKeyHandler(handler: KeyHandler, persist: boolean = false): boolean {
         if (!persist) {
-            if (this.keyListeners === undefined) {
-                this.keyListeners = new Set();
+            if (this.keyHandlers === undefined) {
+                this.keyHandlers = new Set();
             }
-            this.keyListeners.add(handler);
+            this.keyHandlers.add(handler);
         }
         return this.game.inputHandler.addKeyHandler(handler);
     }
@@ -43,11 +46,41 @@ export class Scene implements Entity {
      * @return If the handler was removed.
      */
     public removeKeyHandler(handler: KeyHandler): boolean {
-        if (this.keyListeners !== undefined) {
-            this.keyListeners.delete(handler);
+        if (this.keyHandlers !== undefined) {
+            this.keyHandlers.delete(handler);
         }
         return this.game.inputHandler.removeKeyHandler(handler);
     }
+
+    /**
+     * Adds an EventHandler.
+     * This handler is automatically removed when the Game's `Scene` changes, unless `persist` is set to `true`.
+     *
+     * @param handler The callback invoked when an event occurs.
+     * @param persist If the handler should not be removed automatically when the `Scene` changes.
+     */
+    public addEventHandler(handler: EventHandler, persist: boolean = false): void {
+        if (!persist) {
+            if (this.eventHandlers === undefined) {
+                this.eventHandlers = new Set();
+            }
+            this.eventHandlers.add(handler);
+        }
+        this.game.inputHandler.addEventHandler(handler);
+    }
+
+    /**
+     * @param handler The handler to remove.
+     * @return If the handler was removed.
+     */
+    public removeEventHandler(handler: EventHandler): void {
+        if (this.eventHandlers !== undefined) {
+            this.eventHandlers.delete(handler);
+        }
+        this.game.inputHandler.removeEventHandler(handler);
+    }
+
+    // endregion
 
     /**
      * Invoked when the `Game`'s current `Scene` is set as `this` scene.
@@ -58,11 +91,17 @@ export class Scene implements Entity {
      * Invoked when the `Game`'s current `Scene` is switched from `this` scene to another.
      */
     public onSwitchedFromCurrent(): void {
-        if (this.keyListeners !== undefined) {
-            this.keyListeners.forEach(handler => {
+        if (this.keyHandlers !== undefined) {
+            this.keyHandlers.forEach(handler => {
                 this.game.inputHandler.removeKeyHandler(handler);
             });
-            this.keyListeners.clear();
+            this.keyHandlers.clear();
+        }
+
+        if (this.eventHandlers !== undefined) {
+            this.eventHandlers.forEach(handler => {
+               this.game.inputHandler.removeEventHandler(handler);
+            });
         }
     }
 
