@@ -11,7 +11,7 @@
   "dependencies": {},
   "scripts": {
     "watch-webpack": "npx webpack --mode development --watch",
-    "build-webpack-devel": "npx webpack --mode development --watch",
-    "build-webpack-production": "npx webpack --mode production --watch"
+    "build-webpack-devel": "npx webpack --mode development",
+    "build-webpack-production": "npx webpack --mode production"
   }
 }
