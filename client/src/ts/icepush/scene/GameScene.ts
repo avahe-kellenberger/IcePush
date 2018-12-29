@@ -4,6 +4,7 @@ import {Rectangle} from "../../engine/math/geom/Rectangle";
 import {IcePush} from "../IcePush";
 import {Vector2D} from "../../engine/math/Vector2D";
 import {KeyHandler} from "../../engine/input/InputHandler";
+import {Player} from "../entity/Player";
 
 export class GameScene extends Scene {
 
@@ -46,7 +47,7 @@ export class GameScene extends Scene {
         this.btnLogout.addEventListener('click', this.logout.bind(this));
 
         this.chatBox = document.createElement('textarea');
-        this.chatBox.className = 'on-canvas';
+        this.chatBox.className = 'on-canvas unfocusable';
         this.chatBox.id = 'chatbox';
         this.chatBox.style.top = '0';
         this.chatBox.style.left = '50%';
@@ -55,19 +56,26 @@ export class GameScene extends Scene {
         this.chatBox.style.transform = 'translate(-50%, 0%)';
         this.chatBox.style.overflow = 'hidden';
         this.chatBox.disabled = true;
+        this.chatBox.readOnly = true;
 
         this.chatInput = document.createElement('input');
-        this.chatInput.className = 'on-canvas';
+        this.chatInput.className = 'on-canvas unfocusable';
         this.chatInput.id = 'chat-input';
         this.chatInput.style.top = '27%';
         this.chatInput.style.left = '50%';
         this.chatInput.style.width = '65%';
         this.chatInput.style.transform = 'translate(-50%, 0%)';
         this.chatInput.disabled = true;
+        this.chatInput.readOnly = true;
 
         // Ensure all elements are in this list.
         this.domElements = new Set([this.btnLogout, this.chatBox, this.chatInput]);
         // endregion
+
+        // TODO: Testing; remove.
+        const center: Vector2D = new Vector2D(this.gameArea.getCenterX(), this.gameArea.getCenterY());
+        const player: Player = new Player(this.nick, center, ClientAssets.IMAGE_SNOWMAN);
+        this.add(player);
     }
 
     /**
