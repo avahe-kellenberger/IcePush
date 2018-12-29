@@ -1,5 +1,5 @@
 @font-face {
-    font-family: chatFont;
+    font-family: dina;
     src: url('../../../resources/dina.ttf');
 }
 
@@ -41,7 +41,6 @@ body {
     position: relative;
     text-align: center;
     background: #F0F0F0;
-    margin: 0 auto;
 }
 
 #canvas {
@@ -53,16 +52,16 @@ body {
 
 #chatbox {
     background-color: rgba(88, 88, 88, 0.8);
+    outline-color: transparent;
     color: white;
     resize: none;
-    outline-color: transparent;
 }
 
 #chat-input {
     background-color: rgba(88, 88, 88, 0.8);
+    outline-color: transparent;
     color: white;
     resize: none;
-    outline-color: transparent;
 }
 
 .on-canvas {
