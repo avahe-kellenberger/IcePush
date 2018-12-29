@@ -17,7 +17,16 @@ body {
     -moz-user-select: none;
 }
 
+#white {
+    text-align: center;
+    background: white;
+    padding: 1%;
+    margin: 5% auto;
+}
+
+
 #container {
+    white-space: nowrap;
     position: relative;
     text-align: center;
     border: 1px solid #888888;
@@ -28,6 +37,7 @@ body {
 }
 
 #canvas-container {
+    white-space: normal;
     position: relative;
     text-align: center;
     background: #F0F0F0;
@@ -36,27 +46,21 @@ body {
 
 #canvas {
     font-family: chatFont, serif;
-    z-index: -1;
     outline-color: transparent;
+    white-space: normal;
+    z-index: -1;
 }
 
 #chatbox {
-    background-color: rgba(100, 100, 100, 0.5);
+    background-color: rgba(88, 88, 88, 0.8);
     color: white;
-    width: 65%;
-    height: 25%;
-    top: 0;
-    left: 50%;
     resize: none;
     outline-color: transparent;
 }
 
 #chat-input {
-    background-color: rgba(100, 100, 100, 0.5);
+    background-color: rgba(88, 88, 88, 0.8);
     color: white;
-    width: 65%;
-    top: 27%;
-    left: 50%;
     resize: none;
     outline-color: transparent;
 }
@@ -76,11 +80,4 @@ body {
     -ms-user-select: none;
     -webkit-touch-callout: none;
     -moz-user-select: none;
-}
-
-.white {
-    text-align: center;
-    background: white;
-    padding: 1%;
-    margin: 5% auto;
 }

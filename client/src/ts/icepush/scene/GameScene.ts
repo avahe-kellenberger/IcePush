@@ -48,13 +48,20 @@ export class GameScene extends Scene {
         this.chatBox = document.createElement('textarea');
         this.chatBox.className = 'on-canvas';
         this.chatBox.id = 'chatbox';
-        this.chatBox.disabled = true;
+        this.chatBox.style.top = '0';
+        this.chatBox.style.left = '50%';
+        this.chatBox.style.width = '65%';
+        this.chatBox.style.height = '25%';
         this.chatBox.style.transform = 'translate(-50%, 0%)';
         this.chatBox.style.overflow = 'hidden';
+        this.chatBox.disabled = true;
 
         this.chatInput = document.createElement('input');
         this.chatInput.className = 'on-canvas';
         this.chatInput.id = 'chat-input';
+        this.chatInput.style.top = '27%';
+        this.chatInput.style.left = '50%';
+        this.chatInput.style.width = '65%';
         this.chatInput.style.transform = 'translate(-50%, 0%)';
         this.chatInput.disabled = true;
 
