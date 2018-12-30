@@ -1,5 +1,5 @@
-import {ClientAssets} from "./ts/icepush/asset/ClientAssets";
-import {IcePush} from "./ts/icepush/IcePush";
+import {ClientAssets} from "./icepush/asset/ClientAssets";
+import {IcePush} from "./icepush/IcePush";
 
 // Queue asset loading as soon as possible.
 console.log('[IcePush] Loading assets...');

@@ -11,6 +11,7 @@
     "strict": true
   },
   "include": [
-    "src/ts/**/*"
+    "src/ts/**/*",
+    "../../../../.PhpStorm2018.3/config/javascript/nodejs/11.4.0/node-typings/node_modules/@types/node/index.d.ts"
   ]
 }
