@@ -1,5 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {OPCode} from "../OPCode";
+import {PositionedBuffer} from "../PositionedBuffer";
 
 export class ChatEvent extends NetworkEvent {
 
@@ -10,34 +11,31 @@ export class ChatEvent extends NetworkEvent {
      * @param chatMessage The message being sent.
      */
     constructor(chatMessage: string);
-    constructor(buffer: Buffer, offset: number);
-    constructor(bufferOrMessage: Buffer|string, offset?: number) {
+    constructor(buffer: PositionedBuffer, offset: number);
+    constructor(bufferOrMessage: PositionedBuffer|string, offset?: number) {
         super();
         if (typeof bufferOrMessage === 'string') {
             this.chatMessage = bufferOrMessage;
-            this.BINARY_SIZE = 1 + Buffer.byteLength(this.chatMessage);
         } else if (offset !== undefined) {
-            const length: number = bufferOrMessage.readUInt8(offset);
-            this.chatMessage = bufferOrMessage.toString('UTF-8', offset + 1, length);
-            this.BINARY_SIZE = 1 + length;
+            this.chatMessage = bufferOrMessage.readString();
         } else {
             throw new Error('Malformed constructor.');
         }
+        this.BINARY_SIZE = PositionedBuffer.getWriteSize(this.chatMessage);
     }
 
     /**
      * @override
      */
-    public write(buffer: Buffer, offset: number): number {
-        offset += buffer.writeUInt8(Buffer.byteLength(this.chatMessage), offset);
-        offset += buffer.write(this.chatMessage, offset);
-        return offset;
+    public write(buffer: PositionedBuffer): void {
+        buffer.writeString(this.chatMessage);
     }
 
     /**
      * @override
      */
     public getOPCode(): OPCode {
+        // TODO: Difference between CHAT and NEW_CHAT_MESSAGE?
         return OPCode.CHAT;
     }
 

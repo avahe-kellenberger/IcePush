@@ -1,16 +1,18 @@
 import {OPCode} from "./OPCode";
+import {PositionedBuffer} from "./PositionedBuffer";
 
 /**
- *
+ * NetworkEvents are dispatched via a `Buffer`.
+ * Data of each NetworkEvent should be prefixed by its opcode (see `NetworkEvent.getOPCode()`).
  */
 export abstract class NetworkEvent {
 
     /**
-     * Writes all event data to the buffer at the given offset.
+     * Writes all event data to the buffer.
+     * This method does not write the event's OPCode.
      * @param buffer The buffer to write to.
-     * @param offset the position in the buffer to begin writing.
      */
-    abstract write(buffer: Buffer, offset: number): number;
+    abstract write(buffer: PositionedBuffer): void;
 
     /**
      * @return The size of the event in bytes.

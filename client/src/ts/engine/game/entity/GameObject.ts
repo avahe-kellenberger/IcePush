@@ -10,7 +10,7 @@ export abstract class GameObject implements ILocatable, Locatable, Entity {
     /**
      * @param location The location of the object.
      */
-    constructor(location: Vector2D) {
+    constructor(location: Vector2D = Vector2D.ZERO) {
         this.location = location;
         this.velocity = Vector2D.ZERO;
     }

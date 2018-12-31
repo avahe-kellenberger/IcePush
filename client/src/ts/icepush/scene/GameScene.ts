@@ -77,8 +77,9 @@ export class GameScene extends Scene {
         // endregion
 
         // TODO: Testing; remove.
+        const player: Player = new Player(0, this.nick, Player.Type.SNOWMAN);
         const center: Vector2D = new Vector2D(this.gameArea.getCenterX(), this.gameArea.getCenterY());
-        const player: Player = new Player(this.nick, center, ClientAssets.IMAGE_SNOWMAN);
+        player.setLocation(center);
         this.add(player);
     }
 
