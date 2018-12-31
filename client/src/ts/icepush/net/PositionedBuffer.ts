@@ -32,15 +32,6 @@ export class PositionedBuffer {
     }
 
     /**
-     * @param s The string that would be written.
-     * @return The number of bytes that would be used to write the string.
-     */
-    public static getWriteSize(s: string): number {
-        // + 2 is for the two bytes needed to write the size of the string.
-        return Buffer.byteLength(s) + 2;
-    }
-
-    /**
      * Reads a `utf8` string from the buffer.
      * The string size is determined by first calling `PositionedBuffer.readInt16BE`,
      * then using that number as the number of bytes to read into a string.
@@ -48,6 +39,22 @@ export class PositionedBuffer {
     public readString(): string {
         const size: number = this.readInt16BE();
         return this.buffer.toString(PositionedBuffer.STRING_ENCODING, this.pos(size), this.pos());
+    }
+
+    /**
+     * Reads a `utf8` string from the buffer.
+     *
+     * NOTE: This function is a duplication of the functionality of the old client.
+     * This method is sloppy and uses more space than needed.
+     * It will be replaced by PositionedBuffer.readString() in the future.
+     */
+    public readStringOld(): string {
+        const length: number = this.readInt16BE();
+        const chars: string[] = [];
+        for (let i = 0; i < length; i++) {
+            chars.push(String.fromCharCode(this.readInt8()));
+        }
+        return chars.join();
     }
 
     /**
@@ -59,6 +66,25 @@ export class PositionedBuffer {
         const stringSize: number = Buffer.byteLength(s);
         this.writeInt16BE(stringSize);
         this.pos(this.buffer.write(s, this.pos(), stringSize, PositionedBuffer.STRING_ENCODING), true);
+        return this.pos();
+    }
+
+    /**
+     * Writes a `utf8` string to the buffer.
+     *
+     * NOTE: This function is a duplication of the functionality of the old client.
+     * This method is sloppy and uses more space than needed.
+     * It will be replaced by PositionedBuffer.writeString() in the future.
+     *
+     * @param s The string to write to the buffer.
+     * @return The position in the buffer after writing.
+     */
+    public writeStringOld(s: string): number {
+        const length = s.length;
+        this.writeInt16BE(length);
+        for (let i = 0; i < length; i++) {
+            this.writeInt8(s.charCodeAt(i));
+        }
         return this.pos();
     }
 
@@ -89,5 +115,44 @@ export class PositionedBuffer {
     public writeInt16BE(value: number): number {
         return this.buffer.writeInt16BE(value, this.pos(2));
     }
+
+    /**
+     * @see Buffer.readInt32BE
+     */
+    public readInt32BE(): number {
+        return this.buffer.readInt32BE(this.pos(4));
+    }
+
+    /**
+     * @see Buffer.writeInt32BE
+     */
+    public writeInt32BE(value: number): number {
+        return this.buffer.writeInt32BE(value, this.pos(4));
+    }
+
+    // region Static Methods
+
+    /**
+     * @param s The string that would be written.
+     * @return The number of bytes that would be used to write the string.
+     */
+    public static getWriteSize(s: string): number {
+        // + 2 is for the two bytes needed to write the size of the string.
+        return Buffer.byteLength(s) + 2;
+    }
+
+    /**
+     * NOTE: This function is a duplication of the functionality of the old client.
+     * This method is sloppy and uses more space than needed.
+     * It will be replaced by PositionedBuffer.getWriteSize() in the future.
+     *
+     * @param s The string that would be written.
+     * @return The number of bytes that would be used to write the string.
+     */
+    public static getWriteSizeOld(s: string): number {
+        return s.length + 2;
+    }
+
+    // endregion
 
 }

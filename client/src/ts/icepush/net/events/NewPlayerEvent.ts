@@ -21,14 +21,14 @@ export class NewPlayerEvent extends NetworkEvent {
         } else {
             const playerID: number = playerOrBuffer.readInt16BE();
             const type: number = playerOrBuffer.readInt8();
-            const username: string = playerOrBuffer.readString();
+            const username: string = playerOrBuffer.readStringOld();
             this.player = new Player(playerID, username, type);
 
             const deaths: number = playerOrBuffer.readInt16BE();
             this.player.setDeathCount(deaths);
         }
         // Initial size of 5 bytes + write size of the player's name.
-        this.BINARY_SIZE = 5 + PositionedBuffer.getWriteSize(this.player.getName());
+        this.BINARY_SIZE = 5 + PositionedBuffer.getWriteSizeOld(this.player.getName());
     }
 
     /**
@@ -51,7 +51,7 @@ export class NewPlayerEvent extends NetworkEvent {
     public write(buffer: PositionedBuffer): void {
         buffer.writeInt16BE(this.player.getID());
         buffer.writeInt8(this.player.getType());
-        buffer.writeString(this.player.getName());
+        buffer.writeStringOld(this.player.getName());
         buffer.writeInt16BE(this.player.getDeathCount());
     }
 

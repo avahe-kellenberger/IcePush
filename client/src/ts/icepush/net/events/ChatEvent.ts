@@ -17,16 +17,16 @@ class ChatEvent extends NetworkEvent {
         if (typeof bufferOrMessage === 'string') {
             this.chatMessage = bufferOrMessage;
         } else {
-            this.chatMessage = bufferOrMessage.readString();
+            this.chatMessage = bufferOrMessage.readStringOld();
         }
-        this.BINARY_SIZE = PositionedBuffer.getWriteSize(this.chatMessage);
+        this.BINARY_SIZE = PositionedBuffer.getWriteSizeOld(this.chatMessage);
     }
 
     /**
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeString(this.chatMessage);
+        buffer.writeStringOld(this.chatMessage);
     }
 
     /**
