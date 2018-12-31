@@ -2,6 +2,7 @@
  *
  */
 export enum OPCode {
+    LOGIN = 0,
     FAILURE = 1,
     SUCCESS = 2,
     NEW_PLAYER = 5,

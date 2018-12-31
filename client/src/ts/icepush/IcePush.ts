@@ -4,6 +4,9 @@ import {GameScene} from "./scene/GameScene";
 
 export class IcePush extends Game {
 
+    public static CLIENT_VERSION: number = 105;
+    public static SERVER_ADDRESS: string = 'ws://98.11.245.205:2345';
+
     private homeScene: HomeScene|undefined;
 
     /**

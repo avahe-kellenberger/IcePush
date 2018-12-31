@@ -1,32 +1,46 @@
+import {NetworkEvent} from "./NetworkEvent";
+import {PositionedBuffer} from "./PositionedBuffer";
+
 export class Connection {
 
     private readonly socket: WebSocket;
 
     /**
-     * TODO:
-     * @param address
+     * Connects via a websocket to the given address with the given protocol(s).
+     * @param address See `WebSocket`
+     * @param protocols See `WebSocket`
      */
-    constructor(address: string) {
-        this.socket = new WebSocket(address);
+    constructor(address: string, protocols?: string|string[]) {
+        this.socket = new WebSocket(address, protocols);
         this.socket.binaryType = 'arraybuffer';
 
         this.socket.addEventListener("message", (e: MessageEvent) => {
-            if (!(e instanceof Buffer)) {
-                throw new Error("Unsupported WebSocket data type: " + typeof e);
+            if (!(e.data instanceof ArrayBuffer)) {
+                throw new Error("Unsupported WebSocket data type: " + typeof e.data);
             }
-            this.onReceived(e);
+            this.onReceived(e.data);
         });
         this.socket.addEventListener('error', this.onError);
         this.socket.addEventListener("close", this.onClose);
+        this.socket.onopen
+    }
+
+    /**
+     * Adds a listener to be invoked when the underlying WebSocket first opens.
+     * @param onopen See `WebSocket`
+     */
+    public addOnOpenListener(onopen: ((ev: Event) => any)): void {
+        this.socket.onopen = onopen;
     }
 
     /**
      * TODO:
      * @param buffer
      */
-    private onReceived(buffer: Buffer): void {
+    private onReceived(buffer: ArrayBuffer): void {
         // TODO: Interpret the event into NetworkEvents.
-        console.log(buffer);
+        // const decoder: TextDecoder = new TextDecoder();
+        // decoder.decode(buffer) => Find NetworkEvent type and parse.
     }
 
     /**
@@ -43,15 +57,19 @@ export class Connection {
      */
     private onError(e: ErrorEvent): void {
         // TODO: Cleanup.
-        console.error("Connection Error: " + e);
+        console.error(`Connection Error: ${e}`);
     }
 
     /**
-     * Sends the array.
-     * @param arr The array to send.
+     * Sends an individual event.
+     * @param event The event to send.
      */
-    public send(arr: Uint8Array): void {
-        this.socket.send(new Uint8Array());
+    public send(event: NetworkEvent): void {
+        const size: number = 1 + event.getEventSize();
+        const buffer: PositionedBuffer = new PositionedBuffer(new Buffer(size));
+        buffer.writeInt8(event.getOPCode());
+        event.write(buffer);
+        this.socket.send(buffer.getBuffer());
     }
 
     /**
@@ -69,7 +87,7 @@ export class Connection {
     public close(errorOrCode?: boolean|number): void {
         if (errorOrCode == null) {
             errorOrCode = 1000;
-        } else if (typeof errorOrCode === "boolean") {
+        } else if (typeof errorOrCode === 'boolean') {
             errorOrCode = errorOrCode ? 4000 : 1000;
         }
         this.socket.close(errorOrCode);

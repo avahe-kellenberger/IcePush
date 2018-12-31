@@ -25,6 +25,13 @@ export class PositionedBuffer {
     }
 
     /**
+     * @return The underlying buffer.
+     */
+    public getBuffer(): Buffer {
+        return this.buffer;
+    }
+
+    /**
      * @param s The string that would be written.
      * @return The number of bytes that would be used to write the string.
      */
