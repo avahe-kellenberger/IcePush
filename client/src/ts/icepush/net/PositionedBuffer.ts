@@ -35,11 +35,11 @@ export class PositionedBuffer {
 
     /**
      * Reads a `utf8` string from the buffer.
-     * The string size is determined by first calling `PositionedBuffer.readUInt16BE`,
+     * The string size is determined by first calling `PositionedBuffer.readInt16BE`,
      * then using that number as the number of bytes to read into a string.
      */
     public readString(): string {
-        const size: number = this.readUInt16BE();
+        const size: number = this.readInt16BE();
         return this.buffer.toString(PositionedBuffer.STRING_ENCODING, this.pos(size), this.pos());
     }
 
@@ -50,37 +50,37 @@ export class PositionedBuffer {
      */
     public writeString(s: string): number {
         const stringSize: number = Buffer.byteLength(s);
-        this.writeUInt16BE(stringSize);
+        this.writeInt16BE(stringSize);
         this.pos(this.buffer.write(s, this.pos(), stringSize, PositionedBuffer.STRING_ENCODING), true);
         return this.pos();
     }
 
     /**
-     * @see Buffer.readUInt8
+     * @see Buffer.readInt8
      */
-    public readUInt8(): number {
-        return this.buffer.readUInt8(this.pos(1));
+    public readInt8(): number {
+        return this.buffer.readInt8(this.pos(1));
     }
 
     /**
-     * @see Buffer.writeUInt8
+     * @see Buffer.writeInt8
      */
-    public writeUInt8(value: number): number {
-        return this.buffer.writeUInt8(value, this.pos(1));
+    public writeInt8(value: number): number {
+        return this.buffer.writeInt8(value, this.pos(1));
     }
 
     /**
-     * @see Buffer.readUInt16BE
+     * @see Buffer.readInt16BE
      */
-    public readUInt16BE(): number {
-        return this.buffer.readUInt16BE(this.pos(2));
+    public readInt16BE(): number {
+        return this.buffer.readInt16BE(this.pos(2));
     }
 
     /**
-     * @see Buffer.writeUInt16BE
+     * @see Buffer.writeInt16BE
      */
-    public writeUInt16BE(value: number): number {
-        return this.buffer.writeUInt16BE(value, this.pos(2));
+    public writeInt16BE(value: number): number {
+        return this.buffer.writeInt16BE(value, this.pos(2));
     }
 
 }

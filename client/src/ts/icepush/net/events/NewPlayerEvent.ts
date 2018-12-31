@@ -19,12 +19,12 @@ export class NewPlayerEvent extends NetworkEvent {
         if (playerOrBuffer instanceof Player) {
             this.player = playerOrBuffer;
         } else {
-            const playerID: number = playerOrBuffer.readUInt16BE();
-            const type: number = playerOrBuffer.readUInt8();
+            const playerID: number = playerOrBuffer.readInt16BE();
+            const type: number = playerOrBuffer.readInt8();
             const username: string = playerOrBuffer.readString();
             this.player = new Player(playerID, username, type);
 
-            const deaths: number = playerOrBuffer.readUInt16BE();
+            const deaths: number = playerOrBuffer.readInt16BE();
             this.player.setDeathCount(deaths);
         }
         // Initial size of 5 bytes + write size of the player's name.
@@ -49,10 +49,10 @@ export class NewPlayerEvent extends NetworkEvent {
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeUInt16BE(this.player.getID());
-        buffer.writeUInt8(this.player.getType());
+        buffer.writeInt16BE(this.player.getID());
+        buffer.writeInt8(this.player.getType());
         buffer.writeString(this.player.getName());
-        buffer.writeUInt16BE(this.player.getDeathCount());
+        buffer.writeInt16BE(this.player.getDeathCount());
     }
 
 }
