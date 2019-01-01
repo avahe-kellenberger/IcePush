@@ -5,6 +5,8 @@ export class Connection {
 
     private readonly socket: WebSocket;
 
+    private readonly dataListeners: Array<(buffer: ArrayBuffer) => void>;
+
     /**
      * Connects via a websocket to the given address with the given protocol(s).
      * @param address See `WebSocket`
@@ -12,35 +14,108 @@ export class Connection {
      */
     constructor(address: string, protocols?: string|string[]) {
         this.socket = new WebSocket(address, protocols);
-        this.socket.binaryType = 'arraybuffer';
+        this.dataListeners = [];
 
-        this.socket.addEventListener("message", (e: MessageEvent) => {
+        this.socket.binaryType = 'arraybuffer';
+        this.addMessageListener((e: MessageEvent) => {
             if (!(e.data instanceof ArrayBuffer)) {
                 throw new Error("Unsupported WebSocket data type: " + typeof e.data);
             }
             this.onReceived(e.data);
         });
-        this.socket.addEventListener('error', this.onError);
-        this.socket.addEventListener("close", this.onClose);
-        this.socket.onopen
+        this.addErrorListener(this.onError);
+        this.addCloseListener(this.onClose);
     }
 
     /**
      * Adds a listener to be invoked when the underlying WebSocket first opens.
-     * @param onopen See `WebSocket`
+     * @param listener The listener to be invoked.
      */
-    public addOnOpenListener(onopen: ((ev: Event) => any)): void {
-        this.socket.onopen = onopen;
+    public addOnOpenedListener(listener: ((e: Event) => any)): void {
+        this.socket.addEventListener('open', listener);
     }
 
     /**
-     * TODO:
-     * @param buffer
+     * Removes the listener.
+     * @param listener The listener to remove.
+     */
+    public removeOnOpenedListener(listener: (e: Event) => any): void {
+        this.socket.removeEventListener('open', listener);
+    }
+
+    /**
+     * Adds a listener to be invoked when the underlying WebSocket closes.
+     * @param listener The listener to be invoked.
+     */
+    public addCloseListener(listener: ((e: CloseEvent) => any)): void {
+        this.socket.addEventListener('close', listener);
+    }
+
+    /**
+     * Removes the listener.
+     * @param listener The listener to remove.
+     */
+    public removeCloseListener(listener: (e: CloseEvent) => any): void {
+        this.socket.removeEventListener('close', listener);
+    }
+
+    /**
+     * Adds a listener to be invoked when the underlying WebSocket receives a message.
+     * @param listener The listener to be invoked.
+     */
+    public addMessageListener(listener: ((e: MessageEvent) => any)) {
+        this.socket.addEventListener('message', listener);
+    }
+
+    /**
+     * Removes the listener.
+     * @param listener The listener to remove.
+     */
+    public removeMessageListener(listener: (e: MessageEvent) => any): void {
+        this.socket.removeEventListener('message', listener);
+    }
+
+    /**
+     * Adds a listener to be invoked when the underlying WebSocket throws an error.
+     * @param listener The listener to be invoked.
+     */
+    public addErrorListener(listener: ((e: ErrorEvent) => any)): void {
+        this.socket.addEventListener('error', listener);
+    }
+
+    /**
+     * Removes the listener.
+     * @param listener The listener to remove.
+     */
+    public removeErrorListener(listener: (e: ErrorEvent) => any): void {
+        this.socket.removeEventListener('error', listener);
+    }
+
+    /**
+     * Adds a listener to be invoked when the underlying WebSocket receives data.
+     * @param listener The listener to be invoked.
+     */
+    public addDataReceivedListener(listener: ((buffer: ArrayBuffer) => any)): void {
+        this.dataListeners.push(listener);
+    }
+
+    /**
+     * Removes the listener.
+     * @param listener The listener to remove.
+     */
+    public removeDataReceivedListener(listener: ((buffer: ArrayBuffer) => any)): void {
+        const index: number = this.dataListeners.indexOf(listener);
+        if (index >= 0) {
+            this.dataListeners.splice(index, 1);
+        }
+    }
+
+    /**
+     * Notifies the listeners of incoming data.
+     * @param buffer The data received by the socket.
      */
     private onReceived(buffer: ArrayBuffer): void {
-        // TODO: Interpret the event into NetworkEvents.
-        // const decoder: TextDecoder = new TextDecoder();
-        // decoder.decode(buffer) => Find NetworkEvent type and parse.
+        this.dataListeners.forEach(listener => listener(buffer));
     }
 
     /**
@@ -49,7 +124,10 @@ export class Connection {
      */
     private onClose(e: CloseEvent): void {
         // TODO: Cleanup game/notify listeners
-        console.log(`Connection closed with code ${e.code}\nReason: ${e.reason}`);
+        console.log(`Connection closed with code ${e.code}`);
+        if (e.reason.length > 0) {
+            console.log(`Reason: ${e.reason}`);
+        }
     }
 
     /**
@@ -77,6 +155,13 @@ export class Connection {
      */
     public isConnected(): boolean {
         return this.socket.readyState == WebSocket.OPEN;
+    }
+
+    /**
+     * @return The underlying WebSocket's `readyState`.
+     */
+    public getState(): number {
+        return this.socket.readyState;
     }
 
     /**

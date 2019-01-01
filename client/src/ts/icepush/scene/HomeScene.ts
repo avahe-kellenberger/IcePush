@@ -2,8 +2,6 @@ import {Scene} from "../../engine/game/Scene";
 import {ClientAssets} from "../asset/ClientAssets";
 import {IcePush} from "../IcePush";
 import {EventHandler, KeyHandler} from "../../engine/input/InputHandler";
-import {Connection} from "../net/Connection";
-import {LoginEvent} from "../net/events/LoginEvent";
 
 export class HomeScene extends Scene {
 
@@ -41,17 +39,12 @@ export class HomeScene extends Scene {
     /**
      * Attempt to log in.
      */
-    private login(): boolean {
+    private login(): void {
         if (this.inputUsername.value.length < 1 || this.inputUsername.value.match(/^[a-zA-Z0-9]*$/g) === null) {
             alert('Username must be alphanumeric with no spaces.');
-            return false;
+            return;
         }
-        const username: string = this.inputUsername.value;
-        // TODO: Validate login with server.
-        const connection: Connection = new Connection(IcePush.SERVER_ADDRESS);
-        connection.addOnOpenListener(() => connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
-        this.getGame().showGameScene(username);
-        return true;
+        this.getGame().tryLogin(this.inputUsername.value);
     }
 
     /**
