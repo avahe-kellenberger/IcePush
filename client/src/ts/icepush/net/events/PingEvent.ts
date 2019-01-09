@@ -2,13 +2,9 @@ import {NetworkEvent} from "../NetworkEvent";
 import {OPCode} from "../OPCode";
 import {PositionedBuffer} from "../PositionedBuffer";
 
-/**
- * OPCode.END_MOVE is the only important data for this event.
- * Therefore we neither read or write and additional bytes.
- */
-export class EndMoveEvent extends NetworkEvent {
+export class PingEvent extends NetworkEvent {
 
-    private BINARY_SIZE: number = 0;
+    private readonly BINARY_SIZE: number = 0;
 
     /**
      * @override
@@ -21,7 +17,7 @@ export class EndMoveEvent extends NetworkEvent {
      * @override
      */
     public getOPCode(): OPCode {
-        return OPCode.END_MOVE;
+        return OPCode.PING;
     }
 
     /**

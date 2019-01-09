@@ -2,7 +2,6 @@ import {Game} from "../engine/game/Game";
 import {HomeScene} from "./scene/HomeScene";
 import {GameScene} from "./scene/GameScene";
 import {Connection} from "./net/Connection";
-import {LoginEvent} from "./net/events/LoginEvent";
 
 export class IcePush extends Game {
 
@@ -12,16 +11,11 @@ export class IcePush extends Game {
 
     private connection: Connection|undefined;
     private homeScene: HomeScene|undefined;
+    private username: string|undefined;
 
     /**
-     *
-     */
-    constructor(ctx: CanvasRenderingContext2D) {
-        super(ctx);
-    }
-
-    /**
-     * @param username
+     * Attempts to log in.
+     * @param username The username to log in with.
      */
     public tryLogin(username: string): void {
         // Already logged in.
@@ -34,8 +28,9 @@ export class IcePush extends Game {
         const connection: Connection = this.connection;
 
         // Send a login event when the connect first opens.
+        // NOTE: The LoginEvent can't be used yet because it is the only event which is not prefixed by its size.
         this.connection.addOnOpenedListener(() =>
-            connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
+            connection.sendLogin(IcePush.CLIENT_VERSION, username));
 
         // Wait for the connection to time out.
         const timeoutID: NodeJS.Timeout = setTimeout(() => {
@@ -68,18 +63,26 @@ export class IcePush extends Game {
 
     /**
      *
-     * @param username
+     * @param username The name of the user which logged in.
      */
     private onLoginSucceeded(username: string): void {
-        this.showGameScene(username);
+        this.username = username;
+        this.showGameScene();
     }
 
     /**
-     *
      * @param reason
      */
     private onLoginFailed(reason?: string): void {
         // TODO: Set status
+        alert(`Failed to log in!/n${reason}`);
+    }
+
+    /**
+     * @return The game's connection to the server.
+     */
+    public getConnection(): Connection|undefined {
+        return this.connection;
     }
 
     /**
@@ -98,12 +101,14 @@ export class IcePush extends Game {
 
     /**
      * Shows the `GameScene`.
-     * @param username The local player's nick name.
+     * @return If switching to the game scene was successful.
      */
-    public showGameScene(username: string): void {
-        if (!(this.currentScene instanceof GameScene)) {
-            this.setScene(new GameScene(this, username));
+    public showGameScene(): boolean {
+        if (this.username === undefined || this.currentScene instanceof GameScene) {
+            return false;
         }
+        this.setScene(new GameScene(this, this.username));
+        return true;
     }
 
     /**

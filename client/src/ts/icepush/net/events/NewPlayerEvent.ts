@@ -5,30 +5,35 @@ import {PositionedBuffer} from "../PositionedBuffer";
 
 export class NewPlayerEvent extends NetworkEvent {
 
-    public readonly player: Player;
+    public readonly playerID: number;
+    public readonly type: Player.Type;
+    public readonly username: string;
+    public readonly deathCount: number;
     private readonly BINARY_SIZE: number;
 
     /**
      *
+     * @param playerID
      * @param player
      */
-    constructor(player: Player);
+    constructor(playerID: number, player: Player);
     constructor(buffer: PositionedBuffer);
-    constructor(playerOrBuffer: PositionedBuffer|Player) {
+    constructor(bufferOrID: PositionedBuffer|number, player?: Player) {
         super();
-        if (playerOrBuffer instanceof Player) {
-            this.player = playerOrBuffer;
+        if (bufferOrID instanceof PositionedBuffer) {
+            this.playerID = bufferOrID.readInt16BE();
+            this.type = bufferOrID.readInt8();
+            this.username = bufferOrID.readString();
+            this.deathCount = bufferOrID.readInt16BE();
+        } else if (player !== undefined) {
+            this.playerID = bufferOrID;
+            this.type = player.getType();
+            this.username = player.getName();
+            this.deathCount = player.getDeathCount();
         } else {
-            const playerID: number = playerOrBuffer.readInt16BE();
-            const type: number = playerOrBuffer.readInt8();
-            const username: string = playerOrBuffer.readStringOld();
-            this.player = new Player(playerID, username, type);
-
-            const deaths: number = playerOrBuffer.readInt16BE();
-            this.player.setDeathCount(deaths);
+            throw new Error(`Malformed constructor:\n${bufferOrID}\n${player}`);
         }
-        // Initial size of 5 bytes + write size of the player's name.
-        this.BINARY_SIZE = 5 + PositionedBuffer.getWriteSizeOld(this.player.getName());
+        this.BINARY_SIZE = 7 + this.username.length;
     }
 
     /**
@@ -49,10 +54,10 @@ export class NewPlayerEvent extends NetworkEvent {
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeInt16BE(this.player.getID());
-        buffer.writeInt8(this.player.getType());
-        buffer.writeStringOld(this.player.getName());
-        buffer.writeInt16BE(this.player.getDeathCount());
+        buffer.writeInt16BE(this.playerID);
+        buffer.writeInt8(this.type);
+        buffer.writeString(this.username);
+        buffer.writeInt16BE(this.deathCount);
     }
 
 }

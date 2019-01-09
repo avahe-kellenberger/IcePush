@@ -7,20 +7,17 @@ export class Player extends GameObject {
     private readonly name: string;
     private readonly sprite: HTMLImageElement;
     private readonly type: number;
-    private readonly id: number;
 
     private deathCount: number;
     private dead: boolean;
 
     /**
      * Creates a new player.
-     * @param id The player's ID.
      * @param name The player's name.
      * @param type The
      */
-    constructor(id: number, name: string, type: Player.Type) {
+    constructor(name: string, type: Player.Type) {
         super();
-        this.id = id;
         this.name = name;
         this.type = type;
         this.deathCount = 0;
@@ -64,13 +61,6 @@ export class Player extends GameObject {
         }
         this.dead = dead;
         return true;
-    }
-
-    /**
-     * @return The player's ID.
-     */
-    public getID(): number {
-        return this.id;
     }
 
     /**
@@ -125,8 +115,8 @@ export namespace Player {
      * TODO: Check if these values are correct with the old client version.
      */
     export enum Type {
-        SNOWMAN = 0,
-        TREE = 1
+        TREE = 0,
+        SNOWMAN = 1
     }
 
 }

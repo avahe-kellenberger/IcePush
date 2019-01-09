@@ -19,15 +19,14 @@ export class LoginEvent extends NetworkEvent {
         super();
         if (bufferOrVersion instanceof PositionedBuffer) {
             this.clientVersion = bufferOrVersion.readInt8();
-            this.playerName = bufferOrVersion.readStringOld();
+            const length: number = bufferOrVersion.readInt8();
+            this.playerName = bufferOrVersion.readString(length);
         } else if (playerName !== undefined) {
             this.clientVersion = bufferOrVersion;
             this.playerName = playerName;
         } else {
             throw new Error(`Malformed constructor:\n${bufferOrVersion}\n${playerName}`);
         }
-        // TODO: Special case with the old server.
-        // This should be changed to (1 + Buffer.getWriteSize(this.playerName)) when the code is updated.
         this.BINARY_SIZE = 2 + this.playerName.length;
     }
 
@@ -50,9 +49,6 @@ export class LoginEvent extends NetworkEvent {
      */
     public write(buffer: PositionedBuffer): void {
         buffer.writeInt8(this.clientVersion);
-
-        // TODO: This is a special case with the old server.
-        // We should only have to use buffer.writeString(this.playerName)
         buffer.writeInt8(this.playerName.length);
         for (let i = 0; i < this.playerName.length; i++) {
             buffer.writeInt8(this.playerName.charCodeAt(i));

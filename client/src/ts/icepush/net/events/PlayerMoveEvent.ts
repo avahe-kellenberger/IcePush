@@ -1,12 +1,12 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {OPCode} from "../OPCode";
-import {PositionedBuffer} from "../PositionedBuffer";
 import {Vector2D} from "../../../engine/math/Vector2D";
+import {PositionedBuffer} from "../PositionedBuffer";
 
 export class PlayerMoveEvent extends NetworkEvent {
 
     public readonly playerID: number;
-    public readonly position: Vector2D;
+    public readonly location: Vector2D;
 
     private readonly BINARY_SIZE: number = 6;
 
@@ -16,16 +16,16 @@ export class PlayerMoveEvent extends NetworkEvent {
      */
     constructor(playerID: number, position: Vector2D);
     constructor(buffer: PositionedBuffer);
-    constructor(idOrBuffer: PositionedBuffer|number, position?: Vector2D) {
+    constructor(idOrBuffer: PositionedBuffer|number, location?: Vector2D) {
         super();
         if (idOrBuffer instanceof PositionedBuffer) {
             this.playerID = idOrBuffer.readInt16BE();
-            this.position = new Vector2D(idOrBuffer.readInt16BE(), idOrBuffer.readInt16BE());
-        } else if (position !== undefined) {
+            this.location = new Vector2D(idOrBuffer.readInt16BE(), idOrBuffer.readInt16BE());
+        } else if (location !== undefined) {
             this.playerID = idOrBuffer;
-            this.position = position;
+            this.location = location;
         } else {
-            throw new Error(`Malformed constructor:\n${idOrBuffer}\n${position}`);
+            throw new Error(`Malformed constructor:\n${idOrBuffer}\n${location}`);
         }
     }
 
@@ -48,8 +48,8 @@ export class PlayerMoveEvent extends NetworkEvent {
      */
     public write(buffer: PositionedBuffer): void {
         buffer.writeInt16BE(this.playerID);
-        buffer.writeInt16BE(this.position.x);
-        buffer.writeInt16BE(this.position.y);
+        buffer.writeInt16BE(this.location.x);
+        buffer.writeInt16BE(this.location.y);
     }
 
 }

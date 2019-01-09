@@ -5,7 +5,7 @@ export class Connection {
 
     private readonly socket: WebSocket;
 
-    private readonly dataListeners: Array<(buffer: ArrayBuffer) => void>;
+    private readonly dataListeners: Array<(buffer: PositionedBuffer) => void>;
 
     /**
      * Connects via a websocket to the given address with the given protocol(s).
@@ -95,7 +95,7 @@ export class Connection {
      * Adds a listener to be invoked when the underlying WebSocket receives data.
      * @param listener The listener to be invoked.
      */
-    public addDataReceivedListener(listener: ((buffer: ArrayBuffer) => any)): void {
+    public addDataReceivedListener(listener: ((buffer: PositionedBuffer) => any)): void {
         this.dataListeners.push(listener);
     }
 
@@ -103,7 +103,7 @@ export class Connection {
      * Removes the listener.
      * @param listener The listener to remove.
      */
-    public removeDataReceivedListener(listener: ((buffer: ArrayBuffer) => any)): void {
+    public removeDataReceivedListener(listener: ((buffer: PositionedBuffer) => any)): void {
         const index: number = this.dataListeners.indexOf(listener);
         if (index >= 0) {
             this.dataListeners.splice(index, 1);
@@ -115,7 +115,10 @@ export class Connection {
      * @param buffer The data received by the socket.
      */
     private onReceived(buffer: ArrayBuffer): void {
-        this.dataListeners.forEach(listener => listener(buffer));
+        this.dataListeners.forEach(listener => {
+            // Create a new buffer for each listener.
+            listener(new PositionedBuffer(new Buffer(buffer)));
+        });
     }
 
     /**
@@ -143,10 +146,27 @@ export class Connection {
      * @param event The event to send.
      */
     public send(event: NetworkEvent): void {
-        const size: number = 1 + event.getEventSize();
+        const size: number = 3 + event.getEventSize();
         const buffer: PositionedBuffer = new PositionedBuffer(new Buffer(size));
+        buffer.writeInt16BE(event.getEventSize() + 1);
         buffer.writeInt8(event.getOPCode());
         event.write(buffer);
+        this.socket.send(buffer.getBuffer());
+    }
+
+    /**
+     * TODO: This is the old client's special log in.
+     * This will be replaced with the LoginEvent when the new protocol is on the server.
+     */
+    public sendLogin(version: number, username: string): void {
+        const usernameLength: number = username.length;
+        const buffer: PositionedBuffer = new PositionedBuffer(new Buffer(usernameLength + 3));
+        buffer.writeInt8(0);
+        buffer.writeInt8(version);
+        buffer.writeInt8(usernameLength);
+        for (let i = 0; i < usernameLength; i++) {
+            buffer.writeInt8(username.charCodeAt(i));
+        }
         this.socket.send(buffer.getBuffer());
     }
 

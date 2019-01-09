@@ -8,25 +8,24 @@ class ChatEvent extends NetworkEvent {
     private readonly BINARY_SIZE: number;
 
     /**
-     * @param chatMessage The message being sent.
+     *
+     * @param bufferOrMessage
      */
-    constructor(chatMessage: string);
-    constructor(buffer: PositionedBuffer);
     constructor(bufferOrMessage: PositionedBuffer|string) {
         super();
         if (typeof bufferOrMessage === 'string') {
             this.chatMessage = bufferOrMessage;
         } else {
-            this.chatMessage = bufferOrMessage.readStringOld();
+            this.chatMessage = bufferOrMessage.readString();
         }
-        this.BINARY_SIZE = PositionedBuffer.getWriteSizeOld(this.chatMessage);
+        this.BINARY_SIZE = this.chatMessage.length + 2;
     }
 
     /**
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeStringOld(this.chatMessage);
+        buffer.writeString(this.chatMessage);
     }
 
     /**

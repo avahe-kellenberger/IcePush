@@ -8,7 +8,7 @@ import {EventHandler, KeyHandler} from "../input/InputHandler";
 export class Scene implements Entity {
 
     private readonly game: Game;
-    private readonly entities: Set<Entity>;
+    private readonly entities: Map<number, Entity>;
 
     private keyHandlers: Set<KeyHandler>|undefined;
     private eventHandlers: Set<EventHandler>|undefined;
@@ -18,7 +18,7 @@ export class Scene implements Entity {
      */
     constructor(game: Game) {
         this.game = game;
-        this.entities = new Set();
+        this.entities = new Map();
     }
 
     // region Input Handlers.
@@ -114,35 +114,44 @@ export class Scene implements Entity {
 
     /**
      * Adds an `Entity` to the game.
+     * @param id The entity's ID.
      * @param entity The Entity to add.
      * @return If the entity was added successfully.
      */
-    public add(entity: Entity): boolean {
-        return this.entities.size !== this.entities.add(entity).size;
+    public addEntity(id: number, entity: Entity): boolean {
+        return this.entities.size !== this.entities.set(id, entity).size;
     }
 
     /**
      * Checks if the scene contains the entity.
-     * @param entity The entity to check.
+     * @param id The entity's ID.
      * @return If the scene contains the entity.
      */
-    public contains(entity: Entity): boolean {
-        return this.entities.has(entity);
+    public containsEntity(id: number): boolean {
+        return this.entities.get(id) !== undefined;
+    }
+
+    /**
+     * @param id The entity's ID.
+     * @return The entity associated with the ID, or `undefined` if it does not exist.
+     */
+    public getEntity(id: number): Entity|undefined {
+        return this.entities.get(id);
     }
 
     /**
      * Removes an `Entity` from the game.
-     * @param entity The Entity to remove.
      * @return If the entity was removed successfully.
+     * @param id The ID of the entity.
      */
-    public remove(entity: Entity): boolean {
-        return this.entities.delete(entity);
+    public removeEntity(id: number): boolean {
+        return this.entities.delete(id);
     }
 
     /**
      * Removes all entities from the scene.
      */
-    public removeAll(): void {
+    public removeAllEntities(): void {
         this.entities.clear();
     }
 
@@ -150,7 +159,7 @@ export class Scene implements Entity {
      * Invokes a callback on each `Entity` in the scene.
      * @param callback The callback to invoke.
      */
-    public forEach(callback: (e?: Entity) => void): void {
+    public forEachEntity(callback: (e?: Entity) => void): void {
         this.entities.forEach(callback);
     }
 

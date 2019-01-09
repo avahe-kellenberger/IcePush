@@ -2,6 +2,7 @@
  *
  */
 export enum OPCode {
+    PING = -37,
     LOGIN = 0,
     FAILURE = 1,
     SUCCESS = 2,
