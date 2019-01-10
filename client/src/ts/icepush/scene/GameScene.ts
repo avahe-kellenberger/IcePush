@@ -15,8 +15,11 @@ import {LogoutEvent} from "../net/events/LogoutEvent";
 import {PositionedBuffer} from "../net/PositionedBuffer";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
+import {Time} from "../../engine/time/Time";
 
 export class GameScene extends Scene {
+
+    private static readonly PING_TIMEOUT: number = 5.0;
 
     // region DOM Elements
 
@@ -284,6 +287,18 @@ export class GameScene extends Scene {
      */
     public getGame(): IcePush {
         return super.getGame() as IcePush;
+    }
+
+    /**
+     * @override
+     */
+    public update(delta: number): void {
+        super.update(delta);
+
+        // Send a ping to the server if a message has not been send recently.
+        if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
+            this.connection.send(new PingEvent());
+        }
     }
 
     /**

@@ -1,11 +1,13 @@
 import {NetworkEvent} from "./NetworkEvent";
 import {PositionedBuffer} from "./PositionedBuffer";
+import {Time} from "../../engine/time/Time";
 
 export class Connection {
 
     private readonly socket: WebSocket;
-
     private readonly dataListeners: Array<(buffer: PositionedBuffer) => void>;
+
+    private lastSendTime: number;
 
     /**
      * Connects via a websocket to the given address with the given protocol(s).
@@ -25,6 +27,7 @@ export class Connection {
         });
         this.addErrorListener(this.onError);
         this.addCloseListener(this.onClose);
+        this.lastSendTime = -1;
     }
 
     /**
@@ -151,7 +154,7 @@ export class Connection {
         buffer.writeInt16BE(event.getEventSize() + 1);
         buffer.writeInt8(event.getOPCode());
         event.write(buffer);
-        this.socket.send(buffer.getBuffer());
+        this.sendBuffer(buffer.getBuffer());
     }
 
     /**
@@ -167,7 +170,16 @@ export class Connection {
         for (let i = 0; i < usernameLength; i++) {
             buffer.writeInt8(username.charCodeAt(i));
         }
-        this.socket.send(buffer.getBuffer());
+        this.sendBuffer(buffer.getBuffer());
+    }
+
+    /**
+     * Sends a buffer.
+     * @param buffer The buffer to send.
+     */
+    private sendBuffer(buffer: Buffer): void {
+        this.socket.send(buffer);
+        this.lastSendTime = Time.now();
     }
 
     /**
@@ -182,6 +194,14 @@ export class Connection {
      */
     public getState(): number {
         return this.socket.readyState;
+    }
+
+    /**
+     * @return The last time a packet was sent.
+     * If a packet hasn't been sent, -1 will be returned.
+     */
+    public getLastSendTime(): number {
+        return this.lastSendTime;
     }
 
     /**

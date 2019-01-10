@@ -13,6 +13,10 @@ export class IcePush extends Game {
     private homeScene: HomeScene|undefined;
     private username: string|undefined;
 
+    constructor(ctx: CanvasRenderingContext2D) {
+        super(ctx);
+    }
+
     /**
      * Attempts to log in.
      * @param username The username to log in with.
