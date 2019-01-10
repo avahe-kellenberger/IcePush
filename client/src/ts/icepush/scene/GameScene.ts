@@ -295,7 +295,7 @@ export class GameScene extends Scene {
     public update(delta: number): void {
         super.update(delta);
 
-        // Send a ping to the server if a message has not been send recently.
+        // Send a ping to the server if a message has not been sent recently.
         if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
             this.connection.send(new PingEvent());
         }
