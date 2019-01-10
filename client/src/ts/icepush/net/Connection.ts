@@ -186,7 +186,7 @@ export class Connection {
      * @return If the socket is connected.
      */
     public isConnected(): boolean {
-        return this.socket.readyState == WebSocket.OPEN;
+        return this.socket.readyState === WebSocket.OPEN;
     }
 
     /**

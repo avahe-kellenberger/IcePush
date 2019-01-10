@@ -2,6 +2,7 @@ import {Game} from "../engine/game/Game";
 import {HomeScene} from "./scene/HomeScene";
 import {GameScene} from "./scene/GameScene";
 import {Connection} from "./net/Connection";
+import {LogoutEvent} from "./net/events/LogoutEvent";
 
 export class IcePush extends Game {
 
@@ -16,56 +17,60 @@ export class IcePush extends Game {
     private homeScene: HomeScene|undefined;
     private username: string|undefined;
 
-    constructor(ctx: CanvasRenderingContext2D) {
-        super(ctx);
-    }
-
     /**
      * Attempts to log in.
      * @param username The username to log in with.
      */
     public tryLogin(username: string): void {
-        // Already logged in.
-        if (this.connection !== undefined && this.connection.isConnected()) {
-            this.onLoginSucceeded(username);
-            return;
+        if (this.connection === undefined || !this.connection.isConnected()) {
+            this.connection = new Connection(IcePush.SERVER_ADDRESS);
+            const connection: Connection = this.connection;
+
+            // Await for a message indicating the login succeeded.
+            const loginListener = (() => {
+                clearTimeout(timeoutID);
+                connection.removeMessageListener(loginListener);
+                this.onLoginSucceeded(username);
+            });
+
+            // Wait for the connection to time out.
+            const timeoutID: NodeJS.Timeout = setTimeout(() => {
+                    this.onLoginFailed('Connection timed out.');
+                }, IcePush.LOGIN_TIMEOUT
+            );
+            this.connection.addMessageListener(loginListener);
+
+            // If the connection closes, cancel and queued timeouts.
+            const closeListener = (() => {
+                connection.removeCloseListener(closeListener);
+                clearTimeout(timeoutID);
+            });
+            this.connection.addCloseListener(closeListener);
+
+            // Send a login event when the connect first opens.
+            // NOTE: The LoginEvent can't be used yet because it is the only event which is not prefixed by its size.
+            this.connection.addOnOpenedListener(() =>
+                connection.sendLogin(IcePush.CLIENT_VERSION, username));
+
+            // If an error is thrown, the login failed.
+            const errorListener = (() => {
+                connection.removeErrorListener(errorListener);
+                this.onLoginFailed();
+            });
+            this.connection.addErrorListener(errorListener);
         }
+    }
 
-        this.connection = new Connection(IcePush.SERVER_ADDRESS);
-        const connection: Connection = this.connection;
-
-        // Send a login event when the connect first opens.
-        // NOTE: The LoginEvent can't be used yet because it is the only event which is not prefixed by its size.
-        this.connection.addOnOpenedListener(() =>
-            connection.sendLogin(IcePush.CLIENT_VERSION, username));
-
-        // Wait for the connection to time out.
-        const timeoutID: NodeJS.Timeout = setTimeout(() => {
-                this.onLoginFailed('Connection timed out.');
-            }, IcePush.LOGIN_TIMEOUT
-        );
-
-        // Await for a message indicating the login succeeded.
-        const loginListener = (() => {
-            clearTimeout(timeoutID);
-            connection.removeMessageListener(loginListener);
-            this.onLoginSucceeded(username);
-        });
-        this.connection.addMessageListener(loginListener);
-
-        // If an error is thrown, the login failed.
-        const errorListener = (() => {
-            connection.removeErrorListener(errorListener);
-            this.onLoginFailed();
-        });
-        this.connection.addErrorListener(errorListener);
-
-        // If the connection closes, cancel and queued timeouts.
-        const closeListener = (() => {
-            connection.removeCloseListener(closeListener);
-            clearTimeout(timeoutID);
-        });
-        this.connection.addCloseListener(closeListener);
+    /**
+     * Logs out of the game and closes the connection.
+     */
+    public logout(): void {
+        if (this.connection !== undefined) {
+            this.connection.send(new LogoutEvent());
+            this.showHomeScene();
+            this.connection.close();
+            this.connection = undefined;
+        }
     }
 
     /**
@@ -81,8 +86,7 @@ export class IcePush extends Game {
      * @param reason
      */
     private onLoginFailed(reason?: string): void {
-        // TODO: Set status
-        alert(`Failed to log in!/n${reason}`);
+        alert(`Failed to log in!\n${reason}`);
     }
 
     /**

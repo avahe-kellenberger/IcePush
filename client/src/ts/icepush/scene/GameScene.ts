@@ -210,8 +210,7 @@ export class GameScene extends Scene {
      * Attempt to log out.
      */
     private logout(): void {
-        // TODO: Verify logout event with the server.
-        this.getGame().showHomeScene();
+        this.getGame().logout();
     }
 
     /**
