@@ -151,7 +151,7 @@ export class GameScene extends Scene {
                 const player: Entity|undefined = this.getEntity(event.playerID);
                 if (player instanceof Player) {
                     // TODO: This location doesn't seem exact.
-                    player.setLocation(event.location);
+                    player.setLocation(event.location.addVector(this.gameArea.getTopLeft()));
                 }
                 break;
             }

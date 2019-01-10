@@ -6,8 +6,11 @@ import {Connection} from "./net/Connection";
 export class IcePush extends Game {
 
     public static CLIENT_VERSION: number = 105;
-    public static SERVER_ADDRESS: string = 'ws://98.11.245.205:2345';
     private static LOGIN_TIMEOUT: number = 3000;
+
+    private static readonly runLocal = location.protocol === 'file:';
+    private static readonly serverAddress = IcePush.runLocal ? 'localhost' : '98.11.245.205';
+    public static SERVER_ADDRESS: string = 'ws://' + IcePush.serverAddress + ':2345';
 
     private connection: Connection|undefined;
     private homeScene: HomeScene|undefined;
