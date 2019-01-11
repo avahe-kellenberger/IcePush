@@ -217,25 +217,45 @@ export class GameScene extends Scene {
      * Adds scene-specific input handlers.
      */
     private addInputHandlers(): void {
-        this.addKeyHandler(
-            new KeyHandler(key => {
-                if (key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
-                    this.chatInput.value += key;
-                } else if (this.chatInput.value.length > 0) {
-                    if (key === 'Backspace') {
-                        this.chatInput.value = this.chatInput.value.slice(0, -1);
-                    } else if (key === 'Enter') {
-                        this.sendMessage(this.chatInput.value);
-                        this.chatInput.value = '';
-                    }
-                }
-            }, (key, isDown) => isDown)
-        );
+        this.addKeyHandler(this.chatKeyHandler());
+        this.addKeyHandler(this.arrowKeyHandler());
+    }
 
-        // TODO: Example KeyHandlers. Network events will need to be dispatched from these keys.
-        this.addKeyHandler(new KeyHandler((key, isDown) => console.log(`${key}: ${isDown ? 'keyup' : 'keydown'}`),
-            key => key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight'
-        ));
+    /**
+     * Handles input for the chat box.
+     */
+    private chatKeyHandler(): KeyHandler {
+        return new KeyHandler(key => {
+            if (key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
+                this.chatInput.value += key;
+            } else if (this.chatInput.value.length > 0) {
+                if (key === 'Backspace') {
+                    this.chatInput.value = this.chatInput.value.slice(0, -1);
+                } else if (key === 'Enter') {
+                    this.sendMessage(this.chatInput.value);
+                    this.chatInput.value = '';
+                }
+            }
+        }, (key, isDown) => isDown);
+    }
+
+    /**
+     * Handles arrow-key input.
+     */
+    private arrowKeyHandler(): KeyHandler {
+        const keyMap: ReadonlyMap<string, number> = new Map(
+            Object.entries({
+                'ArrowLeft': 37,
+                'ArrowUp': 38,
+                'ArrowRight': 39,
+                'ArrowDown': 40
+        }));
+
+        return new KeyHandler((key, isDown) => {
+            // TODO: Handle arrow keys.
+            },
+            key => keyMap.get(key) !== undefined
+        );
     }
 
     // region DOM
