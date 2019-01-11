@@ -158,22 +158,6 @@ export class Connection {
     }
 
     /**
-     * TODO: This is the old client's special log in.
-     * This will be replaced with the LoginEvent when the new protocol is on the server.
-     */
-    public sendLogin(version: number, username: string): void {
-        const usernameLength: number = username.length;
-        const buffer: PositionedBuffer = new PositionedBuffer(new Buffer(usernameLength + 3));
-        buffer.writeInt8(0);
-        buffer.writeInt8(version);
-        buffer.writeInt8(usernameLength);
-        for (let i = 0; i < usernameLength; i++) {
-            buffer.writeInt8(username.charCodeAt(i));
-        }
-        this.sendBuffer(buffer.getBuffer());
-    }
-
-    /**
      * Sends a buffer.
      * @param buffer The buffer to send.
      */

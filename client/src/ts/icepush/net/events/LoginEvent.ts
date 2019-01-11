@@ -19,15 +19,14 @@ export class LoginEvent extends NetworkEvent {
         super();
         if (bufferOrVersion instanceof PositionedBuffer) {
             this.clientVersion = bufferOrVersion.readInt8();
-            const length: number = bufferOrVersion.readInt8();
-            this.playerName = bufferOrVersion.readString(length);
+            this.playerName = bufferOrVersion.readString();
         } else if (playerName !== undefined) {
             this.clientVersion = bufferOrVersion;
             this.playerName = playerName;
         } else {
             throw new Error(`Malformed constructor:\n${bufferOrVersion}\n${playerName}`);
         }
-        this.BINARY_SIZE = 2 + this.playerName.length;
+        this.BINARY_SIZE = 3 + this.playerName.length;
     }
 
     /**
@@ -49,10 +48,7 @@ export class LoginEvent extends NetworkEvent {
      */
     public write(buffer: PositionedBuffer): void {
         buffer.writeInt8(this.clientVersion);
-        buffer.writeInt8(this.playerName.length);
-        for (let i = 0; i < this.playerName.length; i++) {
-            buffer.writeInt8(this.playerName.charCodeAt(i));
-        }
+        buffer.writeString(this.playerName);
     }
 
 }

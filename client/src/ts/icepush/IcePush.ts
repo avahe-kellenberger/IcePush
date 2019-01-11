@@ -3,6 +3,7 @@ import {HomeScene} from "./scene/HomeScene";
 import {GameScene} from "./scene/GameScene";
 import {Connection} from "./net/Connection";
 import {LogoutEvent} from "./net/events/LogoutEvent";
+import {LoginEvent} from "./net/events/LoginEvent";
 
 export class IcePush extends Game {
 
@@ -49,8 +50,7 @@ export class IcePush extends Game {
 
             // Send a login event when the connect first opens.
             // NOTE: The LoginEvent can't be used yet because it is the only event which is not prefixed by its size.
-            this.connection.addOnOpenedListener(() =>
-                connection.sendLogin(IcePush.CLIENT_VERSION, username));
+            this.connection.addOnOpenedListener(() => connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
 
             // If an error is thrown, the login failed.
             const errorListener = (() => {
