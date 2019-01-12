@@ -135,7 +135,7 @@ function checkKeys() {
 }
 
 const sprites = [document.createElement('img'), document.createElement('img'), document.createElement('img')];
-const imageBase = "resources/images/";
+const imageBase = runLocal ? "resources/images/" : "/images/";
 sprites[0].src = imageBase + 'tree.png';
 sprites[1].src = imageBase + 'snowman.png';
 sprites[2].src = imageBase + 'present.png';
@@ -227,7 +227,7 @@ function loop() {
 	if (pack.available() >= 2 && !loggedIn) {
 		response = pack.readByte();
 		if (response === SUCCESS) {
-			const id = pack.readByte();
+			myId = pack.readByte();
 			loggedIn = true;
 			state = PLAY;
 			run = true;
@@ -302,7 +302,6 @@ function handlePackets() {
 				plr.deaths = deaths;
 				plr.isDead = true;
 				players[playerID] = plr;
-				myId = playerID;
 				break;
 			case PLAYER_MOVED:
 				playerID = pbuf.readShort();

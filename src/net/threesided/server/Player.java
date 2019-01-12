@@ -115,14 +115,12 @@ public class Player extends RigidBody {
 	// Notify this player of how much time is remaining in the current round
 	public void updateRoundTime(int time) {
 		pbuf.beginPacket(UPDATE_TIME);
-	        pbuf.writeByte(1);
 		pbuf.writeShort(time);
 		pbuf.endPacket();
 	}
 
     public void updateDeathTime(int time) {
         pbuf.beginPacket(UPDATE_TIME);
-        pbuf.writeByte(2);
         pbuf.writeShort(time);
         pbuf.endPacket();
     }

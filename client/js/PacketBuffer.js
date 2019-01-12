@@ -59,6 +59,7 @@ function PacketBuffer(ws) {
 		var len = this.readShort();
 		//console.log('len = ' + len);
 		var chars = new Uint8Array(this.inBuf.buffer.slice(this.readPtr, this.readPtr + len));
+		this.readPtr += len;
 		//console.log(chars);
 		//console.log(chars.length);
 		return String.fromCharCode.apply(null, chars);
