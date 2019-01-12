@@ -17,7 +17,7 @@ export class MoveRequestEvent extends NetworkEvent {
         if (typeof bufferOrAngle === 'number') {
             this.angle = bufferOrAngle;
         } else {
-            this.angle = bufferOrAngle.readInt8();
+            this.angle = bufferOrAngle.readUInt8();
         }
     }
 
@@ -25,7 +25,7 @@ export class MoveRequestEvent extends NetworkEvent {
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeInt8(this.angle);
+        buffer.writeUInt8(this.angle);
     }
 
     /**

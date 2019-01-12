@@ -17,6 +17,8 @@ import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
 import {TimeUpdateEvent} from "../net/events/TimeUpdateEvent";
+import {MoveRequestEvent} from "../net/events/MoveRequestEvent";
+import {EndMoveEvent} from "../net/events/EndMoveEvent";
 
 export class GameScene extends Scene {
 
@@ -252,56 +254,33 @@ export class GameScene extends Scene {
      * @return The "angle" the player is attempting to move in.
      */
     private getMovementAngle(): number|undefined {
-        // Arrows keys `keyCodes`
-        const LEFT: number = 37;
-        const UP: number = 38;
-        const RIGHT: number = 39;
-        const DOWN: number = 40;
-
-        // Map `key` to `keyCode`
-        const keyMap: ReadonlyMap<string, number> = new Map(
-            Object.entries({
-                'ArrowLeft': LEFT,
-                'ArrowUp': UP,
-                'ArrowRight': RIGHT,
-                'ArrowDown': DOWN
-            })
-        );
-
         const inputHandler: InputHandler = this.getGame().inputHandler;
-
-        /**
-         *     3
-         * 4       2
-         *     1
-         *
-         *     Add together, divide by 2
-         *     Multiply by 64
-         *     Subtract 64
-         */
-
-        // Angles are 0-255 starting from the bottom, rotating counter-clockwise.
+        const leftPressed: boolean = inputHandler.isKeyDown('ArrowLeft');
+        const rightPressed: boolean = inputHandler.isKeyDown('ArrowRight');
+        const upPressed: boolean = inputHandler.isKeyDown('ArrowUp');
+        const downPressed: boolean = inputHandler.isKeyDown('ArrowDown');
 
         let vertical: number|undefined = undefined;
         let horizontal: number|undefined = undefined;
-
-        if (inputHandler.isKeyDown('ArrowLeft')) {
+        if (leftPressed && !rightPressed) {
             horizontal = 192;
-        }
-
-        if (inputHandler.isKeyDown('ArrowRight')) {
+        } else if (!leftPressed && rightPressed) {
             horizontal = 64;
         }
 
-        if (inputHandler.isKeyDown('ArrowUp')) {
-
+        if (upPressed && !downPressed) {
+            vertical = 128;
+        } else if (!upPressed && downPressed) {
+            vertical = leftPressed ? 255 : 0;
         }
 
-        if (inputHandler.isKeyDown('ArrowDown')) {
-
+        if (horizontal === undefined) {
+            return vertical;
+        } else if (vertical === undefined) {
+            return horizontal;
         }
 
-        return undefined;
+        return Math.round((horizontal + vertical) * 0.5);
     }
 
     // region DOM
@@ -368,7 +347,12 @@ export class GameScene extends Scene {
 
         const currentAngle: number|undefined = this.getMovementAngle();
         if (currentAngle !== this.previousAngle) {
-
+            if (currentAngle !== undefined) {
+                this.connection.send(new MoveRequestEvent(currentAngle));
+            } else {
+                this.connection.send(new EndMoveEvent());
+            }
+            this.previousAngle = currentAngle;
         }
     }
 
@@ -376,7 +360,7 @@ export class GameScene extends Scene {
      * @override
      */
     public render(ctx: CanvasRenderingContext2D): void {
-        // Render the background image.
+        // Render the background image before the rest of the scene.
         ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
         super.render(ctx);
     }

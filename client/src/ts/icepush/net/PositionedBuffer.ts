@@ -77,10 +77,24 @@ export class PositionedBuffer {
     }
 
     /**
+     * @see Buffer.readUInt8
+     */
+    public readUInt8(): number {
+        return this.buffer.readUInt8(this.pos(1));
+    }
+
+    /**
      * @see Buffer.writeInt8
      */
     public writeInt8(value: number): number {
         return this.buffer.writeInt8(value, this.pos(1));
+    }
+
+    /**
+     * @see Buffer.writeUInt8
+     */
+    public writeUInt8(value: number): number {
+        return this.buffer.writeUInt8(value, this.pos(1));
     }
 
     /**
