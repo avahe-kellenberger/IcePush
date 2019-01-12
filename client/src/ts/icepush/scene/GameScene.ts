@@ -3,7 +3,7 @@ import {ClientAssets} from "../asset/ClientAssets";
 import {Rectangle} from "../../engine/math/geom/Rectangle";
 import {IcePush} from "../IcePush";
 import {Vector2D} from "../../engine/math/Vector2D";
-import {KeyHandler} from "../../engine/input/InputHandler";
+import {InputHandler, KeyHandler} from "../../engine/input/InputHandler";
 import {Player} from "../entity/Player";
 import {Connection} from "../net/Connection";
 import {OPCode} from "../net/OPCode";
@@ -16,6 +16,7 @@ import {PositionedBuffer} from "../net/PositionedBuffer";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
+import {TimeUpdateEvent} from "../net/events/TimeUpdateEvent";
 
 export class GameScene extends Scene {
 
@@ -32,8 +33,9 @@ export class GameScene extends Scene {
 
     private readonly username: string;
     private readonly gameArea: Rectangle;
-
     private readonly connection: Connection;
+
+    private previousAngle: number|undefined;
 
     /**
      * Constructs the scene in which the game is played.
@@ -100,35 +102,35 @@ export class GameScene extends Scene {
     }
 
     /**
-     *
      * @param buffer
      */
     private dataListener(buffer: PositionedBuffer): void {
-        while (true) {
-            const bufferPosition: number = buffer.getPosition();
-            const bufferLength: number = buffer.getLength();
-            if (bufferPosition + 3 > bufferLength) {
-                break;
-            }
-            // TODO: Unused packet size, needs a server change.
-            const packetSize: number = buffer.readInt16BE();
-            if (packetSize < 0) {
-                break;
-            }
-
-            if (bufferPosition + packetSize - 2 > bufferLength) {
-                break;
-            }
-
-            const opcode: OPCode = buffer.readInt8();
-            this.readEvent(buffer, opcode);
+        while (this.isBufferValid(buffer)) {
+            this.readEvent(buffer, buffer.readInt8());
         }
     }
 
     /**
-     *
-     * @param buffer
-     * @param opcode
+     * Checks if the buffer is in a valid read state.
+     * @param buffer The buffer to check.
+     */
+    private isBufferValid(buffer: PositionedBuffer): boolean {
+        const bufferLength: number = buffer.getLength();
+        if (buffer.getPosition() >= bufferLength - 1) {
+            return false;
+        }
+        const packetSize: number = buffer.readInt16BE();
+        if (packetSize < 0) {
+            return false;
+        }
+        const packetEnd: number = buffer.getPosition() + packetSize - 2;
+        return packetEnd <= buffer.getLength();
+    }
+
+    /**
+     * Handles events received from the server.
+     * @param buffer The buffer which contains event data.
+     * @param opcode The event's OPCode.
      * @return The size of the event in bytes.
      */
     private readEvent(buffer: PositionedBuffer, opcode: OPCode): void {
@@ -150,7 +152,6 @@ export class GameScene extends Scene {
                 const event = new PlayerMoveEvent(buffer);
                 const player: Entity|undefined = this.getEntity(event.playerID);
                 if (player instanceof Player) {
-                    // TODO: This location doesn't seem exact.
                     player.setLocation(event.location.addVector(this.gameArea.getTopLeft()));
                 }
                 break;
@@ -179,6 +180,12 @@ export class GameScene extends Scene {
             case OPCode.CHAT_RECEIVE: {
                 const event = new ChatReceiveEvent(buffer);
                 this.onMessageReceived(event.chatMessage);
+                break;
+            }
+
+            case OPCode.UPDATE_TIME: {
+                const event = new TimeUpdateEvent(buffer);
+                // TODO:
                 break;
             }
         }
@@ -218,7 +225,6 @@ export class GameScene extends Scene {
      */
     private addInputHandlers(): void {
         this.addKeyHandler(this.chatKeyHandler());
-        this.addKeyHandler(this.arrowKeyHandler());
     }
 
     /**
@@ -240,22 +246,62 @@ export class GameScene extends Scene {
     }
 
     /**
-     * Handles arrow-key input.
+     * Calculates the player's current angle of movement based on key input.
+     * Angles are 0-255 starting from the bottom, rotating counter-clockwise.
+     *
+     * @return The "angle" the player is attempting to move in.
      */
-    private arrowKeyHandler(): KeyHandler {
+    private getMovementAngle(): number|undefined {
+        // Arrows keys `keyCodes`
+        const LEFT: number = 37;
+        const UP: number = 38;
+        const RIGHT: number = 39;
+        const DOWN: number = 40;
+
+        // Map `key` to `keyCode`
         const keyMap: ReadonlyMap<string, number> = new Map(
             Object.entries({
-                'ArrowLeft': 37,
-                'ArrowUp': 38,
-                'ArrowRight': 39,
-                'ArrowDown': 40
-        }));
-
-        return new KeyHandler((key, isDown) => {
-            // TODO: Handle arrow keys.
-            },
-            key => keyMap.get(key) !== undefined
+                'ArrowLeft': LEFT,
+                'ArrowUp': UP,
+                'ArrowRight': RIGHT,
+                'ArrowDown': DOWN
+            })
         );
+
+        const inputHandler: InputHandler = this.getGame().inputHandler;
+
+        /**
+         *     3
+         * 4       2
+         *     1
+         *
+         *     Add together, divide by 2
+         *     Multiply by 64
+         *     Subtract 64
+         */
+
+        // Angles are 0-255 starting from the bottom, rotating counter-clockwise.
+
+        let vertical: number|undefined = undefined;
+        let horizontal: number|undefined = undefined;
+
+        if (inputHandler.isKeyDown('ArrowLeft')) {
+            horizontal = 192;
+        }
+
+        if (inputHandler.isKeyDown('ArrowRight')) {
+            horizontal = 64;
+        }
+
+        if (inputHandler.isKeyDown('ArrowUp')) {
+
+        }
+
+        if (inputHandler.isKeyDown('ArrowDown')) {
+
+        }
+
+        return undefined;
     }
 
     // region DOM
@@ -316,7 +362,13 @@ export class GameScene extends Scene {
 
         // Send a ping to the server if a message has not been sent recently.
         if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
+            // TODO: Queue events and flush the connection at the end.
             this.connection.send(new PingEvent());
+        }
+
+        const currentAngle: number|undefined = this.getMovementAngle();
+        if (currentAngle !== this.previousAngle) {
+
         }
     }
 

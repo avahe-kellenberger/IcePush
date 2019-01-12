@@ -6,7 +6,14 @@ export class Time {
      * @return The current time in seconds.
      */
     public static now(): number {
-        return Time.msToSeconds(performance.now());
+        return Time.msToSeconds(Time.nowMilliseconds());
+    }
+
+    /**
+     * @return The current time in milliseconds.
+     */
+    public static nowMilliseconds(): number {
+        return performance.now();
     }
 
     /**

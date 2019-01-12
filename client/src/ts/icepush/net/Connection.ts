@@ -120,7 +120,7 @@ export class Connection {
     private onReceived(buffer: ArrayBuffer): void {
         this.dataListeners.forEach(listener => {
             // Create a new buffer for each listener.
-            listener(new PositionedBuffer(new Buffer(buffer)));
+            listener(new PositionedBuffer(new Buffer(buffer.slice(0))));
         });
     }
 

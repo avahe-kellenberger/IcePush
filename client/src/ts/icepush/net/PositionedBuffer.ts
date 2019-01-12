@@ -36,7 +36,7 @@ export class PositionedBuffer {
      * @return The length of the buffer.
      */
     public getLength(): number {
-        return this.buffer.length;
+        return this.buffer.byteLength;
     }
 
     /**
@@ -48,13 +48,10 @@ export class PositionedBuffer {
 
     /**
      * Reads a `utf8` string from the buffer.
-     *
-     * @param length The length of the string. If undefined, `PositionedBuffer.readInt16BE`
-     * will be called to read the length from the buffer.
      */
-    public readString(length?: number): string {
-        length = length ? length : this.readInt16BE();
-        const chars = new Uint8Array(this.buffer.slice(this.pos(), this.pos() + length));
+    public readString(): string {
+        const length = this.readInt16BE();
+        const chars = new Uint8Array(this.buffer.slice(this.pos(length), this.pos()));
         // @ts-ignore
         return String.fromCharCode.apply(null, chars);
     }

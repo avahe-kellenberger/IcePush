@@ -7,7 +7,7 @@ import {LoginEvent} from "./net/events/LoginEvent";
 
 export class IcePush extends Game {
 
-    public static CLIENT_VERSION: number = 105;
+    public static CLIENT_VERSION: number = 106;
     private static LOGIN_TIMEOUT: number = 3000;
 
     private static readonly runLocal = location.protocol === 'file:';
