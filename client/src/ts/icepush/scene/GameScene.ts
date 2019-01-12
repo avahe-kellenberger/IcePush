@@ -56,6 +56,13 @@ export class GameScene extends Scene {
          */
         this.gameArea = new Rectangle(new Vector2D(28, 30), 746, 424);
 
+        const connection: Connection|undefined = this.getGame().getConnection();
+        if (connection === undefined) {
+            throw new Error(`The Game's connection should not be null.`);
+        }
+        this.connection = connection;
+        this.connection.addDataReceivedListener(this.dataListener.bind(this));
+
         // region DOM Elements
         this.btnLogout = document.createElement('button');
         this.btnLogout.className = 'on-canvas unfocusable';
@@ -94,13 +101,6 @@ export class GameScene extends Scene {
         // Ensure all elements are in this list.
         this.domElements = new Set([this.btnLogout, this.chatBox, this.chatInput]);
         // endregion
-
-        const connection: Connection|undefined = this.getGame().getConnection();
-        if (connection === undefined) {
-            throw new Error(`The Game's connection should not be null.`);
-        }
-        this.connection = connection;
-        this.connection.addDataReceivedListener(this.dataListener.bind(this));
     }
 
     /**
@@ -138,7 +138,7 @@ export class GameScene extends Scene {
     private readEvent(buffer: PositionedBuffer, opcode: OPCode): void {
         switch (opcode) {
             case OPCode.PING: {
-                this.connection.send(new PingEvent());
+                this.connection.enqueueEvent(new PingEvent());
                 break;
             }
             case OPCode.NEW_PLAYER: {
@@ -248,6 +248,21 @@ export class GameScene extends Scene {
     }
 
     /**
+     * Updates the server with the player's current angle of movement.
+     */
+    private updateCurrentAngle(): void {
+        const currentAngle: number|undefined = this.getMovementAngle();
+        if (currentAngle !== this.previousAngle) {
+            if (currentAngle !== undefined) {
+                this.connection.enqueueEvent(new MoveRequestEvent(currentAngle));
+            } else {
+                this.connection.enqueueEvent(new EndMoveEvent());
+            }
+            this.previousAngle = currentAngle;
+        }
+    }
+
+    /**
      * Calculates the player's current angle of movement based on key input.
      * Angles are 0-255 starting from the bottom, rotating counter-clockwise.
      *
@@ -341,19 +356,12 @@ export class GameScene extends Scene {
 
         // Send a ping to the server if a message has not been sent recently.
         if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
-            // TODO: Queue events and flush the connection at the end.
-            this.connection.send(new PingEvent());
+            this.connection.enqueueEvent(new PingEvent());
         }
+        this.updateCurrentAngle();
 
-        const currentAngle: number|undefined = this.getMovementAngle();
-        if (currentAngle !== this.previousAngle) {
-            if (currentAngle !== undefined) {
-                this.connection.send(new MoveRequestEvent(currentAngle));
-            } else {
-                this.connection.send(new EndMoveEvent());
-            }
-            this.previousAngle = currentAngle;
-        }
+        // Send all events that have been enqueued this update.
+        this.connection.flushEventQueue();
     }
 
     /**

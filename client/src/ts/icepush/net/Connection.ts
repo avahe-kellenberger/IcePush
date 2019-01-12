@@ -6,7 +6,7 @@ export class Connection {
 
     private readonly socket: WebSocket;
     private readonly dataListeners: Array<(buffer: PositionedBuffer) => void>;
-
+    private readonly eventQueue: NetworkEvent[];
     private lastSendTime: number;
 
     /**
@@ -17,6 +17,7 @@ export class Connection {
     constructor(address: string, protocols?: string|string[]) {
         this.socket = new WebSocket(address, protocols);
         this.dataListeners = [];
+        this.eventQueue = [];
 
         this.socket.binaryType = 'arraybuffer';
         this.addMessageListener((e: MessageEvent) => {
@@ -145,16 +146,50 @@ export class Connection {
     }
 
     /**
+     *
+     * @param event The event to enqueue.
+     */
+    public enqueueEvent(event: NetworkEvent): void {
+       this.eventQueue.push(event);
+    }
+
+    /**
+     * Ensures all events have been sent and the event queue has been cleared.
+     */
+    public flushEventQueue(): void {
+        this.sendEvents(this.eventQueue);
+        this.eventQueue.length = 0;
+    }
+
+    /**
      * Sends an individual event.
      * @param event The event to send.
      */
     public send(event: NetworkEvent): void {
+        this.sendBuffer(this.createEventBuffer(event).getBuffer());
+    }
+
+    /**
+     * Sends all events in the order they were given.
+     * @param events The events to send.
+     */
+    public sendEvents(events: NetworkEvent[]): void {
+        const buffers: Buffer[] = [];
+        events.forEach(event => buffers.push(this.createEventBuffer(event).getBuffer()));
+        this.sendBuffer(Buffer.concat(buffers));
+    }
+
+    /**
+     * Creates a PositionedBuffer with the event contents written to it, in a ready to send format.
+     * @param event The event to transform into a buffer.
+     */
+    private createEventBuffer(event: NetworkEvent): PositionedBuffer {
         const size: number = 3 + event.getEventSize();
         const buffer: PositionedBuffer = new PositionedBuffer(new Buffer(size));
         buffer.writeInt16BE(event.getEventSize() + 1);
         buffer.writeInt8(event.getOPCode());
         event.write(buffer);
-        this.sendBuffer(buffer.getBuffer());
+        return buffer;
     }
 
     /**
