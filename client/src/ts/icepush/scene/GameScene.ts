@@ -13,16 +13,20 @@ import {PlayerMoveEvent} from "../net/events/PlayerMoveEvent";
 import {PlayerDeathEvent} from "../net/events/PlayerDeathEvent";
 import {LogoutEvent} from "../net/events/LogoutEvent";
 import {PositionedBuffer} from "../net/PositionedBuffer";
-import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
+import {ChatReceiveEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
-import {TimeUpdateEvent} from "../net/events/TimeUpdateEvent";
+import {TimeRemainingEvent} from "../net/events/TimeRemainingEvent";
 import {MoveRequestEvent} from "../net/events/MoveRequestEvent";
 import {EndMoveEvent} from "../net/events/EndMoveEvent";
 
 export class GameScene extends Scene {
 
     private static readonly PING_TIMEOUT: number = 5.0;
+
+    private readonly username: string;
+    private readonly gameArea: Rectangle;
+    private readonly connection: Connection;
 
     // region DOM Elements
 
@@ -32,10 +36,6 @@ export class GameScene extends Scene {
     private readonly domElements: ReadonlySet<HTMLElement>;
 
     // endregion
-
-    private readonly username: string;
-    private readonly gameArea: Rectangle;
-    private readonly connection: Connection;
 
     private previousAngle: number|undefined;
 
@@ -102,6 +102,8 @@ export class GameScene extends Scene {
         this.domElements = new Set([this.btnLogout, this.chatBox, this.chatInput]);
         // endregion
     }
+
+    // region Networking
 
     /**
      * @param buffer
@@ -186,25 +188,14 @@ export class GameScene extends Scene {
             }
 
             case OPCode.UPDATE_TIME: {
-                const event = new TimeUpdateEvent(buffer);
-                // TODO: Update game time.
+                const event = new TimeRemainingEvent(buffer);
+                // TODO: Update round time remaining.
                 break;
             }
         }
     }
 
-    /**
-     * Sends a message to the server.
-     * @param message The message to send.
-     */
-    private sendMessage(message: string): void {
-        // TODO: Send a message to a server.
-        const chatSendEvent: ChatReceiveEvent = new ChatSendEvent(message);
-        const connection: Connection|undefined = this.getGame().getConnection();
-        if (connection !== undefined) {
-            connection.send(chatSendEvent);
-        }
-    }
+    // endregion
 
     /**
      * Handles messages received from the server.
@@ -223,24 +214,17 @@ export class GameScene extends Scene {
     }
 
     /**
-     * Adds scene-specific input handlers.
+     * Creates the game's chatbox KeyHandler.
      */
-    private addInputHandlers(): void {
-        this.addKeyHandler(this.chatKeyHandler());
-    }
-
-    /**
-     * Handles input for the chat box.
-     */
-    private chatKeyHandler(): KeyHandler {
+    private createChatKeyHandler(): KeyHandler {
         return new KeyHandler(key => {
-            if (key.match(/^[a-zA-Z0-9,!?._ +=@#$%^&*()`~\-]$/g) !== null) {
+            if (key.match(/^[ a-zA-Z0-9,!?._+=@#$%^&*()`~/\-]$/g) !== null) {
                 this.chatInput.value += key;
             } else if (this.chatInput.value.length > 0) {
                 if (key === 'Backspace') {
                     this.chatInput.value = this.chatInput.value.slice(0, -1);
                 } else if (key === 'Enter') {
-                    this.sendMessage(this.chatInput.value);
+                    this.connection.enqueueEvent(new ChatReceiveEvent(this.chatInput.value));
                     this.chatInput.value = '';
                 }
             }
@@ -330,7 +314,7 @@ export class GameScene extends Scene {
         this.attachDOMElements();
 
         // Add input handlers each time the scene is set as the Game's current scene.
-        this.addInputHandlers();
+        this.addKeyHandler(this.createChatKeyHandler());
     }
 
     /**

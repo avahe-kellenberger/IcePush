@@ -2,7 +2,7 @@ import {NetworkEvent} from "../NetworkEvent";
 import {OPCode} from "../OPCode";
 import {PositionedBuffer} from "../PositionedBuffer";
 
-export class TimeUpdateEvent extends NetworkEvent {
+export class TimeRemainingEvent extends NetworkEvent {
 
     public readonly time: number;
     private readonly BINARY_SIZE: number = 2;
