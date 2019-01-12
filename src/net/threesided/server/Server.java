@@ -248,10 +248,13 @@ public class Server implements Runnable {
 				if(wsb.available() < 3) {
 					return;
 				}
-				int type = wsb.readByte();
+				int op = wsb.openPacket();
+				if(op == -1) return;
+				if(op != 0) {
+					incomplete[i] = null;
+					return;
+				}
 				int version = wsb.readByte();
-				int nameLen = wsb.readByte();
-				p.nameLen = nameLen;
 				p.readVer = true;
 				if (version != Constants.VERSION) {
 					wsb.writeByte(FAILURE); // bad version
@@ -261,23 +264,17 @@ public class Server implements Runnable {
 					incomplete[i] = null;
 					return;
 				}
-				System.out.println("Type = " + type + " ver = " + version + " len = " + nameLen);
+				System.out.println("Op = " + op + " ver = " + version);
 			}
 
 			if(!p.readName) {
-				if(wsb.available() < p.nameLen) {
+				String name = wsb.readString();
+				if(name == null) {
 					return;
-				}
-				int j = 0;
-				byte[] name = new byte[p.nameLen];
-				System.out.println("NAME LEN = " + p.nameLen + " AVAIL: " + wsb.available());
-				while(j != p.nameLen) {
-					name[j] = (byte)wsb.readByte();
-					j++;
-				}
-
-				p.readName = true;
-				p.username = new String(name);
+				} else {
+					p.readName = true;
+					p.username = name;
+				} 
 
 				for (Player player : players) {
 					if (player != null) {

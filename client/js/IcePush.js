@@ -352,23 +352,12 @@ function login(username) {
 	const socket = new WebSocket(address);
 
 	socket.onopen = function () {
-		const VERSION = 105;
-		const len = username.length;
-
-		// Space enough for 0 VERSION and len itself.
-		const buf = new Uint8Array(len + 3);
-		// Connecting client
-		buf[0] = 0;
-		buf[1] = VERSION;
-		buf[2] = len;
-
-
-		for (let i = 0; i < len; i++) {
-			buf[i + 3] = username.charCodeAt(i);
-		}
-
-		socket.send(buf);
+		const VERSION = 106;
 		pack = PacketBuffer(socket);
+		pack.beginPacket(0);
+		pack.writeByte(VERSION);
+		pack.writeString(username);
+		pack.endPacket();
 		pack.synch();
 		run = true;
 		loop();
