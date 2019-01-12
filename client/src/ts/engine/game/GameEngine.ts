@@ -3,8 +3,13 @@ import {Time} from "../time/Time";
 
 export class GameEngine {
 
+    private static readonly FPS: number = 60;
+    private static readonly FRAME_DELAY: number = 1000 / GameEngine.FPS;
+
     private game: Game;
     private stopped: boolean;
+
+    private lastTick: number|undefined;
 
     /**
      * Updates and renders the game.
@@ -16,17 +21,29 @@ export class GameEngine {
     }
 
     /**
-     * Executes game updating and rendering with the given
-     * @param elapsed
+     * Executes game updating and rendering.
+     * @return A NodeJS.Timeout object which can cancel the current loop,
+     * or null if the loop was terminated internally.
      */
-    private loop(elapsed: number): void {
+    private loop(): NodeJS.Timeout|null {
         // Exit the loop if the engine has been stopped.
         if (this.stopped) {
-            return;
+            return null;
         }
-        this.game.update(Time.msToSeconds(elapsed));
+
+        if (this.lastTick === undefined) {
+            this.lastTick = Time.nowMilliseconds();
+        }
+
+        const now: number = Time.nowMilliseconds();
+        const elapsed: number = now - this.lastTick;
+
+        this.game.update(elapsed);
         this.game.render();
-        requestAnimationFrame((time) => this.loop(time));
+
+        this.lastTick = now;
+        const waitTime: number = Math.max(0, GameEngine.FRAME_DELAY - elapsed);
+        return setTimeout(this.loop.bind(this), waitTime);
     }
 
     /**
@@ -38,7 +55,7 @@ export class GameEngine {
             return false;
         }
         this.stopped = false;
-        requestAnimationFrame((time) => this.loop(time));
+        this.loop();
         return true;
     }
 

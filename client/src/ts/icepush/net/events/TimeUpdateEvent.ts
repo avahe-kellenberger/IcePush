@@ -5,7 +5,7 @@ import {PositionedBuffer} from "../PositionedBuffer";
 export class TimeUpdateEvent extends NetworkEvent {
 
     public readonly time: number;
-    private readonly BINARY_SIZE: number = 3;
+    private readonly BINARY_SIZE: number = 2;
 
     /**
      * @param time
@@ -15,8 +15,6 @@ export class TimeUpdateEvent extends NetworkEvent {
     constructor(timeOrBuffer: PositionedBuffer|number, time?: number) {
         super();
         if (timeOrBuffer instanceof PositionedBuffer) {
-            // TODO: Unused byte
-            const unread: number = timeOrBuffer.readInt8();
             this.time = timeOrBuffer.readInt16BE();
         } else if (time !== undefined) {
             this.time = time;
@@ -43,8 +41,6 @@ export class TimeUpdateEvent extends NetworkEvent {
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        // TODO: Unused byte
-        buffer.writeInt8(0);
         buffer.writeInt16BE(this.time);
     }
 

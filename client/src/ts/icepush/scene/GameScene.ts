@@ -185,7 +185,7 @@ export class GameScene extends Scene {
 
             case OPCode.UPDATE_TIME: {
                 const event = new TimeUpdateEvent(buffer);
-                // TODO:
+                // TODO: Update game time.
                 break;
             }
         }
