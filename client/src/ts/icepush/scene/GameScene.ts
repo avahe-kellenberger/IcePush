@@ -13,7 +13,7 @@ import {PlayerMoveEvent} from "../net/events/PlayerMoveEvent";
 import {PlayerDeathEvent} from "../net/events/PlayerDeathEvent";
 import {LogoutEvent} from "../net/events/LogoutEvent";
 import {PositionedBuffer} from "../net/PositionedBuffer";
-import {ChatReceiveEvent} from "../net/events/ChatEvent";
+import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
 import {TimeRemainingEvent} from "../net/events/TimeRemainingEvent";
@@ -224,7 +224,7 @@ export class GameScene extends Scene {
                 if (key === 'Backspace') {
                     this.chatInput.value = this.chatInput.value.slice(0, -1);
                 } else if (key === 'Enter') {
-                    this.connection.enqueueEvent(new ChatReceiveEvent(this.chatInput.value));
+                    this.connection.enqueueEvent(new ChatSendEvent(this.chatInput.value));
                     this.chatInput.value = '';
                 }
             }
