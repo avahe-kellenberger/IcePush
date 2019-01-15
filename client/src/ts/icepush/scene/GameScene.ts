@@ -110,12 +110,12 @@ export class GameScene extends Scene {
      * @param e The event to handle.
      */
     private handleNetworkEvent(e: NetworkEvent): void {
-        const opcode: number = e.getOPCode();
-        switch (opcode) {
+        switch (e.getOPCode()) {
             case OPCode.PING: {
                 this.connection.enqueueEvent(new PingEvent());
                 break;
             }
+
             case OPCode.NEW_PLAYER: {
                 const event: NewPlayerEvent = e as NewPlayerEvent;
                 const player: Player = new Player(event.username, event.type);
@@ -201,7 +201,9 @@ export class GameScene extends Scene {
                     this.chatInput.value = '';
                 }
             }
-        }, (key, isDown) => isDown);
+        }, (key, isDown) => isDown,
+            // Notify on all events, not just state changes.
+            true);
     }
 
     /**
