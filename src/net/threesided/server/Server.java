@@ -257,9 +257,9 @@ public class Server implements Runnable {
 				int version = wsb.readByte();
 				p.readVer = true;
 				if (version != Constants.VERSION) {
-					wsb.writeByte(FAILURE); // bad version
-					//wsb.writeByte(BAD_VERSION.length() & 0xFF);
+					wsb.beginPacket(FAILURE); // bad version
 					wsb.writeString(BAD_VERSION);
+					wsb.endPacket();
 					wsb.synch();//flush();
 					incomplete[i] = null;
 					return;
@@ -280,9 +280,9 @@ public class Server implements Runnable {
 					if (player != null) {
 						String user = player.username;
 						if (user != null && user.equals(p.username) && player != p) {
-							wsb.writeByte(FAILURE); // name in use
-							//wsb.write(USER_IN_USE.length() & 0xFF);
+							wsb.beginPacket(FAILURE); // name in use
 							wsb.writeString(USER_IN_USE);
+							wsb.endPacket();
 							wsb.synch();
 							incomplete[i] = null;
 							System.out.println("Username already in use: " + p.username);
@@ -329,10 +329,9 @@ public class Server implements Runnable {
 			}
 
 			if(index == -1) {
-				wsb.writeByte(FAILURE);
-				//out.writeByte(TOO_MANY_PL.length() & 0xFF);
-				//out.writeByte(TOO_MANY_PL.getBytes());
+				wsb.beginPacket(FAILURE); // server full
 				wsb.writeString(TOO_MANY_PL);
+				wsb.endPacket();
 				wsb.synch();
 				incomplete[i] = null;
 				return;
@@ -345,8 +344,9 @@ public class Server implements Runnable {
 			incomplete[i] = null;
 			players[index] = p;
 
-			wsb.writeByte(SUCCESS_LOG); // success
+			wsb.beginPacket(SUCCESS_LOG); // success
 			wsb.writeByte(p.id);
+			wsb.endPacket();
 			wsb.synch();
 			//System.out.println("Notifying login of new player " + p.username);
 			for(Player plr : players) {
