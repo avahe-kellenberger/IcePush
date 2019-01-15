@@ -34,15 +34,21 @@ export class IcePush extends Game {
             // Await for a message indicating the login succeeded.
             const loginListener = ((buffer: NetworkEventBuffer) => {
                 const events: NetworkEvent[] = buffer.getEvents();
-                if (events.some(e => e instanceof SuccessEvent)) {
+                const successEvent: SuccessEvent|undefined = events.find(e => e instanceof SuccessEvent) as SuccessEvent;
+                if (successEvent !== undefined) {
+                    console.log(`Logged in with ID: ${successEvent.playerID}`);
                     clearTimeout(timeoutID);
                     connection.removeDataReceivedListener(loginListener);
                     this.onLoginSucceeded(username);
-                } else if (events.some(e => e instanceof FailureEvent)) {
-                    clearTimeout(timeoutID);
-                    alert(`Username is already in use.`);
                 } else {
-                    console.log(`Did not receive success or failure event.`);
+                    const failureEvent: FailureEvent | undefined = events.find(e => e instanceof FailureEvent) as FailureEvent;
+                    if (failureEvent !== undefined) {
+                        clearTimeout(timeoutID);
+                        alert(failureEvent.message);
+                    } else {
+                        clearTimeout(timeoutID);
+                        console.log(`Did not receive a proper response from the server.`);
+                    }
                 }
             });
 

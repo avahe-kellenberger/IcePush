@@ -87,9 +87,9 @@ export class NetworkEventBuffer extends PositionedBuffer {
             case OPCode.PING:
                 return new PingEvent();
             case OPCode.FAILURE:
-                return new FailureEvent();
+                return new FailureEvent(this);
             case OPCode.SUCCESS:
-                return new SuccessEvent();
+                return new SuccessEvent(this);
             case OPCode.NEW_PLAYER:
                 return new NewPlayerEvent(this);
             case OPCode.PLAYER_MOVE:

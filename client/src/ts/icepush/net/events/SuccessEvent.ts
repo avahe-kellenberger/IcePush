@@ -8,7 +8,21 @@ import {OPCode} from "../NetworkEventBuffer";
  */
 export class SuccessEvent extends NetworkEvent {
 
-    private BINARY_SIZE: number = 0;
+    private readonly BINARY_SIZE: number = 1;
+
+    public readonly playerID: number;
+
+    /**
+     * @param bufferOrPlayerID
+     */
+    constructor(bufferOrPlayerID: number|PositionedBuffer) {
+        super();
+        if (typeof bufferOrPlayerID === 'number') {
+            this.playerID = bufferOrPlayerID;
+        } else {
+            this.playerID = bufferOrPlayerID.readUInt8();
+        }
+    }
 
     /**
      * @override
@@ -27,6 +41,8 @@ export class SuccessEvent extends NetworkEvent {
     /**
      * @override
      */
-    public write(buffer: PositionedBuffer): void {}
+    public write(buffer: PositionedBuffer): void {
+        buffer.writeUInt8(this.playerID);
+    }
 
 }

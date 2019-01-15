@@ -8,7 +8,22 @@ import {OPCode} from "../NetworkEventBuffer";
  */
 export class FailureEvent extends NetworkEvent {
 
-    private BINARY_SIZE: number = 0;
+    private readonly BINARY_SIZE: number;
+
+    public readonly message: string;
+
+    /**
+     * @param messageOrBuffer
+     */
+    constructor(messageOrBuffer: string|PositionedBuffer) {
+       super();
+       if (typeof messageOrBuffer === 'string') {
+           this.message = messageOrBuffer;
+       } else {
+           this.message = messageOrBuffer.readString();
+       }
+       this.BINARY_SIZE = PositionedBuffer.getStringWriteSize(this.message);
+    }
 
     /**
      * @override
@@ -27,6 +42,8 @@ export class FailureEvent extends NetworkEvent {
     /**
      * @override
      */
-    public write(buffer: PositionedBuffer): void { }
+    public write(buffer: PositionedBuffer): void {
+        buffer.writeString(this.message);
+    }
 
 }

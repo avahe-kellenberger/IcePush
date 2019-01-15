@@ -130,4 +130,16 @@ export class PositionedBuffer {
         return this.writeInt8(value >> 24);
     }
 
+    // region Static Methods
+
+    /**
+     * @param s The string to write.
+     * @return The number of bytes used to write the string to the buffer.
+     */
+    public static getStringWriteSize(s: string): number {
+        return s.length + 2;
+    }
+
+    // endregion
+
 }
