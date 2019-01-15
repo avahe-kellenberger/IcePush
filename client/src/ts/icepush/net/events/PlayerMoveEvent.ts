@@ -1,7 +1,7 @@
 import {NetworkEvent} from "../NetworkEvent";
-import {OPCode} from "../OPCode";
 import {Vector2D} from "../../../engine/math/Vector2D";
-import {PositionedBuffer} from "../PositionedBuffer";
+import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
+import {OPCode} from "../NetworkEventBuffer";
 
 export class PlayerMoveEvent extends NetworkEvent {
 

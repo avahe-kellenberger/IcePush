@@ -4,6 +4,10 @@ import {GameScene} from "./scene/GameScene";
 import {Connection} from "./net/Connection";
 import {LogoutEvent} from "./net/events/LogoutEvent";
 import {LoginEvent} from "./net/events/LoginEvent";
+import {NetworkEventBuffer} from "./net/NetworkEventBuffer";
+import {FailureEvent} from "./net/events/FailureEvent";
+import {SuccessEvent} from "./net/events/SuccessEvent";
+import {NetworkEvent} from "./net/NetworkEvent";
 
 export class IcePush extends Game {
 
@@ -28,10 +32,18 @@ export class IcePush extends Game {
             const connection: Connection = this.connection;
 
             // Await for a message indicating the login succeeded.
-            const loginListener = (() => {
-                clearTimeout(timeoutID);
-                connection.removeMessageListener(loginListener);
-                this.onLoginSucceeded(username);
+            const loginListener = ((buffer: NetworkEventBuffer) => {
+                const events: NetworkEvent[] = buffer.getEvents();
+                if (events.some(e => e instanceof SuccessEvent)) {
+                    clearTimeout(timeoutID);
+                    connection.removeDataReceivedListener(loginListener);
+                    this.onLoginSucceeded(username);
+                } else if (events.some(e => e instanceof FailureEvent)) {
+                    clearTimeout(timeoutID);
+                    alert(`Username is already in use.`);
+                } else {
+                    console.log(`Did not receive success or failure event.`);
+                }
             });
 
             // Wait for the connection to time out.
@@ -39,7 +51,7 @@ export class IcePush extends Game {
                     this.onLoginFailed('Connection timed out.');
                 }, IcePush.LOGIN_TIMEOUT
             );
-            this.connection.addMessageListener(loginListener);
+            this.connection.addDataReceivedListener(loginListener);
 
             // If the connection closes, cancel and queued timeouts.
             const closeListener = (() => {
@@ -50,7 +62,8 @@ export class IcePush extends Game {
 
             // Send a login event when the connect first opens.
             // NOTE: The LoginEvent can't be used yet because it is the only event which is not prefixed by its size.
-            this.connection.addOnOpenedListener(() => connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
+            this.connection.addOnOpenedListener(() =>
+                connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
 
             // If an error is thrown, the login failed.
             const errorListener = (() => {

@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
-import {OPCode} from "../OPCode";
-import {PositionedBuffer} from "../PositionedBuffer";
+import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
+import {OPCode} from "../NetworkEventBuffer";
 
 /**
  * Nothing is written to the buffer for LogoutEvents, aside from its OPCode.

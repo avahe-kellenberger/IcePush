@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
-import {OPCode} from "../OPCode";
-import {PositionedBuffer} from "../PositionedBuffer";
+import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
+import {OPCode} from "../NetworkEventBuffer";
 
 /**
  * TODO: The currently server implementation uses signed bytes for the number of player deaths.

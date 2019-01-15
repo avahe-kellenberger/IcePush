@@ -6,19 +6,19 @@ import {Vector2D} from "../../engine/math/Vector2D";
 import {InputHandler, KeyHandler} from "../../engine/input/InputHandler";
 import {Player} from "../entity/Player";
 import {Connection} from "../net/Connection";
-import {OPCode} from "../net/OPCode";
 import {Entity} from "../../engine/game/entity/Entity";
 import {NewPlayerEvent} from "../net/events/NewPlayerEvent";
 import {PlayerMoveEvent} from "../net/events/PlayerMoveEvent";
 import {PlayerDeathEvent} from "../net/events/PlayerDeathEvent";
 import {LogoutEvent} from "../net/events/LogoutEvent";
-import {PositionedBuffer} from "../net/PositionedBuffer";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
 import {TimeRemainingEvent} from "../net/events/TimeRemainingEvent";
 import {MoveRequestEvent} from "../net/events/MoveRequestEvent";
 import {EndMoveEvent} from "../net/events/EndMoveEvent";
+import {OPCode} from "../net/NetworkEventBuffer";
+import {NetworkEvent} from "../net/NetworkEvent";
 
 export class GameScene extends Scene {
 
@@ -61,7 +61,7 @@ export class GameScene extends Scene {
             throw new Error(`The Game's connection should not be null.`);
         }
         this.connection = connection;
-        this.connection.addDataReceivedListener(this.dataListener.bind(this));
+        this.connection.addDataReceivedListener(buffer => buffer.getEvents().forEach(this.handleNetworkEvent.bind(this)));
 
         // region DOM Elements
         this.btnLogout = document.createElement('button');
@@ -106,45 +106,18 @@ export class GameScene extends Scene {
     // region Networking
 
     /**
-     * @param buffer
-     */
-    private dataListener(buffer: PositionedBuffer): void {
-        while (this.isBufferValid(buffer)) {
-            this.readEvent(buffer, buffer.readInt8());
-        }
-    }
-
-    /**
-     * Checks if the buffer is in a valid read state.
-     * @param buffer The buffer to check.
-     */
-    private isBufferValid(buffer: PositionedBuffer): boolean {
-        const bufferLength: number = buffer.getLength();
-        if (buffer.getPosition() >= bufferLength - 1) {
-            return false;
-        }
-        const packetSize: number = buffer.readInt16BE();
-        if (packetSize < 0) {
-            return false;
-        }
-        const packetEnd: number = buffer.getPosition() + packetSize - 2;
-        return packetEnd <= buffer.getLength();
-    }
-
-    /**
      * Handles events received from the server.
-     * @param buffer The buffer which contains event data.
-     * @param opcode The event's OPCode.
-     * @return The size of the event in bytes.
+     * @param e The event to handle.
      */
-    private readEvent(buffer: PositionedBuffer, opcode: OPCode): void {
+    private handleNetworkEvent(e: NetworkEvent): void {
+        const opcode: number = e.getOPCode();
         switch (opcode) {
             case OPCode.PING: {
                 this.connection.enqueueEvent(new PingEvent());
                 break;
             }
             case OPCode.NEW_PLAYER: {
-                const event = new NewPlayerEvent(buffer);
+                const event: NewPlayerEvent = e as NewPlayerEvent;
                 const player: Player = new Player(event.username, event.type);
                 player.setDeathCount(event.deathCount);
                 player.setIsDead(true);
@@ -153,7 +126,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_MOVE: {
-                const event = new PlayerMoveEvent(buffer);
+                const event: PlayerMoveEvent = e as PlayerMoveEvent;
                 const player: Entity|undefined = this.getEntity(event.playerID);
                 if (player instanceof Player) {
                     player.setLocation(event.location.addVector(this.gameArea.getTopLeft()));
@@ -162,7 +135,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_DEATH: {
-                const event = new PlayerDeathEvent(buffer);
+                const event = e as PlayerDeathEvent;
                 const player: Entity|undefined = this.getEntity(event.playerID);
                 if (!(player instanceof Player)) {
                     break;
@@ -176,19 +149,19 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_LOGGED_OUT: {
-                const event = new LogoutEvent(buffer);
+                const event = e as LogoutEvent;
                 this.removeEntity(event.playerID);
                 break;
             }
 
             case OPCode.CHAT_RECEIVE: {
-                const event = new ChatReceiveEvent(buffer);
+                const event = e as ChatReceiveEvent;
                 this.onMessageReceived(event.chatMessage);
                 break;
             }
 
             case OPCode.UPDATE_TIME: {
-                const event = new TimeRemainingEvent(buffer);
+                const event = e as TimeRemainingEvent;
                 // TODO: Update round time remaining.
                 break;
             }
@@ -218,7 +191,7 @@ export class GameScene extends Scene {
      */
     private createChatKeyHandler(): KeyHandler {
         return new KeyHandler(key => {
-            if (key.match(/^[ a-zA-Z0-9,!?._+=@#$%^&*()`~/\-]$/g) !== null) {
+            if (key.match(/^[ a-zA-Z0-9,'"!?._+=@#$%^&*()`~/\-]$/g) !== null) {
                 this.chatInput.value += key;
             } else if (this.chatInput.value.length > 0) {
                 if (key === 'Backspace') {

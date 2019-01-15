@@ -1,11 +1,11 @@
 import {NetworkEvent} from "./NetworkEvent";
-import {PositionedBuffer} from "./PositionedBuffer";
 import {Time} from "../../engine/time/Time";
+import {NetworkEventBuffer} from "./NetworkEventBuffer";
 
 export class Connection {
 
     private readonly socket: WebSocket;
-    private readonly dataListeners: Array<(buffer: PositionedBuffer) => void>;
+    private readonly dataListeners: Array<(buffer: NetworkEventBuffer) => void>;
     private readonly eventQueue: NetworkEvent[];
     private lastSendTime: number;
 
@@ -99,7 +99,7 @@ export class Connection {
      * Adds a listener to be invoked when the underlying WebSocket receives data.
      * @param listener The listener to be invoked.
      */
-    public addDataReceivedListener(listener: ((buffer: PositionedBuffer) => any)): void {
+    public addDataReceivedListener(listener: ((buffer: NetworkEventBuffer) => any)): void {
         this.dataListeners.push(listener);
     }
 
@@ -107,7 +107,7 @@ export class Connection {
      * Removes the listener.
      * @param listener The listener to remove.
      */
-    public removeDataReceivedListener(listener: ((buffer: PositionedBuffer) => any)): void {
+    public removeDataReceivedListener(listener: ((buffer: NetworkEventBuffer) => any)): void {
         const index: number = this.dataListeners.indexOf(listener);
         if (index >= 0) {
             this.dataListeners.splice(index, 1);
@@ -121,7 +121,7 @@ export class Connection {
     private onReceived(buffer: ArrayBuffer): void {
         this.dataListeners.forEach(listener => {
             // Create a new buffer for each listener.
-            listener(new PositionedBuffer(new Buffer(buffer.slice(0))));
+            listener(new NetworkEventBuffer(new Buffer(buffer.slice(0))));
         });
     }
 
@@ -180,12 +180,12 @@ export class Connection {
     }
 
     /**
-     * Creates a PositionedBuffer with the event contents written to it, in a ready to send format.
+     * Creates a NetworkEventBuffer with the event contents written to it, in a ready to send format.
      * @param event The event to transform into a buffer.
      */
-    private createEventBuffer(event: NetworkEvent): PositionedBuffer {
+    private createEventBuffer(event: NetworkEvent): NetworkEventBuffer {
         const size: number = 3 + event.getEventSize();
-        const buffer: PositionedBuffer = new PositionedBuffer(new Buffer(size));
+        const buffer: NetworkEventBuffer = new NetworkEventBuffer(new Buffer(size));
         buffer.writeInt16BE(event.getEventSize() + 1);
         buffer.writeInt8(event.getOPCode());
         event.write(buffer);

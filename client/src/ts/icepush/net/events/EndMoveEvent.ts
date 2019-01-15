@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
-import {OPCode} from "../OPCode";
-import {PositionedBuffer} from "../PositionedBuffer";
+import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
+import {OPCode} from "../NetworkEventBuffer";
 
 /**
  * OPCode.END_MOVE is the only important data for this event.

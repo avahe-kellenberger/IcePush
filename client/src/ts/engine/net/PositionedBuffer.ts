@@ -1,4 +1,4 @@
-import {BufferPosition} from "../../engine/util/BufferPosition";
+import {BufferPosition} from "../util/BufferPosition";
 
 export class PositionedBuffer {
 
@@ -50,10 +50,8 @@ export class PositionedBuffer {
      * Reads a `utf8` string from the buffer.
      */
     public readString(): string {
-        const length = this.readInt16BE();
-        const chars = new Uint8Array(this.buffer.slice(this.pos(length), this.pos()));
-        // @ts-ignore
-        return String.fromCharCode.apply(null, chars);
+        const length: number = this.readInt16BE();
+        return this.buffer.toString(PositionedBuffer.STRING_ENCODING, this.pos(length), this.pos());
     }
 
     /**

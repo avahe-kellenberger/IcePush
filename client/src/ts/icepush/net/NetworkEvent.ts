@@ -1,5 +1,5 @@
-import {OPCode} from "./OPCode";
-import {PositionedBuffer} from "./PositionedBuffer";
+import {PositionedBuffer} from "../../engine/net/PositionedBuffer";
+import {OPCode} from "./NetworkEventBuffer";
 
 /**
  * NetworkEvents are dispatched via a `Buffer`.
