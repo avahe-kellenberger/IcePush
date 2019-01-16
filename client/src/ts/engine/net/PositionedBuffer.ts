@@ -136,6 +136,7 @@ export class PositionedBuffer {
      * @return The number of bytes used to write the string to the buffer.
      */
     public static getStringWriteSize(s: string): number {
+        // + 2 for the two bytes used to prefix the string with its size in bytes.
         return s.length + 2;
     }
 
@@ -180,11 +181,7 @@ export namespace BufferPosition {
         return (relativeOrAbsolute?: number, absolute?: boolean) => {
             const oldPosition = initialPosition;
             if (relativeOrAbsolute != null) {
-                if (absolute) {
-                    initialPosition = relativeOrAbsolute;
-                } else {
-                    initialPosition += relativeOrAbsolute;
-                }
+                initialPosition = absolute ? relativeOrAbsolute : initialPosition + relativeOrAbsolute;
             }
             return oldPosition;
         };
