@@ -10,7 +10,6 @@ import {Entity} from "../../engine/game/entity/Entity";
 import {NewPlayerEvent} from "../net/events/NewPlayerEvent";
 import {PlayerMoveEvent} from "../net/events/PlayerMoveEvent";
 import {PlayerDeathEvent} from "../net/events/PlayerDeathEvent";
-import {LogoutEvent} from "../net/events/LogoutEvent";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
@@ -19,6 +18,7 @@ import {MoveRequestEvent} from "../net/events/MoveRequestEvent";
 import {EndMoveEvent} from "../net/events/EndMoveEvent";
 import {OPCode} from "../net/NetworkEventBuffer";
 import {NetworkEvent} from "../net/NetworkEvent";
+import {PlayerLoggedOutEvent} from "../net/events/PlayerLoggedOutEvent";
 
 export class GameScene extends Scene {
 
@@ -149,7 +149,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_LOGGED_OUT: {
-                const event = e as LogoutEvent;
+                const event = e as PlayerLoggedOutEvent;
                 this.removeEntity(event.playerID);
                 break;
             }

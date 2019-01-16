@@ -9,22 +9,6 @@ export class LogoutEvent extends NetworkEvent {
 
     private readonly BINARY_SIZE: number = 0;
 
-    public readonly playerID: number;
-
-    /**
-     * @param buffer The buffer, if reading from the server.
-     * If writing the event to the server, the buffer should NOT be given.
-     */
-    constructor(buffer?: PositionedBuffer) {
-        super();
-        if (buffer instanceof PositionedBuffer) {
-            this.playerID = buffer.readInt16BE();
-        } else {
-            // The playerID does not need to be sent to the server when logging out.
-            this.playerID = -1;
-        }
-    }
-
     /**
      * @override
      */
