@@ -11,12 +11,12 @@ import {NetworkEvent} from "./net/NetworkEvent";
 
 export class IcePush extends Game {
 
-    public static CLIENT_VERSION: number = 106;
-    private static LOGIN_TIMEOUT: number = 3000;
+    public static readonly CLIENT_VERSION: number = 106;
+    private static readonly LOGIN_TIMEOUT: number = 3000;
 
     private static readonly runLocal = location.protocol === 'file:';
     private static readonly serverAddress = IcePush.runLocal ? 'localhost' : '98.11.245.205';
-    public static SERVER_ADDRESS: string = 'ws://' + IcePush.serverAddress + ':2345';
+    public static readonly SERVER_ADDRESS: string = 'ws://' + IcePush.serverAddress + ':2345';
 
     private connection: Connection|undefined;
     private homeScene: HomeScene|undefined;
@@ -41,19 +41,20 @@ export class IcePush extends Game {
                     connection.removeDataReceivedListener(loginListener);
                     this.onLoginSucceeded(username);
                 } else {
+                    // Login unsuccessful; close connection and display error.
                     connection.close();
                     const failureEvent: FailureEvent|undefined = events.find(e => e instanceof FailureEvent) as FailureEvent;
-                    if (failureEvent !== undefined) {
+                    if (failureEvent !== undefined && failureEvent.message !== undefined) {
                         alert(failureEvent.message);
                     } else {
-                        console.error(`Did not receive a proper response from the server.`);
+                        alert(`An unknown error has occurred.`);
                     }
                 }
             });
 
             // Wait for the connection to time out.
             const timeoutID: NodeJS.Timeout = setTimeout(() => {
-                    this.onLoginFailed('Connection timed out.');
+                    alert('Connection timed out.');
                 }, IcePush.LOGIN_TIMEOUT
             );
             this.connection.addDataReceivedListener(loginListener);
@@ -73,7 +74,7 @@ export class IcePush extends Game {
             // If an error is thrown, the login failed.
             const errorListener = (() => {
                 connection.removeErrorListener(errorListener);
-                this.onLoginFailed();
+                alert(`Connection error!`);
             });
             this.connection.addErrorListener(errorListener);
         }
@@ -98,13 +99,6 @@ export class IcePush extends Game {
     private onLoginSucceeded(username: string): void {
         this.username = username;
         this.showGameScene();
-    }
-
-    /**
-     * @param reason
-     */
-    private onLoginFailed(reason?: string): void {
-        alert(`Failed to log in!\n${reason}`);
     }
 
     /**
