@@ -1,4 +1,3 @@
-import {BufferPosition} from "../util/BufferPosition";
 
 export class PositionedBuffer {
 
@@ -141,5 +140,54 @@ export class PositionedBuffer {
     }
 
     // endregion
+
+}
+
+/**
+ * A position counter for a buffer.
+ */
+export interface BufferPosition {
+
+    /**
+     * @returns The current value of the position.
+     */
+    (): number;
+
+    /**
+     * Increments the position by the given relative value.
+     * @param relative The value to increment by.
+     * @returns The original position's value.
+     */
+    (relative: number): number;
+
+    /**
+     * Sets the value of the position if `absolute` is `true`, otherwise the positive is incremented.
+     * @param relativeOrAbsolute The value to set or increment depending on the value of `absolute`.
+     * @param absolute Whether to set or increment the position.
+     * @returns The original position's value.
+     */
+    (relativeOrAbsolute: number, absolute: boolean): number;
+
+}
+
+export namespace BufferPosition {
+
+    /**
+     * @param initialPosition The initial value of the position. Defaults to 0.
+     * @returns A position counter for a buffer.
+     */
+    export function create(initialPosition: number = 0): BufferPosition {
+        return (relativeOrAbsolute?: number, absolute?: boolean) => {
+            const oldPosition = initialPosition;
+            if (relativeOrAbsolute != null) {
+                if (absolute) {
+                    initialPosition = relativeOrAbsolute;
+                } else {
+                    initialPosition += relativeOrAbsolute;
+                }
+            }
+            return oldPosition;
+        };
+    }
 
 }
