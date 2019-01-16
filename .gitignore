@@ -1,2 +1,2 @@
 ./client/src/dist/*
-./client/package-lock.json
+./client/node_modules/*
