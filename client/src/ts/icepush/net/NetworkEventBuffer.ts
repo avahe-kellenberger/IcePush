@@ -2,7 +2,7 @@ import {PositionedBuffer} from "../../engine/net/PositionedBuffer";
 import {NetworkEvent} from "./NetworkEvent";
 import {PingEvent} from "./events/PingEvent";
 import {NewPlayerEvent} from "./events/NewPlayerEvent";
-import {PlayerMoveEvent} from "./events/PlayerMoveEvent";
+import {PlayerMovedEvent} from "./events/PlayerMovedEvent";
 import {PlayerDeathEvent} from "./events/PlayerDeathEvent";
 import {ChatReceiveEvent} from "./events/ChatEvent";
 import {TimeRemainingEvent} from "./events/TimeRemainingEvent";
@@ -93,7 +93,7 @@ export class NetworkEventBuffer extends PositionedBuffer {
             case OPCode.NEW_PLAYER:
                 return new NewPlayerEvent(this);
             case OPCode.PLAYER_MOVE:
-                return new PlayerMoveEvent(this);
+                return new PlayerMovedEvent(this);
             case OPCode.PLAYER_LOGGED_OUT:
                 return new PlayerLoggedOutEvent(this);
             case OPCode.PLAYER_DEATH:

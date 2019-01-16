@@ -3,7 +3,10 @@ import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
 /**
- * Nothing is written to the buffer for LogoutEvents, aside from its OPCode.
+ * LogoutEvent is sent by the client to the server, informing the server that the client wants to log out.
+ *
+ * The event's OPCode is the only important data for this event.
+ * Therefore we neither read or write and additional bytes.
  */
 export class LogoutEvent extends NetworkEvent {
 

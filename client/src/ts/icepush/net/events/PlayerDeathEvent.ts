@@ -3,27 +3,38 @@ import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
 /**
- * TODO: The currently server implementation uses signed bytes for the number of player deaths.
- * This needs to be fixed rather immediately.
+ * TODO: The currently server implementation uses bytes for the number of player deaths.
+ *
+ * This event is sent from server to client, indicating a player has died.
  */
 export class PlayerDeathEvent extends NetworkEvent {
 
+    private static readonly BINARY_SIZE: number = 3;
+
     public readonly playerID: number;
     public readonly deathCount: number;
-    private readonly BINARY_SIZE: number = 1;
 
     /**
-     *
+     * Creates a new event with the given data.
      * @param playerID The player's ID.
      * @param deathCount The number of player deaths.
      */
     constructor(playerID: number, deathCount: number);
+
+    /**
+     * Reads the playerID and deathCount from the buffer.
+     * @param buffer The buffer to read from.
+     */
     constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
+     */
     constructor(bufferOrID: PositionedBuffer|number, deathCount?: number) {
         super();
         if (bufferOrID instanceof PositionedBuffer) {
             this.playerID = bufferOrID.readInt16BE();
-            this.deathCount = bufferOrID.readInt8();
+            this.deathCount = bufferOrID.readUInt8();
         } else if (deathCount !== undefined) {
             this.playerID = bufferOrID;
             this.deathCount = deathCount;
@@ -36,7 +47,7 @@ export class PlayerDeathEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return this.BINARY_SIZE;
+        return PlayerDeathEvent.BINARY_SIZE;
     }
 
     /**
@@ -51,7 +62,7 @@ export class PlayerDeathEvent extends NetworkEvent {
      */
     public write(buffer: PositionedBuffer): void {
         buffer.writeInt16BE(this.playerID);
-        buffer.writeInt8(this.deathCount);
+        buffer.writeUInt8(this.deathCount);
     }
 
 }

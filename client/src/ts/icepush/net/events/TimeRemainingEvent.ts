@@ -2,16 +2,30 @@ import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
+/**
+ * Sent from server to client, informing of the amount of time remaining in the game.
+ */
 export class TimeRemainingEvent extends NetworkEvent {
 
+    private static readonly BINARY_SIZE: number = 2;
+
     public readonly time: number;
-    private readonly BINARY_SIZE: number = 2;
 
     /**
-     * @param time
+     * Creates a buffer with the given time remaining.
+     * @param time The amount of time left.
      */
     constructor(time: number);
+
+    /**
+     * Reads the remaining time from the buffer.
+     * @param buffer The buffer to read from.
+     */
     constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
+     */
     constructor(timeOrBuffer: PositionedBuffer|number, time?: number) {
         super();
         if (timeOrBuffer instanceof PositionedBuffer) {
@@ -27,7 +41,7 @@ export class TimeRemainingEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return this.BINARY_SIZE;
+        return TimeRemainingEvent.BINARY_SIZE;
     }
 
     /**

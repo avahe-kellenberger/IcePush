@@ -3,8 +3,7 @@ import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
 /**
- * OPCode.FAILURE is the only important data for this event.
- * Therefore we neither read or write and additional bytes.
+ * Sent from the server to the client upon login, if the login failed (e.g. username in use).
  */
 export class FailureEvent extends NetworkEvent {
 
@@ -13,7 +12,19 @@ export class FailureEvent extends NetworkEvent {
     public readonly message: string;
 
     /**
-     * @param messageOrBuffer
+     * Constructs an event containing a message explaining the failure.
+     * @param message The failure message.
+     */
+    constructor(message: string);
+
+    /**
+     * Creates a FailureEvent by reading the message from the buffer.
+     * @param buffer The buffer containing the failure message.
+     */
+    constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
      */
     constructor(messageOrBuffer: string|PositionedBuffer) {
        super();

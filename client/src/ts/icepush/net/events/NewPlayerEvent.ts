@@ -3,21 +3,35 @@ import {Player} from "../../entity/Player";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
+/**
+ * This event is sent from the server to the client indicating a new player has been added to the game.
+ */
 export class NewPlayerEvent extends NetworkEvent {
+
+    private readonly BINARY_SIZE: number;
 
     public readonly playerID: number;
     public readonly type: Player.Type;
     public readonly username: string;
     public readonly deathCount: number;
-    private readonly BINARY_SIZE: number;
 
     /**
+     * Creates an event from the given player and playerID.
      *
-     * @param playerID
-     * @param player
+     * @param playerID The player's ID.
+     * @param player The player object.
      */
     constructor(playerID: number, player: Player);
+
+    /**
+     * Reads the new player's data from the buffer.
+     * @param buffer The buffer to read from.
+     */
     constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
+     */
     constructor(bufferOrID: PositionedBuffer|number, player?: Player) {
         super();
         if (bufferOrID instanceof PositionedBuffer) {
@@ -33,7 +47,7 @@ export class NewPlayerEvent extends NetworkEvent {
         } else {
             throw new Error(`Malformed constructor:\n${bufferOrID}\n${player}`);
         }
-        this.BINARY_SIZE = 7 + this.username.length;
+        this.BINARY_SIZE = 5 + PositionedBuffer.getStringWriteSize(this.username);
     }
 
     /**

@@ -67,7 +67,6 @@ export class IcePush extends Game {
             this.connection.addCloseListener(closeListener);
 
             // Send a login event when the connect first opens.
-            // NOTE: The LoginEvent can't be used yet because it is the only event which is not prefixed by its size.
             this.connection.addOnOpenedListener(() =>
                 connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
 
@@ -93,7 +92,7 @@ export class IcePush extends Game {
     }
 
     /**
-     *
+     * Invoked when the login is successful.
      * @param username The name of the user which logged in.
      */
     private onLoginSucceeded(username: string): void {
@@ -135,7 +134,7 @@ export class IcePush extends Game {
     }
 
     /**
-     * @return the DOM element containing the game's canvas.
+     * @return The DOM element containing the game's canvas.
      */
     public getDOMContainer(): HTMLElement {
         const container: HTMLElement|null = document.getElementById('canvas-container');

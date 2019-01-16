@@ -3,19 +3,32 @@ import {Vector2D} from "../../../engine/math/Vector2D";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
-export class PlayerMoveEvent extends NetworkEvent {
+/**
+ * Sent from server to client, giving another player's new position (after being moved).
+ */
+export class PlayerMovedEvent extends NetworkEvent {
+
+    private static readonly BINARY_SIZE: number = 6;
 
     public readonly playerID: number;
     public readonly location: Vector2D;
 
-    private readonly BINARY_SIZE: number = 6;
-
     /**
+     * Constructs an event indicating a player's new position.
      * @param playerID The player's ID.
      * @param position The player's position.
      */
     constructor(playerID: number, position: Vector2D);
+
+    /**
+     * Reads the player's location information from the buffer.
+     * @param buffer The buffer to read from.
+     */
     constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
+     */
     constructor(idOrBuffer: PositionedBuffer|number, location?: Vector2D) {
         super();
         if (idOrBuffer instanceof PositionedBuffer) {
@@ -33,7 +46,7 @@ export class PlayerMoveEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return this.BINARY_SIZE;
+        return PlayerMovedEvent.BINARY_SIZE;
     }
 
     /**

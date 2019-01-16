@@ -2,14 +2,28 @@ import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
-class ChatEvent extends NetworkEvent {
+/**
+ * Base class for chat events sent to and from the server.
+ */
+export abstract class ChatEvent extends NetworkEvent {
 
     public readonly chatMessage: string;
     private readonly BINARY_SIZE: number;
 
     /**
-     *
-     * @param bufferOrMessage
+     * Prepares a ChatEvent to be sent with a message.
+     * @param message The message to send.
+     */
+    constructor(message: string);
+
+    /**
+     * Creates a ChatEvent by reading the message from the buffer.
+     * @param buffer The buffer containing the chat message.
+     */
+    constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
      */
     constructor(bufferOrMessage: PositionedBuffer|string) {
         super();
@@ -31,19 +45,15 @@ class ChatEvent extends NetworkEvent {
     /**
      * @override
      */
-    public getOPCode(): OPCode {
-        return OPCode.CHAT_SEND;
-    }
-
-    /**
-     * @override
-     */
     public getEventSize(): number {
         return this.BINARY_SIZE;
     }
 
 }
 
+/**
+ * An event used to send a chat message to the server.
+ */
 export class ChatSendEvent extends ChatEvent {
     /**
      * @override
@@ -53,6 +63,9 @@ export class ChatSendEvent extends ChatEvent {
     }
 }
 
+/**
+ * An event sent by the server containing a message.
+ */
 export class ChatReceiveEvent extends ChatEvent {
     /**
      * @override

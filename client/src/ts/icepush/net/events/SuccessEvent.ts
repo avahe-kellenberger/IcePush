@@ -3,17 +3,29 @@ import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
 /**
- * OPCode.SUCCESS is the only important data for this event.
- * Therefore we neither read or write and additional bytes.
+ * Sent from the server to the client upon login, indicating that the login succeeded.
+ * The playerID given by the server is to be used as the local player's ID number.
  */
 export class SuccessEvent extends NetworkEvent {
 
-    private readonly BINARY_SIZE: number = 1;
+    private static readonly BINARY_SIZE: number = 1;
 
     public readonly playerID: number;
 
     /**
-     * @param bufferOrPlayerID
+     * Constructs the event with the player's server-assigned ID.
+     * @param playerID The player's ID.
+     */
+    constructor(playerID: number);
+
+    /**
+     * Reads the player's assigned ID from the buffer.
+     * @param buffer The buffer to read from.
+     */
+    constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
      */
     constructor(bufferOrPlayerID: number|PositionedBuffer) {
         super();
@@ -28,7 +40,7 @@ export class SuccessEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return this.BINARY_SIZE;
+        return SuccessEvent.BINARY_SIZE;
     }
 
     /**

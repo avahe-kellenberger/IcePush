@@ -8,7 +8,6 @@ import {Player} from "../entity/Player";
 import {Connection} from "../net/Connection";
 import {Entity} from "../../engine/game/entity/Entity";
 import {NewPlayerEvent} from "../net/events/NewPlayerEvent";
-import {PlayerMoveEvent} from "../net/events/PlayerMoveEvent";
 import {PlayerDeathEvent} from "../net/events/PlayerDeathEvent";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
@@ -19,6 +18,7 @@ import {EndMoveEvent} from "../net/events/EndMoveEvent";
 import {OPCode} from "../net/NetworkEventBuffer";
 import {NetworkEvent} from "../net/NetworkEvent";
 import {PlayerLoggedOutEvent} from "../net/events/PlayerLoggedOutEvent";
+import {PlayerMovedEvent} from "../net/events/PlayerMovedEvent";
 
 export class GameScene extends Scene {
 
@@ -126,7 +126,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_MOVE: {
-                const event: PlayerMoveEvent = e as PlayerMoveEvent;
+                const event: PlayerMovedEvent = e as PlayerMovedEvent;
                 const player: Entity|undefined = this.getEntity(event.playerID);
                 if (player instanceof Player) {
                     player.setLocation(event.location.addVector(this.gameArea.getTopLeft()));
@@ -207,9 +207,9 @@ export class GameScene extends Scene {
     }
 
     /**
-     * Updates the server with the player's current angle of movement.
+     * Updates the server with the player's current movement information.
      */
-    private updateCurrentAngle(): void {
+    private sendCurrentMovement(): void {
         const currentAngle: number|undefined = this.getMovementAngle();
         if (currentAngle !== this.previousAngle) {
             if (currentAngle !== undefined) {
@@ -226,6 +226,8 @@ export class GameScene extends Scene {
      * Angles are 0-255 starting from the bottom, rotating counter-clockwise.
      *
      * @return The "angle" the player is attempting to move in.
+     * This method will return `undefined` if the player is not attempting to move,
+     * or two opposing keys are being pressed simultaneously.
      */
     private getMovementAngle(): number|undefined {
         const inputHandler: InputHandler = this.getGame().inputHandler;
@@ -317,7 +319,7 @@ export class GameScene extends Scene {
         if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
             this.connection.enqueueEvent(new PingEvent());
         }
-        this.updateCurrentAngle();
+        this.sendCurrentMovement();
 
         // Send all events that have been enqueued this update.
         this.connection.flushEventQueue();

@@ -2,16 +2,29 @@ import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
+/**
+ * Sent from server to client, notifying that another client has logged out.
+ */
 export class PlayerLoggedOutEvent extends NetworkEvent {
 
+    private static readonly BINARY_SIZE: number = 2;
+
     public readonly playerID: number;
-    private readonly BINARY_SIZE: number = 2;
 
     /**
      * @param playerID The ID of the player which logged out.
      */
     constructor(playerID: number);
+
+    /**
+     * Reads the playerID from the buffer.
+     * @param buffer The buffer to read from.
+     */
     constructor(buffer: PositionedBuffer);
+
+    /**
+     * Overload constructor.
+     */
     constructor(bufferOrID: PositionedBuffer|number) {
         super();
         this.playerID = typeof bufferOrID === 'number' ? bufferOrID : bufferOrID.readInt16BE();
@@ -21,7 +34,7 @@ export class PlayerLoggedOutEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return this.BINARY_SIZE;
+        return PlayerLoggedOutEvent.BINARY_SIZE;
     }
 
     /**

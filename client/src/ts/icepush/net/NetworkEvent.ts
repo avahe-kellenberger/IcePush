@@ -8,13 +8,6 @@ import {OPCode} from "./NetworkEventBuffer";
 export abstract class NetworkEvent {
 
     /**
-     * Writes all event data to the buffer.
-     * This method does not write the event's OPCode.
-     * @param buffer The buffer to write to.
-     */
-    abstract write(buffer: PositionedBuffer): void;
-
-    /**
      * @return The size of the event in bytes.
      */
     abstract getEventSize(): number;
@@ -23,5 +16,12 @@ export abstract class NetworkEvent {
      * @return The OPCode associated with the event.
      */
     abstract getOPCode(): OPCode;
+
+    /**
+     * Writes all event data to the buffer.
+     * This method does not write the event's OPCode.
+     * @param buffer The buffer to write to.
+     */
+    abstract write(buffer: PositionedBuffer): void;
 
 }
