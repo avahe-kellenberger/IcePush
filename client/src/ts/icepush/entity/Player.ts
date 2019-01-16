@@ -6,7 +6,7 @@ export class Player extends GameObject {
 
     private readonly name: string;
     private readonly sprite: HTMLImageElement;
-    private readonly type: number;
+    private readonly type: Player.Type;
 
     private deathCount: number;
     private dead: boolean;
@@ -14,26 +14,15 @@ export class Player extends GameObject {
     /**
      * Creates a new player.
      * @param name The player's name.
-     * @param type The
+     * @param type The player's type.
      */
     constructor(name: string, type: Player.Type) {
         super();
         this.name = name;
         this.type = type;
+        this.sprite = Player.getImage(type);
         this.deathCount = 0;
         this.dead = false;
-
-        // TODO: Clean up this player type system when the client/server protocol is reworked.
-        switch (type) {
-            case Player.Type.SNOWMAN:
-                this.sprite = ClientAssets.IMAGE_SNOWMAN;
-                break;
-            case Player.Type.TREE:
-                this.sprite = ClientAssets.IMAGE_TREE;
-                break;
-            default:
-                throw new Error('Illegal player type.');
-        }
     }
 
     /**
@@ -79,7 +68,7 @@ export class Player extends GameObject {
     }
 
     /**
-     * @return The player's `Player.Type`.
+     * @return The player's `PlayerType`.
      */
     public getType(): Player.Type {
         return this.type;
@@ -112,11 +101,26 @@ export class Player extends GameObject {
 export namespace Player {
 
     /**
-     * TODO: Check if these values are correct with the old client version.
+     * Player types.
      */
     export enum Type {
         TREE = 0,
         SNOWMAN = 1
+    }
+
+    /**
+     * @param type The player's type.
+     * @return The image related to the `Player.Type`
+     */
+    export function getImage(type: Player.Type): HTMLImageElement {
+        switch (type) {
+            case Player.Type.SNOWMAN:
+                return ClientAssets.IMAGE_SNOWMAN;
+            case Player.Type.TREE:
+                return ClientAssets.IMAGE_TREE;
+            default:
+                throw new Error('Illegal player type.');
+        }
     }
 
 }
