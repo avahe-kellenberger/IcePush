@@ -44,6 +44,7 @@ public class Server implements Runnable {
     private static final String BAD_VERSION = "Your client is outdated.";
     private static final String USER_IN_USE = "Username is in use";
     private static final String TOO_MANY_PL = "There are too many players online.";
+    private static int DEFAULT_LIVES = 5;
 
     public static void main(String[] args) {
         new Server(args);
@@ -341,6 +342,7 @@ public class Server implements Runnable {
 			p.connected = true;
 			System.out.println("p.id = " + p.id);
 			p.type = index % 2;
+			p.lives = DEFAULT_LIVES;
 			incomplete[i] = null;
 			players[index] = p;
 
@@ -418,20 +420,21 @@ public class Server implements Runnable {
                     if (p.timeDead >= 0) {
                         p.timeDead -= 20;
                     } else {
-                        p.isDead = false;
+                    //    p.isDead = false;
                         p.timeDead = 0;
-                        p.initPosition(players, mapClass.currentPath);
                     }
                     if (p.timeDead % 1000 == 0) p.updateDeathTime(p.timeDead / 1000);
                 }
 
                 if (!mapClass.currentPath.contains(p.position.getX(), p.position.getY()) && !p.isDead) {
                     System.out.println("PLAYER " + p.username + " IS OUT OF RANGE!");
-                    if (getNumPlayers() > 1) {
-                        p.deaths++;
-                        p.deaths %= 128;
+                    p.lives--;
+                    System.out.println(p.username + " has " + p.lives + " lives remaining");
+                    if(p.lives == 0) {
+                        p.isDead = true;
+                    } else {
+                    	p.initPosition(players, mapClass.currentPath);
                     }
-                    p.isDead = true;
                     p.timeDead = deathLength;
                     p.updateDeathTime(p.timeDead / 1000);
 
@@ -483,8 +486,18 @@ public class Server implements Runnable {
 
     private void resetDeaths() {
         for (Player p : players)
-            if (p != null)
-                p.deaths = 0;
+            if (p != null) {
+                p.lives = DEFAULT_LIVES;
+                if(p.isDead) {
+           	    p.isDead = false;
+		    for(Player plr : players) {
+			if(plr != null) {
+				plr.notifyLogin(p);        // Tell p about all players already logged in
+				plr.handleMove(p);
+			}
+		   }
+		}
+            }
     }
 
     private static Map<String, String> defaults;
@@ -500,7 +513,7 @@ public class Server implements Runnable {
         defaults.put("irc-nick", "TestServer");
 
         defaults.put("death-length", "0");
-        defaults.put("round-length", "90000");
+        defaults.put("round-length", "25000");
 
         /* Worldserver and updateserver temporarily disabled for the time being */
         //defaults.put("worldserver-addr", "99.198.122.53");
