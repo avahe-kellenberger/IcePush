@@ -37,6 +37,7 @@ export class GameScene extends Scene {
 
     // endregion
 
+    private roundTimeRemaining: number|undefined;
     private previousAngle: number|undefined;
 
     /**
@@ -156,8 +157,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.UPDATE_TIME: {
-                const event = e as TimeRemainingEvent;
-                // TODO: Update round time remaining.
+                this.roundTimeRemaining = (e as TimeRemainingEvent).time;
                 break;
             }
         }
@@ -327,6 +327,35 @@ export class GameScene extends Scene {
         // Render the background image before the rest of the scene.
         ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
         super.render(ctx);
+
+        if (this.roundTimeRemaining !== undefined) {
+            this.renderRoundTimeRemaining(ctx, this.roundTimeRemaining);
+        }
+    }
+
+    /**
+     * @param ctx The context to render onto.
+     * @param seconds The time remaining in the round.
+     */
+    private renderRoundTimeRemaining(ctx: CanvasRenderingContext2D, seconds: number): void {
+        // Render the round time remaining.
+        ctx.fillStyle = 'red';
+        const fontSize: number = 14;
+        ctx.font = `${fontSize}px Arial`;
+
+
+        const minutes: number = Math.floor(seconds / 60);
+        seconds -= minutes * 60;
+        const str: string = `Time Remaining: ${minutes}:${seconds < 10 ? `0` + seconds : seconds}`;
+        const metrics: TextMetrics = ctx.measureText(str);
+
+        /*
+         * See https://developer.mozilla.org/en-US/docs/Web/CSS/line-height#Values for an explanation.
+         * 'Desktop browsers (including Firefox) use a default value of roughly 1.2, depending on the element's font-family.'
+         * We multiply by '0.6' to halve the height.
+         */
+        const height = fontSize * 0.6;
+        ctx.fillText(str, ctx.canvas.width * 0.5 - metrics.width * 0.5, this.chatBox.offsetHeight + this.chatInput.offsetHeight + height * 2);
     }
 
     // endregion
