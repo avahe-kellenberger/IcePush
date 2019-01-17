@@ -3,12 +3,12 @@ import {NetworkEvent} from "./NetworkEvent";
 import {PingEvent} from "./events/PingEvent";
 import {NewPlayerEvent} from "./events/NewPlayerEvent";
 import {PlayerMovedEvent} from "./events/PlayerMovedEvent";
-import {PlayerDeathEvent} from "./events/PlayerDeathEvent";
 import {ChatReceiveEvent} from "./events/ChatEvent";
 import {TimeRemainingEvent} from "./events/TimeRemainingEvent";
 import {FailureEvent} from "./events/FailureEvent";
 import {SuccessEvent} from "./events/SuccessEvent";
 import {PlayerLoggedOutEvent} from "./events/PlayerLoggedOutEvent";
+import {PlayerLivesChangedEvent} from "./events/PlayerLivedChangedEvent";
 
 /**
  * Network events OPCodes.
@@ -25,7 +25,7 @@ export enum OPCode {
     END_MOVE = 9,
     LOGOUT = 10,
     PLAYER_LOGGED_OUT = 11,
-    PLAYER_DEATH = 12,
+    PLAYER_LIVES_CHANGED = 12,
     PROJECTILE_REQUEST = 15,
     CHAT_SEND = 16,
     CHAT_RECEIVE = 17,
@@ -96,8 +96,8 @@ export class NetworkEventBuffer extends PositionedBuffer {
                 return new PlayerMovedEvent(this);
             case OPCode.PLAYER_LOGGED_OUT:
                 return new PlayerLoggedOutEvent(this);
-            case OPCode.PLAYER_DEATH:
-                return new PlayerDeathEvent(this);
+            case OPCode.PLAYER_LIVES_CHANGED:
+                return new PlayerLivesChangedEvent(this);
             case OPCode.CHAT_RECEIVE:
                 return new ChatReceiveEvent(this);
             case OPCode.UPDATE_TIME:

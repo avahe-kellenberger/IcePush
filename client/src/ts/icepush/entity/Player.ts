@@ -8,21 +8,20 @@ export class Player extends GameObject {
     private readonly sprite: HTMLImageElement;
     private readonly type: Player.Type;
 
-    private deathCount: number;
-    private dead: boolean;
+    private lives: number;
 
     /**
      * Creates a new player.
      * @param name The player's name.
      * @param type The player's type.
+     * @param lives The initial number of lives the player has.
      */
-    constructor(name: string, type: Player.Type) {
+    constructor(name: string, type: Player.Type, lives: number) {
         super();
         this.name = name;
         this.type = type;
+        this.lives = lives;
         this.sprite = Player.getImage(type);
-        this.deathCount = 0;
-        this.dead = false;
     }
 
     /**
@@ -33,38 +32,17 @@ export class Player extends GameObject {
     }
 
     /**
-     * @return If the player is currently dead.
-     */
-    public isDead(): boolean {
-        return this.dead;
-    }
-
-    /**
-     * Set if the player is currently dead.
-     * @param dead If the player is dead.
-     * @return If the player's death state was changed.
-     */
-    public setIsDead(dead: boolean): boolean {
-        if (this.dead == dead) {
-            return false;
-        }
-        this.dead = dead;
-        return true;
-    }
-
-    /**
      * @return The number of times the player has died.
      */
-    public getDeathCount(): number {
-        return this.deathCount;
+    public getLives(): number {
+        return this.lives;
     }
 
     /**
-     * Set the number of times the player has died.
-     * @param deaths The number of times the player died.
+     * @param lives The number of lives the player should have.
      */
-    public setDeathCount(deaths: number): void {
-        this.deathCount = deaths;
+    public setLives(lives: number): void {
+        this.lives = lives;
     }
 
     /**

@@ -13,7 +13,7 @@ export class NewPlayerEvent extends NetworkEvent {
     public readonly playerID: number;
     public readonly type: Player.Type;
     public readonly username: string;
-    public readonly deathCount: number;
+    public readonly lives: number;
 
     /**
      * Creates an event from the given player and playerID.
@@ -38,16 +38,16 @@ export class NewPlayerEvent extends NetworkEvent {
             this.playerID = bufferOrID.readInt16BE();
             this.type = bufferOrID.readInt8();
             this.username = bufferOrID.readString();
-            this.deathCount = bufferOrID.readInt16BE();
+            this.lives = bufferOrID.readUInt8();
         } else if (player !== undefined) {
             this.playerID = bufferOrID;
             this.type = player.getType();
             this.username = player.getName();
-            this.deathCount = player.getDeathCount();
+            this.lives = player.getLives();
         } else {
             throw new Error(`Malformed constructor:\n${bufferOrID}\n${player}`);
         }
-        this.BINARY_SIZE = 5 + PositionedBuffer.getStringWriteSize(this.username);
+        this.BINARY_SIZE = 4 + PositionedBuffer.getStringWriteSize(this.username);
     }
 
     /**
@@ -68,10 +68,10 @@ export class NewPlayerEvent extends NetworkEvent {
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeInt16BE(this.playerID);
-        buffer.writeInt8(this.type);
+        buffer.writeUInt16BE(this.playerID);
+        buffer.writeUInt8(this.type);
         buffer.writeString(this.username);
-        buffer.writeInt16BE(this.deathCount);
+        buffer.writeUInt8(this.lives);
     }
 
 }

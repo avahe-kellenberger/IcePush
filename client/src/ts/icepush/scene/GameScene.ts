@@ -8,7 +8,6 @@ import {Player} from "../entity/Player";
 import {Connection} from "../net/Connection";
 import {Entity} from "../../engine/game/entity/Entity";
 import {NewPlayerEvent} from "../net/events/NewPlayerEvent";
-import {PlayerDeathEvent} from "../net/events/PlayerDeathEvent";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
@@ -19,6 +18,7 @@ import {OPCode} from "../net/NetworkEventBuffer";
 import {NetworkEvent} from "../net/NetworkEvent";
 import {PlayerLoggedOutEvent} from "../net/events/PlayerLoggedOutEvent";
 import {PlayerMovedEvent} from "../net/events/PlayerMovedEvent";
+import {PlayerLivesChangedEvent} from "../net/events/PlayerLivedChangedEvent";
 
 export class GameScene extends Scene {
 
@@ -118,9 +118,7 @@ export class GameScene extends Scene {
 
             case OPCode.NEW_PLAYER: {
                 const event: NewPlayerEvent = e as NewPlayerEvent;
-                const player: Player = new Player(event.username, event.type);
-                player.setDeathCount(event.deathCount);
-                player.setIsDead(true);
+                const player: Player = new Player(event.username, event.type, event.lives);
                 this.addEntity(event.playerID, player);
                 break;
             }
@@ -134,16 +132,14 @@ export class GameScene extends Scene {
                 break;
             }
 
-            case OPCode.PLAYER_DEATH: {
-                const event = e as PlayerDeathEvent;
-                const player: Entity|undefined = this.getEntity(event.playerID);
-                if (!(player instanceof Player)) {
-                    break;
-                }
-                player.setDeathCount(event.deathCount);
-                if (player.getDeathCount() !== 0) {
-                    // Death reset; not dead.
-                    player.setIsDead(true);
+            case OPCode.PLAYER_LIVES_CHANGED: {
+                const event = e as PlayerLivesChangedEvent;
+                const player: Player|undefined = this.getEntity(event.playerID) as Player|undefined;
+                if (player !== undefined) {
+                    player.setLives(event.lives);
+                    if (player.getLives() === 0) {
+                        this.removeEntity(event.playerID);
+                    }
                 }
                 break;
             }
@@ -155,8 +151,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.CHAT_RECEIVE: {
-                const event = e as ChatReceiveEvent;
-                this.onMessageReceived(event.chatMessage);
+                this.onMessageReceived((e as ChatReceiveEvent).chatMessage);
                 break;
             }
 

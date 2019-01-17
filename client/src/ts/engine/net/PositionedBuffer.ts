@@ -110,6 +110,21 @@ export class PositionedBuffer {
     }
 
     /**
+     * @see Buffer.readUInt16BE
+     */
+    public readUInt16BE(): number {
+        return (0xff & (this.readUInt8())) + (this.readUInt8() << 8);
+    }
+
+    /**
+     * @see Buffer.writeUInt16BE
+     */
+    public writeUInt16BE(value: number): number {
+        this.writeUInt8(value);
+        return this.writeUInt8(value >> 8);
+    }
+
+    /**
      * @see Buffer.readInt32BE
      */
     public readInt32BE(): number {
