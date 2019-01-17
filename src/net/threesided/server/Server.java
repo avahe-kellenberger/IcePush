@@ -65,8 +65,10 @@ public class Server implements Runnable {
 
         this.incomingConnections = new InterthreadQueue<>();
 
-        final InternetRelayChat irc = new InternetRelayChat(settings.get("irc-server"), Integer.parseInt(settings.get("irc-port")),
-                settings.get("irc-channel"), settings.get("irc-nick"));
+        final InternetRelayChat irc = new InternetRelayChat(settings.get("irc-server"),
+                                          Integer.parseInt(settings.get("irc-port")),
+                                          settings.get("irc-channel"),
+                                          settings.get("irc-nick"));
         final Thread ircThread = new Thread(irc);
         ircThread.setDaemon(true);
         ircThread.start();
