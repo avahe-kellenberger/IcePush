@@ -61,9 +61,14 @@ export class IcePush extends Game {
 
             // If the connection closes, cancel and queued timeouts.
             const closeListener = (() => {
-                connection.removeCloseListener(closeListener);
                 clearTimeout(timeoutID);
+
+                // Go back to the login screen if the connection closes.
+                if (this.currentScene instanceof GameScene) {
+                    this.showHomeScene();
+                }
             });
+
             this.connection.addCloseListener(closeListener);
 
             // Send a login event when the connect first opens.
