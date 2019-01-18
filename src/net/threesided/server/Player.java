@@ -11,7 +11,7 @@ import java.awt.geom.Path2D;
 
 public class Player extends RigidBody {
 	public int id;
-	public int deaths;
+	public int lives;
 	public int type;
 	public String username;
 	public boolean connected;
@@ -51,7 +51,7 @@ public class Player extends RigidBody {
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(p.type);
 		pbuf.writeString(p.username);
-		pbuf.writeShort(p.deaths);
+		pbuf.writeByte(p.lives);
 		pbuf.endPacket();
 	}
 
@@ -163,7 +163,7 @@ public class Player extends RigidBody {
 	public void playerDied(Player p) {			// Notify this player that player p has died
 		pbuf.beginPacket(PLAYER_DIED);
 		pbuf.writeShort(p.id);
-		pbuf.writeByte(p.deaths);
+		pbuf.writeByte(p.lives);
 		pbuf.endPacket();
 	}
 
