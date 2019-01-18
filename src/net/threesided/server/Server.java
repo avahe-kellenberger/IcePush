@@ -18,7 +18,7 @@ public class Server implements Runnable {
     private static Map<String, String> defaults;
 
     static {
-        Server.defaults = new HashMap<>();
+        Server.defaults = new HashMap<String, String>();
 
         Server.defaults.put("bind-port", "2345");
 
@@ -63,7 +63,7 @@ public class Server implements Runnable {
         Server.roundLength = Integer.parseInt(settings.get("round-length"));
         Server.deathLength = Integer.parseInt(settings.get("death-length"));
 
-        this.incomingConnections = new InterthreadQueue<>();
+        this.incomingConnections = new InterthreadQueue<Socket>();
 
         final InternetRelayChat irc = new InternetRelayChat(
                 settings.get("irc-server"),
@@ -118,7 +118,7 @@ public class Server implements Runnable {
 
     private Map<String, String> loadSettings(String fileName) {
         try {
-            final Map<String, String> ret = new HashMap<>();
+            final Map<String, String> ret = new HashMap<String, String>();
             final BufferedReader br = new BufferedReader(new FileReader(fileName));
             String line;
             while ((line = br.readLine()) != null) {
@@ -302,7 +302,7 @@ public class Server implements Runnable {
 
     private void updateIrc() {
         InternetRelayChat.processInput();
-        this.chats = new ArrayList<>();
+        this.chats = new ArrayList<String>();
         String msg;
         while ((msg = InternetRelayChat.msgs.pull()) != null) {
             chats.add(msg);
@@ -356,7 +356,7 @@ public class Server implements Runnable {
                     for (final Player plr : this.players) {
                         if (plr != null) {
                             // plr cycles through every player; p is the player who just died
-                            plr.playerDied(p);
+                            plr.updateLives(p);
                         }
                     }
                 }
@@ -407,19 +407,20 @@ public class Server implements Runnable {
     private void resetDeaths() {
         for (final Player player : this.players) {
             if (player != null) {
+                if(player.isDead) player.initPosition(this.players, this.mapClass.currentPath);
                 player.lives = DEFAULT_LIVES;
-                if (player.isDead) {
-                    player.isDead = false;
-                    for (final Player plr : this.players) {
-                        if (plr != null) {
-                            // Tell p about all players already logged in
-                            plr.notifyLogin(player);
-                            plr.handleMove(player);
+                for (final Player plr : this.players) {
+                    if (plr != null) {
+                        // Tell p about all players already logged in
+                        if(player.isDead) {
+                           plr.notifyLogin(player);
+                           plr.handleMove(player);
                         }
+                        plr.updateLives(player);
                     }
                 }
+                player.isDead = false;
             }
         }
     }
-
 }

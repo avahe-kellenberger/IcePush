@@ -160,7 +160,7 @@ public class Player extends RigidBody {
 		pbuf.endPacket();
 	}
 
-	public void playerDied(Player p) {			// Notify this player that player p has died
+	public void updateLives(Player p) {			// Notify this player how many lives p has remaining
 		pbuf.beginPacket(PLAYER_DIED);
 		pbuf.writeShort(p.id);
 		pbuf.writeByte(p.lives);
