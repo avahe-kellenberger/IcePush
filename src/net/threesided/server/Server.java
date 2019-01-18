@@ -18,7 +18,7 @@ public class Server implements Runnable {
     private static Map<String, String> defaults;
 
     static {
-        Server.defaults = new HashMap<String, String>();
+        Server.defaults = new HashMap<>();
 
         Server.defaults.put("bind-port", "2345");
 
@@ -63,7 +63,7 @@ public class Server implements Runnable {
         Server.roundLength = Integer.parseInt(settings.get("round-length"));
         Server.deathLength = Integer.parseInt(settings.get("death-length"));
 
-        this.incomingConnections = new InterthreadQueue<Socket>();
+        this.incomingConnections = new InterthreadQueue<>();
 
         final InternetRelayChat irc = new InternetRelayChat(
                 settings.get("irc-server"),
@@ -116,9 +116,9 @@ public class Server implements Runnable {
         }
     }
 
-    private Map<String, String> loadSettings(String fileName) {
+    private Map<String, String> loadSettings(final String fileName) {
         try {
-            final Map<String, String> ret = new HashMap<String, String>();
+            final Map<String, String> ret = new HashMap<>();
             final BufferedReader br = new BufferedReader(new FileReader(fileName));
             String line;
             while ((line = br.readLine()) != null) {
@@ -302,7 +302,7 @@ public class Server implements Runnable {
 
     private void updateIrc() {
         InternetRelayChat.processInput();
-        this.chats = new ArrayList<String>();
+        this.chats = new ArrayList<>();
         String msg;
         while ((msg = InternetRelayChat.msgs.pull()) != null) {
             chats.add(msg);
