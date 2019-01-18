@@ -62,16 +62,23 @@ export class Player extends GameObject {
 
         ctx.fillStyle = 'red';
         const fontSize: number = 14;
-        ctx.font = `${fontSize}px Arial`;
-        const metrics: TextMetrics = ctx.measureText(this.name);
-
         /*
          * See https://developer.mozilla.org/en-US/docs/Web/CSS/line-height#Values for an explanation.
          * 'Desktop browsers (including Firefox) use a default value of roughly 1.2, depending on the element's font-family.'
          * We multiply by '0.6' to halve the height.
          */
-        const height = fontSize * 0.6;
-        ctx.fillText(this.name, center.x - metrics.width * 0.5, top - height);
+        const fontHeight = fontSize * 0.6;
+        ctx.font = `${fontSize}px Arial`;
+
+        // Render Name
+        const nameFontMetrics: TextMetrics = ctx.measureText(this.name);
+        ctx.fillText(this.name, center.x - nameFontMetrics.width * 0.5, top - fontHeight * 2);
+
+
+        // Render Lives
+        const lives: string = `Lives: ${this.lives}`;
+        const livesFontMetrics: TextMetrics = ctx.measureText(lives);
+        ctx.fillText(lives, center.x - livesFontMetrics.width * 0.5, top - fontHeight + 4);
     }
 
 }
