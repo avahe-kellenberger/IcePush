@@ -42,9 +42,9 @@ export class HomeScene extends Scene {
     private login(): void {
         if (this.inputUsername.value.length < 1 || this.inputUsername.value.match(/^[a-zA-Z0-9]*$/g) === null) {
             alert('Username must be alphanumeric with no spaces.');
-            return;
+        } else {
+            this.getGame().tryLogin(this.inputUsername.value);
         }
-        this.getGame().tryLogin(this.inputUsername.value);
     }
 
     /**

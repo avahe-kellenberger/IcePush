@@ -27,61 +27,68 @@ export class IcePush extends Game {
      * @param username The username to log in with.
      */
     public tryLogin(username: string): void {
-        if (this.connection === undefined || !this.connection.isConnected()) {
-            this.connection = new Connection(IcePush.SERVER_ADDRESS);
-            const connection: Connection = this.connection;
-
-            // Await for a message indicating the login succeeded.
-            const loginListener = ((buffer: NetworkEventBuffer) => {
-                clearTimeout(timeoutID);
-
-                const events: NetworkEvent[] = buffer.getEvents();
-                const successEvent: SuccessEvent|undefined = events.find(e => e instanceof SuccessEvent) as SuccessEvent;
-                if (successEvent !== undefined) {
-                    connection.removeDataReceivedListener(loginListener);
-                    this.onLoginSucceeded(username);
-                } else {
-                    // Login unsuccessful; close connection and display error.
-                    connection.close();
-                    const failureEvent: FailureEvent|undefined = events.find(e => e instanceof FailureEvent) as FailureEvent;
-                    if (failureEvent !== undefined && failureEvent.message !== undefined) {
-                        alert(failureEvent.message);
-                    } else {
-                        alert(`An unknown error has occurred.`);
-                    }
-                }
-            });
-
-            // Wait for the connection to time out.
-            const timeoutID: NodeJS.Timeout = setTimeout(() => {
-                    alert('Connection timed out.');
-                }, IcePush.LOGIN_TIMEOUT
-            );
-            this.connection.addDataReceivedListener(loginListener);
-
-            // If the connection closes, cancel and queued timeouts.
-            const closeListener = (() => {
-                clearTimeout(timeoutID);
-
-                // Go back to the login screen if the connection closes.
-                if (this.currentScene instanceof GameScene) {
-                    this.showHomeScene();
-                }
-            });
-
-            this.connection.addCloseListener(closeListener);
-
-            // Send a login event when the connect first opens.
-            this.connection.addOnOpenedListener(() =>
-                connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
-
-            // If an error is thrown, the login failed.
-            const errorListener = (() => {
-                connection.removeErrorListener(errorListener);
-                alert(`Connection error!`);
-            });
-            this.connection.addErrorListener(errorListener);
+        // Already connected or connecting; do nothing.
+        if (this.isConnectionOpenOrConnecting()) {
+            return;
         }
+
+        this.connection = new Connection(IcePush.SERVER_ADDRESS);
+        const connection: Connection = this.connection;
+
+        // Await for a message indicating the login succeeded.
+        const loginListener = ((buffer: NetworkEventBuffer) => {
+            clearTimeout(timeoutID);
+
+            const events: NetworkEvent[] = buffer.getEvents();
+            if (events.find(e => e instanceof SuccessEvent) !== undefined) {
+                connection.removeDataReceivedListener(loginListener);
+                this.onLoginSucceeded(username);
+            } else {
+                // Login unsuccessful; close connection and display error.
+                connection.close();
+                const failureEvent: FailureEvent|undefined = events.find(e => e instanceof FailureEvent) as FailureEvent;
+                alert(failureEvent !== undefined && failureEvent.message !== undefined ?
+                      failureEvent.message : `An unknown error has occurred.`);
+            }
+        });
+
+        // Wait for the connection to time out.
+        const timeoutID: NodeJS.Timeout = setTimeout(() => {
+                alert('Connection timed out.');
+            }, IcePush.LOGIN_TIMEOUT
+        );
+        this.connection.addDataReceivedListener(loginListener);
+
+        // If the connection closes, cancel and queued timeouts.
+        this.connection.addCloseListener(() => {
+            clearTimeout(timeoutID);
+            // Go back to the login screen if the connection closes.
+            if (this.currentScene instanceof GameScene) {
+                this.showHomeScene();
+            }
+        });
+
+        // Send a login event when the connect first opens.
+        this.connection.addOnOpenedListener(() =>
+            connection.send(new LoginEvent(IcePush.CLIENT_VERSION, username)));
+
+        // If an error is thrown, the login failed.
+        const errorListener = (() => {
+            connection.removeErrorListener(errorListener);
+            alert(`Connection error!`);
+        });
+        this.connection.addErrorListener(errorListener);
+    }
+
+    /**
+     * Checks if the connection's readyState is OPEN or CONNECTING.
+     */
+    private isConnectionOpenOrConnecting(): boolean {
+        if (this.connection !== undefined) {
+            const readyState: number = this.connection.getState();
+            return readyState === WebSocket.OPEN || readyState === WebSocket.CONNECTING;
+        }
+        return false;
     }
 
     /**
