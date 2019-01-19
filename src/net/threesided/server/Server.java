@@ -22,9 +22,9 @@ public class Server implements Runnable {
 
         Server.defaults.put("bind-port", "2345");
 
-        Server.defaults.put("irc-server", "irc.strictfp.com");
+        Server.defaults.put("irc-server", "irc.rizon.net");
         Server.defaults.put("irc-channel", "#icepush");
-        Server.defaults.put("irc-port", "6667");
+        Server.defaults.put("irc-port", "6697");
         Server.defaults.put("irc-nick", "TestServer");
 
         Server.defaults.put("death-length", "0");
@@ -53,27 +53,37 @@ public class Server implements Runnable {
     private int blockCount;
 
     public static void main(final String[] args) {
-        new Server();
+        boolean runLocal = false;
+        if (args != null && args.length >= 1) {
+            runLocal = Boolean.valueOf(args[0]);
+        }
+        new Server(runLocal);
     }
 
-    private Server() {
+    /**
+     * @param runLocal If the server should be ran locally.
+     *                 If true, the server will not make external connections (e.g. to the IRC server).
+     */
+    private Server(final boolean runLocal) {
         this.players = new Player[30];
-        final Map<String, String> settings = loadSettings("config");
+        final Map<String, String> settings = loadSettings("server.config");
 
         Server.roundLength = Integer.parseInt(settings.get("round-length"));
         Server.deathLength = Integer.parseInt(settings.get("death-length"));
 
         this.incomingConnections = new InterthreadQueue<>();
 
-        final InternetRelayChat irc = new InternetRelayChat(
-                settings.get("irc-server"),
-                Integer.parseInt(settings.get("irc-port")),
-                settings.get("irc-channel"),
-                settings.get("irc-nick"));
+        if (!runLocal) {
+            final InternetRelayChat irc = new InternetRelayChat(
+                    settings.get("irc-server"),
+                    Integer.parseInt(settings.get("irc-port")),
+                    settings.get("irc-channel"),
+                    settings.get("irc-nick"));
 
-        final Thread thread = new Thread(irc);
-        thread.setDaemon(true);
-        thread.start();
+            final Thread thread = new Thread(irc);
+            thread.setDaemon(true);
+            thread.start();
+        }
 
         final int port = Integer.parseInt(settings.get("bind-port"));
         try {
