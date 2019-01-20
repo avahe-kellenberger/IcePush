@@ -18,7 +18,7 @@ public class Server implements Runnable {
     private static Map<String, String> defaults;
 
     static {
-        Server.defaults = new HashMap<>();
+        Server.defaults = new HashMap<String, String>();
 
         Server.defaults.put("bind-port", "2345");
 
@@ -46,6 +46,7 @@ public class Server implements Runnable {
     private MapClass mapClass;
 
     private boolean run = true;
+    private boolean roundStarted = false;
     private ServerSocket listener;
     private InterthreadQueue<Socket> incomingConnections;
     private ArrayList<String> chats;
@@ -71,7 +72,7 @@ public class Server implements Runnable {
         Server.roundLength = Integer.parseInt(settings.get("round-length"));
         Server.deathLength = Integer.parseInt(settings.get("death-length"));
 
-        this.incomingConnections = new InterthreadQueue<>();
+        this.incomingConnections = new InterthreadQueue<Socket>();
 
         if (!runLocal) {
             final InternetRelayChat irc = new InternetRelayChat(
@@ -116,7 +117,11 @@ public class Server implements Runnable {
             } catch (final Exception ex) {
                 ex.printStackTrace();
             }
-            if (this.getNumPlayers() > 1) {
+
+            roundStarted = getNumPlayers() > 1;
+
+            if (roundStarted) {
+                if(timeRemaining % 1000 == 0) updateRoundTime();
                 Server.timeRemaining -= 20;
                 if (Server.timeRemaining <= 0) {
                     this.resetDeaths();
@@ -128,7 +133,7 @@ public class Server implements Runnable {
 
     private Map<String, String> loadSettings(final String fileName) {
         try {
-            final Map<String, String> ret = new HashMap<>();
+            final Map<String, String> ret = new HashMap<String, String>();
             final BufferedReader br = new BufferedReader(new FileReader(fileName));
             String line;
             while ((line = br.readLine()) != null) {
@@ -312,7 +317,7 @@ public class Server implements Runnable {
 
     private void updateIrc() {
         InternetRelayChat.processInput();
-        this.chats = new ArrayList<>();
+        this.chats = new ArrayList<String>();
         String msg;
         while ((msg = InternetRelayChat.msgs.pull()) != null) {
             chats.add(msg);
@@ -355,7 +360,7 @@ public class Server implements Runnable {
                 }
 
                 if (!this.mapClass.currentPath.contains(p.position.getX(), p.position.getY()) && !p.isDead) {
-                    p.lives--;
+                    if(roundStarted) p.lives--;
                     if (p.lives == 0) {
                         p.isDead = true;
                     } else {
@@ -379,8 +384,12 @@ public class Server implements Runnable {
                     }
                 }
             }
+        }
+    }
 
-            if (this.getNumPlayers() > 1 && Server.timeRemaining % 1000 == 0) {
+    private void updateRoundTime() {
+        for(Player p: this.players) {
+            if(p != null) {
                 p.updateRoundTime(Server.timeRemaining / 1000);
             }
         }
@@ -398,7 +407,10 @@ public class Server implements Runnable {
             this.players[p.id] = null;
 
             if (this.getNumPlayers() < 2) {
-                Server.timeRemaining = -1;
+                roundStarted = false;
+                Server.timeRemaining = -1000;
+                resetDeaths();
+                updateRoundTime();
             }
         } catch (final Exception ex) {
             ex.printStackTrace();
