@@ -328,7 +328,7 @@ export class GameScene extends Scene {
         ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
         super.render(ctx);
 
-        if (this.roundTimeRemaining !== undefined) {
+        if (this.roundTimeRemaining !== undefined && this.roundTimeRemaining >= 0) {
             this.renderRoundTimeRemaining(ctx, this.roundTimeRemaining);
         }
     }
