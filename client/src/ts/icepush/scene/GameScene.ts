@@ -315,9 +315,6 @@ export class GameScene extends Scene {
             this.connection.enqueueEvent(new PingEvent());
         }
         this.sendCurrentMovement();
-
-        // Send all events that have been enqueued this update.
-        this.connection.flushEventQueue();
     }
 
     /**
