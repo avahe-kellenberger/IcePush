@@ -125,18 +125,19 @@ public class Server implements Runnable {
                     updateRoundTime();
                 }
 
-                if(getLivingPlayers() == 1) {
-                    timeRemaining = 20;
+                if (this.getLivingPlayers() == 1) {
+                    Server.timeRemaining = 20;
                 }
-                
+
                 Server.timeRemaining -= 20;
                 if (Server.timeRemaining <= 0) {
-                    if(timeRemaining == 0) {
-                        String msg = victoryString;
-                        if(InternetRelayChat.sendWinner) InternetRelayChat.sendMessage(msg);
-                        updateWinners(getWinners());
+                    if (Server.timeRemaining == 0) {
+                        final String msg = this.victoryString;
+                        if (InternetRelayChat.sendWinner) {
+                            InternetRelayChat.sendMessage(msg);
+                        }
+                        this.updateWinners(this.getWinners());
                     }
-                    // System.out.println("Number of living players: " + getLivingPlayers());
                     this.resetDeaths();
                     Server.timeRemaining = Server.roundLength;
                 }
@@ -444,57 +445,57 @@ public class Server implements Runnable {
 
     private int getLivingPlayers() {
         int count = 0;
-        for(Player plr : players) {
-            if(plr != null) {
-                if(!plr.isDead) count++;
+        for (final Player plr : this.players) {
+            if (plr != null) {
+                if (!plr.isDead) {
+                    count++;
+                }
             }
         }
         return count;
     }
 
     private void updateWinners(byte[] b) {
-        for(Player p : players) {
-            if(p != null) {
+        for (final Player p : this.players) {
+            if (p != null) {
                 p.updateWinners(b);
             }
         }
     }
 
     private byte[] getWinners() {
-        Player first = null, second = null, third = null;
+        Player first = null, second = null;
         int fl = -1, sl = -1, tl = -1;
-        for(Player p: players) if(p != null) {
-            if(p.lives > fl) {
-                tl = sl;
-                third = second;
-                sl = fl;
-                second = first;
-                fl = p.lives;
-                first = p;
-            } else if(p.lives > sl) {
-               tl = sl;
-               third = second;
-               sl = p.lives;
-               second = p;
-            } else if(p.lives > tl) {
-               tl = p.lives;
-               third = p;
+        for (final Player p : this.players)
+            if (p != null) {
+                if (p.lives > fl) {
+                    tl = sl;
+                    sl = fl;
+                    second = first;
+                    fl = p.lives;
+                    first = p;
+                } else if (p.lives > sl) {
+                    tl = sl;
+                    sl = p.lives;
+                    second = p;
+                } else if (p.lives > tl) {
+                    tl = p.lives;
+                }
             }
-        }
 
-        if(fl == sl && sl == tl) {
-            victoryString = "All of you are losers";
+        if (fl == sl && sl == tl) {
+            this.victoryString = "All of you are losers";
             return new byte[0];
         }
-        if(fl > sl) {
-            victoryString = "PLAYER " + first.username + " HAS WON AND IS NOW THE WINNER !";
-            return new byte[] { (byte)first.id };
+        if (fl > sl) {
+            this.victoryString = "PLAYER " + first.username + " HAS WON AND IS NOW THE WINNER !";
+            return new byte[]{(byte) first.id};
         }
-        if(fl == sl) {
-            victoryString = "PLAYERS " + first.username + " AND " + second.username + " HAVE WON AND ARE NOW THE WINNERS ! !";
-            return new byte[] { (byte)first.id, (byte)second.id };
+        if (fl == sl) {
+            this.victoryString = "PLAYERS " + first.username + " AND " + second.username + " HAVE WON AND ARE NOW THE WINNERS ! !";
+            return new byte[]{(byte) first.id, (byte) second.id};
         }
-        victoryString = "hello";
+        this.victoryString = "hello";
         return new byte[0];
     }
 

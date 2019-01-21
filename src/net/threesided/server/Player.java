@@ -129,11 +129,13 @@ public class Player extends Circle {
         pbuf.endPacket();
     }
 
-    public void updateWinners(byte[] winners) {
-    	pbuf.beginPacket(UPDATE_WINNER);
-    	pbuf.writeByte(winners.length);
-    	for(byte b : winners) pbuf.writeByte(b);
-	pbuf.endPacket();
+    public void updateWinners(final byte[] winners) {
+        pbuf.beginPacket(UPDATE_WINNER);
+        pbuf.writeByte(winners.length);
+        for (final byte b : winners) {
+            pbuf.writeByte(b);
+        }
+        pbuf.endPacket();
     }
 
     public boolean processIncomingPackets() {
