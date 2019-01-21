@@ -156,4 +156,15 @@ export class IcePush extends Game {
         return container;
     }
 
+    /**
+     * @override
+     */
+    public update(delta: number): void {
+        super.update(delta);
+        if (this.connection !== undefined && this.connection.isConnected()) {
+            // Send all events that have been enqueued this update.
+            this.connection.flushEventQueue();
+        }
+    }
+
 }
