@@ -5,16 +5,16 @@ import net.threesided.shared.Vector2D;
 
 public class Physics2D {
 
-    private RigidBody bodies[];
+    private Circle[] circles;
 
-    public Physics2D(RigidBody bodies[]) {
-        this.bodies = bodies;
+    public Physics2D(Circle[] bodies) {
+        this.circles = bodies;
     }
 
     public void update() {
-        RigidBody a, b;
-        for (int i = 0; i < bodies.length; i++) {
-            if ((a = bodies[i]) == null) continue;
+        Circle a, b;
+        for (int i = 0; i < circles.length; i++) {
+            if ((a = circles[i]) == null) continue;
 
             if (a.getClass().isAssignableFrom(Player.class) && ((Player) a).isDead)
                 continue; // if it's a dead player, don't update
@@ -26,17 +26,17 @@ public class Physics2D {
                 a.position.add(a.velocity);
             }
 
-            for (int j = 1 + i; j < bodies.length; j++) {
-                if ((b = bodies[j]) == null || (b == a)) continue;
+            for (int j = 1 + i; j < circles.length; j++) {
+                if ((b = circles[j]) == null || (b == a)) continue;
                 doCollision(a, b);
             }
         }
     }
 
-    private void doCollision(RigidBody a, RigidBody b) {
+    private void doCollision(Circle a, Circle b) {
         Vector2D delta = new Vector2D(a.position).subtract(b.position);
         double d = delta.getLength();
-        double r = a.r + b.r;
+        double r = a.radius + b.radius;
 
         if (d > r) return;
         Vector2D mtd = new Vector2D(delta).multiply((r - d) / d);
