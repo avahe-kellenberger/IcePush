@@ -129,6 +129,13 @@ public class Player extends Circle {
         pbuf.endPacket();
     }
 
+    public void updateWinners(byte[] winners) {
+    	pbuf.beginPacket(UPDATE_WINNER);
+    	pbuf.writeByte(winners.length);
+    	for(byte b : winners) pbuf.writeByte(b);
+	pbuf.endPacket();
+    }
+
     public boolean processIncomingPackets() {
         if (!pbuf.synch()) return false;
         PacketMapper.handlePackets(pbuf, this);        // TODO: Figure out whether this dependency is appropriate or not

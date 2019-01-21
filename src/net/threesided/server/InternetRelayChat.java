@@ -24,6 +24,8 @@ public class InternetRelayChat implements Runnable {
 	private static String server;
 	private static String channel;
 	private static int port;
+
+	static boolean sendWinner = false;
 	
 	public InternetRelayChat(String s, int p, String c, String n) {
 		server = s;
@@ -148,7 +150,19 @@ public class InternetRelayChat implements Runnable {
 				}
 			}
 			else	sendMessage("Not enough arguments for command");
-		}	
+		}
+		if(args[0].equals("sendwinner")) {
+			if(args.length > 1) {
+				System.out.println("arg1: " + args[1]);
+				try {
+					sendWinner = Boolean.parseBoolean(args[1]);
+				} catch (Exception e) {
+					sendMessage(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+			else sendMessage("Not enough arguments: choices are true or false");
+		}
 	}
 
 	private static void processLine(String input) {

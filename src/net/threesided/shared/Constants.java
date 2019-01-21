@@ -8,7 +8,7 @@ public class Constants {
 	public static final int NUM_PLAYERS_NOTIFY = 2;
 
 	// Login protocol
-	public static final int VERSION = 107;
+	public static final int VERSION = 108;
 	public static final int FAILURE = 1;
 	public static final int SUCCESS_LOG = 2;
 
@@ -21,6 +21,7 @@ public class Constants {
 	public static final int NEW_CHAT_MESSAGE = 17;
 	public static final int UPDATE = 19;
 	public static final int UPDATE_TIME = 18;
+	public static final int UPDATE_WINNER = 20;
 
 	// Client to Server
 	public static final int MOVE_REQUEST = 8;

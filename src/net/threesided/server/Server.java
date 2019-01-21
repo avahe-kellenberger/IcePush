@@ -37,7 +37,7 @@ public class Server implements Runnable {
     private static final int DEFAULT_LIVES = 5;
 
     private static int roundLength;
-    private static int timeRemaining = roundLength;
+    private static int timeRemaining = -1000;
 
     private static int deathLength;
 
@@ -52,6 +52,7 @@ public class Server implements Runnable {
     private ArrayList<String> chats;
 
     private int blockCount;
+    private String victoryString;
 
     public static void main(final String[] args) {
         boolean runLocal = false;
@@ -111,7 +112,6 @@ public class Server implements Runnable {
             this.updateIrc();
             physics.update();
             this.loginPlayers();
-            this.updatePlayers();
             try {
                 Thread.sleep(20);
             } catch (final Exception ex) {
@@ -124,12 +124,24 @@ public class Server implements Runnable {
                 if (Server.timeRemaining % 1000 == 0) {
                     updateRoundTime();
                 }
+
+                if(getLivingPlayers() == 1) {
+                    timeRemaining = 20;
+                }
+                
                 Server.timeRemaining -= 20;
                 if (Server.timeRemaining <= 0) {
+                    if(timeRemaining == 0) {
+                        String msg = victoryString;
+                        if(InternetRelayChat.sendWinner) InternetRelayChat.sendMessage(msg);
+                        updateWinners(getWinners());
+                    }
+                    // System.out.println("Number of living players: " + getLivingPlayers());
                     this.resetDeaths();
                     Server.timeRemaining = Server.roundLength;
                 }
             }
+            this.updatePlayers();
         }
     }
 
@@ -428,6 +440,62 @@ public class Server implements Runnable {
                 count++;
             }
         return count;
+    }
+
+    private int getLivingPlayers() {
+        int count = 0;
+        for(Player plr : players) {
+            if(plr != null) {
+                if(!plr.isDead) count++;
+            }
+        }
+        return count;
+    }
+
+    private void updateWinners(byte[] b) {
+        for(Player p : players) {
+            if(p != null) {
+                p.updateWinners(b);
+            }
+        }
+    }
+
+    private byte[] getWinners() {
+        Player first = null, second = null, third = null;
+        int fl = -1, sl = -1, tl = -1;
+        for(Player p: players) if(p != null) {
+            if(p.lives > fl) {
+                tl = sl;
+                third = second;
+                sl = fl;
+                second = first;
+                fl = p.lives;
+                first = p;
+            } else if(p.lives > sl) {
+               tl = sl;
+               third = second;
+               sl = p.lives;
+               second = p;
+            } else if(p.lives > tl) {
+               tl = p.lives;
+               third = p;
+            }
+        }
+
+        if(fl == sl && sl == tl) {
+            victoryString = "All of you are losers";
+            return new byte[0];
+        }
+        if(fl > sl) {
+            victoryString = "PLAYER " + first.username + " HAS WON AND IS NOW THE WINNER !";
+            return new byte[] { (byte)first.id };
+        }
+        if(fl == sl) {
+            victoryString = "PLAYERS " + first.username + " AND " + second.username + " HAVE WON AND ARE NOW THE WINNERS ! !";
+            return new byte[] { (byte)first.id, (byte)second.id };
+        }
+        victoryString = "hello";
+        return new byte[0];
     }
 
     private void resetDeaths() {
