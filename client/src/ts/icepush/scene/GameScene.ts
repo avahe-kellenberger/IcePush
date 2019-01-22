@@ -19,6 +19,7 @@ import {NetworkEvent} from "../net/NetworkEvent";
 import {PlayerLoggedOutEvent} from "../net/events/PlayerLoggedOutEvent";
 import {PlayerMovedEvent} from "../net/events/PlayerMovedEvent";
 import {PlayerLivesChangedEvent} from "../net/events/PlayerLivedChangedEvent";
+import {RoundWinnersEvent} from "../net/events/RoundWinnersEvent";
 
 export class GameScene extends Scene {
 
@@ -134,7 +135,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_LIVES_CHANGED: {
-                const event = e as PlayerLivesChangedEvent;
+                const event: PlayerLivesChangedEvent = e as PlayerLivesChangedEvent;
                 const player: Player|undefined = this.getEntity(event.playerID) as Player|undefined;
                 if (player !== undefined) {
                     player.setLives(event.lives);
@@ -146,7 +147,7 @@ export class GameScene extends Scene {
             }
 
             case OPCode.PLAYER_LOGGED_OUT: {
-                const event = e as PlayerLoggedOutEvent;
+                const event: PlayerLoggedOutEvent = e as PlayerLoggedOutEvent;
                 this.removeEntity(event.playerID);
                 break;
             }
@@ -158,6 +159,22 @@ export class GameScene extends Scene {
 
             case OPCode.UPDATE_TIME: {
                 this.roundTimeRemaining = (e as TimeRemainingEvent).time;
+                break;
+            }
+
+            case OPCode.ROUND_WINNERS: {
+                const event: RoundWinnersEvent = e as RoundWinnersEvent;
+
+                const winnerNames: string[] = [];
+                for (const id of event.winnerIDs) {
+                    const entity: Entity|undefined = this.getEntity(id);
+                    if (entity instanceof Player) {
+                        winnerNames.push(entity.getName());
+                    }
+                }
+
+                // TODO: Display winners in a nice format on the screen.
+                console.log(`Winner${winnerNames.length > 1 ? 's are' : ' is'}: ${winnerNames.join(', ')}`);
                 break;
             }
         }

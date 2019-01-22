@@ -9,6 +9,7 @@ import {FailureEvent} from "./events/FailureEvent";
 import {SuccessEvent} from "./events/SuccessEvent";
 import {PlayerLoggedOutEvent} from "./events/PlayerLoggedOutEvent";
 import {PlayerLivesChangedEvent} from "./events/PlayerLivedChangedEvent";
+import {RoundWinnersEvent} from "./events/RoundWinnersEvent";
 
 /**
  * Network events OPCodes.
@@ -29,7 +30,8 @@ export enum OPCode {
     PROJECTILE_REQUEST = 15,
     CHAT_SEND = 16,
     CHAT_RECEIVE = 17,
-    UPDATE_TIME = 18
+    UPDATE_TIME = 18,
+    ROUND_WINNERS = 20
 }
 
 /**
@@ -102,6 +104,8 @@ export class NetworkEventBuffer extends PositionedBuffer {
                 return new ChatReceiveEvent(this);
             case OPCode.UPDATE_TIME:
                 return new TimeRemainingEvent(this);
+            case OPCode.ROUND_WINNERS:
+                return new RoundWinnersEvent(this);
 
             default:
                 throw new Error(`Unsupported event type!\nOPCode: ${opcode}`);
