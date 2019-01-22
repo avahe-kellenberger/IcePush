@@ -8,7 +8,8 @@
     "forceConsistentCasingInFileNames": true,
     "strictFunctionTypes": false,
     "noImplicitReturns": true,
-    "strict": true
+    "noImplicitAny": true,
+    "strict": true,
   },
   "include": [
     "src/ts/**/*"

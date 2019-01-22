@@ -7,6 +7,8 @@ import {OPCode} from "./NetworkEventBuffer";
  */
 export abstract class NetworkEvent {
 
+    constructor(buffer?: PositionedBuffer) {}
+
     /**
      * @return The size of the event in bytes.
      */

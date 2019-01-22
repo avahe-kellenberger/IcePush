@@ -32,7 +32,7 @@ export abstract class ChatEvent extends NetworkEvent {
         } else {
             this.chatMessage = bufferOrMessage.readString();
         }
-        this.BINARY_SIZE = this.chatMessage.length + 2;
+        this.BINARY_SIZE = PositionedBuffer.getStringWriteSize(this.chatMessage);
     }
 
     /**

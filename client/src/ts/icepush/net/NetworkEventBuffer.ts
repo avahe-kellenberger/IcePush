@@ -27,17 +27,38 @@ export enum OPCode {
     LOGOUT = 10,
     PLAYER_LOGGED_OUT = 11,
     PLAYER_LIVES_CHANGED = 12,
-    PROJECTILE_REQUEST = 15,
     CHAT_SEND = 16,
     CHAT_RECEIVE = 17,
     UPDATE_TIME = 18,
     ROUND_WINNERS = 20
 }
 
+// Maps the OPCodes to their respective NetworkEvents.
+function mapOPCodeEvents(): Map<number, new (...args: any[]) => NetworkEvent> {
+    // @ts-ignore
+    return new Map([
+        [OPCode.PING, PingEvent],
+        [OPCode.FAILURE, FailureEvent],
+        [OPCode.SUCCESS, SuccessEvent],
+        [OPCode.NEW_PLAYER, NewPlayerEvent],
+        [OPCode.PLAYER_MOVE, PlayerMovedEvent],
+        [OPCode.PLAYER_LOGGED_OUT, PlayerLoggedOutEvent],
+        [OPCode.PLAYER_LIVES_CHANGED, PlayerLivesChangedEvent],
+        [OPCode.CHAT_RECEIVE, ChatReceiveEvent],
+        [OPCode.UPDATE_TIME, TimeRemainingEvent],
+        [OPCode.ROUND_WINNERS, RoundWinnersEvent]
+    ]);
+}
+
 /**
  * A `NetworkEvent` oriented implementation of `PositionedBuffer`.
  */
 export class NetworkEventBuffer extends PositionedBuffer {
+
+    /**
+     *
+     */
+    private static opcodeEventMap: Map<number, new (...args: any[]) => NetworkEvent>;
 
     private events: NetworkEvent[]|undefined;
 
@@ -85,31 +106,15 @@ export class NetworkEventBuffer extends PositionedBuffer {
      * @return The size of the event in bytes.
      */
     private readEvent(opcode: OPCode): NetworkEvent {
-        switch (opcode) {
-            case OPCode.PING:
-                return new PingEvent();
-            case OPCode.FAILURE:
-                return new FailureEvent(this);
-            case OPCode.SUCCESS:
-                return new SuccessEvent(this);
-            case OPCode.NEW_PLAYER:
-                return new NewPlayerEvent(this);
-            case OPCode.PLAYER_MOVE:
-                return new PlayerMovedEvent(this);
-            case OPCode.PLAYER_LOGGED_OUT:
-                return new PlayerLoggedOutEvent(this);
-            case OPCode.PLAYER_LIVES_CHANGED:
-                return new PlayerLivesChangedEvent(this);
-            case OPCode.CHAT_RECEIVE:
-                return new ChatReceiveEvent(this);
-            case OPCode.UPDATE_TIME:
-                return new TimeRemainingEvent(this);
-            case OPCode.ROUND_WINNERS:
-                return new RoundWinnersEvent(this);
-
-            default:
-                throw new Error(`Unsupported event type!\nOPCode: ${opcode}`);
+        // Lazy OPCode mapping (written because of a TypeScript compiler issue; cannot be done statically).
+        if (NetworkEventBuffer.opcodeEventMap === undefined) {
+            NetworkEventBuffer.opcodeEventMap = mapOPCodeEvents();
         }
+        const event: (new (...args: any[]) => NetworkEvent)|undefined = NetworkEventBuffer.opcodeEventMap.get(opcode);
+            if (event === undefined) {
+            throw new Error(`Unsupported event type!\nOPCode: ${opcode}`);
+        }
+        return new event(this);
     }
 
 }
