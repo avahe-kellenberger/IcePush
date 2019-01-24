@@ -1,12 +1,13 @@
 import {Paths} from "./Paths";
+import {CanvasUtils} from "../../engine/util/CanvasUtils";
 
-export class ClientAssets {
+export class Assets {
 
     // region Images
 
-    public static IMAGE_BACKGROUND: HTMLImageElement;
-    public static IMAGE_SNOWMAN: HTMLImageElement;
-    public static IMAGE_TREE: HTMLImageElement;
+    public static IMAGE_BACKGROUND: HTMLCanvasElement;
+    public static IMAGE_SNOWMAN: HTMLCanvasElement;
+    public static IMAGE_TREE: HTMLCanvasElement;
 
     // endregion
 
@@ -17,9 +18,14 @@ export class ClientAssets {
         const promises: Promise<any>[] = [];
 
         // region Images
-        promises.push(this.loadImage(Paths.IMAGE_BACKGROUND).then(image => ClientAssets.IMAGE_BACKGROUND = image));
-        promises.push(this.loadImage(Paths.IMAGE_SNOWMAN).then(image => ClientAssets.IMAGE_SNOWMAN = image));
-        promises.push(this.loadImage(Paths.IMAGE_TREE).then(image => ClientAssets.IMAGE_TREE = image));
+
+        promises.push(this.loadImage(Paths.IMAGE_BACKGROUND).then(image =>
+            Assets.IMAGE_BACKGROUND = CanvasUtils.imageToCanvas(image)));
+        promises.push(this.loadImage(Paths.IMAGE_SNOWMAN).then(image =>
+            Assets.IMAGE_SNOWMAN = CanvasUtils.imageToCanvas(image)));
+        promises.push(this.loadImage(Paths.IMAGE_TREE).then(image =>
+            Assets.IMAGE_TREE = CanvasUtils.imageToCanvas(image)));
+
         // endregion
 
         // TODO: Add all assets to be loaded, here.

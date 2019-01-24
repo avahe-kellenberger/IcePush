@@ -1,17 +1,15 @@
-import {ClientAssets} from "./icepush/asset/ClientAssets";
+import {Assets} from "./icepush/asset/Assets";
 import {IcePush} from "./icepush/IcePush";
+import {CanvasUtils} from "./engine/util/CanvasUtils";
 
 // Queue asset loading as soon as possible.
 console.log('[IcePush] Loading assets...');
-const assetPromise: Promise<void> = ClientAssets.load();
+const assetPromise: Promise<void> = Assets.load();
 
 // Load the rendering context from the DOM's canvas.
 console.log('[IcePush] Loading canvas...');
 const canvas: HTMLCanvasElement = document!.getElementById('canvas') as HTMLCanvasElement;
-const ctx: CanvasRenderingContext2D|null = canvas.getContext('2d');
-if (ctx == null) {
-    throw Error('Failed to load canvas rendering context!');
-}
+const ctx: CanvasRenderingContext2D|null = CanvasUtils.getContext(canvas);
 
 // Assets loaded successfully.
 assetPromise.then(() => {

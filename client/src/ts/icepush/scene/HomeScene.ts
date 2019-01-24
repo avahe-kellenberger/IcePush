@@ -1,5 +1,5 @@
 import {Scene} from "../../engine/game/Scene";
-import {ClientAssets} from "../asset/ClientAssets";
+import {Assets} from "../asset/Assets";
 import {IcePush} from "../IcePush";
 import {EventHandler, KeyHandler} from "../../engine/input/InputHandler";
 
@@ -109,7 +109,7 @@ export class HomeScene extends Scene {
      */
     public render(ctx: CanvasRenderingContext2D): void {
         // Render the background image first.
-        ctx.drawImage(ClientAssets.IMAGE_BACKGROUND, 0, 0);
+        ctx.drawImage(Assets.IMAGE_BACKGROUND, 0, 0);
         super.render(ctx);
     }
 

@@ -1,14 +1,18 @@
 import {GameObject} from "../../engine/game/entity/GameObject";
 import {Vector2D} from "../../engine/math/Vector2D";
-import {ClientAssets} from "../asset/ClientAssets";
+import {Assets} from "../asset/Assets";
+import {CanvasUtils} from "../../engine/util/CanvasUtils";
 
 export class Player extends GameObject {
 
     private readonly name: string;
-    private readonly sprite: HTMLImageElement;
+    private nameCanvas: HTMLCanvasElement|undefined;
+
+    private readonly sprite: HTMLCanvasElement;
     private readonly type: Player.Type;
 
     private lives: number;
+    private livesCanvas: HTMLCanvasElement|undefined;
 
     /**
      * Creates a new player.
@@ -43,6 +47,7 @@ export class Player extends GameObject {
      */
     public setLives(lives: number): void {
         this.lives = lives;
+        this.livesCanvas = undefined;
     }
 
     /**
@@ -60,25 +65,16 @@ export class Player extends GameObject {
         const top: number = center.y - this.sprite.height * 0.5;
         ctx.drawImage(this.sprite, center.x - this.sprite.width * 0.5, top);
 
-        ctx.fillStyle = 'red';
-        const fontSize: number = 14;
-        /*
-         * See https://developer.mozilla.org/en-US/docs/Web/CSS/line-height#Values for an explanation.
-         * 'Desktop browsers (including Firefox) use a default value of roughly 1.2, depending on the element's font-family.'
-         * We multiply by '0.6' to halve the height.
-         */
-        const fontHeight = fontSize * 0.6;
-        ctx.font = `${fontSize}px Arial`;
-
-        // Render Name
-        const nameFontMetrics: TextMetrics = ctx.measureText(this.name);
-        ctx.fillText(this.name, center.x - nameFontMetrics.width * 0.5, top - fontHeight * 2);
+        if (this.nameCanvas === undefined) {
+            this.nameCanvas = CanvasUtils.stringToCanvas(this.name, '14px Arial', 'red');
+        }
+        ctx.drawImage(this.nameCanvas, center.x - this.nameCanvas.width * 0.5, top - this.nameCanvas.height * 2);
 
 
-        // Render Lives
-        const lives: string = `Lives: ${this.lives}`;
-        const livesFontMetrics: TextMetrics = ctx.measureText(lives);
-        ctx.fillText(lives, center.x - livesFontMetrics.width * 0.5, top - fontHeight + 4);
+        if (this.livesCanvas === undefined) {
+            this.livesCanvas = CanvasUtils.stringToCanvas(`Lives: ${this.lives}`, '14px Arial', 'red');
+        }
+        ctx.drawImage(this.livesCanvas, center.x - this.livesCanvas.width * 0.5, top - this.livesCanvas.height);
     }
 
 }
@@ -95,14 +91,14 @@ export namespace Player {
 
     /**
      * @param type The player's type.
-     * @return The image related to the `Player.Type`
+     * @return The canvased imaged related to the `Player.Type`
      */
-    export function getImage(type: Player.Type): HTMLImageElement {
+    export function getImage(type: Player.Type): HTMLCanvasElement {
         switch (type) {
             case Player.Type.SNOWMAN:
-                return ClientAssets.IMAGE_SNOWMAN;
+                return Assets.IMAGE_SNOWMAN;
             case Player.Type.TREE:
-                return ClientAssets.IMAGE_TREE;
+                return Assets.IMAGE_TREE;
             default:
                 throw new Error('Illegal player type.');
         }

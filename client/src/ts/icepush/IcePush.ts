@@ -38,6 +38,7 @@ export class IcePush extends Game {
         // Await for a message indicating the login succeeded.
         const loginListener = ((buffer: NetworkEventBuffer) => {
             clearTimeout(timeoutID);
+            connection.removeErrorListener(errorListener);
 
             const events: NetworkEvent[] = buffer.getEvents();
             if (events.find(e => e instanceof SuccessEvent) !== undefined) {
