@@ -53,6 +53,8 @@ public class Server implements Runnable {
 
     private int blockCount;
     private String victoryString;
+    private boolean victoryLap = false;
+    private static int VICTORY_DELAY = 5000;
 
     public static void main(final String[] args) {
         boolean runLocal = false;
@@ -118,30 +120,8 @@ public class Server implements Runnable {
                 ex.printStackTrace();
             }
 
-            this.roundStarted = getNumPlayers() > 1;
-
-            if (this.roundStarted) {
-                if (Server.timeRemaining % 1000 == 0) {
-                    updateRoundTime();
-                }
-
-                if (this.getLivingPlayers() == 1) {
-                    Server.timeRemaining = 20;
-                }
-
-                Server.timeRemaining -= 20;
-                if (Server.timeRemaining <= 0) {
-                    if (Server.timeRemaining == 0) {
-                        final String msg = this.victoryString;
-                        if (InternetRelayChat.sendWinner) {
-                            InternetRelayChat.sendMessage(msg);
-                        }
-                        this.updateWinners(this.getWinners());
-                    }
-                    this.resetDeaths();
-                    Server.timeRemaining = Server.roundLength;
-                }
-            }
+            this.updateRoundState();
+            
             this.updatePlayers();
         }
     }
@@ -322,6 +302,52 @@ public class Server implements Runnable {
         }
     }
 
+    private void updateRoundState() {
+        this.roundStarted = getNumPlayers() > 1;
+
+        //if(timeRemaining % 250 == 0) System.out.println(timeRemaining);
+
+        if (this.roundStarted) {
+            if (Server.timeRemaining % 1000 == 0) {
+                updateRoundTime();
+            }
+
+            if (this.getLivingPlayers() == 1 && !victoryLap) {
+                Server.timeRemaining = 20;
+            }
+
+            Server.timeRemaining -= 20;
+            //System.out.println("Time remaining set to " + timeRemaining);
+            if (Server.timeRemaining < 0) {
+                this.resetDeaths();
+                Server.timeRemaining = Server.roundLength;
+            } else if (Server.timeRemaining == 0) {
+                this.updateWinners(this.getWinners());
+                final String msg = this.victoryString;
+                if (InternetRelayChat.sendWinner) {
+                    InternetRelayChat.sendMessage(msg);
+                }
+                
+                if(victoryLap) {
+                    timeRemaining = roundLength;
+                } else {
+                    timeRemaining = VICTORY_DELAY;
+                }
+
+                if(victoryLap) {
+                    for(Player p: players) {
+                        if(p != null) {
+                            p.mobilize();
+                        }
+                    }
+                } else {
+                    resetDeaths();
+                }
+                victoryLap = !victoryLap;	// When more than one player is logged in, end of round always results in victory lap and victory lap ending always results in round start
+            }
+        }
+    }
+    
     private void sendBadVersionEvent(final int i, final WebSocketBuffer wsb, final String badVersion) {
         wsb.beginPacket(Constants.FAILURE);
         wsb.writeString(badVersion);
@@ -380,6 +406,7 @@ public class Server implements Runnable {
                     }
                     if (p.lives == 0) {
                         p.isDead = true;
+                        p.immobilize();
                     } else {
                         p.initPosition(this.players, this.mapClass.currentPath);
                     }
@@ -499,7 +526,7 @@ public class Server implements Runnable {
         return new byte[0];
     }
 
-    private void resetDeaths() {
+    private void resetDeaths() {  // Finds all dead players, make them alive, and generates a position for them. Does not make immobile players mobile again.
         for (final Player player : this.players) {
             if (player != null) {
                 if (player.isDead) {
@@ -517,6 +544,7 @@ public class Server implements Runnable {
                     }
                 }
                 player.isDead = false;
+               // player.movable = true;
             }
         }
     }

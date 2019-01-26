@@ -16,9 +16,6 @@ public class Physics2D {
         for (int i = 0; i < circles.length; i++) {
             if ((a = circles[i]) == null) continue;
 
-            if (a.getClass().isAssignableFrom(Player.class) && ((Player) a).isDead)
-                continue; // if it's a dead player, don't update
-
             if (a.movable) {
                 // because screw proper physics, this is icepush!
                 a.velocity.multiply(1 - FRICTION);

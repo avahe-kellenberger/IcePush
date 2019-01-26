@@ -24,4 +24,12 @@ public class RigidBody {
         return result;
     }
 
+    public void immobilize() {
+        movable = false;
+    }
+
+    public void mobilize() {
+        movable = true;
+    }
+
 }
