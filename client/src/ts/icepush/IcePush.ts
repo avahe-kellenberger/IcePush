@@ -15,7 +15,7 @@ export class IcePush extends Game {
     private static readonly LOGIN_TIMEOUT: number = 3000;
 
     private static readonly runLocal = location.protocol === 'file:';
-    private static readonly serverAddress = IcePush.runLocal ? 'localhost' : 'icepush.threesided.net';
+    private static readonly serverAddress = IcePush.runLocal ? 'localhost' : 'avahe.tech';
     public static readonly SERVER_ADDRESS: string = 'ws://' + IcePush.serverAddress + ':2345';
 
     private connection: Connection|undefined;
