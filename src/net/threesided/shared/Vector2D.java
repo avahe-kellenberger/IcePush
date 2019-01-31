@@ -45,9 +45,10 @@ public class Vector2D {
     }
 
     public double getDistance(Vector2D v2) {
-        return Math.sqrt((v2.getX() - getX()) * (v2.getX() - getX()) + (v2.getY() - getY()) * (v2.getY() - getY()));
+        return Math.sqrt(
+                (v2.getX() - getX()) * (v2.getX() - getX())
+                        + (v2.getY() - getY()) * (v2.getY() - getY()));
     }
-
 
     public Vector2D add(Vector2D v2) {
         setX(getX() + v2.getX());
@@ -83,4 +84,3 @@ public class Vector2D {
         return "X: " + getX() + " Y: " + getY();
     }
 }
-

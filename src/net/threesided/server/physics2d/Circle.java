@@ -6,9 +6,7 @@ public class Circle extends RigidBody {
 
     public final double radius;
 
-    /**
-     * @param radius The circle's radius.
-     */
+    /** @param radius The circle's radius. */
     public Circle(final double radius) {
         this.radius = radius;
     }
@@ -18,7 +16,7 @@ public class Circle extends RigidBody {
      * @return The distance between the two circles; negative if overlapping.
      */
     public double distanceTo(final Circle circle) {
-       return circle.position.getDistance(this.position) - circle.radius - this.radius;
+        return circle.position.getDistance(this.position) - circle.radius - this.radius;
     }
 
     /**
@@ -28,5 +26,4 @@ public class Circle extends RigidBody {
     public boolean containsPoint(final Vector2D point) {
         return this.position.getDistance(point) < this.radius;
     }
-
 }

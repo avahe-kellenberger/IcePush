@@ -2,18 +2,17 @@ package net.threesided.game;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.FontMetrics;
 import java.awt.RenderingHints;
-
 import net.threesided.graphics3d.Object3D;
 import net.threesided.graphics3d.Renderer3D;
 
 public class ClientRenderer extends Renderer3D {
     public static final int SOFTWARE_2D = 0;
     public static final int SOFTWARE_3D = 1;
-    //public static final int HARDWARE_3D = 2;
+    // public static final int HARDWARE_3D = 2;
     public static int GRAPHICS_MODE = SOFTWARE_2D;
     private int roundTime = -1;
     private int deathTime = -1;
@@ -38,10 +37,8 @@ public class ClientRenderer extends Renderer3D {
             renderScene3D(objs, GameObjects.scenery);
             drawNames(GameObjects.players, g);
         }
-        if (deaths_visible)
-            drawDeathsBox(g);
-        if (chats_visible)
-            drawNewChats(g, in_chat);
+        if (deaths_visible) drawDeathsBox(g);
+        if (chats_visible) drawNewChats(g, in_chat);
         drawRoundTime(g);
         drawDeathTime(g);
     }
@@ -61,8 +58,7 @@ public class ClientRenderer extends Renderer3D {
             g.drawString(chat, 70, 160 - (chats.size() - k) * 15);
         }
         Player p = GameObjects.players[NetworkHandler.id];
-        if (p == null)
-            return;
+        if (p == null) return;
 
         String str = in_chat ? "<" + p.username + "> " + curChat + "_" : "<enter> to chat";
         g.drawString(str, 70, 172);
@@ -73,11 +69,8 @@ public class ClientRenderer extends Renderer3D {
             if (p != null) {
                 Object3D o = p.model;
                 double maxy = 0;
-                for (int k = 0; k < o.vertY.length; k++)
-                    if (o.vertY[k] > maxy)
-                        maxy = o.vertY[k];
-                double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ,
-                        0, maxy + 25, 0);
+                for (int k = 0; k < o.vertY.length; k++) if (o.vertY[k] > maxy) maxy = o.vertY[k];
+                double[] pt = transformPoint(o.baseX, o.baseY, o.baseZ, 0, maxy + 25, 0);
                 int[] scr = worldToScreen(pt[0], pt[1], pt[2]);
 
                 int width = g.getFontMetrics().stringWidth(p.username) / 2;
@@ -91,8 +84,7 @@ public class ClientRenderer extends Renderer3D {
         g.drawImage(GameObjects.background, 0, 0, null);
 
         for (Player p : players) {
-            if (p == null)
-                continue;
+            if (p == null) continue;
             p.draw(g);
         }
     }
@@ -116,8 +108,9 @@ public class ClientRenderer extends Renderer3D {
         g.setFont(titleFont);
 
         g.setColor(Color.white);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        ((Graphics2D) g)
+                .setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 
     public void updateCamera(int x, int y) {
@@ -135,13 +128,11 @@ public class ClientRenderer extends Renderer3D {
     }
 
     public void setRoundTime(int time) {
-        //System.out.println("Time being set to " + time);
+        // System.out.println("Time being set to " + time);
         if (roundTime > 0 && time > roundTime) {
             //	System.out.println("time="+time+" roundTime="+roundTime);
             winner = getWinner();
-            for (Player p : GameObjects.players)
-                if (p != null)
-                    p.deaths = 0;
+            for (Player p : GameObjects.players) if (p != null) p.deaths = 0;
         }
         roundTime = time;
     }
@@ -170,8 +161,8 @@ public class ClientRenderer extends Renderer3D {
     }
 
     private void drawRoundTime(Graphics g) {
-        //int timesec = roundTime / 1000;
-        if (roundTime < 0) return;                        // Not in any round
+        // int timesec = roundTime / 1000;
+        if (roundTime < 0) return; // Not in any round
         g.setFont(chatsFont);
         g.setColor(Color.white);
         String mins = Integer.toString(roundTime / 60);
@@ -187,12 +178,12 @@ public class ClientRenderer extends Renderer3D {
     }
 
     private void drawDeathTime(Graphics g) {
-        //int timesec = roundTime / 1000;
-        if (deathTime <= 0) return;                        // Not dead
+        // int timesec = roundTime / 1000;
+        if (deathTime <= 0) return; // Not dead
         g.setFont(chatsFont);
         g.setColor(Color.white);
         String secs = Integer.toString(deathTime % 60);
-        String time = "Time until respawn: " + secs + (deathTime % 60 == 1 ? " sec" :" secs");
+        String time = "Time until respawn: " + secs + (deathTime % 60 == 1 ? " sec" : " secs");
         FontMetrics fm = g.getFontMetrics();
         int a = fm.getAscent();
         int y = a + 64;

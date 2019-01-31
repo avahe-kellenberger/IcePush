@@ -1,9 +1,5 @@
 package net.threesided.server;
 
-import net.threesided.server.physics2d.Physics2D;
-import net.threesided.shared.Constants;
-import net.threesided.shared.InterthreadQueue;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,6 +8,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import net.threesided.server.physics2d.Physics2D;
+import net.threesided.shared.Constants;
+import net.threesided.shared.InterthreadQueue;
 
 public class Server implements Runnable {
 
@@ -65,8 +64,8 @@ public class Server implements Runnable {
     }
 
     /**
-     * @param runLocal If the server should be ran locally.
-     *                 If true, the server will not make external connections (e.g. to the IRC server).
+     * @param runLocal If the server should be ran locally. If true, the server will not make
+     *     external connections (e.g. to the IRC server).
      */
     private Server(final boolean runLocal) {
         this.players = new Player[30];
@@ -78,11 +77,12 @@ public class Server implements Runnable {
         this.incomingConnections = new InterthreadQueue<>();
 
         if (!runLocal) {
-            final InternetRelayChat irc = new InternetRelayChat(
-                    settings.get("irc-server"),
-                    Integer.parseInt(settings.get("irc-port")),
-                    settings.get("irc-channel"),
-                    settings.get("irc-nick"));
+            final InternetRelayChat irc =
+                    new InternetRelayChat(
+                            settings.get("irc-server"),
+                            Integer.parseInt(settings.get("irc-port")),
+                            settings.get("irc-channel"),
+                            settings.get("irc-nick"));
 
             final Thread thread = new Thread(irc);
             thread.setDaemon(true);
@@ -121,7 +121,7 @@ public class Server implements Runnable {
             }
 
             this.updateRoundState();
-            
+
             this.updatePlayers();
         }
     }
@@ -305,7 +305,7 @@ public class Server implements Runnable {
     private void updateRoundState() {
         this.roundStarted = getNumPlayers() > 1;
 
-        //if(timeRemaining % 250 == 0) System.out.println(timeRemaining);
+        // if(timeRemaining % 250 == 0) System.out.println(timeRemaining);
 
         if (this.roundStarted) {
             if (Server.timeRemaining % 1000 == 0) {
@@ -317,7 +317,7 @@ public class Server implements Runnable {
             }
 
             Server.timeRemaining -= 20;
-            //System.out.println("Time remaining set to " + timeRemaining);
+            // System.out.println("Time remaining set to " + timeRemaining);
             if (Server.timeRemaining < 0) {
                 this.resetDeaths();
                 Server.timeRemaining = Server.roundLength;
@@ -327,28 +327,32 @@ public class Server implements Runnable {
                 if (InternetRelayChat.sendWinner) {
                     InternetRelayChat.sendMessage(msg);
                 }
-                
-                if(victoryLap) {
+
+                if (victoryLap) {
                     timeRemaining = roundLength;
                 } else {
                     timeRemaining = VICTORY_DELAY;
                 }
 
-                if(victoryLap) {
-                    for(Player p: players) {
-                        if(p != null) {
+                if (victoryLap) {
+                    for (Player p : players) {
+                        if (p != null) {
                             p.mobilize();
                         }
                     }
                 } else {
                     resetDeaths();
                 }
-                victoryLap = !victoryLap;	// When more than one player is logged in, end of round always results in victory lap and victory lap ending always results in round start
+                victoryLap =
+                        !victoryLap; // When more than one player is logged in, end of round always
+                                     // results in victory lap and victory lap ending always results
+                                     // in round start
             }
         }
     }
-    
-    private void sendBadVersionEvent(final int i, final WebSocketBuffer wsb, final String badVersion) {
+
+    private void sendBadVersionEvent(
+            final int i, final WebSocketBuffer wsb, final String badVersion) {
         wsb.beginPacket(Constants.FAILURE);
         wsb.writeString(badVersion);
         wsb.endPacket();
@@ -400,7 +404,8 @@ public class Server implements Runnable {
                     }
                 }
 
-                if (!this.mapClass.currentPath.contains(p.position.getX(), p.position.getY()) && !p.isDead) {
+                if (!this.mapClass.currentPath.contains(p.position.getX(), p.position.getY())
+                        && !p.isDead) {
                     if (this.roundStarted) {
                         p.lives--;
                     }
@@ -516,17 +521,24 @@ public class Server implements Runnable {
         }
         if (fl > sl) {
             this.victoryString = "PLAYER " + first.username + " HAS WON AND IS NOW THE WINNER !";
-            return new byte[]{(byte) first.id};
+            return new byte[] {(byte) first.id};
         }
         if (fl == sl) {
-            this.victoryString = "PLAYERS " + first.username + " AND " + second.username + " HAVE WON AND ARE NOW THE WINNERS ! !";
-            return new byte[]{(byte) first.id, (byte) second.id};
+            this.victoryString =
+                    "PLAYERS "
+                            + first.username
+                            + " AND "
+                            + second.username
+                            + " HAVE WON AND ARE NOW THE WINNERS ! !";
+            return new byte[] {(byte) first.id, (byte) second.id};
         }
         this.victoryString = "hello";
         return new byte[0];
     }
 
-    private void resetDeaths() {  // Finds all dead players, make them alive, and generates a position for them. Does not make immobile players mobile again.
+    private void
+            resetDeaths() { // Finds all dead players, make them alive, and generates a position for
+                            // them. Does not make immobile players mobile again.
         for (final Player player : this.players) {
             if (player != null) {
                 if (player.isDead) {
@@ -544,7 +556,7 @@ public class Server implements Runnable {
                     }
                 }
                 player.isDead = false;
-               // player.movable = true;
+                // player.movable = true;
             }
         }
     }

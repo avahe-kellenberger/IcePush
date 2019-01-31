@@ -1,6 +1,5 @@
 package net.threesided.bot;
 
-
 import net.threesided.shared.Vector2D;
 
 public class Player {

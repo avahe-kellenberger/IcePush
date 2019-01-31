@@ -1,5 +1,8 @@
 package net.threesided.ui;
 
 public enum Actions {
-	CLICK, PRESS, RELEASE, HOVER;
+    CLICK,
+    PRESS,
+    RELEASE,
+    HOVER;
 }

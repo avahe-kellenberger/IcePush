@@ -1,6 +1,5 @@
 package net.threesided.server.physics2d;
 
-import net.threesided.server.Player;
 import net.threesided.shared.Vector2D;
 
 public class Physics2D {
@@ -49,7 +48,7 @@ public class Physics2D {
         Vector2D impactVelocity = new Vector2D(a.velocity).subtract(b.velocity);
         double normalVelocity = impactVelocity.dot(mtd.normalize());
 
-        if(normalVelocity > 0) return; // already moving away
+        if (normalVelocity > 0) return; // already moving away
 
         double i = (-((2.0 + SPRING) * normalVelocity) / invMass);
         Vector2D impulse = new Vector2D(mtd).multiply(i);

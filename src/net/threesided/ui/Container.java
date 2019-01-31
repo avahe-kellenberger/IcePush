@@ -1,64 +1,63 @@
 package net.threesided.ui;
 
 public class Container extends UIComponent {
-	public enum Layout {
-		FIXED, HORIZONTAL, VERTICAL;
-	}
+    public enum Layout {
+        FIXED,
+        HORIZONTAL,
+        VERTICAL;
+    }
 
-	protected Layout layout = Layout.HORIZONTAL;
+    protected Layout layout = Layout.HORIZONTAL;
 
-	Container (int x, int y, int width, int height) {
-		super(x, y, width, height);
-	}
-	Container (int width, int height) {
-		super(width, height);
-	}
+    Container(int x, int y, int width, int height) {
+        super(x, y, width, height);
+    }
 
-	public void setLayout(Layout layout) {
-		this.layout = layout;
-	}
+    Container(int width, int height) {
+        super(width, height);
+    }
 
-	public Layout getLayout() {
-		return layout;
-	}
+    public void setLayout(Layout layout) {
+        this.layout = layout;
+    }
 
-	public void addChild(UIComponent child) {
-		child.parent = this;
-		this.children.add(child);
-	}
+    public Layout getLayout() {
+        return layout;
+    }
 
-	public void positionChildren() {
-		int unit; // The unit of spacing between components
-		int amount = 1; // The amount of units from the edge to place component
-		int childrenVisible = 0;
-		int top, left;
+    public void addChild(UIComponent child) {
+        child.parent = this;
+        this.children.add(child);
+    }
 
-		for (UIComponent child : this.children)
-			if (child.getVisible())
-				childrenVisible++;
+    public void positionChildren() {
+        int unit; // The unit of spacing between components
+        int amount = 1; // The amount of units from the edge to place component
+        int childrenVisible = 0;
+        int top, left;
 
-		if (layout == Layout.HORIZONTAL) {
-			for (UIComponent child : this.children) {
-				if (!child.getVisible())
-					continue;
+        for (UIComponent child : this.children) if (child.getVisible()) childrenVisible++;
 
-				unit = this.width / (childrenVisible * 2);
-				top = (this.height / 2) - (child.height / 2);
-				left = (unit * amount) - (child.width / 2);
-				child.setLocation(left, top);
-				amount += 2;
-			}
-		} else if (layout == Layout.VERTICAL) {
-			for (UIComponent child : this.children) {
-				if (!child.getVisible())
-					continue;
+        if (layout == Layout.HORIZONTAL) {
+            for (UIComponent child : this.children) {
+                if (!child.getVisible()) continue;
 
-				unit = this.height / (childrenVisible * 2);
-				left = (this.width / 2) - (child.width / 2);
-				top = (unit * amount) - (child.height / 2);
-				child.setLocation(left, top);
-				amount += 2;
-			}
-		}
-	}
+                unit = this.width / (childrenVisible * 2);
+                top = (this.height / 2) - (child.height / 2);
+                left = (unit * amount) - (child.width / 2);
+                child.setLocation(left, top);
+                amount += 2;
+            }
+        } else if (layout == Layout.VERTICAL) {
+            for (UIComponent child : this.children) {
+                if (!child.getVisible()) continue;
+
+                unit = this.height / (childrenVisible * 2);
+                left = (this.width / 2) - (child.width / 2);
+                top = (unit * amount) - (child.height / 2);
+                child.setLocation(left, top);
+                amount += 2;
+            }
+        }
+    }
 }

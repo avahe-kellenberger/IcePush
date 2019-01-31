@@ -12,9 +12,7 @@ public class RigidBody {
     protected double mass;
     private int savedX, savedY;
 
-    /**
-     * @return If the object has moved since this method's last invocation.
-     */
+    /** @return If the object has moved since this method's last invocation. */
     public boolean hasMoved() {
         final int x = (int) this.position.getX();
         final int y = (int) this.position.getY();
@@ -31,5 +29,4 @@ public class RigidBody {
     public void mobilize() {
         movable = true;
     }
-
 }

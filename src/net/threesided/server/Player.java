@@ -1,12 +1,11 @@
 package net.threesided.server;
 
-import net.threesided.server.physics2d.Circle;
-import net.threesided.shared.PacketBuffer;
+import static net.threesided.shared.Constants.*;
 
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
-
-import static net.threesided.shared.Constants.*;
+import net.threesided.server.physics2d.Circle;
+import net.threesided.shared.PacketBuffer;
 
 public class Player extends Circle {
 
@@ -72,7 +71,8 @@ public class Player extends Circle {
     }
 
     /**
-     * Resets this players position, making sure it intersects none of the players in the array and is within path.
+     * Resets this players position, making sure it intersects none of the players in the array and
+     * is within path.
      *
      * @param players
      * @param path
@@ -140,18 +140,21 @@ public class Player extends Circle {
 
     public boolean processIncomingPackets() {
         if (!pbuf.synch()) return false;
-        PacketMapper.handlePackets(pbuf, this);        // TODO: Figure out whether this dependency is appropriate or not
+        PacketMapper.handlePackets(
+                pbuf, this); // TODO: Figure out whether this dependency is appropriate or not
         return true;
     }
 
     public void MOVE_REQUEST(int moveDir) {
         setBit(moveDir);
-        //if(Serv er.DEBUG) System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " + moveId + " , TIME: " + System.currentTimeMillis());
+        // if(Serv er.DEBUG) System.out.println("GOT MOVE REQUEST - DIR: " + moveDir + " - ID = " +
+        // moveId + " , TIME: " + System.currentTimeMillis());
     }
 
     public void END_MOVE() {
         clearBit();
-        //if(Serv er.DEBUG) System.out.println("END MOVE REQUEST - ID = " + moveId + " - TIME = " + System.currentTimeMillis());
+        // if(Serv er.DEBUG) System.out.println("END MOVE REQUEST - ID = " + moveId + " - TIME = " +
+        // System.currentTimeMillis());
     }
 
     public void LOGOUT() {
@@ -167,13 +170,13 @@ public class Player extends Circle {
         pbuf.endPacket();
     }
 
-    public void loggedOut(Player p) {        // Tell this player that player p logged out
+    public void loggedOut(Player p) { // Tell this player that player p logged out
         pbuf.beginPacket(PLAYER_LOGGED_OUT);
         pbuf.writeShort(p.id);
         pbuf.endPacket();
     }
 
-    public void updateLives(Player p) {            // Notify this player how many lives p has remaining
+    public void updateLives(Player p) { // Notify this player how many lives p has remaining
         pbuf.beginPacket(PLAYER_DIED);
         pbuf.writeShort(p.id);
         pbuf.writeByte(p.lives);
@@ -181,12 +184,12 @@ public class Player extends Circle {
     }
 
     // Tells this player to reset deaths for player p to 0
-	/*public void resetDeaths(Player p) {
-		pbuf.beginPacket(PLAYER_DIED);
-		pbuf.writeShort(p.id);
-		pbuf.writeByte(0);					// Number of times died
-		pbuf.endPacket();
-	} */
+    /*public void resetDeaths(Player p) {
+    	pbuf.beginPacket(PLAYER_DIED);
+    	pbuf.writeShort(p.id);
+    	pbuf.writeByte(0);					// Number of times died
+    	pbuf.endPacket();
+    } */
 
     private void setBit(int bit) {
         // scale down by 2 so that the values are between

@@ -3,7 +3,6 @@ package net.threesided.bot;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-
 import net.threesided.shared.PacketBuffer;
 
 public class NetworkHandler {
@@ -73,8 +72,7 @@ public class NetworkHandler {
     }
 
     public void pulse() {
-        if (!handlePackets())
-            bot.stopThread();
+        if (!handlePackets()) bot.stopThread();
     }
 
     public boolean handlePackets() {
@@ -134,14 +132,13 @@ public class NetworkHandler {
         } catch (Exception localException) {
             localException.printStackTrace();
         }
-
     }
 
     public void sendMoveRequest(int moveType) {
         try {
             buffer.beginPacket(MOVE_REQUEST);
             buffer.writeByte(moveType);
-            //buffer.writeByte(0);
+            // buffer.writeByte(0);
             buffer.endPacket();
         } catch (Exception localException) {
             localException.printStackTrace();
@@ -151,8 +148,8 @@ public class NetworkHandler {
     public void endMoveRequest() {
         try {
             buffer.beginPacket(END_MOVE);
-            //buffer.writeByte(moveType);
-            //buffer.writeByte(0);
+            // buffer.writeByte(moveType);
+            // buffer.writeByte(0);
             buffer.endPacket();
         } catch (Exception localException) {
             localException.printStackTrace();
