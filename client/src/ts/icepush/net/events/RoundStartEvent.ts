@@ -5,7 +5,7 @@ import {OPCode} from "../NetworkEventBuffer";
 /**
  * Sent from server to client, informing of the amount of time remaining in the game.
  */
-export class TimeRemainingEvent extends NetworkEvent {
+export class RoundStartEvent extends NetworkEvent {
 
     private static readonly BINARY_SIZE: number = 2;
 
@@ -29,7 +29,7 @@ export class TimeRemainingEvent extends NetworkEvent {
     constructor(timeOrBuffer: PositionedBuffer|number, time?: number) {
         super();
         if (timeOrBuffer instanceof PositionedBuffer) {
-            this.time = timeOrBuffer.readInt16BE();
+            this.time = timeOrBuffer.readUInt16BE();
         } else if (time !== undefined) {
             this.time = time;
         } else {
@@ -41,21 +41,21 @@ export class TimeRemainingEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return TimeRemainingEvent.BINARY_SIZE;
+        return RoundStartEvent.BINARY_SIZE;
     }
 
     /**
      * @override
      */
     public getOPCode(): OPCode {
-        return OPCode.UPDATE_TIME;
+        return OPCode.ROUND_START;
     }
 
     /**
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeInt16BE(this.time);
+        buffer.writeUInt16BE(this.time);
     }
 
 }

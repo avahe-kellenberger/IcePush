@@ -164,6 +164,24 @@ export class Scene implements Entity {
     }
 
     /**
+     * @param callback The callback to invoke on each `Entity` in the `Scene.`
+     * @param callback:e The current `Entity` being processed.
+     * @param callback:id The entity's ID.
+     * @param callback:thisArg The value to use as `this` when invoking the callback.
+     * @return If the callback function returns a true for any `Entity` in the `Scene`.
+     */
+    public someEntity(callback: (e: Entity, id?: number, thisArg?: this) => boolean): boolean {
+        const entityIterator: IterableIterator<[number, Entity]> = this.entities.entries();
+        let e: IteratorResult<[number, Entity]>;
+        while ((e = entityIterator.next()) && !e.done) {
+            if (callback(e.value[1], e.value[0])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @override
      */
     public update(delta: number): void {

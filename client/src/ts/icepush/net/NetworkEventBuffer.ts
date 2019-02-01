@@ -4,7 +4,7 @@ import {PingEvent} from "./events/PingEvent";
 import {NewPlayerEvent} from "./events/NewPlayerEvent";
 import {PlayerMovedEvent} from "./events/PlayerMovedEvent";
 import {ChatReceiveEvent} from "./events/ChatEvent";
-import {TimeRemainingEvent} from "./events/TimeRemainingEvent";
+import {RoundStartEvent} from "./events/RoundStartEvent";
 import {FailureEvent} from "./events/FailureEvent";
 import {SuccessEvent} from "./events/SuccessEvent";
 import {PlayerLoggedOutEvent} from "./events/PlayerLoggedOutEvent";
@@ -29,8 +29,8 @@ export enum OPCode {
     PLAYER_LIVES_CHANGED = 12,
     CHAT_SEND = 16,
     CHAT_RECEIVE = 17,
-    UPDATE_TIME = 18,
-    ROUND_WINNERS = 20
+    ROUND_WINNERS = 20,
+    ROUND_START = 21
 }
 
 // Maps the OPCodes to their respective NetworkEvents.
@@ -45,8 +45,8 @@ function mapOPCodeEvents(): Map<number, new (...args: any[]) => NetworkEvent> {
         [OPCode.PLAYER_LOGGED_OUT, PlayerLoggedOutEvent],
         [OPCode.PLAYER_LIVES_CHANGED, PlayerLivesChangedEvent],
         [OPCode.CHAT_RECEIVE, ChatReceiveEvent],
-        [OPCode.UPDATE_TIME, TimeRemainingEvent],
-        [OPCode.ROUND_WINNERS, RoundWinnersEvent]
+        [OPCode.ROUND_WINNERS, RoundWinnersEvent],
+        [OPCode.ROUND_START, RoundStartEvent]
     ]);
 }
 

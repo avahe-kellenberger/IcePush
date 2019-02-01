@@ -11,7 +11,7 @@ import {NewPlayerEvent} from "../net/events/NewPlayerEvent";
 import {ChatReceiveEvent, ChatSendEvent} from "../net/events/ChatEvent";
 import {PingEvent} from "../net/events/PingEvent";
 import {Time} from "../../engine/time/Time";
-import {TimeRemainingEvent} from "../net/events/TimeRemainingEvent";
+import {RoundStartEvent} from "../net/events/RoundStartEvent";
 import {MoveRequestEvent} from "../net/events/MoveRequestEvent";
 import {EndMoveEvent} from "../net/events/EndMoveEvent";
 import {OPCode} from "../net/NetworkEventBuffer";
@@ -157,8 +157,8 @@ export class GameScene extends Scene {
                 break;
             }
 
-            case OPCode.UPDATE_TIME: {
-                this.roundTimeRemaining = (e as TimeRemainingEvent).time;
+            case OPCode.ROUND_START: {
+                this.roundTimeRemaining = (e as RoundStartEvent).time;
                 break;
             }
 
@@ -326,12 +326,26 @@ export class GameScene extends Scene {
      */
     public update(delta: number): void {
         super.update(delta);
+        this.roundTimeRemaining = this.calculateRoundTime(delta);
 
         // Send a ping to the server if a message has not been sent recently.
         if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
             this.connection.enqueueEvent(new PingEvent());
         }
         this.sendCurrentMovement();
+    }
+
+    /**
+     * @param delta The time elapsed since the last game update.
+     * @return The time remaining in the current round.
+     */
+    private calculateRoundTime(delta: number): number|undefined {
+        if (this.someEntity(e => e instanceof Player && e.getName() !== this.username)) {
+            if (this.roundTimeRemaining !== undefined) {
+                return Math.max(0, this.roundTimeRemaining - delta);
+            }
+        }
+        return undefined;
     }
 
     /**
