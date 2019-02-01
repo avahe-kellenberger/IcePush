@@ -20,8 +20,10 @@ public class Constants {
     public static final int PLAYER_DIED = 12;
     public static final int NEW_CHAT_MESSAGE = 17;
     public static final int UPDATE = 19;
-    public static final int UPDATE_TIME = 18;
+
     public static final int UPDATE_WINNER = 20;
+    public static final int BEGIN_ROUND = 21;
+    public static final int BEGIN_VICTORY_LAP = 22;
 
     // Client to Server
     public static final int MOVE_REQUEST = 8;

@@ -117,14 +117,14 @@ public class Player extends Circle {
     }
 
     // Notify this player of how much time is remaining in the current round
-    public void updateRoundTime(int time) {
-        pbuf.beginPacket(UPDATE_TIME);
+    public void notifyNewRound(int time) {
+        pbuf.beginPacket(BEGIN_ROUND);
         pbuf.writeShort(time);
         pbuf.endPacket();
     }
 
-    public void updateDeathTime(int time) {
-        pbuf.beginPacket(UPDATE_TIME);
+    public void notifyVictoryLap(int time) {
+        pbuf.beginPacket(BEGIN_VICTORY_LAP);
         pbuf.writeShort(time);
         pbuf.endPacket();
     }

@@ -308,9 +308,6 @@ public class Server implements Runnable {
         // if(timeRemaining % 250 == 0) System.out.println(timeRemaining);
 
         if (this.roundStarted) {
-            if (Server.timeRemaining % 1000 == 0) {
-                updateRoundTime();
-            }
 
             if (this.getLivingPlayers() == 1 && !victoryLap) {
                 Server.timeRemaining = 20;
@@ -330,8 +327,10 @@ public class Server implements Runnable {
 
                 if (victoryLap) {
                     timeRemaining = roundLength;
+                    notifyNewRound(timeRemaining);
                 } else {
                     timeRemaining = VICTORY_DELAY;
+                    notifyVictoryLap(timeRemaining);
                 }
 
                 if (victoryLap) {
@@ -436,13 +435,21 @@ public class Server implements Runnable {
         }
     }
 
-    private void updateRoundTime() {
+    private void notifyVictoryLap(int time) {
         for (final Player p : this.players) {
             if (p != null) {
-                p.updateRoundTime(Server.timeRemaining / 1000);
+                p.notifyVictoryLap(time);
             }
         }
     }
+
+    private void notifyNewRound(int time) {
+        for (final Player p : this.players) {
+            if (p != null) {
+                p.notifyNewRound(time);
+            }
+        }
+    }    
 
     private void logoutPlayer(final Player p) {
         try {
@@ -459,7 +466,6 @@ public class Server implements Runnable {
                 this.roundStarted = false;
                 Server.timeRemaining = -1000;
                 resetDeaths();
-                updateRoundTime();
             }
         } catch (final Exception ex) {
             ex.printStackTrace();
