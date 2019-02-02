@@ -3,22 +3,22 @@ import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
 /**
- * Sent from server to client, informing of the amount of time remaining in the game.
+ * Sent from server to client, informing of the amount of timeMilliseconds remaining in the game.
  */
 export class RoundStartEvent extends NetworkEvent {
 
     private static readonly BINARY_SIZE: number = 2;
 
-    public readonly time: number;
+    public readonly timeMilliseconds: number;
 
     /**
-     * Creates a buffer with the given time remaining.
-     * @param time The amount of time left.
+     * Creates a buffer with the given time in milliseconds remaining.
+     * @param timeMilliseconds The amount of time in milliseconds left.
      */
-    constructor(time: number);
+    constructor(timeMilliseconds: number);
 
     /**
-     * Reads the remaining time from the buffer.
+     * Reads the remaining time in milliseconds from the buffer.
      * @param buffer The buffer to read from.
      */
     constructor(buffer: PositionedBuffer);
@@ -26,12 +26,12 @@ export class RoundStartEvent extends NetworkEvent {
     /**
      * Overload constructor.
      */
-    constructor(timeOrBuffer: PositionedBuffer|number, time?: number) {
+    constructor(timeOrBuffer: PositionedBuffer|number, timeMilliseconds?: number) {
         super();
         if (timeOrBuffer instanceof PositionedBuffer) {
-            this.time = timeOrBuffer.readUInt16BE();
-        } else if (time !== undefined) {
-            this.time = time;
+            this.timeMilliseconds = timeOrBuffer.readUInt16BE();
+        } else if (timeMilliseconds !== undefined) {
+            this.timeMilliseconds = timeMilliseconds;
         } else {
             throw new Error(`Malformed constructor:\n${timeOrBuffer}`);
         }
@@ -55,7 +55,7 @@ export class RoundStartEvent extends NetworkEvent {
      * @override
      */
     public write(buffer: PositionedBuffer): void {
-        buffer.writeUInt16BE(this.time);
+        buffer.writeUInt16BE(this.timeMilliseconds);
     }
 
 }

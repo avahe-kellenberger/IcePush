@@ -22,7 +22,6 @@ public class NetworkHandler {
     private static final int PLAYER_LOGGED_OUT = 11;
     private static final int PLAYER_DIED = 12;
     private static final int NEW_CHAT_MESSAGE = 17;
-    private static final int TIME_REMAINING = 18;
     // out opcodes
     private static final int MOVE_REQUEST = 8;
     private static final int END_MOVE = 9;
@@ -114,8 +113,6 @@ public class NetworkHandler {
                     String chatMsg = buffer.readString();
                     bot.onChat(chatMsg);
                     break;
-                case TIME_REMAINING:
-                    break;
                 default:
                     System.out.println("Unhandled opcode: " + i);
             }
@@ -157,9 +154,13 @@ public class NetworkHandler {
     }
 
     public void logout() {
+        sendLogout(buffer, LOGOUT);
+    }
+
+    public static void sendLogout(PacketBuffer buffer, int logout) {
         try {
             if (buffer == null) return;
-            buffer.beginPacket(LOGOUT);
+            buffer.beginPacket(logout);
             buffer.endPacket();
             buffer.synch();
         } catch (Exception localException) {

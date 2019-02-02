@@ -8,7 +8,7 @@ public class Constants {
     public static final int NUM_PLAYERS_NOTIFY = 2;
 
     // Login protocol
-    public static final int VERSION = 108;
+    public static final int VERSION = 109;
     public static final int FAILURE = 1;
     public static final int SUCCESS_LOG = 2;
 

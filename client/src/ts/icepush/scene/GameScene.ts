@@ -20,6 +20,7 @@ import {PlayerLoggedOutEvent} from "../net/events/PlayerLoggedOutEvent";
 import {PlayerMovedEvent} from "../net/events/PlayerMovedEvent";
 import {PlayerLivesChangedEvent} from "../net/events/PlayerLivedChangedEvent";
 import {RoundWinnersEvent} from "../net/events/RoundWinnersEvent";
+import {RoundStartCountdownEvent} from "../net/events/RoundStartCountdownEvent";
 
 export class GameScene extends Scene {
 
@@ -38,8 +39,10 @@ export class GameScene extends Scene {
 
     // endregion
 
-    private roundTimeRemaining: number|undefined;
     private previousAngle: number|undefined;
+
+    private roundSecondsRemaining: number|undefined;
+    private roundCountingDown: boolean;
 
     /**
      * Constructs the scene in which the game is played.
@@ -49,6 +52,8 @@ export class GameScene extends Scene {
     constructor(game: IcePush, username: string) {
         super(game);
         this.username = username;
+        this.roundCountingDown = false;
+
         /*
          * NOTE: These values were taken directly from the background image,
          * and assumes the canvas fits the same size.
@@ -158,7 +163,8 @@ export class GameScene extends Scene {
             }
 
             case OPCode.ROUND_START: {
-                this.roundTimeRemaining = (e as RoundStartEvent).time;
+                this.roundSecondsRemaining = (e as RoundStartEvent).timeMilliseconds / 1000;
+                this.roundCountingDown = false;
                 break;
             }
 
@@ -177,6 +183,13 @@ export class GameScene extends Scene {
                 console.log(`Winner${winnerNames.length > 1 ? 's are' : ' is'}: ${winnerNames.join(', ')}`);
                 break;
             }
+
+            case OPCode.ROUND_START_COUNTDOWN: {
+                this.roundSecondsRemaining = (e as RoundStartCountdownEvent).timeMilliseconds / 1000;
+                this.roundCountingDown = true;
+                break;
+            }
+
         }
     }
 
@@ -326,7 +339,7 @@ export class GameScene extends Scene {
      */
     public update(delta: number): void {
         super.update(delta);
-        this.roundTimeRemaining = this.calculateRoundTime(delta);
+        this.roundSecondsRemaining = this.calculateRoundTime(delta);
 
         // Send a ping to the server if a message has not been sent recently.
         if (Time.now() - this.connection.getLastSendTime() >= GameScene.PING_TIMEOUT) {
@@ -341,8 +354,8 @@ export class GameScene extends Scene {
      */
     private calculateRoundTime(delta: number): number|undefined {
         if (this.someEntity(e => e instanceof Player && e.getName() !== this.username)) {
-            if (this.roundTimeRemaining !== undefined) {
-                return Math.max(0, this.roundTimeRemaining - delta);
+            if (this.roundSecondsRemaining !== undefined) {
+                return Math.max(0, this.roundSecondsRemaining - delta);
             }
         }
         return undefined;
@@ -356,8 +369,8 @@ export class GameScene extends Scene {
         ctx.drawImage(Assets.IMAGE_BACKGROUND, 0, 0);
         super.render(ctx);
 
-        if (this.roundTimeRemaining !== undefined && this.roundTimeRemaining >= 0) {
-            this.renderRoundTimeRemaining(ctx, this.roundTimeRemaining);
+        if (this.roundSecondsRemaining !== undefined && this.roundSecondsRemaining >= 0) {
+            this.renderRoundTimeRemaining(ctx, this.roundSecondsRemaining);
         }
     }
 
@@ -374,7 +387,9 @@ export class GameScene extends Scene {
 
         const minutes: number = Math.floor(seconds / 60);
         seconds -= minutes * 60;
-        const str: string = `Time Remaining: ${minutes}:${seconds < 10 ? `0` + seconds : seconds}`;
+        const secondsTruncated: string = Math.ceil(seconds).toString();
+        const prefix: string = this.roundCountingDown ? `Round Start In` : `Round Time Remaining`;
+        const str: string = `${prefix}: ${minutes}:${seconds < 10 ? `0` + secondsTruncated : secondsTruncated}`;
         const metrics: TextMetrics = ctx.measureText(str);
 
         /*

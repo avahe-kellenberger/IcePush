@@ -38,7 +38,7 @@ export class GameEngine {
         const now: number = Time.nowMilliseconds();
         const elapsed: number = now - this.lastTick;
 
-        this.game.update(elapsed);
+        this.game.update(elapsed / 1000);
         this.game.render();
 
         this.lastTick = now;

@@ -248,17 +248,6 @@ public class IcePush extends Applet {
                         e.printStackTrace();
                     }
                     break;
-                case UPDATE_TIME:
-                    int time_type = pbuf.readByte();
-                    int time = pbuf.readShort();
-                    switch (time_type) {
-                        case 1:
-                            IcePush.renderer.setRoundTime(time);
-                            break;
-                        case 2:
-                            IcePush.renderer.setDeathTime(time);
-                    }
-                    break;
             }
             pbuf.closePacket();
         }
