@@ -1,173 +1,127 @@
 package net.threesided.server;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import javax.net.ssl.SSLSocket;
 import net.threesided.shared.InterthreadQueue;
+
+import javax.net.ssl.SSLContext;
+import java.io.*;
+import java.net.Socket;
+import java.util.Objects;
 
 public class InternetRelayChat implements Runnable {
     private static final String[] controllers = {
         "_^_", "Tekk", "Evil_", "linkmaster03", "Dezired`"
     };
-    public static InterthreadQueue<String> msgs =
-            new InterthreadQueue<String>(); // Messages queued by the application to be sent to IRC
-    private static InterthreadQueue<String> inputs =
-            new InterthreadQueue<
-                    String>(); // Input sent from IRC to be queued until the application calls
-                               // processInput()
-    public static InterthreadQueue<String> kicks =
-            new InterthreadQueue<
-                    String>(); // Kick commands parsed out of processInput() to be returned to the
-                               // application
-    public static String nick;
 
-    private static Socket s;
-    private static BufferedWriter bw;
-    private static BufferedReader br;
+    // Messages queued by the application to be sent to IRC
+    static InterthreadQueue<String> messages = new InterthreadQueue<>();
+
+    // Input sent from IRC to be queued until the application calls processInput()
+    private static InterthreadQueue<String> inputs = new InterthreadQueue<>();
+
+    // Kick commands parsed out of processInput() to be returned to the application
+    static final InterthreadQueue<String> kicks = new InterthreadQueue<>();
+
+    private static String nick;
+
+    private static Socket socket;
+    private static BufferedWriter bufferedWriter;
+    private static BufferedReader bufferedReader;
     private static String server;
     private static String channel;
     private static int port;
 
     static boolean sendWinner = false;
 
-    public InternetRelayChat(String s, int p, String c, String n) {
-        server = s;
-        port = p;
-        channel = c;
-        nick = n;
+    InternetRelayChat(String socket, int p, String c, String n) {
+        InternetRelayChat.server = socket;
+        InternetRelayChat.port = p;
+        InternetRelayChat.channel = c;
+        InternetRelayChat.nick = n;
     }
 
-    public void run() { // This method runs on its own dedicated thread
+    public void run() {
         try {
-            s = createTheSocket(server, port); // new Socket(server, port);
-            bw = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-            br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            InternetRelayChat.socket = createTheSocket(server, port);
+            InternetRelayChat.bufferedWriter = new BufferedWriter(new OutputStreamWriter(InternetRelayChat.socket.getOutputStream()));
+            InternetRelayChat.bufferedReader = new BufferedReader(new InputStreamReader(InternetRelayChat.socket.getInputStream()));
 
-            bw.write("NICK " + nick + " \n");
-            bw.flush();
-            bw.write("USER IcePush * * :IcePush Client Server\n");
-            bw.flush();
+            InternetRelayChat.bufferedWriter.write("NICK " + nick + " \n");
+            InternetRelayChat.bufferedWriter.flush();
+            InternetRelayChat.bufferedWriter.write("USER IcePush * * :IcePush Client Server\n");
+            InternetRelayChat.bufferedWriter.flush();
 
             String input;
             boolean joined = false;
-            while ((input = br.readLine()) != null) {
-                inputs.push(input);
+            while ((input = InternetRelayChat.bufferedReader.readLine()) != null) {
+                InternetRelayChat.inputs.push(input);
                 if (input.contains("MODE") && !joined) {
-                    inputs.push(
-                            ":_^_!triangle@internal PRIVMSG :.join "
-                                    + channel); // Attempt to join channel only after first time
-                                                // umode is set
+                    // Attempt to join channel only after first time umode is set
+                    InternetRelayChat.inputs.push(":_^_!triangle@internal PRIVMSG :.join " + InternetRelayChat.channel);
                     joined = true;
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (final Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     private Socket createTheSocket(String server, int port) throws java.io.IOException {
-        // SSLTool.disableCertificateValidation();
-        SSLSocket client =
-                (SSLSocket)
-                        (SSLTool.disableCertificateValidation()
-                                .getSocketFactory()
-                                .createSocket(server, port));
-        System.out.println(java.util.Arrays.toString(client.getSupportedCipherSuites()));
-        // client.setEnabledCipherSuites(new String[] {"SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA"});
-
-        String[] supported = client.getSupportedCipherSuites();
-
-        List<String> list = new ArrayList<String>();
-        for (int i = 0; i < supported.length; i++) {
-            if (supported[i].indexOf("_anon_") > 0) {
-                list.add(supported[i]);
-            }
-        }
-
-        String[] anonCipherSuites = list.toArray(new String[0]);
-        // client.setEnabledCipherSuites(anonCipherSuites);
-        return client;
+        final SSLContext sslContext = SSLTool.disableCertificateValidation();
+        return Objects.requireNonNull(sslContext).getSocketFactory().createSocket(server, port);
     }
 
-    public static void processInput() { // This method runs on the application thread
+    // This method runs on the application thread
+    public static void processInput() {
         String input;
         while ((input = inputs.pull()) != null) {
             if (input.startsWith("PING")) {
                 try {
-                    bw.write(input.replace("PING", "PONG") + "\n");
-                    bw.flush();
+                    InternetRelayChat.bufferedWriter.write(input.replace("PING", "PONG") + "\n");
+                    InternetRelayChat.bufferedWriter.flush();
                     continue;
-                } catch (java.io.IOException ioe) {
-                    ioe.printStackTrace();
+                } catch (final IOException ex) {
+                    ex.printStackTrace();
                 }
             }
-            processLine(input);
+            InternetRelayChat.processLine(input);
         }
     }
 
     private static void handleCommand(String from, String msg) {
-        String[] args = msg.split(" ");
-        System.out.println("Got command " + args[0] + " from " + from);
+        final String[] args = msg.split(" ");
         boolean auth = false;
-        for (String n : controllers) if (from.toLowerCase().equals(n.toLowerCase())) auth = true;
+        for (final String n : InternetRelayChat.controllers) {
+            if (from.toLowerCase().equals(n.toLowerCase())) {
+                auth = true;
+                break;
+            }
+        }
+
         if (!auth) {
             return;
         }
 
-        System.out.println("auth1: " + auth);
-        // This commented out block needs to be fixed properly, but can't be without coming up with
-        // a better threading model
-        /*try {
-        	bw.write("PRIVMSG NickServ :STATUS " + from + "\n");
-        	bw.flush();
-        	String r;
-        	while((r = br.readLine()) != null) {
-        		System.out.println(r);
-        		String[] partsColon = r.split(":", 3);
-        		String[] partsSpace = r.split(" ");
-        		String cmd = partsSpace[1].toUpperCase();
-        		if(!cmd.equals("NOTICE"))
-        			processLine(r);
-        		String ns = partsSpace[0].split("!")[0].substring(1);
-        		String nsmsg = partsColon[2];
-        		if(!ns.toLowerCase().equals("nickserv"))
-        			processLine(r);
-        		if(!nsmsg.contains("STATUS") || !(nsmsg.endsWith("2") || nsmsg.endsWith("3"))) {
-        			auth = false;
-        			break;
-        		} else break;
-        	}
-        } catch(Exception e) {
-        	e.printStackTrace();
-        	auth = false;
-        	return;
-        }*/
-
         if (args[0].equals("kick")) {
-            if (args.length > 1) kicks.push(args[1]);
-            else sendMessage("Not enough arguments for command");
+            if (args.length > 1) {
+                InternetRelayChat.kicks.push(args[1]);
+            } else {
+                InternetRelayChat.sendMessage("Not enough arguments for command");
+            }
         }
         if (args[0].equals("join")) {
             if (args.length > 1) {
-                System.out.println(args[1]);
                 try {
-                    bw.write("JOIN " + args[1] + "\n");
-                    bw.flush();
-                } catch (Exception ioe) {
-                    ioe.printStackTrace();
+                    InternetRelayChat.bufferedWriter.write("JOIN " + args[1] + "\n");
+                    InternetRelayChat.bufferedWriter.flush();
+                } catch (final Exception ex) {
+                    ex.printStackTrace();
                 }
             } else {
-                sendMessage("Not enough arguments for command");
+                InternetRelayChat.sendMessage("Not enough arguments for command");
             }
         }
         if (args[0].equals("sendwinner")) {
             if (args.length > 1) {
-                System.out.println("arg1: " + args[1]);
                 try {
                     InternetRelayChat.sendWinner = Boolean.parseBoolean(args[1]);
                 } catch (final Exception ex) {
@@ -189,36 +143,35 @@ public class InternetRelayChat implements Runnable {
                 final String from = partsSpace[0].split("!")[0].substring(1);
                 final String msg = partsColon[partsColon.length - 1];
                 if (msg.startsWith(".")) {
-                    handleCommand(from, msg.substring(1));
+                    InternetRelayChat.handleCommand(from, msg.substring(1));
                 }
                 if (!msg.contains("\u0001")) {
-                    msgs.push("<" + from + "> " + msg);
+                    InternetRelayChat.messages.push("<" + from + "> " + msg);
                 }
             } else if (cmd.equals("KICK") || cmd.equals("INVITE")) {
-                bw.write("JOIN " + channel + "\n");
-                bw.flush();
+                InternetRelayChat.bufferedWriter.write("JOIN " + InternetRelayChat.channel + "\n");
+                InternetRelayChat.bufferedWriter.flush();
             }
-        } catch (Exception e) {
+        } catch (final Exception ex) {
             System.out.print("Exception while processing IRC line: ");
-            e.printStackTrace();
+            ex.printStackTrace();
         }
     }
 
-    public static void sendMessage(String message) {
+    static void sendMessage(String message) {
         try {
-            bw.write("PRIVMSG " + channel + " :" + message + "\n");
-            bw.flush();
-        } catch (Exception e) {
-        }
+            InternetRelayChat.bufferedWriter.write("PRIVMSG " + InternetRelayChat.channel + " :" + message + "\n");
+            InternetRelayChat.bufferedWriter.flush();
+        } catch (Exception ignored) {}
     }
 
     public static void logout() throws Exception {
-        bw.flush();
-        bw.close();
-        br.close();
-        s.close();
-        br = null;
-        bw = null;
-        s = null;
+        InternetRelayChat.bufferedWriter.flush();
+        InternetRelayChat.bufferedWriter.close();
+        InternetRelayChat.bufferedReader.close();
+        InternetRelayChat.socket.close();
+        InternetRelayChat.bufferedReader = null;
+        InternetRelayChat.bufferedWriter = null;
+        InternetRelayChat.socket = null;
     }
 }

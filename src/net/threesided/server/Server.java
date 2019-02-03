@@ -1,5 +1,9 @@
 package net.threesided.server;
 
+import net.threesided.server.physics2d.Physics2D;
+import net.threesided.shared.Constants;
+import net.threesided.shared.InterthreadQueue;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,9 +12,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import net.threesided.server.physics2d.Physics2D;
-import net.threesided.shared.Constants;
-import net.threesided.shared.InterthreadQueue;
 
 public class Server implements Runnable {
 
@@ -369,7 +370,7 @@ public class Server implements Runnable {
         InternetRelayChat.processInput();
         this.chats = new ArrayList<>();
         String msg;
-        while ((msg = InternetRelayChat.msgs.pull()) != null) {
+        while ((msg = InternetRelayChat.messages.pull()) != null) {
             this.chats.add(msg);
         }
 
@@ -397,7 +398,7 @@ public class Server implements Runnable {
                 p.writePendingChats(chats);
                 if (p.chatMessage != null) {
                     InternetRelayChat.sendMessage(p.chatMessage);
-                    InternetRelayChat.msgs.push(p.chatMessage);
+                    InternetRelayChat.messages.push(p.chatMessage);
                     p.chatMessage = null;
                 }
 
