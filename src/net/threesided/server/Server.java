@@ -36,7 +36,7 @@ public class Server implements Runnable {
     private static final int DEFAULT_LIVES = 5;
 
     private static int roundLength;
-    private static int timeRemaining = -1000;
+    private static int roundMillisRemaining = -1000;
 
     private static int deathLength;
 
@@ -297,10 +297,10 @@ public class Server implements Runnable {
 
             p.notifyLogin(p);
             p.initPosition(this.players, this.mapClass.currentPath);
-            if(victoryLap) {
-                p.notifyVictoryLap(timeRemaining);
+            if (this.victoryLap) {
+                p.notifyVictoryLap(Server.roundMillisRemaining);
             } else {
-                p.notifyNewRound(timeRemaining);
+                p.notifyNewRound(Server.roundMillisRemaining);
             }
         } catch (final Exception ex) {
             ex.printStackTrace();
@@ -310,55 +310,54 @@ public class Server implements Runnable {
     private void updateRoundState() {
         this.roundStarted = getNumPlayers() > 1;
 
-        // if(timeRemaining % 250 == 0) System.out.println(timeRemaining);
-
         if (this.roundStarted) {
 
             if (this.getLivingPlayers() == 1 && !victoryLap) {
-                Server.timeRemaining = 20;
+                Server.roundMillisRemaining = 20;
             }
 
-            Server.timeRemaining -= 20;
-            // System.out.println("Time remaining set to " + timeRemaining);
-            if (Server.timeRemaining < 0) {
-                victoryLap = false;
+            Server.roundMillisRemaining -= 20;
+            if (Server.roundMillisRemaining < 0) {
+                this.victoryLap = false;
                 this.resetDeaths();
-                Server.timeRemaining = Server.roundLength;
-                notifyNewRound(timeRemaining);
-            } else if (Server.timeRemaining == 0) {
+                Server.roundMillisRemaining = Server.roundLength;
+                this.notifyNewRound(Server.roundMillisRemaining);
+            } else if (Server.roundMillisRemaining == 0) {
                 this.updateWinners(this.getWinners());
                 final String msg = this.victoryString;
                 if (InternetRelayChat.sendWinner) {
                     InternetRelayChat.sendMessage(msg);
                 }
 
-                if (victoryLap) {
-                    timeRemaining = roundLength;
-                    notifyNewRound(timeRemaining);
+                if (this.victoryLap) {
+                    Server.roundMillisRemaining = Server.roundLength;
+                    this.notifyNewRound(Server.roundMillisRemaining);
                 } else {
-                    timeRemaining = VICTORY_DELAY;
-                    notifyVictoryLap(timeRemaining);
+                    Server.roundMillisRemaining = Server.VICTORY_DELAY;
+                    this.notifyVictoryLap(Server.roundMillisRemaining);
                 }
 
-                if (victoryLap) {
-                    for (Player p : players) {
+                if (this.victoryLap) {
+                    for (final Player p : this.players) {
                         if (p != null) {
                             p.mobilize();
                         }
                     }
                 } else {
-                    resetDeaths();
+                    this.resetDeaths();
                 }
-                victoryLap =
-                        !victoryLap; // When more than one player is logged in, end of round always
-                                     // results in victory lap and victory lap ending always results
-                                     // in round start
+
+                /*
+                 * When more than one player is logged in, end of round always
+                 * results in victory lap and victory lap ending always results
+                 * in round start
+                 */
+                this.victoryLap = !this.victoryLap;
             }
         }
     }
 
-    private void sendBadVersionEvent(
-            final int i, final WebSocketBuffer wsb, final String badVersion) {
+    private void sendBadVersionEvent(final int i, final WebSocketBuffer wsb, final String badVersion) {
         wsb.beginPacket(Constants.FAILURE);
         wsb.writeString(badVersion);
         wsb.endPacket();
@@ -371,7 +370,7 @@ public class Server implements Runnable {
         this.chats = new ArrayList<>();
         String msg;
         while ((msg = InternetRelayChat.msgs.pull()) != null) {
-            chats.add(msg);
+            this.chats.add(msg);
         }
 
         String username;
@@ -471,7 +470,7 @@ public class Server implements Runnable {
 
             if (this.getNumPlayers() < 2) {
                 this.roundStarted = false;
-                Server.timeRemaining = -1000;
+                Server.roundMillisRemaining = -1000;
                 resetDeaths();
             }
         } catch (final Exception ex) {
@@ -542,16 +541,18 @@ public class Server implements Runnable {
                             + first.username
                             + " AND "
                             + second.username
-                            + " HAVE WON AND ARE NOW THE WINNERS ! !";
+                            + " HAVE WON AND ARE NOW THE WINNERS!";
             return new byte[] {(byte) first.id, (byte) second.id};
         }
         this.victoryString = "hello";
         return new byte[0];
     }
 
-    private void
-            resetDeaths() { // Finds all dead players, make them alive, and generates a position for
-                            // them. Does not make immobile players mobile again.
+    /**
+     * Finds all dead players, make them alive, and generates a position for them.
+     * Does not make immobile players mobile again.
+     */
+    private void resetDeaths() {
         for (final Player player : this.players) {
             if (player != null) {
                 if (player.isDead) {
@@ -569,7 +570,6 @@ public class Server implements Runnable {
                     }
                 }
                 player.isDead = false;
-                // player.movable = true;
             }
         }
     }
