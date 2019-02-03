@@ -389,7 +389,7 @@ export class GameScene extends Scene {
         seconds -= minutes * 60;
         const secondsTruncated: string = Math.ceil(seconds).toString();
         const prefix: string = this.roundCountingDown ? `Round Start In` : `Round Time Remaining`;
-        const str: string = `${prefix}: ${minutes}:${seconds < 10 ? `0` + secondsTruncated : secondsTruncated}`;
+        const str: string = `${prefix}: ${minutes}:${secondsTruncated.length === 1 ? `0` + secondsTruncated : secondsTruncated}`;
         const metrics: TextMetrics = ctx.measureText(str);
 
         /*
