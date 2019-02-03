@@ -37,9 +37,12 @@ public class Physics2D {
         if (d > r) return;
         Vector2D mtd = new Vector2D(delta).multiply((r - d) / d);
 
-        double invMassA = 1 / a.mass;
-        double invMassB = 1 / b.mass;
+        double invMassA = a.movable ? 1 / a.mass : 0;
+        double invMassB = b.movable ? 1 / b.mass : 0;
         double invMass = invMassA + invMassB;
+        if(invMass == 0) {
+            return;
+        }
 
         // push the balls proportionate to mass
         a.position.add(new Vector2D(mtd).multiply(invMassA / invMass));

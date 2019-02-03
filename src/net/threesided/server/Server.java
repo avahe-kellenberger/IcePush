@@ -297,6 +297,11 @@ public class Server implements Runnable {
 
             p.notifyLogin(p);
             p.initPosition(this.players, this.mapClass.currentPath);
+            if(victoryLap) {
+                p.notifyVictoryLap(timeRemaining);
+            } else {
+                p.notifyNewRound(timeRemaining);
+            }
         } catch (final Exception ex) {
             ex.printStackTrace();
         }
@@ -316,8 +321,10 @@ public class Server implements Runnable {
             Server.timeRemaining -= 20;
             // System.out.println("Time remaining set to " + timeRemaining);
             if (Server.timeRemaining < 0) {
+                victoryLap = false;
                 this.resetDeaths();
                 Server.timeRemaining = Server.roundLength;
+                notifyNewRound(timeRemaining);
             } else if (Server.timeRemaining == 0) {
                 this.updateWinners(this.getWinners());
                 final String msg = this.victoryString;
@@ -405,7 +412,7 @@ public class Server implements Runnable {
 
                 if (!this.mapClass.currentPath.contains(p.position.getX(), p.position.getY())
                         && !p.isDead) {
-                    if (this.roundStarted) {
+                    if (this.roundStarted && !victoryLap) {
                         p.lives--;
                     }
                     if (p.lives == 0) {
