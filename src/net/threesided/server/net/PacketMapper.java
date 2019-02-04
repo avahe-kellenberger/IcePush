@@ -1,4 +1,4 @@
-package net.threesided.server;
+package net.threesided.server.net;
 
 import static net.threesided.shared.Constants.*;
 

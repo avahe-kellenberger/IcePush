@@ -1,4 +1,4 @@
-package net.threesided.server;
+package net.threesided.server.net;
 
 import java.io.*;
 import java.net.*;

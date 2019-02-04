@@ -1,5 +1,6 @@
-package net.threesided.server;
+package net.threesided.server.net;
 
+import net.threesided.server.SSLTool;
 import net.threesided.shared.InterthreadQueue;
 
 import javax.net.ssl.SSLContext;
@@ -13,13 +14,13 @@ public class InternetRelayChat implements Runnable {
     };
 
     // Messages queued by the application to be sent to IRC
-    static InterthreadQueue<String> messages = new InterthreadQueue<>();
+    public static InterthreadQueue<String> messages = new InterthreadQueue<>();
 
     // Input sent from IRC to be queued until the application calls processInput()
     private static InterthreadQueue<String> inputs = new InterthreadQueue<>();
 
     // Kick commands parsed out of processInput() to be returned to the application
-    static final InterthreadQueue<String> kicks = new InterthreadQueue<>();
+    public static final InterthreadQueue<String> kicks = new InterthreadQueue<>();
 
     private static String nick;
 
@@ -30,9 +31,9 @@ public class InternetRelayChat implements Runnable {
     private static String channel;
     private static int port;
 
-    static boolean sendWinner = false;
+    public static boolean sendWinner = false;
 
-    InternetRelayChat(String socket, int p, String c, String n) {
+    public InternetRelayChat(String socket, int p, String c, String n) {
         InternetRelayChat.server = socket;
         InternetRelayChat.port = p;
         InternetRelayChat.channel = c;
@@ -158,7 +159,7 @@ public class InternetRelayChat implements Runnable {
         }
     }
 
-    static void sendMessage(String message) {
+    public static void sendMessage(String message) {
         try {
             InternetRelayChat.bufferedWriter.write("PRIVMSG " + InternetRelayChat.channel + " :" + message + "\n");
             InternetRelayChat.bufferedWriter.flush();

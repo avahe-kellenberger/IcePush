@@ -4,6 +4,8 @@ import static net.threesided.shared.Constants.*;
 
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+
+import net.threesided.server.net.PacketMapper;
 import net.threesided.server.physics2d.Circle;
 import net.threesided.shared.PacketBuffer;
 
