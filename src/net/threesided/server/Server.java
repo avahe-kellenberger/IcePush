@@ -209,18 +209,18 @@ public class Server implements Runnable {
         }
 
         try {
-            final WebSocketBuffer wsb = (WebSocketBuffer) p.pbuf;
+            final WebSocketBuffer socketBuffer = (WebSocketBuffer) p.pbuf;
 
-            if (!wsb.synch()) {
+            if (!socketBuffer.synch()) {
                 this.incomplete[i] = null;
                 return;
             }
 
             if (!p.readVer) {
-                if (wsb.available() < 3) {
+                if (socketBuffer.available() < 3) {
                     return;
                 }
-                final int op = wsb.openPacket();
+                final int op = socketBuffer.openPacket();
                 if (op == -1) {
                     return;
                 }
@@ -228,16 +228,16 @@ public class Server implements Runnable {
                     this.incomplete[i] = null;
                     return;
                 }
-                final int version = wsb.readByte();
+                final int version = socketBuffer.readByte();
                 p.readVer = true;
                 if (version != Constants.VERSION) {
-                    this.sendBadVersionEvent(i, wsb, Server.BAD_VERSION);
+                    this.sendFailureEvent(i, socketBuffer, Server.BAD_VERSION);
                     return;
                 }
             }
 
             if (!p.readName) {
-                final String name = wsb.readString();
+                final String name = socketBuffer.readString();
                 if (name == null) {
                     return;
                 } else {
@@ -249,11 +249,11 @@ public class Server implements Runnable {
                     if (player != null) {
                         final String user = player.username;
                         if (user != null && user.equals(p.username) && player != p) {
-                            wsb.beginPacket(Constants.FAILURE);
+                            socketBuffer.beginPacket(Constants.FAILURE);
                             // name in use
-                            wsb.writeString(Server.USER_IN_USE);
-                            wsb.endPacket();
-                            wsb.synch();
+                            socketBuffer.writeString(Server.USER_IN_USE);
+                            socketBuffer.endPacket();
+                            socketBuffer.synch();
                             this.incomplete[i] = null;
                             return;
                         }
@@ -270,7 +270,7 @@ public class Server implements Runnable {
             }
 
             if (index == -1) {
-                this.sendBadVersionEvent(i, wsb, Server.TOO_MANY_PL);
+                this.sendFailureEvent(i, socketBuffer, Server.TOO_MANY_PL);
             }
 
             p.id = index;
@@ -280,10 +280,10 @@ public class Server implements Runnable {
             this.incomplete[i] = null;
             this.players[index] = p;
 
-            wsb.beginPacket(Constants.SUCCESS_LOG);
-            wsb.writeByte(p.id);
-            wsb.endPacket();
-            wsb.synch();
+            socketBuffer.beginPacket(Constants.SUCCESS_LOG);
+            socketBuffer.writeByte(p.id);
+            socketBuffer.endPacket();
+            socketBuffer.synch();
 
             for (final Player plr : this.players) {
                 if (plr != null && plr != p) {
@@ -309,11 +309,11 @@ public class Server implements Runnable {
     }
 
     private void updateRoundState() {
-        this.roundStarted = getNumPlayers() > 1;
+        this.roundStarted = this.getNumPlayers() > 1;
 
         if (this.roundStarted) {
 
-            if (this.getLivingPlayers() == 1 && !victoryLap) {
+            if (this.getLivingPlayers() == 1 && !this.victoryLap) {
                 Server.roundMillisRemaining = 20;
             }
 
@@ -325,9 +325,8 @@ public class Server implements Runnable {
                 this.notifyNewRound(Server.roundMillisRemaining);
             } else if (Server.roundMillisRemaining == 0) {
                 this.updateWinners(this.getWinners());
-                final String msg = this.victoryString;
                 if (InternetRelayChat.sendWinner) {
-                    InternetRelayChat.sendMessage(msg);
+                    InternetRelayChat.sendMessage(this.victoryString);
                 }
 
                 if (this.victoryLap) {
@@ -358,11 +357,11 @@ public class Server implements Runnable {
         }
     }
 
-    private void sendBadVersionEvent(final int i, final WebSocketBuffer wsb, final String badVersion) {
-        wsb.beginPacket(Constants.FAILURE);
-        wsb.writeString(badVersion);
-        wsb.endPacket();
-        wsb.synch();
+    private void sendFailureEvent(final int i, final WebSocketBuffer socketBuffer, final String message) {
+        socketBuffer.beginPacket(Constants.FAILURE);
+        socketBuffer.writeString(message);
+        socketBuffer.endPacket();
+        socketBuffer.synch();
         this.incomplete[i] = null;
     }
 
@@ -395,7 +394,7 @@ public class Server implements Runnable {
             if (!p.processIncomingPackets() || p.logOut) {
                 this.logoutPlayer(p);
             } else {
-                p.writePendingChats(chats);
+                p.writePendingChats(this.chats);
                 if (p.chatMessage != null) {
                     InternetRelayChat.sendMessage(p.chatMessage);
                     InternetRelayChat.messages.push(p.chatMessage);
@@ -410,9 +409,8 @@ public class Server implements Runnable {
                     }
                 }
 
-                if (!this.mapClass.currentPath.contains(p.position.getX(), p.position.getY())
-                        && !p.isDead) {
-                    if (this.roundStarted && !victoryLap) {
+                if (!this.mapClass.currentPath.contains(p.position.getX(), p.position.getY()) && !p.isDead) {
+                    if (this.roundStarted && !this.victoryLap) {
                         p.lives--;
                     }
                     if (p.lives == 0) {
@@ -421,20 +419,20 @@ public class Server implements Runnable {
                     } else {
                         p.initPosition(this.players, this.mapClass.currentPath);
                     }
-                    p.timeDead = deathLength;
+                    p.timeDead = Server.deathLength;
 
-                    for (final Player plr : this.players) {
-                        if (plr != null) {
+                    for (final Player player : this.players) {
+                        if (player != null) {
                             // plr cycles through every player; p is the player who just died
-                            plr.updateLives(p);
+                            player.updateLives(p);
                         }
                     }
                 }
 
                 if (p.hasMoved() && !p.isDead) {
-                    for (final Player plr : this.players) {
-                        if (plr != null) {
-                            plr.handleMove(p);
+                    for (final Player player : this.players) {
+                        if (player != null) {
+                            player.handleMove(p);
                         }
                     }
                 }
@@ -442,7 +440,7 @@ public class Server implements Runnable {
         }
     }
 
-    private void notifyVictoryLap(int time) {
+    private void notifyVictoryLap(final int time) {
         for (final Player p : this.players) {
             if (p != null) {
                 p.notifyVictoryLap(time);
@@ -460,9 +458,9 @@ public class Server implements Runnable {
 
     private void logoutPlayer(final Player p) {
         try {
-            for (final Player plr : this.players) {
-                if (plr != null && plr != p) {
-                    plr.loggedOut(p);
+            for (final Player player : this.players) {
+                if (player != null && player != p) {
+                    player.loggedOut(p);
                 }
             }
 
@@ -472,7 +470,7 @@ public class Server implements Runnable {
             if (this.getNumPlayers() < 2) {
                 this.roundStarted = false;
                 Server.roundMillisRemaining = -1000;
-                resetDeaths();
+                this.resetDeaths();
             }
         } catch (final Exception ex) {
             ex.printStackTrace();
@@ -533,7 +531,7 @@ public class Server implements Runnable {
             return new byte[0];
         }
         if (fl > sl) {
-            this.victoryString = "PLAYER " + first.username + " HAS WON AND IS NOW THE WINNER !";
+            this.victoryString = "PLAYER " + first.username + " HAS WON AND IS NOW THE WINNER!";
             return new byte[] {(byte) first.id};
         }
         if (fl == sl) {
