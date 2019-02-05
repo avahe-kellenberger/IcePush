@@ -2,7 +2,7 @@ package net.threesided.server.physics2d;
 
 import net.threesided.shared.Vector2D;
 
-public class Circle extends RigidBody {
+public class Circle extends Entity {
 
     public final double radius;
 
@@ -16,7 +16,7 @@ public class Circle extends RigidBody {
      * @return The distance between the two circles; negative if overlapping.
      */
     public double distanceTo(final Circle circle) {
-        return circle.position.getDistance(this.position) - circle.radius - this.radius;
+        return circle.getLocation().getDistance(this.getLocation()) - circle.radius - this.radius;
     }
 
     /**
@@ -24,6 +24,6 @@ public class Circle extends RigidBody {
      * @return If the given point lies inside the circle.
      */
     public boolean containsPoint(final Vector2D point) {
-        return this.position.getDistance(point) < this.radius;
+        return this.getLocation().getDistance(point) < this.radius;
     }
 }
