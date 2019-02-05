@@ -1,86 +1,103 @@
 package net.threesided.shared;
 
+/**
+ * Immutable two-dimensional vector class.
+ */
 public class Vector2D {
 
-    private double x;
-    private double y;
+    public static final Vector2D ZERO = new Vector2D(0, 0);
+    public static final Vector2D ONE = new Vector2D(1, 1);
 
-    public Vector2D() {
-        this.setX(0);
-        this.setY(0);
-    }
+    public final double x;
+    public final double y;
 
-    public Vector2D(Vector2D v2) {
-        this.setX(v2.getX());
-        this.setY(v2.getY());
-    }
-
-    public void setX(double x) {
+    /**
+     * Creates a new vector with the given x and y components.
+     * @param x The x component.
+     * @param y The y component.
+     */
+    public Vector2D(final double x, final double y) {
         this.x = x;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public void setY(double y) {
         this.y = y;
     }
 
-    public double getY() {
-        return y;
+    /**
+     * @param v The other vector.
+     * @return The dot product of this vector and the given vector.
+     */
+    public double dot(final Vector2D v) {
+        return this.x * v.x + this.y * v.y;
     }
 
-    public void set(double x, double y) {
-        this.setX(x);
-        this.setY(y);
+    /**
+     * Calculates the square of the vector's magnitude.
+     * NOTE: This is faster than Vector2D{@link #getMagnitude()}.
+     * @return The squared magnitude of the vector.
+     */
+    public double getMagnitudeSquared() {
+        return this.x * this.x + this.y * this.y;
     }
 
-    public double dot(Vector2D v2) {
-        return this.getX() * v2.getX() + this.getY() * v2.getY();
+    /**
+     * Calculates the magnitude of the vector.
+     * NOTE: This is slower than Vector2D{@link #getMagnitudeSquared()}.
+     * @return The magnitude of the vector.
+     */
+    public double getMagnitude() {
+        return Math.sqrt(this.getMagnitudeSquared());
     }
 
-    public double getLength() {
-        return Math.sqrt(getX() * getX() + getY() * getY());
+    /**
+     * Calculates the distance between the local vector and the given vector, as points in 2D space.
+     * @param v The other vector.
+     * @return The distance between this vector and the given vector.
+     */
+    public double getDistance(Vector2D v) {
+        return Math.sqrt((v.x - this.x) * (v.x - this.x)
+                       + (v.y - this.y) * (v.y - this.y));
     }
 
-    public double getDistance(Vector2D v2) {
-        return Math.sqrt(
-                (v2.getX() - getX()) * (v2.getX() - getX())
-                        + (v2.getY() - getY()) * (v2.getY() - getY()));
+    /**
+     * Creates a new vector which is the sum of the local and given vectors.
+     * @param v The other vector.
+     * @return The current vector plus the given vector.
+     */
+    public Vector2D add(Vector2D v) {
+        return new Vector2D(this.x + v.x, this.y + v.y);
     }
 
-    public Vector2D add(Vector2D v2) {
-        setX(getX() + v2.getX());
-        setY(getY() + v2.getY());
-        return this;
+    /**
+     * Creates a new vector which is the result of the given vector being subtracted from the local vector.
+     * @param v The other vector.
+     * @return The given vector subtracted from the local vector.
+     */
+    public Vector2D subtract(Vector2D v) {
+        return new Vector2D(this.x - v.x, this.y - v.y);
     }
 
-    public Vector2D subtract(Vector2D v2) {
-        setX(this.getX() - v2.getX());
-        setY(this.getY() - v2.getY());
-        return this;
+    /**
+     * Creates a new vector which is the product of the local vector's components and the scalar.
+     * @param scalar The scalar with which to multiply the vector's components.
+     * @return The given vector multiplied by the scalar.
+     */
+    public Vector2D multiply(double scalar) {
+        return new Vector2D(this.x * scalar, this.y * scalar);
     }
 
-    public Vector2D multiply(double scaleFactor) {
-        setX(this.getX() * scaleFactor);
-        setY(this.getY() * scaleFactor);
-        return this;
-    }
-
+    /**
+     * @return The normalized representation of the local vector.
+     */
     public Vector2D normalize() {
-        double len = getLength();
+        final double len = this.getMagnitude();
         if (len != 0.0) {
-            this.setX(this.getX() / len);
-            this.setY(this.getY() / len);
-        } else {
-            this.setX(0.0);
-            this.setY(0.0);
+            return new Vector2D(this.x / len, this.y / len);
         }
-        return this;
+        return Vector2D.ZERO;
     }
 
+    @Override
     public String toString() {
-        return "X: " + getX() + " Y: " + getY();
+        return "X: " + this.x + " Y: " + this.y;
     }
+
 }
