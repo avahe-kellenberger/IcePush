@@ -4,62 +4,74 @@ import net.threesided.shared.Vector2D;
 
 public class Physics2D {
 
+    private static final double SPRING = 0;
+    private static final double FRICTION = 0.0059;
+
     private Circle[] circles;
 
     public Physics2D(Circle[] bodies) {
         this.circles = bodies;
     }
 
-    public void update() {
-        Circle a, b;
+    public void update(final double elapsed) {
+        Circle circleA, circleB;
         for (int i = 0; i < circles.length; i++) {
-            if ((a = circles[i]) == null) continue;
+            if ((circleA = circles[i]) == null) {
+                continue;
+            }
 
-            if (a.movable) {
-                // because screw proper physics, this is icepush!
-                a.velocity.multiply(1 - FRICTION);
-                a.velocity.add(a.acceleration);
-                a.position.add(a.velocity);
+            if (circleA.isMovable()) {
+                final Vector2D newVelocity = circleA.getVelocity().add(circleA.getAcceleration());
+                circleA.setVelocity(newVelocity.multiply(1 - Physics2D.FRICTION).multiply(elapsed));
+                circleA.translate(newVelocity.multiply(elapsed));
             }
 
             for (int j = 1 + i; j < circles.length; j++) {
-                if ((b = circles[j]) == null || (b == a)) continue;
-                doCollision(a, b);
+                if ((circleB = circles[j]) == null || (circleB == circleA)) {
+                    continue;
+                }
+                this.resolveCollision(circleA, circleB);
             }
         }
     }
 
-    private void doCollision(Circle a, Circle b) {
-        Vector2D delta = new Vector2D(a.position).subtract(b.position);
-        double d = delta.getLength();
-        double r = a.radius + b.radius;
+    private void resolveCollision(final Circle circleA, final Circle circleB) {
+        final Vector2D delta = circleA.getLocation().subtract(circleB.getLocation());
+        final double d = delta.getMagnitude();
+        final double r = circleA.radius + circleB.radius;
 
-        if (d > r) return;
-        Vector2D mtd = new Vector2D(delta).multiply((r - d) / d);
-
-        double invMassA = a.movable ? 1 / a.mass : 0;
-        double invMassB = b.movable ? 1 / b.mass : 0;
-        double invMass = invMassA + invMassB;
-        if(invMass == 0) {
+        if (d > r) {
             return;
         }
 
-        // push the balls proportionate to mass
-        a.position.add(new Vector2D(mtd).multiply(invMassA / invMass));
-        b.position.subtract(new Vector2D(mtd).multiply(invMassB / invMass));
+        final Vector2D mtd = delta.multiply((r - d) / d);
 
-        Vector2D impactVelocity = new Vector2D(a.velocity).subtract(b.velocity);
-        double normalVelocity = impactVelocity.dot(mtd.normalize());
+        final double invMassA = circleA.isMovable() ? 1 / circleA.getMass() : 0;
+        final double invMassB = circleB.isMovable() ? 1 / circleB.getMass() : 0;
+        final double invMass = invMassA + invMassB;
+        if (invMass == 0) {
+            return;
+        }
 
-        if (normalVelocity > 0) return; // already moving away
+        // Push the balls proportionate to mass
+        final Vector2D pushbackVector = mtd.multiply(invMassA / invMass);
+        circleA.translate(pushbackVector);
+        circleB.translate(pushbackVector.negate());
 
-        double i = (-((2.0 + SPRING) * normalVelocity) / invMass);
-        Vector2D impulse = new Vector2D(mtd).multiply(i);
+        final Vector2D velCircleA = circleA.getVelocity();
+        final Vector2D impactVelocity = velCircleA.subtract(circleB.getVelocity());
+        final double normalVelocity = impactVelocity.dot(mtd.normalize());
 
-        a.velocity.add(new Vector2D(impulse).multiply(invMassA));
-        b.velocity.subtract(new Vector2D(impulse).multiply(invMassB));
+        if (normalVelocity > 0) {
+            // Objects already moving away from each other.
+            return;
+        }
+
+        double i = (-((2.0 + Physics2D.SPRING) * normalVelocity) / invMass);
+        final Vector2D impulse = mtd.multiply(i);
+
+        circleA.setVelocity(velCircleA.add(impulse.multiply(invMassA)));
+        circleB.setVelocity(circleB.getVelocity().subtract(impulse.multiply(invMassB)));
     }
 
-    private static final double SPRING = 0;
-    private static final double FRICTION = 0.0059;
 }
