@@ -75,10 +75,12 @@ public class Server {
 
     /**
      * Signals the server to stop.
+     * @throws IOException If the `ServerSocket` throws an exception when closed.
      */
-    public void stop() {
+    public void stop() throws IOException {
         this.gameLoopTask.stop();
         this.clientAcceptorTask.stop();
+        this.serverSocket.close();
     }
 
 }
