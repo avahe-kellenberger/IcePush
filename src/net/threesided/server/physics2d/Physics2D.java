@@ -15,8 +15,8 @@ public class Physics2D {
 
     public void update(final double elapsed) {
         Circle circleA, circleB;
-        for (int i = 0; i < circles.length; i++) {
-            if ((circleA = circles[i]) == null) {
+        for (int i = 0; i < this.circles.length; i++) {
+            if ((circleA = this.circles[i]) == null) {
                 continue;
             }
 
@@ -26,8 +26,8 @@ public class Physics2D {
                 circleA.translate(newVelocity.multiply(elapsed));
             }
 
-            for (int j = 1 + i; j < circles.length; j++) {
-                if ((circleB = circles[j]) == null || (circleB == circleA)) {
+            for (int j = 1 + i; j < this.circles.length; j++) {
+                if ((circleB = this.circles[j]) == null || (circleB == circleA)) {
                     continue;
                 }
                 this.resolveCollision(circleA, circleB);
