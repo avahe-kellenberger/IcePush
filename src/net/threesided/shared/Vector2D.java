@@ -95,6 +95,24 @@ public class Vector2D {
         return Vector2D.ZERO;
     }
 
+    /**
+     * Gets a vector with negated components of the local vector.
+     * This produces a vector that points in the opposite direction of the local vector.
+     * @return A new vector with negated components of the local vector.
+     */
+    public Vector2D negate() {
+        return new Vector2D(-this.x, -this.y);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Vector2D) {
+            final Vector2D v = (Vector2D) o;
+            return this.x == v.x && this.y == v.y;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "X: " + this.x + " Y: " + this.y;
