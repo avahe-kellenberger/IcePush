@@ -1,20 +1,31 @@
 package net.threesided.server.net;
 
-import java.io.*;
-import java.net.*;
-import java.security.*;
+import net.threesided.shared.Constants;
 import net.threesided.shared.PacketBuffer;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class WebSocketBuffer extends PacketBuffer {
 
-    private String responseHeader =
+    private static final String responseHeader =
             "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n";
+    private static long maxTime = 5000;
+
     private int headerMax = 10000;
     private byte[] header = new byte[headerMax];
     private boolean headerRead = false;
     private long startTime;
-    private long maxTime = 5000;
     private int headerPos = 0;
+
+    // Contains any left over bytes from incoming websocket frames that are incomplete
+    private byte[] rawInBuff;
+    private int nextPos;
+    private boolean readVer;
+    private boolean readName;
 
     private char get64(int i) {
         if (i >= 0 && i <= 25) {
@@ -27,36 +38,43 @@ public class WebSocketBuffer extends PacketBuffer {
             return (char) ('0' + (i - 52));
         }
 
-        if (i == 62) return '+';
-        if (i == 63) return '/';
+        if (i == 62) {
+            return '+';
+        }
 
+        if (i == 63) {
+            return '/';
+        }
         return '~';
     }
 
     public int openPacket() {
-        if ((readPtr + 3) > dataEnd) {
-            // System.out.println("(1) readPtr = " + readPtr + " dataEnd = " + dataEnd);
-            return -1; // Smallest valid packet size is 3
-        }
-        int size = readShort();
-        if (size < 0) {
-            // System.out.println("(2) size = " + size);
-            readPtr -= 2;
-            return -1; // hax
-        }
-        readPtr -= 2; // Reset the read ptr in case the packet is incomplete
-        pktEnd = readPtr + size; // end = current + size;
-        if (pktEnd > dataEnd) {
+        if ((this.readPtr + 3) > this.dataEnd) {
+            // Smallest valid packet size is 3
             return -1;
         }
-        readPtr += 2; // Skip the length bytes
-        int op = readByte();
-        if (op == PING) return -1;
+        final int size = readShort();
+        if (size < 0) {
+            this.readPtr -= 2;
+            return -1; // hax
+        }
+        // Reset the read ptr in case the packet is incomplete
+        this.readPtr -= 2;
+        this.pktEnd = this.readPtr + size;
+        if (this.pktEnd > this.dataEnd) {
+            return -1;
+        }
+        // Skip the length bytes
+        this.readPtr += 2;
+        final int op = readByte();
+        if (op == Constants.PING) {
+            return -1;
+        }
         return op;
     }
 
     private String base64(byte[] b) {
-        String r = "";
+        final StringBuilder stringBuilder = new StringBuilder();
         int i = 0, c = 0;
         int bits = 0;
 
@@ -64,126 +82,98 @@ public class WebSocketBuffer extends PacketBuffer {
             c = i % 3;
 
             if (c == 0) {
-                r = r + get64((b[i] >> 2) & 63);
+                stringBuilder.append(get64((b[i] >> 2) & 63));
                 bits = (b[i] & 3) << 4;
             }
 
             if (c == 1) {
-                r = r + get64(bits | ((b[i] >> 4) & 15));
+                stringBuilder.append(get64(bits | ((b[i] >> 4) & 15)));
                 bits = (b[i] & 15) << 2;
             }
 
             if (c == 2) {
-                r = r + get64(bits | ((b[i] >> 6) & 3));
-                r = r + get64(b[i] & 63);
+                stringBuilder.append(get64(bits | ((b[i] >> 6) & 3)));
+                stringBuilder.append(get64(b[i] & 63));
                 bits = 0;
             }
             i++;
         }
 
-        if (c != 2) r = r + get64(bits);
+        if (c != 2) {
+            stringBuilder.append(get64(bits));
+        }
 
-        if (c == 1) r = r + '=';
-        if (c == 0) r = r + "==";
-        return r;
+        if (c == 1) {
+            stringBuilder.append('=');
+        }
+        if (c == 0) {
+            stringBuilder.append("==");
+        }
+
+        return stringBuilder.toString();
     }
 
     public int available() {
-        return inBuf.length - readPtr;
+        return this.inBuf.length - this.readPtr;
     }
 
     private String generateKey(String str) {
         MessageDigest sha = null;
         try {
             sha = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException n) {
+
+            final String magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+            final String reply = str + magic;
+            final byte[] b = reply.getBytes();
+            sha.update(b, 0, b.length);
+            return base64(sha.digest());
+        } catch (final NoSuchAlgorithmException ignored) {
         }
-
-        String magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        String reply = str + magic;
-
-        byte[] b = reply.getBytes();
-        sha.update(b, 0, b.length);
-        b = sha.digest();
-        // System.out.println
-        return base64(b);
+        return null;
     }
 
-    private boolean readHeader(Socket s) throws IOException {
-        byte[] buf = header;
+    private boolean readHeader(final Socket socket) throws IOException {
+        byte[] buf = this.header;
 
-        InputStream is = s.getInputStream();
-        int a = is.available();
+        final InputStream inputStream = socket.getInputStream();
+        final int a = inputStream.available();
 
-        if (a + headerPos > headerMax || a < 1) {
-            System.out.println("Current headerPos = " + headerPos + " avail = " + a);
+        if (a + this.headerPos > this.headerMax || a < 1) {
             return false;
         }
 
-        int read = is.read(buf, headerPos, a);
-
+        final int read = inputStream.read(buf, this.headerPos, a);
         if (read == 0 || read == -1) {
             return false;
         }
 
-        int end = headerPos = headerPos + read;
-
-        byte[] term = "\r\n\r\n".getBytes();
-
+        final int end = this.headerPos = this.headerPos + read;
+        final byte[] term = "\r\n\r\n".getBytes();
         int headerEnd = -1;
-
-        int i = 0;
-
-        System.out.println("End = " + end);
-
-        while (i < end) {
+        for (int i = 0; i < end; i++) {
             if (buf[i] == term[0]
                     && buf[i + 1] == term[1]
                     && buf[i + 2] == term[2]
                     && buf[i + 3] == term[3]) {
                 headerEnd = i;
             }
-            i++;
         }
 
-        i = 0;
-
-        if (headerEnd != -1) { // This code only executes if the header ending was found  !!
-
+        // This code only executes if the header ending was found.
+        if (headerEnd != -1) {
             int rem = buf.length - (headerEnd + 4);
             byte[] nbuf = new byte[rem];
             System.arraycopy(buf, headerEnd + 4, nbuf, 0, rem);
-            // c.buffer = nbuf;
-
-            System.out.println("HEADER END = " + headerEnd);
-
             String header = new String(buf, 0, headerEnd);
-
-            // System.out.println("header = " + header);
 
             String[] lines = header.split("\r\n");
             boolean foundKey = false;
-
             for (String line : lines) {
-
-                // System.out.println("Header line " + i + ": " + line + "$");
-                i++;
-                String key = "Sec-WebSocket-Key: ";
-                // System.out.println(line);
-                String[] parts = line.split(key);
-
+                final String[] parts = line.split("Sec-WebSocket-Key: ");
                 if (parts.length == 2) {
-                    String swsk = parts[1];
-
-                    // System.out.println("Key =" + swsk);
-
-                    String response =
-                            responseHeader
-                                    + "Sec-WebSocket-Accept: "
-                                    + generateKey(swsk)
-                                    + "\r\n\r\n";
-
-                    s.getOutputStream().write(response.getBytes());
+                    final String swsk = parts[1];
+                    final String response = WebSocketBuffer.responseHeader + "Sec-WebSocket-Accept: " + generateKey(swsk) + "\r\n\r\n";
+                    socket.getOutputStream().write(response.getBytes());
                     foundKey = true;
                     break;
                 }
@@ -197,38 +187,27 @@ public class WebSocketBuffer extends PacketBuffer {
         // return true;
     }
 
-    public WebSocketBuffer(Socket s) {
-        super(s);
-        rawInBuff = new byte[0];
-        startTime = System.currentTimeMillis();
+    public WebSocketBuffer(Socket socket) {
+        super(socket);
+        this.rawInBuff = new byte[0];
+        this.startTime = System.currentTimeMillis();
         try {
-            headerRead = readHeader(s);
-            System.out.println("headerRead = " + headerRead);
-        } catch (IOException ioe) {
-            System.out.println("Error reading header");
-            ioe.printStackTrace();
+            this.headerRead = this.readHeader(socket);
+        } catch (final IOException ex) {
+            ex.printStackTrace();
         }
     }
 
-    byte[] readOneFrame(byte[] data, int pos, int end) {
-        // System.out.println("Attempting frame read pos: " + pos + " end: " + end);
+    private byte[] readOneFrame(final byte[] data, final int pos, final int end) {
+        if (end < pos + 2) {
+            return null;
+        }
 
-        if (end < pos + 2) return null;
         int opcode = data[pos] & 15;
         int mask = (data[pos + 1] >> 7) & 1;
         long dataLen = data[pos + 1] & 127;
         int bonus = 0;
-        /*System.out.print("opcode = " + opcode);
-        System.out.print(" mask = " + mask);
-        System.out.print(" dataLen = " + dataLen);
-        System.out.print(" fin = " + ((data[pos] >> 7)&1));*/
-
         int fin = (data[pos] >> 7) & 1;
-
-        if (fin != 1) {
-            // System.out.println("Incomplete WebSocket frame");
-            // System.out.println("opcode = " + opcode + " data len = " + dataLen);
-        }
 
         if (mask != 1) {
             throw new RuntimeException("Unmasked frame");
@@ -236,52 +215,35 @@ public class WebSocketBuffer extends PacketBuffer {
 
         if (dataLen == 126) {
             bonus = 2;
-            if (end < pos + 4) return null;
-            dataLen = ((data[pos + 2] & 0xff) << 8) + (data[pos + 3] & 0xff);
-            System.out.println("New Datalen: " + dataLen);
-        } else if (dataLen == 127) {
-            bonus = 8;
-            if (end < pos + 10) return null;
-            /*dataLen = (((long)(data[pos+2]&0xff))<<56) + ((long)(data[pos+3]&0xff)<<48) + ((long)(data[pos+4]&0xff)<<40) + ((long)(data[pos+5]&0xff)<<32) +
-            ((data[pos+6]&0xff)<<24) + ((data[pos+7]&0xff)<<16) + ((data[pos+8]&0xff)<<8) + (data[pos+9]&0xff);*/
-            System.out.println("(127) New Datalen: " + dataLen);
-            int k = 0;
-            while (k != 8) {
-                System.out.println("byte" + k + ":" + (data[pos + 2 + k] & 255));
-                k++;
+            if (end < pos + 4) {
+                return null;
             }
-            // throw new RuntimeException();
+            dataLen = ((data[pos + 2] & 0xff) << 8) + (data[pos + 3] & 0xff);
+        } else if (dataLen == 127) {
+            if (end < pos + 10) {
+                return null;
+            }
+            bonus = 8;
         }
 
-        if (end < (6 + pos + bonus + dataLen)) return null;
+        if (end < (6 + pos + bonus + dataLen)) {
+            return null;
+        }
 
-        byte[] key =
-                new byte[] {
-                    data[pos + 2 + bonus],
-                    data[pos + 3 + bonus],
-                    data[pos + 4 + bonus],
-                    data[pos + 5 + bonus]
-                };
+        final byte[] key = new byte[] {
+                data[pos + 2 + bonus],
+                data[pos + 3 + bonus],
+                data[pos + 4 + bonus],
+                data[pos + 5 + bonus]
+        };
 
-        int i = 0;
 
-        byte nbuf[] = new byte[(int) dataLen];
-
-        while (i != dataLen) {
+        final byte nbuf[] = new byte[(int) dataLen];
+        for (int i = 0; i < dataLen; i++) {
             nbuf[i] = (byte) (key[i % 4] ^ data[pos + 6 + i + bonus]);
-            // System.out.println("Byte : " + i + ": " + (key[i%4] ^ data[6 + i]));
-            i++;
         }
 
-        nextPos = pos + 6 + (int) dataLen + bonus;
-
-        // byte[] nbuf = new byte[c.buffer.length - (6 + len)];
-
-        // System.arraycopy(c.buffer, 6 + len, nbuf, 0, c.buffer.length - (6 + len));
-        // c.decoded = nbuf;
-        // shutDown = true;
-        // System.out.println("===== Read one Frame pos:" + pos + ", end:" + end + "  ===== nextPos
-        // = " + nextPos);
+        this.nextPos = pos + 6 + (int) dataLen + bonus;
         return nbuf;
     }
 
@@ -323,51 +285,40 @@ public class WebSocketBuffer extends PacketBuffer {
         return null;
     }
 
-    byte[] encodeData(byte[] data, int len) {
-        int packs = len / 125;
-        int tail = len % 125;
-        byte[] out =
-                new byte
-                        [(packs) * (2 + 125)
-                                + (tail == 0
-                                        ? 0
-                                        : (2
-                                                + tail))]; // 125 is maximum size of a data frame
-                                                           // without extended payload length bytes
+    private byte[] encodeData(final byte[] data, final int len) {
+        final int packs = len / 125;
+        final int tail = len % 125;
+        // 125 is maximum size of a data frame without extended payload length bytes
+        final byte[] out = new byte[(packs) * (2 + 125) + (tail == 0 ? 0 : (2+ tail))];
 
-        int i = 0;
-
-        while (i != packs) {
-            out[i * 127] = (byte) (((byte) 1) << 7) | (2); // opcode = 2 for binary data, FIN = 1
-            out[i * 127 + 1] = 125; // Data length
+        for (int i = 0; i < packs; i++) {
+            // opcode = 2 for binary data, FIN = 1
+            out[i * 127] = (byte) (((byte) 1) << 7) | (2);
+            // Data length
+            out[i * 127 + 1] = 125;
             System.arraycopy(data, i * 125, out, i * 127 + 2, 125);
-            i++;
         }
 
         if (tail != 0) {
-            out[i * 127] = (byte) (((byte) 1) << 7) | (2);
-            out[i * 127 + 1] = (byte) tail; // Data length is number of bytes remaining in the tail
-            System.arraycopy(data, i * 125, out, i * 127 + 2, tail);
+            out[packs * 127] = (byte) (((byte) 1) << 7) | (2);
+            // Data length is number of bytes remaining in the tail
+            out[packs * 127 + 1] = (byte) tail;
+            System.arraycopy(data, packs * 125, out, packs * 127 + 2, tail);
         }
-
         return out;
     }
 
     public boolean sync() {
-
-        long time = System.currentTimeMillis();
-
-        if (!headerRead) {
+        final long time = System.currentTimeMillis();
+        if (!this.headerRead) {
             try {
-                headerRead = readHeader(sock);
-            } catch (IOException ioe) {
-                System.out.println("Error reading header");
-                ioe.printStackTrace();
+                this.headerRead = readHeader(this.socket);
+            } catch (final IOException ex) {
+                ex.printStackTrace();
                 return false;
             }
-
-            if (!headerRead) {
-                return (time - startTime) < maxTime;
+            if (!this.headerRead) {
+                return (time - this.startTime) < WebSocketBuffer.maxTime;
             }
         }
 
@@ -375,89 +326,68 @@ public class WebSocketBuffer extends PacketBuffer {
 
         // Write out all data in the out buffers
         try {
-            if (time - lastWriteTime >= pingTime) {
-                beginPacket(PING);
-                endPacket();
+            if (time - this.lastWriteTime >= this.pingTime) {
+                beginPacket(Constants.PING);
+                this.endPacket();
             }
 
             if (writePtr != 0) {
-                out.write(encodeData(outBuf, writePtr));
-                out.flush();
-                lastWriteTime = time;
+                this.outputStream.write(encodeData(this.outBuf, this.writePtr));
+                this.outputStream.flush();
+                this.lastWriteTime = time;
             }
-            writePtr = 0;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+            this.writePtr = 0;
+        } catch (final IOException ex) {
+            ex.printStackTrace();
             result = false;
         }
         try {
-            int available = in.available();
+            final int available = this.inputStream.available();
             if (available < 0) {
-                System.out.println("Negative available: " + available);
                 return false;
             }
-            // System.out.println("Raw inbuf length = " + rawInBuff.length);
-            byte[] newRaw = new byte[available + rawInBuff.length];
-
-            // if (rawPtr != 0) {
-            System.arraycopy(rawInBuff, 0, newRaw, 0, rawInBuff.length);
-            // }
-
-            int bytesRead = -55;
-
+            final byte[] newRaw = new byte[available + this.rawInBuff.length];
+            System.arraycopy(this.rawInBuff, 0, newRaw, 0, this.rawInBuff.length);
+            int bytesRead;
             if (available != 0) {
-                lastReadTime = System.currentTimeMillis();
-                // System.out.println("newRaw length = " + newRaw.length + " rawInbuff.length = " +
-                // rawInBuff.length + " available: " + available);
-                bytesRead = in.read(newRaw, rawInBuff.length, available);
-                // dataEnd += bytesRead;
-                if (bytesRead != available) System.out.println("TREMENDOUS EMERGENCY");
+                this.lastReadTime = System.currentTimeMillis();
+                bytesRead = this.inputStream.read(newRaw, this.rawInBuff.length, available);
+                if (bytesRead != available) {
+                    System.err.println("TREMENDOUS EMERGENCY");
+                }
             }
 
-            // System.out.println("Bytes read: >>>>" + bytesRead+"<<<<");
+            this.rawInBuff = newRaw;
 
-            rawInBuff = newRaw;
+            final byte[] packets = readAllFrames(this.rawInBuff);
 
-            byte[] packets = readAllFrames(rawInBuff);
+            final int numBytesUnread = this.dataEnd - this.readPtr;
+            final int available2 = packets == null ? 0 : packets.length;
 
-            int numBytesUnread = dataEnd - readPtr;
-            int available2 = packets == null ? 0 : packets.length;
-
-            // System.out.println("inBuf.len:" + inBuf.length + ", rawInBuff.len:" +
-            // rawInBuff.length + ", avail2:" + available2 + ", numBytesUnread:" + numBytesUnread +
-            // ", dataEnd:" + dataEnd + ", readPtr:" + readPtr);
-
-            byte[] newInBuf = new byte[numBytesUnread + available2];
+            final byte[] newInBuf = new byte[numBytesUnread + available2];
             if (numBytesUnread != 0) {
-                System.arraycopy(inBuf, readPtr, newInBuf, 0, numBytesUnread);
+                System.arraycopy(this.inBuf, this.readPtr, newInBuf, 0, numBytesUnread);
             }
 
             if (available2 != 0) {
-                lastReadTime = System.currentTimeMillis();
+                this.lastReadTime = System.currentTimeMillis();
                 bytesRead = available2;
                 System.arraycopy(packets, 0, newInBuf, numBytesUnread, available2);
-                dataEnd += bytesRead;
+                this.dataEnd += bytesRead;
             } else {
-                if ((time - lastReadTime) >= pingTimeout) {
-                    System.out.println("Ping timeout expired: " + (time - lastReadTime));
+                if ((time - this.lastReadTime) >= this.pingTimeout) {
                     return false;
                 }
             }
-            inBuf = newInBuf;
+            this.inBuf = newInBuf;
 
-            dataEnd = inBuf.length;
-            readPtr = 0;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+            this.dataEnd = this.inBuf.length;
+            this.readPtr = 0;
+        } catch (final IOException ex) {
+            ex.printStackTrace();
             result = false;
         }
         return result;
     }
 
-    byte[]
-            rawInBuff; // Contains any left over bytes from incoming websocket frames that are
-                       // incomplete
-    private int nextPos;
-    public boolean readVer;
-    public boolean readName;
 }
