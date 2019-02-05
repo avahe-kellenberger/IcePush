@@ -33,6 +33,31 @@ public class Server {
     }
 
     /**
+     * Starts the server.
+     * @param port The port the server will listen on.
+     * @throws IOException If an I/O error occurs when opening the server's socket.
+     */
+    public void start(final int port) throws IOException {
+        this.serverSocket = new ServerSocket(port);
+
+        // Start listening for incoming client connections.
+        this.clientAcceptorTask.start();
+
+        // Starts the game update loop task.
+        this.gameLoopTask.start();
+    }
+
+    /**
+     * Signals the server to stop.
+     * @throws IOException If the `ServerSocket` throws an exception when closed.
+     */
+    public void stop() throws IOException {
+        this.gameLoopTask.stop();
+        this.clientAcceptorTask.stop();
+        this.serverSocket.close();
+    }
+
+    /**
      * Accepts incoming connections.
      */
     private void acceptConnections() {
@@ -56,31 +81,6 @@ public class Server {
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
-    }
-
-    /**
-     * Starts the server.
-     * @param port The port the server will listen on.
-     * @throws IOException If an I/O error occurs when opening the server's socket.
-     */
-    public void start(final int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
-
-        // Start listening for incoming client connections.
-        this.clientAcceptorTask.start();
-
-        // Starts the game update loop task.
-        this.gameLoopTask.start();
-    }
-
-    /**
-     * Signals the server to stop.
-     * @throws IOException If the `ServerSocket` throws an exception when closed.
-     */
-    public void stop() throws IOException {
-        this.gameLoopTask.stop();
-        this.clientAcceptorTask.stop();
-        this.serverSocket.close();
     }
 
 }

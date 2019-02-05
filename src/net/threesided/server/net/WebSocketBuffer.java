@@ -353,7 +353,7 @@ public class WebSocketBuffer extends PacketBuffer {
         return out;
     }
 
-    public boolean synch() {
+    public boolean sync() {
 
         long time = System.currentTimeMillis();
 

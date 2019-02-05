@@ -137,7 +137,7 @@ public class NetworkHandler {
             if (pbuf == null) return;
             pbuf.beginPacket(LOGOUT);
             pbuf.endPacket();
-            pbuf.synch();
+            pbuf.sync();
         } catch (Exception e) {
             e.printStackTrace();
         }

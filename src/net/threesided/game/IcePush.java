@@ -176,7 +176,7 @@ public class IcePush extends Applet {
         // if (IcePush.state == IcePush.WELCOME)
         //	return;
 
-        if (!NetworkHandler.pbuf.synch()) {
+        if (!NetworkHandler.pbuf.sync()) {
             state = WELCOME;
             GameObjects.ui.networkStatus.setText("Connection with server was lost.");
             GameObjects.ui.setVisibleRecursive(false);

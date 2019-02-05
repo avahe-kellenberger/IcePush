@@ -75,7 +75,7 @@ public class NetworkHandler {
     }
 
     public boolean handlePackets() {
-        if (!buffer.synch()) {
+        if (!buffer.sync()) {
             return false;
         }
         int i;
@@ -162,7 +162,7 @@ public class NetworkHandler {
             if (buffer == null) return;
             buffer.beginPacket(logout);
             buffer.endPacket();
-            buffer.synch();
+            buffer.sync();
         } catch (Exception localException) {
             localException.printStackTrace();
         }
