@@ -10,22 +10,26 @@ import java.net.Socket;
 
 public class Server {
 
+    private final Game game;
     private final InterthreadQueue<Socket> incomingConnections;
     private final ThreadedTask gameLoopTask, clientAcceptorTask;
 
     private ServerSocket serverSocket;
 
     /**
-     * @param port The port to which the server will be bound.
+     *
      */
-    public Server(final int port) {
+    public Server() {
+        this.game = new Game();
         this.incomingConnections = new InterthreadQueue<>();
 
         // Accept all incoming connections.
-        this.clientAcceptorTask = new ThreadedTask(this::acceptConnections, () -> true, true, 0);
+        this.clientAcceptorTask = new ThreadedTask(this::acceptConnections,
+                () -> this.serverSocket != null && !this.serverSocket.isClosed(),
+                true, 0);
 
         // 60 FPS game loop update.
-        this.gameLoopTask = new ThreadedTask(() -> {}, () -> true, true, 0.01667);
+        this.gameLoopTask = new ThreadedTask(() -> {}, () -> true, true, 1.0 / 60);
     }
 
     /**
@@ -48,17 +52,14 @@ public class Server {
     private void processIncomingConnection(final Socket socket) {
         try {
             socket.setTcpNoDelay(true);
-            // TODO: Pass player into `Game`.
-            final Player player = new Player(new WebSocketBuffer(socket));
+            this.game.add(new Player(new WebSocketBuffer(socket)));
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
-
     }
 
     /**
      * Starts the server.
-     *
      * @param port The port the server will listen on.
      * @throws IOException If an I/O error occurs when opening the server's socket.
      */
