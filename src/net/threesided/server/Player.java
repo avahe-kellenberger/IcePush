@@ -1,49 +1,67 @@
 package net.threesided.server;
 
-import net.threesided.server.net.PacketMapper;
 import net.threesided.server.physics2d.Circle;
-import net.threesided.shared.Constants;
-import net.threesided.shared.PacketBuffer;
-import net.threesided.shared.Vector2D;
-
-import java.util.ArrayList;
-
-import static net.threesided.shared.Constants.*;
 
 public class Player extends Circle {
 
-    private int id;
-    private int lives;
-    private int type;
-    private String username;
-    private boolean connected;
-    private boolean readVer;
-    private boolean readName;
-    private boolean isDead = false;
-    private int timeDead = 0;
+    /**
+     * The type of player.
+     */
+    public enum Type {
+        TREE(0),
+        SNOWMAN(1);
 
-    private PacketBuffer packetBuffer;
+        private final int id;
 
-    private boolean logOut;
-    private String chatMessage;
-
-    // Length of arrays can be adjusted for more precision
-    private static final float[] sines = new float[256];
-    private static final float[] cosines = new float[256];
-
-    static {
-        double d = (2.0 * Math.PI) / 256;
-        for (int k = 0; k < 256; k++) {
-            Player.sines[k] = (float) Math.sin(k * d);
-            Player.cosines[k] = (float) Math.cos(k * d);
+        /**
+         * @param id The ID of the type.
+         */
+        Type(final int id) {
+            this.id = id;
         }
+
+        /**
+         * @return The Type's ID.
+         */
+        public int getID() {
+            return this.id;
+        }
+
+        /**
+         * @param id The ID of the type.
+         * @return The Type based on the given ID.
+         */
+        public static Type getByID(final int id) {
+            switch (id) {
+                case 0:
+                    return TREE;
+                case 1:
+                    return SNOWMAN;
+                default:
+                    throw new IllegalArgumentException("Unknown Player.Type id");
+            }
+        }
+
     }
 
-    public Player(PacketBuffer packetBuffer) {
-        super(20);
-        this.setMass(5);
-        this.packetBuffer = packetBuffer;
-        this.id = -1;
+    private static final int DEFAULT_RADIUS = 20;
+    private static final int DEFAULT_MASS = 5;
+
+    private final int id;
+    private Type type;
+    private String username;
+
+    /**
+     * @param id The player's ID.
+     * @param type The player's type.
+     * @param username The player's username.
+     */
+    public Player(final int id, final Player.Type type, final String username) {
+        super(Player.DEFAULT_RADIUS);
+        this.id = id;
+        this.type = type;
+        this.username = username;
+        this.setMass(Player.DEFAULT_MASS);
     }
 
     /**
@@ -53,118 +71,18 @@ public class Player extends Circle {
         return this.username;
     }
 
-    // Sends this player the login information for newly logged in player p
-    public void notifyLogin(Player p) {
-        packetBuffer.beginPacket(NEW_PLAYER);
-        packetBuffer.writeShort(p.id);
-        packetBuffer.writeByte(p.type);
-        packetBuffer.writeString(p.username);
-        packetBuffer.writeByte(p.lives);
-        packetBuffer.endPacket();
-    }
-
-    // Notifies this player that player p has moved
-    public void handleMove(Player p) {
-        packetBuffer.beginPacket(Constants.PLAYER_MOVED);
-        packetBuffer.writeShort(p.id);
-
-        final Vector2D location = p.getLocation();
-        packetBuffer.writeShort((int) location.x);
-        packetBuffer.writeShort((int) location.y);
-        packetBuffer.endPacket();
-    }
-
-    public void writePendingChats(ArrayList<String> chats) {
-        for (String s : chats) {
-            packetBuffer.beginPacket(Constants.NEW_CHAT_MESSAGE);
-            packetBuffer.writeString(s);
-            packetBuffer.endPacket();
-        }
-    }
-
-    // Notify this player of how much time is remaining in the current round
-    public void notifyNewRound(int time) {
-        packetBuffer.beginPacket(BEGIN_ROUND);
-        packetBuffer.writeShort(time);
-        packetBuffer.endPacket();
-    }
-
-    public void notifyVictoryLap(int time) {
-        packetBuffer.beginPacket(BEGIN_VICTORY_LAP);
-        packetBuffer.writeShort(time);
-        packetBuffer.endPacket();
-    }
-
-    public void updateWinners(final byte[] winners) {
-        packetBuffer.beginPacket(UPDATE_WINNER);
-        packetBuffer.writeByte(winners.length);
-        for (final byte b : winners) {
-            packetBuffer.writeByte(b);
-        }
-        packetBuffer.endPacket();
-    }
-
-    public boolean processIncomingPackets() {
-        if (!packetBuffer.sync()) {
-            return false;
-        }
-        // TODO: Figure out whether this dependency is appropriate or not
-        PacketMapper.handlePackets(packetBuffer, this);
-        return true;
-    }
-
-    public void MOVE_REQUEST(int moveDir) {
-        setBit(moveDir);
-    }
-
-    public void END_MOVE() {
-        clearBit();
-    }
-
-    public void LOGOUT() {
-        logOut = true;
-    }
-
-    public void CHAT_REQUEST(String msg) {
-        chatMessage = "<" + username + "> " + msg;
-    }
-
-    public void PING() {
-        packetBuffer.beginPacket(PING);
-        packetBuffer.endPacket();
+    /**
+     * @return The player's type.
+     */
+    public Type getType() {
+        return this.type;
     }
 
     /**
-     * Tell this player that player p logged out
-     *
-     * @param p
+     * @return The player's ID.
      */
-    public void loggedOut(Player p) {
-        packetBuffer.beginPacket(PLAYER_LOGGED_OUT);
-        packetBuffer.writeShort(p.id);
-        packetBuffer.endPacket();
-    }
-
-    /**
-     * Notify this player how many lives p has remaining
-     *
-     * @param p
-     */
-    public void updateLives(Player p) {
-        packetBuffer.beginPacket(PLAYER_DIED);
-        packetBuffer.writeShort(p.id);
-        packetBuffer.writeByte(p.lives);
-        packetBuffer.endPacket();
-    }
-
-    private void setBit(int bit) {
-        // scale down by 2 so that the values are between
-        // -0.5 and +0.5, like the original version
-        this.setAcceleration(new Vector2D(sines[bit & 0xff] / 2, cosines[bit & 0xff] / 2));
-    }
-
-    private void clearBit() {
-        this.setAcceleration(Vector2D.ZERO);
+    public int getID() {
+        return this.id;
     }
 
 }

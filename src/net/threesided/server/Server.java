@@ -86,7 +86,9 @@ public class Server {
     private void processIncomingConnection(final Socket socket) {
         try {
             socket.setTcpNoDelay(true);
-            this.game.add(new Player(new WebSocketBuffer(socket)));
+            final WebSocketBuffer webSocketBuffer = new WebSocketBuffer(socket);
+            // TODO: Read info from buffer to create Player object.
+            // this.game.add(new Player());
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
