@@ -24,7 +24,7 @@ public class LoopedThreadedTask {
                               final double loopFrequency) {
         this.task = task;
         this.loopCondition = loopCondition;
-        this.loopFrequencyNanos = (long) (loopFrequency * 1000000000);
+        this.loopFrequencyNanos = this.secondsToNanos(loopFrequency);
         this.taskThread = new Thread(this::loopTask);
     }
 
@@ -122,6 +122,24 @@ public class LoopedThreadedTask {
     }
 
     /**
+     * Converts seconds to nanoseconds.
+     * @param seconds The number of seconds to convert.
+     * @return The nanoseconds representation of the given seconds.
+     */
+    private long secondsToNanos(final double seconds) {
+        return (long) (seconds * 1000000000);
+    }
+
+    /**
+     * Converts milliseconds to nanoseconds.
+     * @param millis The number of milliseconds to convert.
+     * @return The number of nanoseconds which represent the given time in milliseconds.
+     */
+    private long millisecondsToNanos(final long millis) {
+        return millis * 1000000;
+    }
+
+    /**
      * Converts nanoseconds to seconds.
      * @param nanoSeconds The number of nanoseconds.
      * @return The seconds decimal representation of the given nanoseconds.
@@ -137,15 +155,6 @@ public class LoopedThreadedTask {
      */
     private long nanosToMilliseconds(final long nanoSeconds) {
         return (long) Math.floor(nanoSeconds / 1000000d);
-    }
-
-    /**
-     * Converts milliseconds to nanoseconds.
-     * @param millis The number of milliseconds to convert.
-     * @return The number of nanoseconds which represent the given time in milliseconds.
-     */
-    private long millisecondsToNanos(final long millis) {
-        return millis * 1000000;
     }
 
 }
