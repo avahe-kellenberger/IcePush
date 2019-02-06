@@ -2,17 +2,18 @@ package net.threesided.server;
 
 import net.threesided.server.net.WebSocketBuffer;
 import net.threesided.shared.InterthreadQueue;
-import net.threesided.util.ThreadedTask;
+import net.threesided.util.LoopedThreadedTask;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.function.Supplier;
 
 public class Server {
 
     private final Game game;
     private final InterthreadQueue<Socket> incomingConnections;
-    private final ThreadedTask gameLoopTask, clientAcceptorTask;
+    private final LoopedThreadedTask gameLoopTask, clientConnectionAcceptorTask;
 
     private ServerSocket serverSocket;
 
@@ -23,13 +24,16 @@ public class Server {
         this.game = new Game();
         this.incomingConnections = new InterthreadQueue<>();
 
+        // Condition for the server to continue running.
+        final Supplier<Boolean> serverRunCondition = () -> this.serverSocket != null && !this.serverSocket.isClosed();
+
         // Accept all incoming connections.
-        this.clientAcceptorTask = new ThreadedTask(this::acceptConnections,
-                () -> this.serverSocket != null && !this.serverSocket.isClosed(),
-                true, 0);
+        this.clientConnectionAcceptorTask = new LoopedThreadedTask((elapsedTime) -> this.acceptConnections(), serverRunCondition, 0);
 
         // 60 FPS game loop update.
-        this.gameLoopTask = new ThreadedTask(() -> {}, () -> true, true, 1.0 / 60);
+        final int FPS = 60;
+        final double gameUpdateRate = 1.0 / FPS;
+        this.gameLoopTask = new LoopedThreadedTask(this.game::update, serverRunCondition, gameUpdateRate);
     }
 
     /**
@@ -41,7 +45,7 @@ public class Server {
         this.serverSocket = new ServerSocket(port);
 
         // Start listening for incoming client connections.
-        this.clientAcceptorTask.start();
+        this.clientConnectionAcceptorTask.start();
 
         // Starts the game update loop task.
         this.gameLoopTask.start();
@@ -53,7 +57,7 @@ public class Server {
      */
     public void stop() throws IOException {
         this.gameLoopTask.stop();
-        this.clientAcceptorTask.stop();
+        this.clientConnectionAcceptorTask.stop();
         this.serverSocket.close();
     }
 
