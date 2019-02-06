@@ -12,10 +12,18 @@ public class Entity {
     private double mass;
 
     /**
-     *
+     * Creates a new Entity at position Vector2D#ZERO.
      */
     public Entity() {
-        this.location = Vector2D.ZERO;
+        this(Vector2D.ZERO);
+    }
+
+    /**
+     * Creates a new Entity at the given location.
+     * @param location The Entity's initial location.
+     */
+    public Entity(final Vector2D location) {
+        this.location = location;
         this.cachedLocation = Vector2D.ZERO;
         this.velocity = Vector2D.ZERO;
         this.acceleration = Vector2D.ZERO;
@@ -29,6 +37,16 @@ public class Entity {
     }
 
     /**
+     * Sets the object's location.
+     * @param x The x location.
+     * @param y The y location.
+     */
+    public void setLocation(final double x, final double y) {
+        this.setLocation(new Vector2D(x, y));
+    }
+
+    /**
+     * Sets the object's location.
      * @param location The object's new location.
      */
     public void setLocation(final Vector2D location) {

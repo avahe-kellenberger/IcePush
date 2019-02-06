@@ -6,21 +6,18 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 public class MapClass {
-    ArrayList<Path2D> paths = new ArrayList<Path2D>();
+
+    ArrayList<Path2D> paths = new ArrayList<>();
 
     Path2D currentPath = createDefaultPath();
 
-    public void SEND_MAP_REQUEST(Player p, byte mapBytes[]) {
+    public void SEND_MAP_REQUEST(final Player p, byte mapBytes[]) {
         try {
-            Path2D path =
-                    (Path2D)
-                            (new ObjectInputStream(new ByteArrayInputStream(mapBytes))
-                                    .readObject());
+            Path2D path = (Path2D) (new ObjectInputStream(new ByteArrayInputStream(mapBytes)).readObject());
             paths.add(path);
-        } catch (Exception e) {
-            System.out.println(
-                    "Some kind of exception getting map from user \"" + p.username + '\"');
-            e.printStackTrace();
+        } catch (final Exception ex) {
+            System.err.println("Error getting map from user: \"" + p.getUsername() + '\"');
+            ex.printStackTrace();
         }
     }
 

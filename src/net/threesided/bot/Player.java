@@ -1,31 +1,27 @@
 package net.threesided.bot;
 
-import net.threesided.shared.Vector2D;
+import net.threesided.server.physics2d.Entity;
 
-public class Player {
+public class Player extends Entity {
 
-    private String username;
-    private Vector2D position;
-    private boolean dead = true;
+    private final String username;
+    private boolean isDead = true;
 
-    public Player(String username) {
+    public Player(final String username) {
+        super();
         this.username = username;
-        this.position = new Vector2D();
-    }
-
-    public Vector2D getPosition() {
-        return position;
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
-    public void setDead(boolean dead) {
-        this.dead = dead;
+    public void setDead(final boolean isDead) {
+        this.isDead = isDead;
     }
 
-    public boolean getDead() {
-        return dead;
+    public boolean isDead() {
+        return this.isDead;
     }
+
 }

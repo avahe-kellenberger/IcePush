@@ -1,14 +1,14 @@
 package net.threesided.server;
 
-import static net.threesided.shared.Constants.*;
-
-import java.util.ArrayList;
-
 import net.threesided.server.net.PacketMapper;
 import net.threesided.server.physics2d.Circle;
 import net.threesided.shared.Constants;
 import net.threesided.shared.PacketBuffer;
 import net.threesided.shared.Vector2D;
+
+import java.util.ArrayList;
+
+import static net.threesided.shared.Constants.*;
 
 public class Player extends Circle {
 
@@ -44,6 +44,13 @@ public class Player extends Circle {
         this.setMass(5);
         this.packetBuffer = packetBuffer;
         this.id = -1;
+    }
+
+    /**
+     * @return The player's username.
+     */
+    public String getUsername() {
+        return this.username;
     }
 
     // Sends this player the login information for newly logged in player p
@@ -129,6 +136,7 @@ public class Player extends Circle {
 
     /**
      * Tell this player that player p logged out
+     *
      * @param p
      */
     public void loggedOut(Player p) {
@@ -139,6 +147,7 @@ public class Player extends Circle {
 
     /**
      * Notify this player how many lives p has remaining
+     *
      * @param p
      */
     public void updateLives(Player p) {

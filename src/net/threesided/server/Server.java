@@ -17,6 +17,11 @@ public class Server {
 
     private ServerSocket serverSocket;
 
+    public static void main(String[] args) throws IOException {
+        final Server server = new Server();
+        server.start(2345);
+    }
+
     /**
      *
      */
@@ -32,8 +37,8 @@ public class Server {
 
         // 60 FPS game loop update.
         final int FPS = 60;
-        final double gameUpdateRate = 1.0 / FPS;
-        this.gameLoopTask = new LoopedThreadedTask(this.game::update, serverRunCondition, gameUpdateRate);
+        final double frameDurationSeconds = 1.0 / FPS;
+        this.gameLoopTask = new LoopedThreadedTask(this.game::update, serverRunCondition, frameDurationSeconds);
     }
 
     /**

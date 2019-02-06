@@ -1,8 +1,9 @@
 package net.threesided.bot;
 
+import net.threesided.shared.Vector2D;
+
 import java.util.HashMap;
 import java.util.Map;
-import net.threesided.shared.Vector2D;
 
 public class IcePushBot extends Thread {
 
@@ -11,7 +12,7 @@ public class IcePushBot extends Thread {
     private int angle = -1;
     private int prev_angle = -1;
     private String username;
-    private Map<Integer, Player> playerMap = new HashMap<Integer, Player>();
+    private Map<Integer, Player> playerMap = new HashMap<>();
 
     public IcePushBot(String bot) {
         this.username = bot;
@@ -38,30 +39,23 @@ public class IcePushBot extends Thread {
             prev_angle = angle;
             angle = -1;
             if (playerMap.get(id) != null) {
-                Vector2D my_pos = playerMap.get(id).getPosition();
+                Vector2D my_pos = playerMap.get(id).getLocation();
                 Player p = getNearestPlayer();
                 if (p != null) {
-                    Vector2D target_pos = p.getPosition();
-                    angle =
-                            ((int)
-                                            getAngle(
-                                                    my_pos.getX(),
-                                                    target_pos.getX(),
-                                                    my_pos.getY(),
-                                                    target_pos.getY()))
-                                    * 2;
+                    Vector2D target_pos = p.getLocation();
+                    angle = ((int) getAngle(my_pos.x, target_pos.x, my_pos.y, target_pos.y)) * 2;
                 }
             }
         }
     }
 
     public Player getNearestPlayer() {
-        Vector2D my_pos = playerMap.get(id).getPosition();
+        Vector2D my_pos = playerMap.get(id).getLocation();
         double closest_dist = Double.MAX_VALUE;
         Player closest_player = null;
         for (Player p2 : playerMap.values()) {
-            if (p2.getUsername().equals(username) || p2.getDead()) continue;
-            Vector2D player_pos = p2.getPosition();
+            if (p2.getUsername().equals(username) || p2.isDead()) continue;
+            Vector2D player_pos = p2.getLocation();
             double dist = my_pos.getDistance(player_pos);
             if (dist < closest_dist) {
                 closest_dist = dist;
@@ -72,15 +66,17 @@ public class IcePushBot extends Thread {
     }
 
     public void onNewPlayer(int id, String username, int deaths) {
-        playerMap.put(id, new Player(username));
+        this.playerMap.put(id, new Player(username));
     }
 
     public void onMove(int id, int x, int y) {
-        playerMap.get(id).getPosition().set(x, y);
-        playerMap.get(id).setDead(false);
+        final Player player = this.playerMap.get(id);
+        player.setLocation(new Vector2D(x, y));
+        player.setDead(false);
     }
 
-    public void onChat(String message) {}
+    public void onChat(String message) {
+    }
 
     public void onDied(int id, int deaths) {
         playerMap.get(id).setDead(true);
