@@ -2,13 +2,14 @@ package net.threesided.server;
 
 import net.threesided.server.physics2d.Circle;
 import net.threesided.server.physics2d.Physics2D;
+import net.threesided.server.physics2d.Updatable;
 
 import java.util.LinkedHashSet;
 
 /**
  *
  */
-public class Game {
+public class Game implements Updatable {
 
     private final LinkedHashSet<Circle> entities;
     private final Physics2D physics;
@@ -48,10 +49,7 @@ public class Game {
         return this.entities.remove(entity);
     }
 
-    /**
-     * Updates the game.
-     * @param elapsed The time in seconds elapsed since the last update.
-     */
+    @Override
     public void update(final double elapsed) {
         this.physics.update(elapsed);
     }

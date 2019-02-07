@@ -1,6 +1,7 @@
 package net.threesided.server;
 
 import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.server.physics2d.Updatable;
 import net.threesided.shared.InterthreadQueue;
 import net.threesided.util.LoopedThreadedTask;
 
@@ -9,7 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Supplier;
 
-public class Server {
+public class Server implements Updatable {
 
     private final Game game;
     private final InterthreadQueue<Socket> incomingConnections;
@@ -38,7 +39,7 @@ public class Server {
         // 60 FPS game loop update.
         final int FPS = 60;
         final double frameDurationSeconds = 1.0 / FPS;
-        this.gameLoopTask = new LoopedThreadedTask(this.game::update, serverRunCondition, frameDurationSeconds);
+        this.gameLoopTask = new LoopedThreadedTask(this::update, serverRunCondition, frameDurationSeconds);
     }
 
     /**
@@ -92,6 +93,19 @@ public class Server {
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void update(final double elapsed) {
+        this.game.update(elapsed);
+        this.sendUpdatesToClients();
+    }
+
+    /**
+     *
+     */
+    private void sendUpdatesToClients() {
+        // TODO: Send updated game state to players
     }
 
 }

@@ -2,7 +2,7 @@ package net.threesided.server.physics2d;
 
 import net.threesided.shared.Vector2D;
 
-public class Physics2D {
+public class Physics2D implements Updatable {
 
     private static final double SPRING = 0;
     private static final double FRICTION = 0.0059;
@@ -13,6 +13,7 @@ public class Physics2D {
         this.circles = bodies;
     }
 
+    @Override
     public void update(final double elapsed) {
         Circle circleA, circleB;
         for (int i = 0; i < this.circles.length; i++) {
