@@ -58,6 +58,7 @@ public class Player extends Circle {
      */
     public Player(final int id, final Player.Type type, final String username) {
         super(Player.DEFAULT_RADIUS);
+        // TODO: The player ID should probably only be stored in the server code.
         this.id = id;
         this.type = type;
         this.username = username;
