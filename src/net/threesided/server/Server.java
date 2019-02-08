@@ -1,6 +1,8 @@
 package net.threesided.server;
 
+import net.threesided.server.net.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.server.net.events.LoginEvent;
 import net.threesided.server.physics2d.Updatable;
 import net.threesided.shared.Constants;
 import net.threesided.shared.InterthreadQueue;
@@ -74,55 +76,64 @@ public class Server implements Updatable {
     private void acceptConnections() {
         try {
             final Socket socket = this.serverSocket.accept();
-            this.incomingConnections.push(socket);
-            this.processIncomingConnection(socket);
+            final WebSocketBuffer clientSocketBuffer = this.constructClientConnection(socket);
+
+            // Terminate the connection if it was not successful.
+            if (clientSocketBuffer == null || !this.tryAddNewPlayer(clientSocketBuffer)) {
+                socket.close();
+            }
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
     }
 
     /**
-     * Processes the newly connected socket.
+     * Processes the newly connected socket and checks for validity.
      * @param socket The client socket to process after a connection is established.
+     * @return A WebSocketBuffer connected to the client, or null if the connection failed to validate.
      */
-    private void processIncomingConnection(final Socket socket) {
+    private WebSocketBuffer constructClientConnection(final Socket socket) {
         try {
             socket.setTcpNoDelay(true);
+            this.incomingConnections.push(socket);
             final WebSocketBuffer clientSocketBuffer = new WebSocketBuffer(socket);
-
             if (!this.isNewConnectionValid(clientSocketBuffer)) {
-                return;
+                return null;
             }
-
-            final int clientVersionNumber = clientSocketBuffer.readByte();
-            if (clientVersionNumber != Constants.VERSION) {
-                // TODO: Enqueue failure event to client.
-                return;
-            }
-
-            final String clientUsername = clientSocketBuffer.readString();
-            if (this.isUsernameInUse(clientUsername)) {
-                // TODO: Enqueue failure event to client.
-                return;
-            }
-
-            if (this.isGameFull()) {
-                // TODO: Enqueue failure event to client.
-                return;
-            }
-
-            final Player player = this.createNewPlayer(clientUsername);
-            this.processNewPlayer(player);
-
-            // TODO: Enqueue login success event to player
-            // TODO: Enqueue player logged in event to players
-
-            // TODO: Set player's position, which should automatically trigger move events
-
-            // TODO: Notify new player of the current round or victory lap with time remaining.
+            return clientSocketBuffer;
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
+        return null;
+    }
+
+    /**
+     * Attempts to create and add a player from the incoming connection.
+     * @param clientSocketBuffer The socket to the new player.
+     * @return If the player was successfully added to the game.
+     */
+    private boolean tryAddNewPlayer(final WebSocketBuffer clientSocketBuffer) {
+        final LoginEvent loginEvent = this.waitForPlayerLogin(clientSocketBuffer);
+        if (!this.validateLogin(loginEvent)) {
+            return false;
+        }
+
+        if (this.isGameFull()) {
+            // TODO: Enqueue failure event to client.
+            return false;
+        }
+
+        final Player player = this.createNewPlayer(loginEvent.playerName);
+        this.processNewPlayer(player);
+
+        // TODO: Enqueue login success event to player
+        // TODO: Enqueue player logged in event to players
+
+        // TODO: Set player's position, which should automatically trigger move events
+
+        // TODO: Notify new player of the current round or victory lap with time remaining.
+
+        return true;
     }
 
     /**
@@ -148,6 +159,43 @@ public class Server implements Updatable {
     }
 
     /**
+     * Waits for the client to send data for a LoginEvent.
+     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
+     * @return A LoginEvent constructed from data sent by the client.
+     */
+    private LoginEvent waitForPlayerLogin(final WebSocketBuffer clientSocketBuffer) {
+        final int opcode = clientSocketBuffer.openPacket();
+        if (OPCode.getByValue(opcode) != OPCode.LOGIN) {
+            return null;
+        }
+        return new LoginEvent(clientSocketBuffer);
+    }
+
+    /**
+     * Checks if the LoginEvent contains data appropriate for the player to join the current game.
+     * If there are any issues with the login, an appropriate event will be sent to the client.
+     * @param loginEvent The LoginEvent to validate.
+     * @return If the login was successful and valid.
+     */
+    private boolean validateLogin(final LoginEvent loginEvent) {
+        if (loginEvent == null) {
+            return false;
+        }
+
+        if (loginEvent.clientVersion != Constants.VERSION) {
+            // TODO: Enqueue failure event to client.
+            return false;
+        }
+
+        if (this.isUsernameInUse(loginEvent.playerName)) {
+            // TODO: Enqueue failure event to client.
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Checks if the newly connected WebSocketBuffer is in a valid state
      * and responding correctly to be used as a client for the game.
      *
@@ -156,12 +204,7 @@ public class Server implements Updatable {
      */
     private boolean isNewConnectionValid(final WebSocketBuffer webSocketBuffer) {
         // TODO: Refactor WebSocketBuffer#sync to make it understandable.
-        if (webSocketBuffer.sync()) {
-            final int opcode = webSocketBuffer.openPacket();
-            // TODO: (Taken from legacy code) Why zero?
-            return opcode == 0;
-        }
-        return false;
+        return webSocketBuffer.sync();
     }
 
     /**

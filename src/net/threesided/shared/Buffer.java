@@ -62,4 +62,13 @@ public class Buffer {
         readPtr += len;
         return str;
     }
+
+    /**
+     * @param string The string to be written.
+     * @return The number of bytes taken up in the buffer when this string would be written.
+     */
+    public static int getStringWriteSize(final String string) {
+        return 2 + string.length();
+    }
+
 }
