@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * Base class for chat events sent to and from the server.

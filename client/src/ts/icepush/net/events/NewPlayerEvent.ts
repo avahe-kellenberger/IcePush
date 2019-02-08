@@ -1,7 +1,7 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {Player} from "../../entity/Player";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * This event is sent from the server to the client indicating a new player has been added to the game.

@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * Sent from server to client, informing of the amount of timeMilliseconds remaining in the game.

@@ -1,7 +1,7 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {Vector2D} from "../../../engine/math/Vector2D";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * Sent from server to client, giving another player's new position (after being moved).

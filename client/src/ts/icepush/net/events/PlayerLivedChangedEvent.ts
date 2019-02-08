@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * This event is the server informing the client of the number of lives a particular player has.

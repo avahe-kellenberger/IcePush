@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * Sent from the server to the client upon login, if the login failed (e.g. username in use).

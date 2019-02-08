@@ -14,7 +14,7 @@ import {Time} from "../../engine/time/Time";
 import {RoundStartEvent} from "../net/events/RoundStartEvent";
 import {MoveRequestEvent} from "../net/events/MoveRequestEvent";
 import {EndMoveEvent} from "../net/events/EndMoveEvent";
-import {OPCode} from "../net/NetworkEventBuffer";
+import {OPCode} from "../net/OPCode";
 import {NetworkEvent} from "../net/NetworkEvent";
 import {PlayerLoggedOutEvent} from "../net/events/PlayerLoggedOutEvent";
 import {PlayerMovedEvent} from "../net/events/PlayerMovedEvent";

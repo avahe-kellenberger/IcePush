@@ -1,5 +1,5 @@
 import {RoundStartEvent} from "./RoundStartEvent";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 export class RoundStartCountdownEvent extends RoundStartEvent {
 

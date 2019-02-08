@@ -1,6 +1,6 @@
 import {NetworkEvent} from "../NetworkEvent";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
-import {OPCode} from "../NetworkEventBuffer";
+import {OPCode} from "../OPCode";
 
 /**
  * This event is sent from the server to the client indicating a round has been won.
