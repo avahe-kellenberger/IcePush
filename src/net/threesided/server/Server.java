@@ -2,7 +2,7 @@ package net.threesided.server;
 
 import net.threesided.server.net.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
-import net.threesided.server.net.events.LoginEvent;
+import net.threesided.server.net.event.events.client.LoginEvent;
 import net.threesided.server.physics2d.Updatable;
 import net.threesided.shared.Constants;
 import net.threesided.shared.InterthreadQueue;

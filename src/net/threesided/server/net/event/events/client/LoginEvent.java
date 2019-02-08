@@ -1,8 +1,8 @@
-package net.threesided.server.net.events;
+package net.threesided.server.net.event.events.client;
 
-import net.threesided.server.net.ClientNetworkEvent;
 import net.threesided.server.net.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.server.net.event.ClientNetworkEvent;
 
 public class LoginEvent extends ClientNetworkEvent {
 
