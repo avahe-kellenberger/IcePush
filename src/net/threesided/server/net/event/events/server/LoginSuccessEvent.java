@@ -4,26 +4,27 @@ import net.threesided.server.net.event.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
 import net.threesided.server.net.event.ServerNetworkEvent;
 
-public class FailureEvent extends ServerNetworkEvent {
+public class LoginSuccessEvent extends ServerNetworkEvent {
 
-    private final String message;
+    private final byte playerID;
 
     /**
-     * @param message The message of the event to send.
+     * Event indicating a player's login request was successful.
+     * @param playerID The player's server-assigned ID.
      */
-    public FailureEvent(final WebSocketBuffer recipient, final String message) {
+    public LoginSuccessEvent(final WebSocketBuffer recipient, final byte playerID) {
         super(recipient);
-        this.message = message;
+        this.playerID = playerID;
     }
 
     @Override
     public void writeDataToBuffer(final WebSocketBuffer buffer) {
-        buffer.writeString(this.message);
+        buffer.writeByte(this.playerID);
     }
 
     @Override
     public OPCode getOPCode() {
-        return OPCode.FAILURE;
+        return OPCode.SUCCESS;
     }
 
 }

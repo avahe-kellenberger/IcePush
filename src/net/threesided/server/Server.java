@@ -1,8 +1,10 @@
 package net.threesided.server;
 
-import net.threesided.server.net.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.server.net.event.OPCode;
+import net.threesided.server.net.event.ServerNetworkEvent;
 import net.threesided.server.net.event.events.client.LoginEvent;
+import net.threesided.server.net.event.events.server.FailureEvent;
 import net.threesided.server.physics2d.Updatable;
 import net.threesided.shared.Constants;
 import net.threesided.shared.InterthreadQueue;
@@ -17,6 +19,7 @@ public class Server implements Updatable {
 
     private final Game game;
     private final InterthreadQueue<Socket> incomingConnections;
+    private final InterthreadQueue<ServerNetworkEvent> serverEventQueue;
     private final LoopedThreadedTask gameLoopTask, clientConnectionAcceptorTask;
 
     private ServerSocket serverSocket;
@@ -32,6 +35,7 @@ public class Server implements Updatable {
     public Server() {
         this.game = new Game();
         this.incomingConnections = new InterthreadQueue<>();
+        this.serverEventQueue = new InterthreadQueue<>();
 
         // Condition for the server to continue running.
         final Supplier<Boolean> serverRunCondition = () -> this.serverSocket != null && !this.serverSocket.isClosed();
@@ -114,17 +118,18 @@ public class Server implements Updatable {
      */
     private boolean tryAddNewPlayer(final WebSocketBuffer clientSocketBuffer) {
         final LoginEvent loginEvent = this.waitForPlayerLogin(clientSocketBuffer);
-        if (!this.validateLogin(loginEvent)) {
+        if (!this.validateLogin(clientSocketBuffer, loginEvent)) {
             return false;
         }
 
         if (this.isGameFull()) {
-            // TODO: Enqueue failure event to client.
+            final FailureEvent event = new FailureEvent(clientSocketBuffer, "There are too many players online.");
+            this.enqueueEvent(event);
             return false;
         }
 
         final Player player = this.createNewPlayer(loginEvent.playerName);
-        this.processNewPlayer(player);
+        this.addNewPlayer(player, clientSocketBuffer);
 
         // TODO: Enqueue login success event to player
         // TODO: Enqueue player logged in event to players
@@ -134,6 +139,60 @@ public class Server implements Updatable {
         // TODO: Notify new player of the current round or victory lap with time remaining.
 
         return true;
+    }
+
+    /**
+     * Waits for the client to send data for a LoginEvent.
+     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
+     * @return A LoginEvent constructed from data sent by the client.
+     */
+    private LoginEvent waitForPlayerLogin(final WebSocketBuffer clientSocketBuffer) {
+        final int opcode = clientSocketBuffer.openPacket();
+        if (OPCode.getByValue(opcode) != OPCode.LOGIN) {
+            return null;
+        }
+        return new LoginEvent(clientSocketBuffer);
+    }
+
+    /**
+     * Checks if the LoginEvent contains data appropriate for the player to join the current game.
+     * If there are any issues with the login, an appropriate event will be sent to the client.
+     *
+     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
+     * @param loginEvent The LoginEvent to validate.
+     * @return If the login was successful and valid.
+     */
+    private boolean validateLogin(final WebSocketBuffer clientSocketBuffer, final LoginEvent loginEvent) {
+        if (loginEvent == null) {
+            return false;
+        }
+
+        if (loginEvent.clientVersion != Constants.VERSION) {
+            final FailureEvent event = new FailureEvent(clientSocketBuffer, "Your client is outdated.");
+            this.enqueueEvent(event);
+            return false;
+        }
+
+        if (this.isUsernameInUse(loginEvent.playerName)) {
+            final FailureEvent event = new FailureEvent(clientSocketBuffer, "Username is in use.");
+            this.enqueueEvent(event);
+            return false;
+        }
+
+        // Successful login
+        return true;
+    }
+
+    /**
+     * Checks if the newly connected WebSocketBuffer is in a valid state
+     * and responding correctly to be used as a client for the game.
+     *
+     * @param webSocketBuffer The buffer of which to be checked.
+     * @return If the new connection is in a valid state for the game.
+     */
+    private boolean isNewConnectionValid(final WebSocketBuffer webSocketBuffer) {
+        // TODO: Refactor WebSocketBuffer#sync to make it understandable.
+        return webSocketBuffer.sync();
     }
 
     /**
@@ -153,58 +212,9 @@ public class Server implements Updatable {
      * Adds a new player to the game and server.
      * @param player The player to add.
      */
-    private void processNewPlayer(final Player player) {
+    private void addNewPlayer(final Player player, final WebSocketBuffer clientSocketBuffer) {
         // TODO: Also add player to Server's data.
         this.game.add(player);
-    }
-
-    /**
-     * Waits for the client to send data for a LoginEvent.
-     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
-     * @return A LoginEvent constructed from data sent by the client.
-     */
-    private LoginEvent waitForPlayerLogin(final WebSocketBuffer clientSocketBuffer) {
-        final int opcode = clientSocketBuffer.openPacket();
-        if (OPCode.getByValue(opcode) != OPCode.LOGIN) {
-            return null;
-        }
-        return new LoginEvent(clientSocketBuffer);
-    }
-
-    /**
-     * Checks if the LoginEvent contains data appropriate for the player to join the current game.
-     * If there are any issues with the login, an appropriate event will be sent to the client.
-     * @param loginEvent The LoginEvent to validate.
-     * @return If the login was successful and valid.
-     */
-    private boolean validateLogin(final LoginEvent loginEvent) {
-        if (loginEvent == null) {
-            return false;
-        }
-
-        if (loginEvent.clientVersion != Constants.VERSION) {
-            // TODO: Enqueue failure event to client.
-            return false;
-        }
-
-        if (this.isUsernameInUse(loginEvent.playerName)) {
-            // TODO: Enqueue failure event to client.
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if the newly connected WebSocketBuffer is in a valid state
-     * and responding correctly to be used as a client for the game.
-     *
-     * @param webSocketBuffer The buffer of which to be checked.
-     * @return If the new connection is in a valid state for the game.
-     */
-    private boolean isNewConnectionValid(final WebSocketBuffer webSocketBuffer) {
-        // TODO: Refactor WebSocketBuffer#sync to make it understandable.
-        return webSocketBuffer.sync();
     }
 
     /**
@@ -239,6 +249,14 @@ public class Server implements Updatable {
     private boolean isUsernameInUse(final String username) {
         // TODO: Implement once players are stored in a list/map.
         return false;
+    }
+
+    /**
+     * TODO:
+     * @param event
+     */
+    private void enqueueEvent(final ServerNetworkEvent event) {
+        this.serverEventQueue.push(event);
     }
 
     @Override
