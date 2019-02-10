@@ -4,15 +4,25 @@ import {Vector2D} from "../../math/Vector2D";
 
 export abstract class GameObject implements ILocatable, Locatable, Entity {
 
+    private readonly uid: number;
     private location: Vector2D;
     private velocity: Vector2D;
 
     /**
+     * @param uid The object's unique ID number.
      * @param location The location of the object.
      */
-    constructor(location: Vector2D = Vector2D.ZERO) {
+    constructor(uid: number, location: Vector2D = Vector2D.ZERO) {
+        this.uid = uid;
         this.location = location;
         this.velocity = Vector2D.ZERO;
+    }
+
+    /**
+     * @return The object's unique ID number.
+     */
+    public getUID():number  {
+        return this.uid;
     }
 
     /**

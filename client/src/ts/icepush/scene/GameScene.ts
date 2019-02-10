@@ -21,12 +21,13 @@ import {PlayerMovedEvent} from "../net/events/PlayerMovedEvent";
 import {PlayerLivesChangedEvent} from "../net/events/PlayerLivedChangedEvent";
 import {RoundWinnersEvent} from "../net/events/RoundWinnersEvent";
 import {RoundStartCountdownEvent} from "../net/events/RoundStartCountdownEvent";
+import {LocalPlayer} from "../entity/LocalPlayer";
 
 export class GameScene extends Scene {
 
     private static readonly PING_TIMEOUT: number = 5.0;
 
-    private readonly username: string;
+    private readonly playerID: number;
     private readonly gameArea: Rectangle;
     private readonly connection: Connection;
 
@@ -47,11 +48,11 @@ export class GameScene extends Scene {
     /**
      * Constructs the scene in which the game is played.
      * @param game
-     * @param username The local player's username.
+     * @param playerID The local player's ID number.
      */
-    constructor(game: IcePush, username: string) {
+    constructor(game: IcePush, playerID: number) {
         super(game);
-        this.username = username;
+        this.playerID = playerID;
         this.roundCountingDown = false;
 
         /*
@@ -125,7 +126,12 @@ export class GameScene extends Scene {
 
             case OPCode.NEW_PLAYER: {
                 const event: NewPlayerEvent = e as NewPlayerEvent;
-                const player: Player = new Player(event.username, event.type, event.lives);
+                const isLocalPlayer: boolean = event.playerID === this.playerID;
+
+                const player: Player = isLocalPlayer ?
+                    new LocalPlayer(event.playerID, event.username, event.type, event.lives) :
+                    new Player(event.playerID, event.username, event.type, event.lives);
+
                 this.addEntity(event.playerID, player);
                 break;
             }
@@ -353,7 +359,7 @@ export class GameScene extends Scene {
      * @return The time remaining in the current round.
      */
     private calculateRoundTime(delta: number): number|undefined {
-        if (this.someEntity(e => e instanceof Player && e.getName() !== this.username)) {
+        if (this.someEntity(e => e instanceof Player && (e as Player).getUID() !== this.playerID)) {
             if (this.roundSecondsRemaining !== undefined) {
                 return Math.max(0, this.roundSecondsRemaining - delta);
             }

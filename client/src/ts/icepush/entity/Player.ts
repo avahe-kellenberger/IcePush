@@ -5,6 +5,9 @@ import {CanvasUtils} from "../../engine/util/CanvasUtils";
 
 export class Player extends GameObject {
 
+    protected static readonly defaultFontColor = 'red';
+    protected static readonly localFontColor = '#db32db';
+
     private readonly name: string;
     private nameCanvas: HTMLCanvasElement|undefined;
 
@@ -14,18 +17,22 @@ export class Player extends GameObject {
     private lives: number;
     private livesCanvas: HTMLCanvasElement|undefined;
 
+    private fontColor: string;
+
     /**
      * Creates a new player.
+     * @param uid The player's unique ID number.
      * @param name The player's name.
      * @param type The player's type.
      * @param lives The initial number of lives the player has.
      */
-    constructor(name: string, type: Player.Type, lives: number) {
-        super();
+    constructor(uid: number, name: string, type: Player.Type, lives: number) {
+        super(uid);
         this.name = name;
         this.type = type;
         this.lives = lives;
         this.sprite = Player.getImage(type);
+        this.fontColor = Player.defaultFontColor;
     }
 
     /**
@@ -58,6 +65,25 @@ export class Player extends GameObject {
     }
 
     /**
+     * @return The current font color used for rendering information.
+     */
+    public getFontColor(): string {
+        return this.fontColor;
+    }
+
+    /**
+     * @param color The font color used for rendering information.
+     * @return If the color was changed.
+     */
+    public setFontColor(color: string): boolean {
+        if (color === this.fontColor) {
+            return false;
+        }
+        this.fontColor = color;
+        return true;
+    }
+
+    /**
      * @override
      */
     public render(ctx: CanvasRenderingContext2D): void {
@@ -66,13 +92,13 @@ export class Player extends GameObject {
         ctx.drawImage(this.sprite, center.x - this.sprite.width * 0.5, top);
 
         if (this.nameCanvas === undefined) {
-            this.nameCanvas = CanvasUtils.stringToCanvas(this.name, '14px Arial', 'red');
+            this.nameCanvas = CanvasUtils.stringToCanvas(this.name, '14px Arial', this.fontColor);
         }
         ctx.drawImage(this.nameCanvas, center.x - this.nameCanvas.width * 0.5, top - this.nameCanvas.height * 2);
 
 
         if (this.livesCanvas === undefined) {
-            this.livesCanvas = CanvasUtils.stringToCanvas(`Lives: ${this.lives}`, '14px Arial', 'red');
+            this.livesCanvas = CanvasUtils.stringToCanvas(`Lives: ${this.lives}`, '14px Arial', this.fontColor);
         }
         ctx.drawImage(this.livesCanvas, center.x - this.livesCanvas.width * 0.5, top - this.livesCanvas.height);
     }

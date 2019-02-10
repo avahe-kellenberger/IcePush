@@ -20,7 +20,7 @@ export class IcePush extends Game {
 
     private connection: Connection|undefined;
     private homeScene: HomeScene|undefined;
-    private username: string|undefined;
+    private playerID: number|undefined;
 
     /**
      * Attempts to log in.
@@ -41,9 +41,10 @@ export class IcePush extends Game {
             connection.removeErrorListener(errorListener);
 
             const events: NetworkEvent[] = buffer.getEvents();
-            if (events.find(e => e instanceof SuccessEvent) !== undefined) {
+            const event: SuccessEvent|undefined = events.find(e => e instanceof SuccessEvent) as SuccessEvent;
+            if (event !== undefined) {
                 connection.removeDataReceivedListener(loginListener);
-                this.onLoginSucceeded(username);
+                this.onLoginSucceeded(event.playerID);
             } else {
                 // Login unsuccessful; close connection and display error.
                 connection.close();
@@ -106,10 +107,10 @@ export class IcePush extends Game {
 
     /**
      * Invoked when the login is successful.
-     * @param username The name of the user which logged in.
+     * @param playerID The local player's ID number.
      */
-    private onLoginSucceeded(username: string): void {
-        this.username = username;
+    private onLoginSucceeded(playerID: number): void {
+        this.playerID = playerID;
         this.showGameScene();
     }
 
@@ -139,10 +140,10 @@ export class IcePush extends Game {
      * @return If switching to the game scene was successful.
      */
     public showGameScene(): boolean {
-        if (this.username === undefined || this.currentScene instanceof GameScene) {
+        if (this.playerID === undefined || this.currentScene instanceof GameScene) {
             return false;
         }
-        this.setScene(new GameScene(this, this.username));
+        this.setScene(new GameScene(this, this.playerID));
         return true;
     }
 
