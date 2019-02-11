@@ -4,7 +4,7 @@ import {Assets} from "../asset/Assets";
 import {CanvasUtils} from "../../engine/util/CanvasUtils";
 
 /**
- *
+ * A listener which is invoked when there is a change to the number of lives of the player.
  */
 type LivesListener  = (livesRemaining: number) => void;
 
