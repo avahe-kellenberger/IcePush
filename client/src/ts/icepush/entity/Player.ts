@@ -3,6 +3,11 @@ import {Vector2D} from "../../engine/math/Vector2D";
 import {Assets} from "../asset/Assets";
 import {CanvasUtils} from "../../engine/util/CanvasUtils";
 
+/**
+ *
+ */
+type LivesListener  = (livesRemaining: number) => void;
+
 export class Player extends GameObject {
 
     protected static readonly defaultFontColor = 'red';
@@ -14,6 +19,7 @@ export class Player extends GameObject {
     private readonly sprite: HTMLCanvasElement;
     private readonly type: Player.Type;
 
+    private readonly livesListeners: Set<LivesListener>;
     private lives: number;
     private livesCanvas: HTMLCanvasElement|undefined;
 
@@ -31,6 +37,7 @@ export class Player extends GameObject {
         this.name = name;
         this.type = type;
         this.lives = lives;
+        this.livesListeners = new Set();
         this.sprite = Player.getImage(type);
         this.fontColor = Player.defaultFontColor;
     }
@@ -55,6 +62,33 @@ export class Player extends GameObject {
     public setLives(lives: number): void {
         this.lives = lives;
         this.livesCanvas = undefined;
+        this.livesListeners.forEach(listener => listener(lives));
+    }
+
+    /**
+     * Adds a `LivesListener` to the player.
+     * @param listener The listener to add.
+     * @return If the listener was added.
+     */
+    public addLivesListener(listener: LivesListener): boolean {
+        return this.livesListeners.size !== this.livesListeners.add(listener).size;
+    }
+
+    /**
+     * @param listener The listener to check.
+     * @return If the player contains the lister.
+     */
+    public containsLivesListener(listener: LivesListener): boolean {
+        return this.livesListeners.has(listener);
+    }
+
+    /**
+     * Removes a `LivesListener` from the player.
+     * @param listener The listener to remove.
+     * @return If the listener was removed.
+     */
+    public removeLivesListener(listener: LivesListener): boolean {
+        return this.livesListeners.delete(listener);
     }
 
     /**
