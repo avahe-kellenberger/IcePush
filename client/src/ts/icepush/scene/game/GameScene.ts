@@ -55,8 +55,7 @@ export class GameScene extends Scene {
         this.addLayer(this.domLayer);
 
         const timeRenderLocation: Vector2D = new Vector2D(game.ctx.canvas.width * 0.5,
-                                                          this.domLayer.getChatbox().offsetHeight +
-                                                          this.domLayer.getChatInputBox().offsetHeight);
+                                                          game.ctx.canvas.height * 0.3);
         this.infoLayer = new InfoLayer(timeRenderLocation, 2);
         this.addLayer(this.infoLayer);
 
@@ -148,7 +147,6 @@ export class GameScene extends Scene {
                 }
 
                 // TODO: Display winners in a nice format on the screen.
-                console.log(`Winner${winnerNames.length > 1 ? 's are' : ' is'}: ${winnerNames.join(', ')}`);
                 break;
             }
 
@@ -308,8 +306,9 @@ export class GameScene extends Scene {
             if (this.roundSecondsRemaining !== undefined) {
                 this.roundSecondsRemaining = Math.max(0, this.roundSecondsRemaining - delta);
             }
+        } else {
+            this.roundSecondsRemaining = undefined;
         }
-        this.roundSecondsRemaining  = undefined;
     }
 
     // endregion
