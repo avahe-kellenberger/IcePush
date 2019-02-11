@@ -10,7 +10,7 @@ type LivesListener  = (livesRemaining: number) => void;
 
 export class Player extends GameObject {
 
-    protected static readonly defaultFontColor = 'red';
+    protected static readonly defaultFontColor = '#FF0000';
     protected static readonly localFontColor = '#db32db';
 
     private readonly name: string;
