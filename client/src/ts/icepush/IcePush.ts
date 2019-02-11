@@ -1,6 +1,6 @@
 import {Game} from "../engine/game/Game";
 import {HomeScene} from "./scene/HomeScene";
-import {GameScene} from "./scene/GameScene";
+import {GameScene} from "./scene/game/GameScene";
 import {Connection} from "./net/Connection";
 import {LogoutEvent} from "./net/events/LogoutEvent";
 import {LoginEvent} from "./net/events/LoginEvent";
@@ -150,7 +150,7 @@ export class IcePush extends Game {
     /**
      * @return The DOM element containing the game's canvas.
      */
-    public getDOMContainer(): HTMLElement {
+    public static getDOMContainer(): HTMLElement {
         const container: HTMLElement|null = document.getElementById('canvas-container');
         if (container === null) {
             throw new Error('Failed to get DOM element');

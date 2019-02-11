@@ -78,7 +78,7 @@ export class HomeScene extends Scene {
         this.addInputHandlers();
 
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.getGame().getDOMContainer();
+        const container: HTMLElement = IcePush.getDOMContainer();
         container.appendChild(this.inputUsername);
         container.appendChild(this.btnLogin);
         container.appendChild(this.btnHelp);
@@ -91,7 +91,7 @@ export class HomeScene extends Scene {
     public onSwitchedFromCurrent(): void {
         super.onSwitchedFromCurrent();
         // Call getter every time, in case the DOM is modified.
-        const container: HTMLElement = this.getGame().getDOMContainer();
+        const container: HTMLElement = IcePush.getDOMContainer();
         container.removeChild(this.inputUsername);
         container.removeChild(this.btnLogin);
         container.removeChild(this.btnHelp);
