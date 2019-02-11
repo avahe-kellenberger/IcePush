@@ -1,6 +1,7 @@
 import {Entity} from "./entity/Entity";
 import {Game} from "./Game";
 import {EventHandler, KeyHandler} from "../input/InputHandler";
+import {Layer} from "./Layer";
 
 /**
  * Represents a Scene being displayed in a game.
@@ -8,7 +9,8 @@ import {EventHandler, KeyHandler} from "../input/InputHandler";
 export class Scene implements Entity {
 
     private readonly game: Game;
-    private readonly entities: Map<number, Entity>;
+    private readonly layers: Array<Layer>;
+    private layersAreSorted: boolean;
 
     private keyHandlers: Set<KeyHandler>|undefined;
     private eventHandlers: Set<EventHandler>|undefined;
@@ -18,7 +20,8 @@ export class Scene implements Entity {
      */
     constructor(game: Game) {
         this.game = game;
-        this.entities = new Map();
+        this.layers = [];
+        this.layersAreSorted = false;
     }
 
     // region Input Handlers.
@@ -112,87 +115,77 @@ export class Scene implements Entity {
         return this.game;
     }
 
-    /**
-     * Adds an `Entity` to the game.
-     * @param id The entity's ID.
-     * @param entity The Entity to add.
-     * @return If the entity was added successfully.
-     */
-    public addEntity(id: number, entity: Entity): boolean {
-        return this.entities.size !== this.entities.set(id, entity).size;
-    }
+    // region Layers
 
     /**
-     * Checks if the scene contains the entity.
-     * @param id The entity's ID.
-     * @return If the scene contains the entity.
+     * Adds a `Layer` to the scene.
+     * @param layer The layer to add.
+     * @return If the layer was added successfully.
      */
-    public containsEntity(id: number): boolean {
-        return this.entities.get(id) !== undefined;
-    }
-
-    /**
-     * @param id The entity's ID.
-     * @return The entity associated with the ID, or `undefined` if it does not exist.
-     */
-    public getEntity(id: number): Entity|undefined {
-        return this.entities.get(id);
-    }
-
-    /**
-     * Removes an `Entity` from the game.
-     * @return If the entity was removed successfully.
-     * @param id The ID of the entity.
-     */
-    public removeEntity(id: number): boolean {
-        return this.entities.delete(id);
-    }
-
-    /**
-     * Removes all entities from the scene.
-     */
-    public removeAllEntities(): void {
-        this.entities.clear();
-    }
-
-    /**
-     * Invokes a callback on each `Entity` in the scene.
-     * @param callback The callback to invoke.
-     */
-    public forEachEntity(callback: (e?: Entity) => void): void {
-        this.entities.forEach(callback);
-    }
-
-    /**
-     * @param callback The callback to invoke on each `Entity` in the `Scene.`
-     * @param callback:e The current `Entity` being processed.
-     * @param callback:id The entity's ID.
-     * @param callback:thisArg The value to use as `this` when invoking the callback.
-     * @return If the callback function returns a true for any `Entity` in the `Scene`.
-     */
-    public someEntity(callback: (e: Entity, id?: number, thisArg?: this) => boolean): boolean {
-        const entityIterator: IterableIterator<[number, Entity]> = this.entities.entries();
-        let e: IteratorResult<[number, Entity]>;
-        while ((e = entityIterator.next()) && !e.done) {
-            if (callback(e.value[1], e.value[0])) {
-                return true;
-            }
+    public addLayer(layer: Layer): boolean {
+        const added: boolean = this.layers.length !== this.layers.push(layer);
+        if (added) {
+            this.layersAreSorted = false;
         }
-        return false;
+        return added;
+    }
+
+    /**
+     * Checks if the scene contains the layer.
+     * @param layer The layer to check.
+     * @return If the scene contains the layer.
+     */
+    public containsLayer(layer: Layer): boolean {
+        return this.layers.indexOf(layer) >= 0;
+    }
+
+    /**
+     * Removes a `Layer` from the scene.
+     * @return If the layer was removed successfully.
+     * @param layer The layer to remove.
+     */
+    public removeLayer(layer: Layer): boolean {
+        const layerIndex: number = this.layers.indexOf(layer);
+        if (layerIndex < 0) {
+            return false;
+        }
+        this.layers.splice(layerIndex, 1);
+        return true;
+    }
+
+    /**
+     * Removes all layers from the scene.
+     */
+    public removeLayers(): void {
+        this.layers.length = 0;
+    }
+
+    // endregion
+
+    /**
+     * Sorts the scene's layers according to their z-orders.
+     * @return The scene's underlying layers, after sorting.
+     */
+    protected sortLayers(): Array<Layer> {
+        if (!this.layersAreSorted) {
+            this.layers.sort((layerA, layerB) => layerA.getZOrder() - layerB.getZOrder());
+            this.layersAreSorted = true;
+        }
+        return this.layers;
     }
 
     /**
      * @override
      */
     public update(delta: number): void {
-        this.entities.forEach(e => e.update(delta));
+        this.layers.forEach(e => e.update(delta));
     }
 
     /**
      * @override
      */
     public render(ctx: CanvasRenderingContext2D): void {
-        this.entities.forEach(e => e.render(ctx));
+        this.sortLayers().forEach(e => e.render(ctx));
     }
 
 }
