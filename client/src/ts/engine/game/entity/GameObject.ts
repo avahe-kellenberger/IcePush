@@ -2,9 +2,15 @@ import {ILocatable, Locatable} from "./Locatable";
 import {Entity} from "./Entity";
 import {Vector2D} from "../../math/Vector2D";
 
+/**
+ * Invoked when the object's location changes.
+ */
+type LocationListener = (location: Vector2D) => void;
+
 export abstract class GameObject implements ILocatable, Locatable, Entity {
 
     private readonly uid: number;
+    private readonly locationListeners: Set<LocationListener>;
     private location: Vector2D;
     private velocity: Vector2D;
 
@@ -14,6 +20,7 @@ export abstract class GameObject implements ILocatable, Locatable, Entity {
      */
     constructor(uid: number, location: Vector2D = Vector2D.ZERO) {
         this.uid = uid;
+        this.locationListeners = new Set();
         this.location = location;
         this.velocity = Vector2D.ZERO;
     }
@@ -40,6 +47,7 @@ export abstract class GameObject implements ILocatable, Locatable, Entity {
             return false;
         }
         this.location = loc;
+        this.locationListeners.forEach(listener => listener(loc));
         return true;
     }
 
@@ -47,7 +55,33 @@ export abstract class GameObject implements ILocatable, Locatable, Entity {
      * @override
      */
     public translate(delta: Vector2D): void {
-        this.location = this.location.addVector(delta);
+        this.setLocation(this.location.addVector(delta));
+    }
+
+    /**
+     * Adds a `LocationListener` to the object.
+     * @param listener The listener to add.
+     * @return If the listener was added.
+     */
+    public addLocationListener(listener: LocationListener): boolean {
+        return this.locationListeners.size !== this.locationListeners.add(listener).size;
+    }
+
+    /**
+     * @param listener The listener to check.
+     * @return If the object contains the lister.
+     */
+    public containsLocationListener(listener: LocationListener): boolean {
+        return this.locationListeners.has(listener);
+    }
+
+    /**
+     * Removes a `LocationListener` from the object.
+     * @param listener The listener to remove.
+     * @return If the listener was removed.
+     */
+    public removeLocationListener(listener: LocationListener): boolean {
+        return this.locationListeners.delete(listener);
     }
 
     /**
