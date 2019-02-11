@@ -1,7 +1,6 @@
 import {Updatable} from "./entity/Updatable";
 import {Renderable} from "./ui/Renderable";
 import {ZOrder} from "./entity/ZOrder";
-import {Game} from "./Game";
 import {Entity} from "./entity/Entity";
 
 /**
@@ -15,7 +14,7 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
     /**
      * Creates a new `Scene` which manages `Entity` objects.
      */
-    constructor(game: Game, zOrder: number = 0) {
+    constructor(zOrder: number = 0) {
         this.entities = new Map();
         this.zOrder = zOrder;
     }
