@@ -66,11 +66,11 @@ export class ChatSendEvent extends ChatEvent {
 /**
  * An event sent by the server containing a message.
  */
-export class ChatReceiveEvent extends ChatEvent {
+export class ChatReceivedEvent extends ChatEvent {
     /**
      * @override
      */
     public getOPCode(): OPCode {
-        return OPCode.CHAT_RECEIVE;
+        return OPCode.CHAT_RECEIVED;
     }
 }

@@ -1,7 +1,7 @@
-import {RoundStartEvent} from "./RoundStartEvent";
+import {RoundStartedEvent} from "./RoundStartedEvent";
 import {OPCode} from "../NetworkEventBuffer";
 
-export class RoundStartCountdownEvent extends RoundStartEvent {
+export class RoundStartCountdownEvent extends RoundStartedEvent {
 
     /**
      * @override

@@ -8,7 +8,7 @@ import {Layer} from "./Layer";
  */
 export class Scene implements Entity {
 
-    private readonly game: Game;
+    protected readonly game: Game;
     private readonly layers: Array<Layer>;
     private layersAreSorted: boolean;
 

@@ -3,8 +3,8 @@ import {NetworkEvent} from "./NetworkEvent";
 import {PingEvent} from "./events/PingEvent";
 import {NewPlayerEvent} from "./events/NewPlayerEvent";
 import {PlayerMovedEvent} from "./events/PlayerMovedEvent";
-import {ChatReceiveEvent} from "./events/ChatEvent";
-import {RoundStartEvent} from "./events/RoundStartEvent";
+import {ChatReceivedEvent} from "./events/ChatEvent";
+import {RoundStartedEvent} from "./events/RoundStartedEvent";
 import {FailureEvent} from "./events/FailureEvent";
 import {SuccessEvent} from "./events/SuccessEvent";
 import {PlayerLoggedOutEvent} from "./events/PlayerLoggedOutEvent";
@@ -29,9 +29,9 @@ export enum OPCode {
     PLAYER_LOGGED_OUT = 11,
     PLAYER_LIVES_CHANGED = 12,
     CHAT_SEND = 16,
-    CHAT_RECEIVE = 17,
+    CHAT_RECEIVED = 17,
     ROUND_WINNERS = 20,
-    ROUND_START = 21,
+    ROUND_STARTED = 21,
     ROUND_START_COUNTDOWN = 22
 }
 
@@ -46,9 +46,9 @@ function mapOPCodeEvents(): Map<number, new (...args: any[]) => NetworkEvent> {
         [OPCode.PLAYER_MOVED, PlayerMovedEvent],
         [OPCode.PLAYER_LOGGED_OUT, PlayerLoggedOutEvent],
         [OPCode.PLAYER_LIVES_CHANGED, PlayerLivesChangedEvent],
-        [OPCode.CHAT_RECEIVE, ChatReceiveEvent],
+        [OPCode.CHAT_RECEIVED, ChatReceivedEvent],
         [OPCode.ROUND_WINNERS, RoundWinnersEvent],
-        [OPCode.ROUND_START, RoundStartEvent],
+        [OPCode.ROUND_STARTED, RoundStartedEvent],
         [OPCode.ROUND_START_COUNTDOWN, RoundStartCountdownEvent]
     ]);
 }

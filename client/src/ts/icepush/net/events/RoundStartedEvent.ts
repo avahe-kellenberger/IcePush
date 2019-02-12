@@ -5,7 +5,7 @@ import {OPCode} from "../NetworkEventBuffer";
 /**
  * Sent from server to client, informing of the amount of timeMilliseconds remaining in the game.
  */
-export class RoundStartEvent extends NetworkEvent {
+export class RoundStartedEvent extends NetworkEvent {
 
     private static readonly BINARY_SIZE: number = 2;
 
@@ -41,14 +41,14 @@ export class RoundStartEvent extends NetworkEvent {
      * @override
      */
     public getEventSize(): number {
-        return RoundStartEvent.BINARY_SIZE;
+        return RoundStartedEvent.BINARY_SIZE;
     }
 
     /**
      * @override
      */
     public getOPCode(): OPCode {
-        return OPCode.ROUND_START;
+        return OPCode.ROUND_STARTED;
     }
 
     /**

@@ -5,10 +5,10 @@ import {Player} from "../../entity/Player";
 import {Connection} from "../../net/Connection";
 import {Entity} from "../../../engine/game/entity/Entity";
 import {NewPlayerEvent} from "../../net/events/NewPlayerEvent";
-import {ChatReceiveEvent, ChatSendEvent} from "../../net/events/ChatEvent";
+import {ChatReceivedEvent, ChatSendEvent} from "../../net/events/ChatEvent";
 import {PingEvent} from "../../net/events/PingEvent";
 import {Time} from "../../../engine/time/Time";
-import {RoundStartEvent} from "../../net/events/RoundStartEvent";
+import {RoundStartedEvent} from "../../net/events/RoundStartedEvent";
 import {MoveRequestEvent} from "../../net/events/MoveRequestEvent";
 import {EndMoveEvent} from "../../net/events/EndMoveEvent";
 import {OPCode} from "../../net/NetworkEventBuffer";
@@ -29,13 +29,13 @@ export class GameScene extends Scene {
 
     private readonly playerID: number;
     private readonly connection: Connection;
+    private readonly networkEventFunctionMap: Map<OPCode, Function>;
 
     private readonly gameplayLayer: GameplayLayer;
     private readonly infoLayer: InfoLayer;
     private readonly domLayer: DOMLayer;
 
     private previousAngle: number|undefined;
-
     private roundSecondsRemaining: number|undefined;
 
     /**
@@ -46,6 +46,8 @@ export class GameScene extends Scene {
     constructor(game: IcePush, playerID: number) {
         super(game);
         this.playerID = playerID;
+
+        // region Layer configurations
 
         this.gameplayLayer = new GameplayLayer();
         this.addLayer(this.gameplayLayer);
@@ -61,88 +63,50 @@ export class GameScene extends Scene {
         // Log out if button is clicked.
         this.domLayer.addLogoutClickListener(() => this.getGame().logout());
 
-        // Process connection last.
+        // endregion
+
+        this.networkEventFunctionMap = new Map();
+        this.networkEventFunctionMap.set(OPCode.PING, this.onPingEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.NEW_PLAYER, this.onNewPlayerEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.PLAYER_MOVED, this.onPlayerMovedEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.PLAYER_LIVES_CHANGED, this.onPlayerLivesChangedEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.PLAYER_LOGGED_OUT, this.onPlayerLoggedOutEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.CHAT_RECEIVED, this.onChatReceivedEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.ROUND_STARTED, this.onRoundStartedEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.ROUND_WINNERS, this.onRoundWinnersEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.ROUND_START_COUNTDOWN, this.onRoundStartCountdownEvent.bind(this));
+
+        // region Process connection last
         const connection: Connection|undefined = this.getGame().getConnection();
         if (connection === undefined) {
             throw new Error(`The Game's connection should not be null.`);
         }
         this.connection = connection;
         this.connection.addDataReceivedListener(buffer => buffer.getEvents().forEach(this.handleNetworkEvent.bind(this)));
-
+        // endregion
     }
 
     /**
      * Handles events received from the server.
-     * @param e The event to handle.
+     * @param event The event to handle.
      */
-    private handleNetworkEvent(e: NetworkEvent): void {
-        switch (e.getOPCode()) {
-            case OPCode.PING: {
-                this.connection.enqueueEvent(new PingEvent());
-                break;
-            }
-
-            case OPCode.NEW_PLAYER: {
-                const event: NewPlayerEvent = e as NewPlayerEvent;
-                this.onNewPlayerEvent(event);
-                break;
-            }
-
-            case OPCode.PLAYER_MOVED: {
-                const event: PlayerMovedEvent = e as PlayerMovedEvent;
-                this.onPlayerMoveEvent(event);
-                break;
-            }
-
-            case OPCode.PLAYER_LIVES_CHANGED: {
-                const event: PlayerLivesChangedEvent = e as PlayerLivesChangedEvent;
-                this.onPlayerLivesChangedEvent(event);
-                break;
-            }
-
-            case OPCode.PLAYER_LOGGED_OUT: {
-                const event: PlayerLoggedOutEvent = e as PlayerLoggedOutEvent;
-                this.onPlayerLoggedOutEvent(event);
-                break;
-            }
-
-            case OPCode.CHAT_RECEIVE: {
-                const chatMessage: string = (e as ChatReceiveEvent).chatMessage;
-                this.domLayer.addChatMessage(chatMessage);
-                break;
-            }
-
-            case OPCode.ROUND_START: {
-                const event: RoundStartEvent = (e as RoundStartEvent);
-                this.onRoundStartEvent(event);
-                break;
-            }
-
-            case OPCode.ROUND_WINNERS: {
-                const event: RoundWinnersEvent = e as RoundWinnersEvent;
-
-                const winnerNames: string[] = [];
-                for (const id of event.winnerIDs) {
-                    const entity: Entity|undefined = this.gameplayLayer.getObject(id);
-                    if (entity instanceof Player) {
-                        winnerNames.push(entity.getName());
-                    }
-                }
-
-                // TODO: Display winners in a nice format on the screen.
-                break;
-            }
-
-            case OPCode.ROUND_START_COUNTDOWN: {
-                this.roundSecondsRemaining = (e as RoundStartCountdownEvent).timeMilliseconds / 1000;
-                this.infoLayer.setIsRoundCountingDown(true);
-                break;
-            }
-
+    private handleNetworkEvent(event: NetworkEvent): void {
+        // Dispatch the appropriate event type to its functional counterpart.
+        const eventHandler: Function|undefined = this.networkEventFunctionMap.get(event.getOPCode());
+        if (eventHandler !== undefined) {
+            eventHandler(event);
         }
     }
 
     // region Player Event Receivers
+
+    /**
+     * Invoked when a `PingEvent` is received.
+     * @param event The received event.
+     */
+    private onPingEvent(event: PingEvent): void {
+        this.connection.enqueueEvent(new PingEvent());
+    }
 
     /**
      * Invoked when a `NewPlayerEvent` is received.
@@ -167,10 +131,19 @@ export class GameScene extends Scene {
     }
 
     /**
+     * Invoked when a `ChatReceivedEvent` is received.
+     * @param event The received event.
+     */
+    private onChatReceivedEvent(event: ChatReceivedEvent): void {
+        const chatMessage: string = event.chatMessage;
+        this.domLayer.addChatMessage(chatMessage);
+    }
+
+    /**
      * Invoked when a `PlayerMovedEvent` is received.
      * @param event The received event.
      */
-    private onPlayerMoveEvent(event: PlayerMovedEvent): void {
+    private onPlayerMovedEvent(event: PlayerMovedEvent): void {
         const player: Entity|undefined = this.gameplayLayer.getObject(event.playerID);
         if (player instanceof Player) {
             const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
@@ -199,12 +172,38 @@ export class GameScene extends Scene {
     }
 
     /**
-     * Invoked when a `RoundStartEvent` is received.
+     * Invoked when a `RoundStartedEvent` is received.
      * @param event The received event.
      */
-    private onRoundStartEvent(event: RoundStartEvent): void {
+    private onRoundStartedEvent(event: RoundStartedEvent): void {
         this.roundSecondsRemaining = event.timeMilliseconds / 1000;
         this.infoLayer.setIsRoundCountingDown(false);
+    }
+
+    /**
+     * Invoked when a `RoundWinnersEvent` is received.
+     * @param event The received event.
+     */
+    private onRoundWinnersEvent(event: RoundWinnersEvent): void {
+        const winnerNames: string[] = [];
+        for (const id of event.winnerIDs) {
+            const entity: Entity|undefined = this.gameplayLayer.getObject(id);
+            if (entity instanceof Player) {
+                winnerNames.push(entity.getName());
+            }
+        }
+
+        // TODO: Display winners in a nice format on the screen.
+        console.log(`Round Winner(s): ${winnerNames.join(', ')}`);
+    }
+
+    /**
+     * Invoked when a `RoundStartCountdownEvent` is received.
+     * @param event The received event.
+     */
+    private onRoundStartCountdownEvent(event: RoundStartCountdownEvent): void {
+        this.roundSecondsRemaining = event.timeMilliseconds / 1000;
+        this.infoLayer.setIsRoundCountingDown(true);
     }
 
     // endregion
