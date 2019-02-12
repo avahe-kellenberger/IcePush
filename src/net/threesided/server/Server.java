@@ -324,15 +324,15 @@ public class Server implements Runnable {
                 Server.roundMillisRemaining = Server.roundLength;
                 this.notifyNewRound(Server.roundMillisRemaining);
             } else if (Server.roundMillisRemaining == 0) {
-                this.updateWinners(this.getWinners());
-                if (InternetRelayChat.sendWinner) {
-                    InternetRelayChat.sendMessage(this.victoryString);
-                }
 
                 if (this.victoryLap) {
                     Server.roundMillisRemaining = Server.roundLength;
                     this.notifyNewRound(Server.roundMillisRemaining);
                 } else {
+                    this.updateWinners(this.getWinners());
+                    if (InternetRelayChat.sendWinner) {
+                        InternetRelayChat.sendMessage(this.victoryString);
+                    }
                     Server.roundMillisRemaining = Server.VICTORY_DELAY;
                     this.notifyVictoryLap(Server.roundMillisRemaining);
                 }
