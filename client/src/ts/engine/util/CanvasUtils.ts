@@ -79,6 +79,25 @@ export class CanvasUtils {
     }
 
     /**
+     * Renders multiple lines of text from within one string, separated by the CR character.
+     * @param ctx The context to render upon.
+     * @param str The string to render.
+     * @param x The x location to render.
+     * @param y The y location to render.
+     * @param fontSize The size of the font.
+     */
+    public static fillTextMultiline(ctx: CanvasRenderingContext2D, str: string, x: number, y: number, fontSize: number): void {
+        const lines: string[] = str.split('\n');
+        const lineHeight: number = fontSize * 1.2;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (const line of lines) {
+            ctx.fillText(line, x, y);
+            y += lineHeight;
+        }
+    }
+
+    /**
      * @param canvas The canvas to trim.
      * @returns The given canvas with the sides trimmed of all completely transparent pixels.
      */

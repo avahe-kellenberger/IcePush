@@ -1,21 +1,20 @@
 import {Updatable} from "./entity/Updatable";
 import {Renderable} from "./ui/Renderable";
 import {ZOrder} from "./entity/ZOrder";
-import {Entity} from "./entity/Entity";
 
 /**
  *
  */
 export abstract class Layer implements ZOrder, Updatable, Renderable {
 
-    private readonly entities: Map<number, Entity>;
+    private readonly objects: Map<number, Updatable&Renderable>;
     private zOrder: number;
 
     /**
-     * Creates a new `Scene` which manages `Entity` objects.
+     * Creates a new `Scene` that manages objects which are `Updatable & Renderable`.
      */
     constructor(zOrder: number = 0) {
-        this.entities = new Map();
+        this.objects = new Map();
         this.zOrder = zOrder;
     }
 
@@ -40,67 +39,67 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
     // region Entity
 
     /**
-     * Adds an `Entity` to the game.
-     * @param id The entity's ID.
-     * @param entity The Entity to add.
-     * @return If the entity was added successfully.
+     * @param id The object's ID.
+     * @return The object associated with the ID, or `undefined` if it does not exist.
      */
-    public addEntity(id: number, entity: Entity): boolean {
-        return this.entities.size !== this.entities.set(id, entity).size;
+    public getObject(id: number): Updatable&Renderable|undefined {
+        return this.objects.get(id);
     }
 
     /**
-     * Checks if the scene contains the entity.
-     * @param id The entity's ID.
-     * @return If the scene contains the entity.
+     * Checks if the scene contains the object.
+     * @param id The object's ID.
+     * @return If the scene contains the object.
      */
-    public containsEntity(id: number): boolean {
-        return this.entities.get(id) !== undefined;
+    public containsObject(id: number): boolean {
+        return this.objects.get(id) !== undefined;
     }
 
     /**
-     * @param id The entity's ID.
-     * @return The entity associated with the ID, or `undefined` if it does not exist.
+     * Adds an object to the game.
+     * @param id The object's ID.
+     * @param object The object to add.
+     * @return If the object was added successfully.
      */
-    public getEntity(id: number): Entity|undefined {
-        return this.entities.get(id);
+    public setObject(id: number, object: Updatable&Renderable): boolean {
+        return this.objects.size !== this.objects.set(id, object).size;
     }
 
     /**
-     * Removes an `Entity` from the game.
-     * @return If the entity was removed successfully.
-     * @param id The ID of the entity.
+     * Removes an object from the game.
+     * @return If the object was removed successfully.
+     * @param id The ID of the object.
      */
-    public removeEntity(id: number): boolean {
-        return this.entities.delete(id);
+    public removeObject(id: number): boolean {
+        return this.objects.delete(id);
     }
 
     /**
-     * Removes all entities from the scene.
+     * Removes all objects from the scene.
      */
     public removeAllEntities(): void {
-        this.entities.clear();
+        this.objects.clear();
     }
 
     /**
-     * Invokes a callback on each `Entity` in the scene.
+     * Invokes a callback on each object in the scene.
      * @param callback The callback to invoke.
      */
-    public forEachEntity(callback: (e?: Entity) => void): void {
-        this.entities.forEach(callback);
+    public forEachEntity(callback: (e?: Updatable&Renderable) => void): void {
+        this.objects.forEach(callback);
     }
 
     /**
-     * @param callback The callback to invoke on each `Entity` in the `Scene.`
-     * @param callback:e The current `Entity` being processed.
-     * @param callback:id The entity's ID.
+     * @param callback The callback to invoke on each object in the scene.
+     * @param callback:e The current object being processed.
+     * @param callback:id The object's ID.
      * @param callback:thisArg The value to use as `this` when invoking the callback.
-     * @return If the callback function returns a true for any `Entity` in the `Scene`.
+     * @return If the callback function returns a true for any object in the scene.
      */
-    public someEntity(callback: (e: Entity, id?: number, thisArg?: this) => boolean): boolean {
-        const entityIterator: IterableIterator<[number, Entity]> = this.entities.entries();
-        let e: IteratorResult<[number, Entity]>;
-        while ((e = entityIterator.next()) && !e.done) {
+    public someEntity(callback: (e: Updatable&Renderable, id?: number, thisArg?: this) => boolean): boolean {
+        const objectIterator: IterableIterator<[number, Updatable&Renderable]> = this.objects.entries();
+        let e: IteratorResult<[number, Updatable&Renderable]>;
+        while ((e = objectIterator.next()) && !e.done) {
             if (callback(e.value[1], e.value[0])) {
                 return true;
             }
@@ -114,14 +113,14 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
      * @override
      */
     public update(delta: number): void {
-        this.entities.forEach(e => e.update(delta));
+        this.objects.forEach(e => e.update(delta));
     }
 
     /**
      * @override
      */
     public render(ctx: CanvasRenderingContext2D): void {
-        this.entities.forEach(e => e.render(ctx));
+        this.objects.forEach(e => e.render(ctx));
     }
 
 }

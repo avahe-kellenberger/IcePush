@@ -1,7 +1,6 @@
 import {GameObject} from "../../engine/game/entity/GameObject";
 import {Vector2D} from "../../engine/math/Vector2D";
 import {Assets} from "../asset/Assets";
-import {CanvasUtils} from "../../engine/util/CanvasUtils";
 
 /**
  * A listener which is invoked when there is a change to the number of lives of the player.
@@ -10,20 +9,11 @@ type LivesListener  = (livesRemaining: number) => void;
 
 export class Player extends GameObject {
 
-    protected static readonly defaultFontColor = '#FF0000';
-    protected static readonly localFontColor = '#db32db';
-
     private readonly name: string;
-    private nameCanvas: HTMLCanvasElement|undefined;
-
     private readonly sprite: HTMLCanvasElement;
     private readonly type: Player.Type;
-
     private readonly livesListeners: Set<LivesListener>;
     private lives: number;
-    private livesCanvas: HTMLCanvasElement|undefined;
-
-    private fontColor: string;
 
     /**
      * Creates a new player.
@@ -39,7 +29,6 @@ export class Player extends GameObject {
         this.lives = lives;
         this.livesListeners = new Set();
         this.sprite = Player.getImage(type);
-        this.fontColor = Player.defaultFontColor;
     }
 
     /**
@@ -61,7 +50,6 @@ export class Player extends GameObject {
      */
     public setLives(lives: number): void {
         this.lives = lives;
-        this.livesCanvas = undefined;
         this.livesListeners.forEach(listener => listener(lives));
     }
 
@@ -99,22 +87,10 @@ export class Player extends GameObject {
     }
 
     /**
-     * @return The current font color used for rendering information.
+     * @return The player's sprite.
      */
-    public getFontColor(): string {
-        return this.fontColor;
-    }
-
-    /**
-     * @param color The font color used for rendering information.
-     * @return If the color was changed.
-     */
-    public setFontColor(color: string): boolean {
-        if (color === this.fontColor) {
-            return false;
-        }
-        this.fontColor = color;
-        return true;
+    public getSprite(): HTMLCanvasElement {
+        return this.sprite;
     }
 
     /**
@@ -124,17 +100,6 @@ export class Player extends GameObject {
         const center: Vector2D = this.getLocation();
         const top: number = center.y - this.sprite.height * 0.5;
         ctx.drawImage(this.sprite, center.x - this.sprite.width * 0.5, top);
-
-        if (this.nameCanvas === undefined) {
-            this.nameCanvas = CanvasUtils.stringToCanvas(this.name, '14px Arial', this.fontColor);
-        }
-        ctx.drawImage(this.nameCanvas, center.x - this.nameCanvas.width * 0.5, top - this.nameCanvas.height * 2);
-
-
-        if (this.livesCanvas === undefined) {
-            this.livesCanvas = CanvasUtils.stringToCanvas(`Lives: ${this.lives}`, '14px Arial', this.fontColor);
-        }
-        ctx.drawImage(this.livesCanvas, center.x - this.livesCanvas.width * 0.5, top - this.livesCanvas.height);
     }
 
 }

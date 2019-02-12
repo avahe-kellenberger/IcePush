@@ -18,10 +18,9 @@ import {PlayerMovedEvent} from "../../net/events/PlayerMovedEvent";
 import {PlayerLivesChangedEvent} from "../../net/events/PlayerLivedChangedEvent";
 import {RoundWinnersEvent} from "../../net/events/RoundWinnersEvent";
 import {RoundStartCountdownEvent} from "../../net/events/RoundStartCountdownEvent";
-import {LocalPlayer} from "../../entity/LocalPlayer";
 import {GameplayLayer} from "./GameplayLayer";
 import {DOMLayer} from "./DOMLayer";
-import {InfoLayer} from "./InfoLayer";
+import {InfoLayer, InfoPane} from "./InfoLayer";
 import {Vector2D} from "../../../engine/math/Vector2D";
 
 export class GameScene extends Scene {
@@ -85,41 +84,25 @@ export class GameScene extends Scene {
 
             case OPCode.NEW_PLAYER: {
                 const event: NewPlayerEvent = e as NewPlayerEvent;
-                const isLocalPlayer: boolean = event.playerID === this.playerID;
-
-                const player: Player = isLocalPlayer ?
-                    new LocalPlayer(event.playerID, event.username, event.type, event.lives) :
-                    new Player(event.playerID, event.username, event.type, event.lives);
-
-                this.gameplayLayer.addEntity(event.playerID, player);
+                this.onNewPlayerEvent(event);
                 break;
             }
 
-            case OPCode.PLAYER_MOVE: {
+            case OPCode.PLAYER_MOVED: {
                 const event: PlayerMovedEvent = e as PlayerMovedEvent;
-                const player: Entity|undefined = this.gameplayLayer.getEntity(event.playerID);
-                if (player instanceof Player) {
-                    const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
-                    player.setLocation(event.location.addVector(icePlatformTopLeft));
-                }
+                this.onPlayerMoveEvent(event);
                 break;
             }
 
             case OPCode.PLAYER_LIVES_CHANGED: {
                 const event: PlayerLivesChangedEvent = e as PlayerLivesChangedEvent;
-                const player: Player|undefined = this.gameplayLayer.getEntity(event.playerID) as Player|undefined;
-                if (player !== undefined) {
-                    player.setLives(event.lives);
-                    if (player.getLives() === 0) {
-                        this.gameplayLayer.removeEntity(event.playerID);
-                    }
-                }
+                this.onPlayerLivesChangedEvent(event);
                 break;
             }
 
             case OPCode.PLAYER_LOGGED_OUT: {
                 const event: PlayerLoggedOutEvent = e as PlayerLoggedOutEvent;
-                this.gameplayLayer.removeEntity(event.playerID);
+                this.onPlayerLoggedOutEvent(event);
                 break;
             }
 
@@ -130,8 +113,8 @@ export class GameScene extends Scene {
             }
 
             case OPCode.ROUND_START: {
-                this.roundSecondsRemaining = (e as RoundStartEvent).timeMilliseconds / 1000;
-                this.infoLayer.setIsRoundCountingDown(false);
+                const event: RoundStartEvent = (e as RoundStartEvent);
+                this.onRoundStartEvent(event);
                 break;
             }
 
@@ -140,7 +123,7 @@ export class GameScene extends Scene {
 
                 const winnerNames: string[] = [];
                 for (const id of event.winnerIDs) {
-                    const entity: Entity|undefined = this.gameplayLayer.getEntity(id);
+                    const entity: Entity|undefined = this.gameplayLayer.getObject(id);
                     if (entity instanceof Player) {
                         winnerNames.push(entity.getName());
                     }
@@ -158,6 +141,73 @@ export class GameScene extends Scene {
 
         }
     }
+
+    // region Player Event Receivers
+
+    /**
+     * Invoked when a `NewPlayerEvent` is received.
+     * @param event The received event.
+     */
+    private onNewPlayerEvent(event: NewPlayerEvent): void {
+        const player: Player = new Player(event.playerID, event.username, event.type, event.lives);
+        this.gameplayLayer.setObject(event.playerID, player);
+
+        const isLocalPlayer: boolean = event.playerID === this.playerID;
+        const fontColor: string = isLocalPlayer ? InfoPane.LOCAL_PLAYER_FONT_COLOR : InfoPane.DEFAULT_FONT_COLOR;
+        const playerInfoPane: InfoPane = new InfoPane(`${player.getName()}\nLives:${player.getLives()}`, fontColor);
+        this.infoLayer.setObject(event.playerID, playerInfoPane);
+    }
+
+    /**
+     * Invoked when a `PlayerLoggedOutEvent` is received.
+     * @param event The received event.
+     */
+    private onPlayerLoggedOutEvent(event: PlayerLoggedOutEvent): void {
+        this.gameplayLayer.removeObject(event.playerID);
+    }
+
+    /**
+     * Invoked when a `PlayerMovedEvent` is received.
+     * @param event The received event.
+     */
+    private onPlayerMoveEvent(event: PlayerMovedEvent): void {
+        const player: Entity|undefined = this.gameplayLayer.getObject(event.playerID);
+        if (player instanceof Player) {
+            const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
+            const playerLoc: Vector2D = event.location.addVector(icePlatformTopLeft);
+            player.setLocation(playerLoc);
+
+            const infoPane: InfoPane = this.infoLayer.getObject(event.playerID) as InfoPane;
+            const infoPaneLocation: Vector2D = playerLoc.subtract(0,  player.getSprite().height);
+            infoPane.setLocation(infoPaneLocation);
+        }
+    }
+
+    /**
+     * Invoked when a `PlayerLivesChangedEvent` is received.
+     * @param event The received event.
+     */
+    private onPlayerLivesChangedEvent(event: PlayerLivesChangedEvent): void {
+        const player: Player|undefined = this.gameplayLayer.getObject(event.playerID) as Player|undefined;
+        if (player !== undefined) {
+            player.setLives(event.lives);
+            if (player.getLives() === 0) {
+                this.gameplayLayer.removeObject(event.playerID);
+                this.infoLayer.removeObject(event.playerID);
+            }
+        }
+    }
+
+    /**
+     * Invoked when a `RoundStartEvent` is received.
+     * @param event The received event.
+     */
+    private onRoundStartEvent(event: RoundStartEvent): void {
+        this.roundSecondsRemaining = event.timeMilliseconds / 1000;
+        this.infoLayer.setIsRoundCountingDown(false);
+    }
+
+    // endregion
 
     /**
      * Creates the game's chatbox KeyHandler.

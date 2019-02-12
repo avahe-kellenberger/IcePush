@@ -53,7 +53,7 @@ export class PlayerMovedEvent extends NetworkEvent {
      * @override
      */
     public getOPCode(): OPCode {
-        return OPCode.PLAYER_MOVE;
+        return OPCode.PLAYER_MOVED;
     }
 
     /**
