@@ -131,9 +131,9 @@ export class Connection {
      */
     private onClose(e: CloseEvent): void {
         // TODO: Cleanup game/notify listeners
-        console.log(`Connection closed with code ${e.code}`);
+        console.error(`Connection closed with code ${e.code}`);
         if (e.reason.length > 0) {
-            console.log(`Reason: ${e.reason}`);
+            console.error(`Reason: ${e.reason}`);
         }
     }
 

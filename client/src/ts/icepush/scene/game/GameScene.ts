@@ -55,8 +55,8 @@ export class GameScene extends Scene {
         this.domLayer = new DOMLayer(3);
         this.addLayer(this.domLayer);
 
-        const timeRenderLocation: Vector2D = new Vector2D(game.ctx.canvas.width * 0.5,
-                                                          game.ctx.canvas.height * 0.3);
+        const timeRenderLocation: Vector2D = new Vector2D(this.game.ctx.canvas.width * 0.5,
+                                                          this.game.ctx.canvas.height * 0.3);
         this.infoLayer = new InfoLayer(timeRenderLocation, 2);
         this.addLayer(this.infoLayer);
 

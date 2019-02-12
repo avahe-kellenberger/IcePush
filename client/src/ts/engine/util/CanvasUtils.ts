@@ -87,14 +87,23 @@ export class CanvasUtils {
      * @param fontSize The size of the font.
      */
     public static fillTextMultiline(ctx: CanvasRenderingContext2D, str: string, x: number, y: number, fontSize: number): void {
-        const lines: string[] = str.split('\n');
-        const lineHeight: number = fontSize * 1.2;
+        // Cache old canvas settings.
+        const oldTextAlign = ctx.textAlign;
+        const oldTextBaseline = ctx.textBaseline;
+
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
+        const lines: string[] = str.split('\n');
+        const lineHeight: number = fontSize * 1.2;
         for (const line of lines) {
             ctx.fillText(line, x, y);
             y += lineHeight;
         }
+
+        // Restore old canvas settings.
+        ctx.textAlign = oldTextAlign;
+        ctx.textBaseline = oldTextBaseline;
     }
 
     /**

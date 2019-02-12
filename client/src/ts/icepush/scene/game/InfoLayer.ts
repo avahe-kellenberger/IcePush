@@ -171,7 +171,6 @@ export class InfoLayer extends Layer {
         const fontSize: number = 14;
         ctx.font = `${fontSize}px Arial`;
 
-
         const minutes: number = Math.floor(seconds / 60);
         seconds -= minutes * 60;
         const secondsTruncated: string = Math.ceil(seconds).toString();
