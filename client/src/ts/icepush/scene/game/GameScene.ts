@@ -128,6 +128,7 @@ export class GameScene extends Scene {
      */
     private onPlayerLoggedOutEvent(event: PlayerLoggedOutEvent): void {
         this.gameplayLayer.removeObject(event.playerID);
+        this.infoLayer.removeObject(event.playerID);
     }
 
     /**
