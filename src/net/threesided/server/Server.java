@@ -5,11 +5,16 @@ import net.threesided.server.net.event.OPCode;
 import net.threesided.server.net.event.ServerNetworkEvent;
 import net.threesided.server.net.event.events.client.LoginEvent;
 import net.threesided.server.net.event.events.server.FailureEvent;
+import net.threesided.server.net.event.events.server.LoginSuccessEvent;
 import net.threesided.server.physics2d.Updatable;
 import net.threesided.shared.Constants;
 import net.threesided.shared.InterthreadQueue;
+import net.threesided.shared.MathUtils;
+import net.threesided.shared.Vector2D;
 import net.threesided.util.LoopedThreadedTask;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +23,8 @@ import java.util.function.Supplier;
 public class Server implements Updatable {
 
     private final Game game;
-    private final InterthreadQueue<Socket> incomingConnections;
+    private final Rectangle2D gameArea;
+    private final InterthreadQueue<WebSocketBuffer> incomingConnections;
     private final InterthreadQueue<ServerNetworkEvent> serverEventQueue;
     private final LoopedThreadedTask gameLoopTask, clientConnectionAcceptorTask;
 
@@ -34,6 +40,7 @@ public class Server implements Updatable {
      */
     public Server() {
         this.game = new Game();
+        this.gameArea = new Rectangle(28, 30, 746, 424);
         this.incomingConnections = new InterthreadQueue<>();
         this.serverEventQueue = new InterthreadQueue<>();
 
@@ -80,61 +87,50 @@ public class Server implements Updatable {
     private void acceptConnections() {
         try {
             final Socket socket = this.serverSocket.accept();
-            final WebSocketBuffer clientSocketBuffer = this.constructClientConnection(socket);
-
-            // Terminate the connection if it was not successful.
-            if (clientSocketBuffer == null || !this.tryAddNewPlayer(clientSocketBuffer)) {
-                socket.close();
-            }
-        } catch (final IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Processes the newly connected socket and checks for validity.
-     * @param socket The client socket to process after a connection is established.
-     * @return A WebSocketBuffer connected to the client, or null if the connection failed to validate.
-     */
-    private WebSocketBuffer constructClientConnection(final Socket socket) {
-        try {
             socket.setTcpNoDelay(true);
-            this.incomingConnections.push(socket);
-            final WebSocketBuffer clientSocketBuffer = new WebSocketBuffer(socket);
-            if (!this.isNewConnectionValid(clientSocketBuffer)) {
-                return null;
-            }
-            return clientSocketBuffer;
+            this.incomingConnections.push(new WebSocketBuffer(socket));
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
-        return null;
     }
 
     /**
-     * Attempts to create and add a player from the incoming connection.
-     * @param clientSocketBuffer The socket to the new player.
-     * @return If the player was successfully added to the game.
+     * Processes incoming client connections.
      */
-    private boolean tryAddNewPlayer(final WebSocketBuffer clientSocketBuffer) {
-        final LoginEvent loginEvent = this.waitForPlayerLogin(clientSocketBuffer);
-        if (!this.validateLogin(clientSocketBuffer, loginEvent)) {
+    private void processConnectingPlayers() {
+        WebSocketBuffer clientSocketBuffer;
+        while ((clientSocketBuffer = this.incomingConnections.pull()) != null) {
+            this.processNewPlayerConnection(clientSocketBuffer);
+        }
+    }
+
+    /**
+     *
+     * @param clientSocketBuffer The buffer associated with the newly connecting player.
+     * @return
+     */
+    private boolean processNewPlayerConnection(final WebSocketBuffer clientSocketBuffer) {
+        if (!this.isNewConnectionValid(clientSocketBuffer)) {
             return false;
         }
 
-        if (this.isGameFull()) {
-            final FailureEvent event = new FailureEvent(clientSocketBuffer, "There are too many players online.");
-            this.enqueueEvent(event);
+        final Player player = this.tryCreateNewPlayer(clientSocketBuffer);
+        if (player == null) {
             return false;
         }
 
-        final Player player = this.createNewPlayer(loginEvent.playerName);
+        // Successfully created a new player - add it to the server.
         this.addNewPlayer(player, clientSocketBuffer);
 
-        // TODO: Enqueue login success event to player
-        // TODO: Enqueue player logged in event to players
+        // Enqueue login success event to the new player.
+        this.enqueueEvent(new LoginSuccessEvent(clientSocketBuffer, player.getID()));
 
-        // TODO: Set player's position, which should automatically trigger move events
+        // TODO: Enqueue player logged in event to all players.
+        // new NewPlayerEvent(this.players, player.getID(), player.getType(), player.getUsername(), player.getLives());
+
+        // Set player's initial position.
+        final Vector2D randomLocation = this.getRandomGameAreaLocation();
+        player.setLocation(randomLocation);
 
         // TODO: Notify new player of the current round or victory lap with time remaining.
 
@@ -142,11 +138,46 @@ public class Server implements Updatable {
     }
 
     /**
-     * Waits for the client to send data for a LoginEvent.
-     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
-     * @return A LoginEvent constructed from data sent by the client.
+     * @return A random point within the game's play area.
      */
-    private LoginEvent waitForPlayerLogin(final WebSocketBuffer clientSocketBuffer) {
+    private Vector2D getRandomGameAreaLocation() {
+        final double randomX = MathUtils.random(this.gameArea.getMinX(), this.gameArea.getMaxX());
+        final double randomY = MathUtils.random(this.gameArea.getMinY(), this.gameArea.getMaxY());
+        return new Vector2D(randomX, randomY);
+    }
+
+    /**
+     * Attempts to create a player from the incoming connection.
+     *
+     * This method will return null if either:
+     * A. The data sent by the player to login is incomplete or failed (see Server#readPlayerLoginPacket).
+     * B. The current world is full.
+     *
+     * @param clientSocketBuffer The socket to the new player.
+     * @return A player created by the data stored in the Buffer via the client's connection.
+     */
+    private Player tryCreateNewPlayer(final WebSocketBuffer clientSocketBuffer) {
+        final LoginEvent loginEvent = this.readPlayerLoginPacket(clientSocketBuffer);
+        if (!this.validateLogin(clientSocketBuffer, loginEvent)) {
+            return null;
+        }
+
+        if (this.isGameFull()) {
+            final FailureEvent event = new FailureEvent(clientSocketBuffer, "There are too many players online.");
+            this.enqueueEvent(event);
+            return null;
+        }
+        return this.createNewPlayer(loginEvent.playerName);
+    }
+
+    /**
+     * Attempts to read data from the `WebSocketBuffer` to create a `LoginEvent`.
+     * This data may have not been sent yet, and will result in returning `null`.
+     *
+     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
+     * @return A LoginEvent constructed from data sent by the client, or null.
+     */
+    private LoginEvent readPlayerLoginPacket(final WebSocketBuffer clientSocketBuffer) {
         final int opcode = clientSocketBuffer.openPacket();
         if (OPCode.getByValue(opcode) != OPCode.LOGIN) {
             return null;
@@ -179,7 +210,7 @@ public class Server implements Updatable {
             return false;
         }
 
-        // Successful login
+        // Successful login.
         return true;
     }
 
@@ -191,7 +222,6 @@ public class Server implements Updatable {
      * @return If the new connection is in a valid state for the game.
      */
     private boolean isNewConnectionValid(final WebSocketBuffer webSocketBuffer) {
-        // TODO: Refactor WebSocketBuffer#sync to make it understandable.
         return webSocketBuffer.sync();
     }
 
@@ -203,9 +233,9 @@ public class Server implements Updatable {
      * @return A newly created player with the given username.
      */
     private Player createNewPlayer(final String username) {
-        final int playerID = this.getNextAvailablePlayerID();
+        final byte playerID = this.getNextAvailablePlayerID();
         final Player.Type type = this.getNextAvailablePlayerType();
-        return new Player(playerID, type, username);
+        return new Player(playerID, type, username, Player.DEFAULT_LIVES);
     }
 
     /**
@@ -229,7 +259,7 @@ public class Server implements Updatable {
     /**
      * @return The next available player ID, or -1 if the game is full.
      */
-    private int getNextAvailablePlayerID() {
+    private byte getNextAvailablePlayerID() {
         // TODO: Implement.
         return -1;
     }
@@ -252,8 +282,8 @@ public class Server implements Updatable {
     }
 
     /**
-     * TODO:
-     * @param event
+     * Enqueues a `ServerNetworkEvent` to be sent on the next game update.
+     * @param event The event to send.
      */
     private void enqueueEvent(final ServerNetworkEvent event) {
         this.serverEventQueue.push(event);
@@ -263,6 +293,7 @@ public class Server implements Updatable {
     public void update(final double elapsed) {
         this.game.update(elapsed);
         this.sendUpdatesToClients();
+        this.processConnectingPlayers();
     }
 
     /**
@@ -272,6 +303,8 @@ public class Server implements Updatable {
         // TODO: Send updated game state to players.
         // This likely means putting Player and WebSocketBuffer into a class
         // which will be mapped to the player's ID.
+
+        // Use Entity#hasMoved for locations.
 
         // TODO: NetworkEvents should be queued and sent at the end of each game update.
     }

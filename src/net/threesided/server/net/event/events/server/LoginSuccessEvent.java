@@ -1,9 +1,12 @@
 package net.threesided.server.net.event.events.server;
 
-import net.threesided.server.net.event.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.server.net.event.OPCode;
 import net.threesided.server.net.event.ServerNetworkEvent;
 
+/**
+ * TODO: Note that the data type of `id` should be changed to `int`.
+ */
 public class LoginSuccessEvent extends ServerNetworkEvent {
 
     private final byte playerID;

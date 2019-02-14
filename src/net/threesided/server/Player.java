@@ -44,10 +44,13 @@ public class Player extends Circle {
 
     }
 
+    public static byte DEFAULT_LIVES = 5;
+
     private static final int DEFAULT_RADIUS = 20;
     private static final int DEFAULT_MASS = 5;
 
-    private final int id;
+    private final byte id;
+    private byte lives;
     private Type type;
     private String username;
 
@@ -55,13 +58,14 @@ public class Player extends Circle {
      * @param id The player's ID.
      * @param type The player's type.
      * @param username The player's username.
+     * @param lives The number of lives the player should initially have.
      */
-    public Player(final int id, final Player.Type type, final String username) {
+    public Player(final byte id, final Player.Type type, final String username, final byte lives) {
         super(Player.DEFAULT_RADIUS);
-        // TODO: The player ID should probably only be stored in the server code.
         this.id = id;
         this.type = type;
         this.username = username;
+        this.lives = lives;
         this.setMass(Player.DEFAULT_MASS);
     }
 
@@ -82,8 +86,23 @@ public class Player extends Circle {
     /**
      * @return The player's ID.
      */
-    public int getID() {
+    public byte getID() {
         return this.id;
+    }
+
+    /**
+     * @return The number of lives the player has.
+     */
+    public byte getLives() {
+        return this.lives;
+    }
+
+    /**
+     * Sets the number of lives the player has.
+     * @param lives The number of lives.
+     */
+    public void setLives(final byte lives) {
+        this.lives = lives;
     }
 
 }
