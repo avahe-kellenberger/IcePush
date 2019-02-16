@@ -45,6 +45,9 @@ public class PacketBuffer extends Buffer {
         this.writeByte(opcode);
     }
 
+    /**
+     * Places size of packet inside packet header (prepares for sending).
+     */
     public void endPacket() {
         final int saveWritePtr = this.writePtr;
         this.writePtr = this.pktStart;
@@ -83,10 +86,17 @@ public class PacketBuffer extends Buffer {
         return this.pktEnd - this.readPtr;
     }
 
+    /**
+     * Discards unread data.
+     */
     public void closePacket() {
         this.readPtr = this.pktEnd;
     }
 
+    /**
+     * Sends the packet across the network.
+     * @return If the connection is still usable.
+     */
     public boolean sync() {
         boolean result = true;
         final long time = System.currentTimeMillis();

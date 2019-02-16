@@ -1,15 +1,25 @@
 package net.threesided.server.net.event.events.server;
 
-import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.server.Player;
 import net.threesided.server.net.event.OPCode;
 import net.threesided.server.net.event.ServerNetworkEvent;
+import net.threesided.shared.PacketBuffer;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class NewPlayerEvent extends ServerNetworkEvent {
 
-    private final byte id, type, lives;
+    private final short id;
+    private final byte type, lives;
     private final String username;
+
+    /**
+     * Creates a new event to notify all players of a new player logging into the game.
+     * @param player The new player.
+     */
+    public NewPlayerEvent(final Collection<PacketBuffer> recipients, final Player player) {
+        this(recipients, player.getID(), player.getType().getID(), player.getUsername(), player.getLives());
+    }
 
     /**
      * Creates a new event to notify all players of a new player logging into the game.
@@ -18,8 +28,8 @@ public class NewPlayerEvent extends ServerNetworkEvent {
      * @param username The player's username.
      * @param lives The number of lives the player has.
      */
-    public NewPlayerEvent(final Set<WebSocketBuffer> recipients,
-                          final byte id, final byte type,
+    public NewPlayerEvent(final Collection<PacketBuffer> recipients,
+                          final short id, final byte type,
                           final String username, final byte lives) {
         super(recipients);
         this.id = id;
@@ -29,8 +39,8 @@ public class NewPlayerEvent extends ServerNetworkEvent {
     }
 
     @Override
-    protected void writeDataToBuffer(final WebSocketBuffer buffer) {
-        buffer.writeByte(this.id);
+    protected void writeDataToBuffer(final PacketBuffer buffer) {
+        buffer.writeShort(this.id);
         buffer.writeByte(this.type);
         buffer.writeString(this.username);
         buffer.writeByte(this.lives);

@@ -27,6 +27,17 @@ public class WebSocketBuffer extends PacketBuffer {
     private boolean readVer;
     private boolean readName;
 
+    public WebSocketBuffer(Socket socket) {
+        super(socket);
+        this.rawInBuff = new byte[0];
+        this.startTime = System.currentTimeMillis();
+        try {
+            this.headerRead = this.readHeader(socket);
+        } catch (final IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     private char get64(int i) {
         if (i >= 0 && i <= 25) {
             return (char) ('A' + i);
@@ -185,17 +196,6 @@ public class WebSocketBuffer extends PacketBuffer {
         }
 
         // return true;
-    }
-
-    public WebSocketBuffer(Socket socket) {
-        super(socket);
-        this.rawInBuff = new byte[0];
-        this.startTime = System.currentTimeMillis();
-        try {
-            this.headerRead = this.readHeader(socket);
-        } catch (final IOException ex) {
-            ex.printStackTrace();
-        }
     }
 
     private byte[] readOneFrame(final byte[] data, final int pos, final int end) {

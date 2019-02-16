@@ -6,11 +6,9 @@ import net.threesided.server.net.event.ServerNetworkEvent;
 import net.threesided.server.net.event.events.client.LoginEvent;
 import net.threesided.server.net.event.events.server.FailureEvent;
 import net.threesided.server.net.event.events.server.LoginSuccessEvent;
+import net.threesided.server.net.event.events.server.NewPlayerEvent;
 import net.threesided.server.physics2d.Updatable;
-import net.threesided.shared.Constants;
-import net.threesided.shared.InterthreadQueue;
-import net.threesided.shared.MathUtils;
-import net.threesided.shared.Vector2D;
+import net.threesided.shared.*;
 import net.threesided.util.LoopedThreadedTask;
 
 import java.awt.*;
@@ -18,13 +16,15 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.function.Supplier;
 
 public class Server implements Updatable {
 
     private final Game game;
     private final Rectangle2D gameArea;
-    private final InterthreadQueue<WebSocketBuffer> incomingConnections;
+    private final HashMap<Player, PacketBuffer> clients;
+    private final InterthreadQueue<PacketBuffer> incomingConnections;
     private final InterthreadQueue<ServerNetworkEvent> serverEventQueue;
     private final LoopedThreadedTask gameLoopTask, clientConnectionAcceptorTask;
 
@@ -41,6 +41,7 @@ public class Server implements Updatable {
     public Server() {
         this.game = new Game();
         this.gameArea = new Rectangle(28, 30, 746, 424);
+        this.clients = new HashMap<>();
         this.incomingConnections = new InterthreadQueue<>();
         this.serverEventQueue = new InterthreadQueue<>();
 
@@ -98,35 +99,35 @@ public class Server implements Updatable {
      * Processes incoming client connections.
      */
     private void processConnectingPlayers() {
-        WebSocketBuffer clientSocketBuffer;
+        PacketBuffer clientSocketBuffer;
         while ((clientSocketBuffer = this.incomingConnections.pull()) != null) {
+            // TODO: Can't remove clients from list if this method returns false.
             this.processNewPlayerConnection(clientSocketBuffer);
         }
     }
 
     /**
      *
-     * @param clientSocketBuffer The buffer associated with the newly connecting player.
+     * @param packetBuffer The buffer associated with the newly connecting player.
      * @return
      */
-    private boolean processNewPlayerConnection(final WebSocketBuffer clientSocketBuffer) {
-        if (!this.isNewConnectionValid(clientSocketBuffer)) {
+    private boolean processNewPlayerConnection(final PacketBuffer packetBuffer) {
+        if (!this.isNewConnectionValid(packetBuffer)) {
             return false;
         }
 
-        final Player player = this.tryCreateNewPlayer(clientSocketBuffer);
+        final Player player = this.tryCreateNewPlayer(packetBuffer);
         if (player == null) {
             return false;
         }
-
         // Successfully created a new player - add it to the server.
-        this.addNewPlayer(player, clientSocketBuffer);
+        this.addNewPlayer(player, packetBuffer);
 
         // Enqueue login success event to the new player.
-        this.enqueueEvent(new LoginSuccessEvent(clientSocketBuffer, player.getID()));
+        this.enqueueEvent(new LoginSuccessEvent(packetBuffer, player.getID()));
 
-        // TODO: Enqueue player logged in event to all players.
-        // new NewPlayerEvent(this.players, player.getID(), player.getType(), player.getUsername(), player.getLives());
+        // Enqueue player logged in event to all players.
+        this.enqueueEvent(new NewPlayerEvent(this.clients.values(), player));
 
         // Set player's initial position.
         final Vector2D randomLocation = this.getRandomGameAreaLocation();
@@ -156,7 +157,7 @@ public class Server implements Updatable {
      * @param clientSocketBuffer The socket to the new player.
      * @return A player created by the data stored in the Buffer via the client's connection.
      */
-    private Player tryCreateNewPlayer(final WebSocketBuffer clientSocketBuffer) {
+    private Player tryCreateNewPlayer(final PacketBuffer clientSocketBuffer) {
         final LoginEvent loginEvent = this.readPlayerLoginPacket(clientSocketBuffer);
         if (!this.validateLogin(clientSocketBuffer, loginEvent)) {
             return null;
@@ -171,41 +172,41 @@ public class Server implements Updatable {
     }
 
     /**
-     * Attempts to read data from the `WebSocketBuffer` to create a `LoginEvent`.
+     * Attempts to read data from the buffer to create a `LoginEvent`.
      * This data may have not been sent yet, and will result in returning `null`.
      *
-     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
+     * @param clientBuffer The buffer of the connected client.
      * @return A LoginEvent constructed from data sent by the client, or null.
      */
-    private LoginEvent readPlayerLoginPacket(final WebSocketBuffer clientSocketBuffer) {
-        final int opcode = clientSocketBuffer.openPacket();
+    private LoginEvent readPlayerLoginPacket(final PacketBuffer clientBuffer) {
+        final int opcode = clientBuffer.openPacket();
         if (OPCode.getByValue(opcode) != OPCode.LOGIN) {
             return null;
         }
-        return new LoginEvent(clientSocketBuffer);
+        return new LoginEvent(clientBuffer);
     }
 
     /**
      * Checks if the LoginEvent contains data appropriate for the player to join the current game.
      * If there are any issues with the login, an appropriate event will be sent to the client.
      *
-     * @param clientSocketBuffer The WebSocketBuffer of the connected client.
+     * @param clientBuffer The buffer of the connected client.
      * @param loginEvent The LoginEvent to validate.
      * @return If the login was successful and valid.
      */
-    private boolean validateLogin(final WebSocketBuffer clientSocketBuffer, final LoginEvent loginEvent) {
+    private boolean validateLogin(final PacketBuffer clientBuffer, final LoginEvent loginEvent) {
         if (loginEvent == null) {
             return false;
         }
 
         if (loginEvent.clientVersion != Constants.VERSION) {
-            final FailureEvent event = new FailureEvent(clientSocketBuffer, "Your client is outdated.");
+            final FailureEvent event = new FailureEvent(clientBuffer, "Your client is outdated.");
             this.enqueueEvent(event);
             return false;
         }
 
-        if (this.isUsernameInUse(loginEvent.playerName)) {
-            final FailureEvent event = new FailureEvent(clientSocketBuffer, "Username is in use.");
+        if (!this.isUsernameAvailable(loginEvent.playerName)) {
+            final FailureEvent event = new FailureEvent(clientBuffer, "Username is in use.");
             this.enqueueEvent(event);
             return false;
         }
@@ -215,14 +216,14 @@ public class Server implements Updatable {
     }
 
     /**
-     * Checks if the newly connected WebSocketBuffer is in a valid state
+     * Checks if the newly connected buffer is in a valid state
      * and responding correctly to be used as a client for the game.
      *
-     * @param webSocketBuffer The buffer of which to be checked.
+     * @param packetBuffer The buffer of which to be checked.
      * @return If the new connection is in a valid state for the game.
      */
-    private boolean isNewConnectionValid(final WebSocketBuffer webSocketBuffer) {
-        return webSocketBuffer.sync();
+    private boolean isNewConnectionValid(final PacketBuffer packetBuffer) {
+        return packetBuffer.sync();
     }
 
     /**
@@ -242,18 +243,17 @@ public class Server implements Updatable {
      * Adds a new player to the game and server.
      * @param player The player to add.
      */
-    private void addNewPlayer(final Player player, final WebSocketBuffer clientSocketBuffer) {
-        // TODO: Also add player to Server's data.
+    private void addNewPlayer(final Player player, final PacketBuffer clientBuffer) {
         this.game.add(player);
+        this.clients.put(player, clientBuffer);
     }
 
     /**
      * @return The next available player type, based on the current players in the game.
      */
     private Player.Type getNextAvailablePlayerType() {
-        // TODO: Get proper player count once players are stored in a list/map.
-        final int playerCount = -1;
-        return Player.Type.getByID(playerCount % Player.Type.values().length);
+        final int playerCount = this.clients.size();
+        return Player.Type.getByID((byte) (playerCount % Player.Type.values().length));
     }
 
     /**
@@ -261,7 +261,7 @@ public class Server implements Updatable {
      */
     private byte getNextAvailablePlayerID() {
         // TODO: Implement.
-        return -1;
+        return 1;
     }
 
     /**
@@ -274,11 +274,15 @@ public class Server implements Updatable {
 
     /**
      * @param username The username to check for.
-     * @return If the given username is currently in use by another player.
+     * @return If the given username is not currently in use by another player.
      */
-    private boolean isUsernameInUse(final String username) {
-        // TODO: Implement once players are stored in a list/map.
-        return false;
+    private boolean isUsernameAvailable(final String username) {
+        for (final Player player : this.clients.keySet()) {
+            if (player.getUsername().equalsIgnoreCase(username)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -292,21 +296,33 @@ public class Server implements Updatable {
     @Override
     public void update(final double elapsed) {
         this.game.update(elapsed);
+        this.processGameStateChanges();
         this.sendUpdatesToClients();
         this.processConnectingPlayers();
+    }
+
+    /**
+     * Prepares `ServerNetworkEvents` based on changes to the game's state since the last update.
+     */
+    private void processGameStateChanges() {
+        // Use Entity#hasMoved for locations.
+        this.clients.keySet().forEach(player -> {
+            if (player.hasMoved()) {
+                // TODO:
+                // this.serverEventQueue.push(new MoveEvent(this.clients.values(), player));
+            }
+        });
     }
 
     /**
      * Sends the updated game state to the clients (players).
      */
     private void sendUpdatesToClients() {
-        // TODO: Send updated game state to players.
-        // This likely means putting Player and WebSocketBuffer into a class
-        // which will be mapped to the player's ID.
-
-        // Use Entity#hasMoved for locations.
-
-        // TODO: NetworkEvents should be queued and sent at the end of each game update.
+        ServerNetworkEvent event;
+        while ((event = this.serverEventQueue.pull()) != null) {
+            System.out.println(event.getOPCode());
+            event.writeToRecipients();
+        }
     }
 
 }

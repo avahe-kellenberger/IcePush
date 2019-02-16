@@ -1,8 +1,8 @@
 package net.threesided.server.net.event.events.client;
 
-import net.threesided.server.net.event.OPCode;
-import net.threesided.server.net.WebSocketBuffer;
 import net.threesided.server.net.event.ClientNetworkEvent;
+import net.threesided.server.net.event.OPCode;
+import net.threesided.shared.PacketBuffer;
 
 public class LoginEvent extends ClientNetworkEvent {
 
@@ -12,7 +12,7 @@ public class LoginEvent extends ClientNetworkEvent {
     /**
      * @param buffer The buffer from which to read the event.
      */
-    public LoginEvent(final WebSocketBuffer buffer) {
+    public LoginEvent(final PacketBuffer buffer) {
         super(buffer);
         this.clientVersion = buffer.readByte();
         this.playerName = buffer.readString();

@@ -1,19 +1,19 @@
 package net.threesided.server.net.event;
 
-import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.shared.PacketBuffer;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 public abstract class ServerNetworkEvent implements NetworkEvent {
 
-    protected final Set<WebSocketBuffer> recipients;
+    protected final Collection<PacketBuffer> recipients;
 
     /**
      * TODO:
      * @param recipient
      */
-    public ServerNetworkEvent(final WebSocketBuffer recipient) {
+    public ServerNetworkEvent(final PacketBuffer recipient) {
         this(Collections.singleton(recipient));
     }
 
@@ -21,7 +21,7 @@ public abstract class ServerNetworkEvent implements NetworkEvent {
      * TODO:
      * @param recipients
      */
-    public ServerNetworkEvent(final Set<WebSocketBuffer> recipients) {
+    public ServerNetworkEvent(final Collection<PacketBuffer> recipients) {
         this.recipients = recipients;
     }
 
@@ -31,8 +31,10 @@ public abstract class ServerNetworkEvent implements NetworkEvent {
     public void writeToRecipients() {
         final byte opcode = this.getOPCode().getValue();
         this.recipients.forEach(buffer -> {
-            buffer.writeByte(opcode);
+            buffer.beginPacket(opcode);
             this.writeDataToBuffer(buffer);
+            buffer.endPacket();
+            buffer.sync();
         });
     }
 
@@ -40,6 +42,6 @@ public abstract class ServerNetworkEvent implements NetworkEvent {
      * Writes the event data to a buffer.
      * @param buffer The buffer to write to.
      */
-    protected abstract void writeDataToBuffer(final WebSocketBuffer buffer);
+    protected abstract void writeDataToBuffer(final PacketBuffer buffer);
 
 }

@@ -1,6 +1,6 @@
 package net.threesided.server.net.event;
 
-import net.threesided.server.net.WebSocketBuffer;
+import net.threesided.shared.PacketBuffer;
 
 public abstract class ClientNetworkEvent implements NetworkEvent {
 
@@ -10,6 +10,6 @@ public abstract class ClientNetworkEvent implements NetworkEvent {
      *
      * @param buffer The buffer to read from.
      */
-    public ClientNetworkEvent(final WebSocketBuffer buffer) {}
+    public ClientNetworkEvent(final PacketBuffer buffer) {}
 
 }

@@ -3,6 +3,7 @@ package net.threesided.server.net.event.events.server;
 import net.threesided.server.net.event.OPCode;
 import net.threesided.server.net.WebSocketBuffer;
 import net.threesided.server.net.event.ServerNetworkEvent;
+import net.threesided.shared.PacketBuffer;
 
 public class FailureEvent extends ServerNetworkEvent {
 
@@ -11,13 +12,13 @@ public class FailureEvent extends ServerNetworkEvent {
     /**
      * @param message The message of the event to send.
      */
-    public FailureEvent(final WebSocketBuffer recipient, final String message) {
+    public FailureEvent(final PacketBuffer recipient, final String message) {
         super(recipient);
         this.message = message;
     }
 
     @Override
-    public void writeDataToBuffer(final WebSocketBuffer buffer) {
+    public void writeDataToBuffer(final PacketBuffer buffer) {
         buffer.writeString(this.message);
     }
 

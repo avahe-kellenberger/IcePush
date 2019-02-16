@@ -29,7 +29,6 @@ public enum OPCode {
      */
     OPCode(final byte value) {
         this.value = value;
-        System.out.println(value);
     }
 
     /**
