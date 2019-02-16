@@ -44,7 +44,7 @@ public class Player extends Circle {
 
     }
 
-    public static byte DEFAULT_LIVES = 5;
+    public static final byte DEFAULT_LIVES = 5;
 
     private static final int DEFAULT_RADIUS = 20;
     private static final int DEFAULT_MASS = 5;

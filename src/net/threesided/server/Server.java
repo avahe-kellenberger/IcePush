@@ -7,6 +7,7 @@ import net.threesided.server.net.event.events.client.LoginEvent;
 import net.threesided.server.net.event.events.server.FailureEvent;
 import net.threesided.server.net.event.events.server.LoginSuccessEvent;
 import net.threesided.server.net.event.events.server.NewPlayerEvent;
+import net.threesided.server.net.event.events.server.PlayerMoveEvent;
 import net.threesided.server.physics2d.Updatable;
 import net.threesided.shared.*;
 import net.threesided.util.LoopedThreadedTask;
@@ -305,11 +306,9 @@ public class Server implements Updatable {
      * Prepares `ServerNetworkEvents` based on changes to the game's state since the last update.
      */
     private void processGameStateChanges() {
-        // Use Entity#hasMoved for locations.
         this.clients.keySet().forEach(player -> {
             if (player.hasMoved()) {
-                // TODO:
-                // this.serverEventQueue.push(new MoveEvent(this.clients.values(), player));
+                this.serverEventQueue.push(new PlayerMoveEvent(this.clients.values(), player));
             }
         });
     }
@@ -320,7 +319,6 @@ public class Server implements Updatable {
     private void sendUpdatesToClients() {
         ServerNetworkEvent event;
         while ((event = this.serverEventQueue.pull()) != null) {
-            System.out.println(event.getOPCode());
             event.writeToRecipients();
         }
     }
