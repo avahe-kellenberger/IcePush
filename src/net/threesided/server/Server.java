@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
 public class Server implements Updatable {
@@ -25,7 +26,7 @@ public class Server implements Updatable {
     private final Game game;
     private final Rectangle2D gameArea;
     private final HashMap<Player, PacketBuffer> clients;
-    private final InterthreadQueue<PacketBuffer> incomingConnections;
+    private final ConcurrentLinkedQueue<PacketBuffer> incomingConnections;
     private final InterthreadQueue<ServerNetworkEvent> serverEventQueue;
     private final LoopedThreadedTask gameLoopTask, clientConnectionAcceptorTask;
 
@@ -43,7 +44,7 @@ public class Server implements Updatable {
         this.game = new Game();
         this.gameArea = new Rectangle(28, 30, 746, 424);
         this.clients = new HashMap<>();
-        this.incomingConnections = new InterthreadQueue<>();
+        this.incomingConnections = new ConcurrentLinkedQueue<>();
         this.serverEventQueue = new InterthreadQueue<>();
 
         // Condition for the server to continue running.
@@ -90,7 +91,7 @@ public class Server implements Updatable {
         try {
             final Socket socket = this.serverSocket.accept();
             socket.setTcpNoDelay(true);
-            this.incomingConnections.push(new WebSocketBuffer(socket));
+            this.incomingConnections.add(new WebSocketBuffer(socket));
         } catch (final IOException ex) {
             ex.printStackTrace();
         }
@@ -100,10 +101,10 @@ public class Server implements Updatable {
      * Processes incoming client connections.
      */
     private void processConnectingPlayers() {
-        PacketBuffer clientSocketBuffer;
-        while ((clientSocketBuffer = this.incomingConnections.pull()) != null) {
-            // TODO: Can't remove clients from list if this method returns false.
-            this.processNewPlayerConnection(clientSocketBuffer);
+        for (final PacketBuffer incomingConnection : this.incomingConnections) {
+            if (!this.isNewConnectionValid(incomingConnection) || this.processNewPlayerConnection(incomingConnection)) {
+                this.incomingConnections.remove(incomingConnection);
+            }
         }
     }
 
@@ -113,10 +114,6 @@ public class Server implements Updatable {
      * @return
      */
     private boolean processNewPlayerConnection(final PacketBuffer packetBuffer) {
-        if (!this.isNewConnectionValid(packetBuffer)) {
-            return false;
-        }
-
         final Player player = this.tryCreateNewPlayer(packetBuffer);
         if (player == null) {
             return false;
