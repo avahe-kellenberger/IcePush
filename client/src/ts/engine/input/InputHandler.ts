@@ -2,6 +2,8 @@
  * @author Avahe
  * Handles events fired from the DOM.
  */
+import {Vector2D} from "../math/Vector2D";
+
 export class EventHandler {
 
     public readonly type: keyof GlobalEventHandlersEventMap;
@@ -147,6 +149,21 @@ export class InputHandler {
      */
     public removeKeyHandler(handler: KeyHandler): boolean {
         return this.keyHandlers === undefined || this.keyHandlers.delete(handler);
+    }
+
+    // endregion
+
+    // region Static Methods
+
+    /**
+     * Translates the location of the `MouseEvent` to be relative to the `canvas`' bounding client rect.
+     * @param event The `MouseEvent` from which to derive the translated location.
+     * @param canvas The canvas to which the location is translated.
+     * @see HTMLCanvasElement.getBoundingClientRect
+     */
+    public static translateMouseEventLocationToCanvas(event: MouseEvent, canvas: HTMLCanvasElement): Vector2D {
+        const boundingRect: ClientRect|DOMRect = canvas.getBoundingClientRect();
+        return new Vector2D(event.clientX - boundingRect.left, event.clientY - boundingRect.top);
     }
 
     // endregion

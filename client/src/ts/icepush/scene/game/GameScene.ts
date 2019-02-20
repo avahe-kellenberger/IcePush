@@ -1,6 +1,6 @@
 import {Scene} from "../../../engine/game/Scene";
 import {IcePush} from "../../IcePush";
-import {InputHandler, KeyHandler} from "../../../engine/input/InputHandler";
+import {EventHandler, InputHandler, KeyHandler} from "../../../engine/input/InputHandler";
 import {Player} from "../../entity/Player";
 import {Connection} from "../../net/Connection";
 import {Entity} from "../../../engine/game/entity/Entity";
@@ -22,6 +22,7 @@ import {GameplayLayer} from "./GameplayLayer";
 import {DOMLayer} from "./DOMLayer";
 import {InfoLayer, InfoPane} from "./InfoLayer";
 import {Vector2D} from "../../../engine/math/Vector2D";
+import {ProjectileRequestEvent} from "../../net/events/ProjectileRequestEvent";
 
 export class GameScene extends Scene {
 
@@ -52,7 +53,7 @@ export class GameScene extends Scene {
         this.gameplayLayer = new GameplayLayer();
         this.addLayer(this.gameplayLayer);
 
-        this.domLayer = new DOMLayer(3);
+        this.domLayer = new DOMLayer(this.game.ctx.canvas, 3);
         this.addLayer(this.domLayer);
 
         const timeRenderLocation: Vector2D = new Vector2D(this.game.ctx.canvas.width * 0.5,
@@ -64,6 +65,8 @@ export class GameScene extends Scene {
         this.domLayer.addLogoutClickListener(() => this.getGame().logout());
 
         // endregion
+
+        this.game.inputHandler.addEventHandler(this.createMouseEventListener());
 
         this.networkEventFunctionMap = new Map();
         this.networkEventFunctionMap.set(OPCode.PING, this.onPingEvent.bind(this));
@@ -95,6 +98,26 @@ export class GameScene extends Scene {
         const eventHandler: Function|undefined = this.networkEventFunctionMap.get(event.getOPCode());
         if (eventHandler !== undefined) {
             eventHandler(event);
+        }
+    }
+
+    /**
+     * Creates the listener used to handle all MouseEvents.
+     */
+    private createMouseEventListener(): EventHandler {
+        return new EventHandler("mousedown", event => this.requestProjectile(event as MouseEvent));
+    }
+
+    /**
+     * Requests a projectile to be added based on the mouse event.
+     * @param event The `MouseEvent`.
+     */
+    private requestProjectile(event: MouseEvent): void {
+        const clickLoc: Vector2D = InputHandler.translateMouseEventLocationToCanvas(event as MouseEvent, this.game.ctx.canvas);
+        const clickedElement: HTMLElement|null = this.domLayer.findClickedDOMElement(clickLoc);
+        if (clickedElement == null) {
+            // No DOM elements contain the click location - send the event.
+            this.connection.enqueueEvent(new ProjectileRequestEvent(clickLoc.x, clickLoc.y));
         }
     }
 

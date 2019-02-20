@@ -1,14 +1,20 @@
 import {Layer} from "../../../engine/game/Layer";
+import {Vector2D} from "../../../engine/math/Vector2D";
+import {DOMUtils} from "../../../engine/util/DOMUtils";
 
 export class DOMLayer extends Layer {
+
+    private readonly canvas: HTMLCanvasElement;
 
     private readonly btnLogout: HTMLButtonElement;
     private readonly chatBox: HTMLTextAreaElement;
     private readonly chatInputBox: HTMLInputElement;
     private readonly domElements: ReadonlySet<HTMLElement>;
 
-    constructor(zOrder: number = 1) {
+    constructor(canvas: HTMLCanvasElement, zOrder: number = 1) {
         super(zOrder);
+        this.canvas = canvas;
+
         this.btnLogout = document.createElement('button');
         this.btnLogout.className = 'on-canvas unfocusable';
         this.btnLogout.innerHTML = 'Logout';
@@ -44,6 +50,21 @@ export class DOMLayer extends Layer {
 
         // Ensure all elements are in this list.
         this.domElements = new Set([this.btnLogout, this.chatBox, this.chatInputBox]);
+    }
+
+    /**
+     * @param point The point to check.
+     * @return The DOM element which contains the given point, or null if not found.
+     */
+    public findClickedDOMElement(point: Vector2D): HTMLElement|null {
+        const boundingRect: ClientRect|DOMRect = this.canvas.getBoundingClientRect();
+        const offset: Vector2D = new Vector2D(boundingRect.left, boundingRect.top);
+        for (const element of this.domElements) {
+            if (DOMUtils.containsPoint(element, point, offset)) {
+                return element;
+            }
+        }
+        return null;
     }
 
     /**
