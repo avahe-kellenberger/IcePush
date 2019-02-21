@@ -1,6 +1,6 @@
 package net.threesided.server;
 
-import net.threesided.server.physics2d.Physics2D;
+import net.threesided.server.physics2d.*;
 import net.threesided.shared.Constants;
 import net.threesided.shared.InterthreadQueue;
 
@@ -43,6 +43,7 @@ public class Server implements Runnable {
 
     private final Player[] incomplete = new Player[20];
     private Player[] players;
+    public static Circle[] objectTable = new Circle[257];
     private MapClass mapClass;
 
     private boolean run = true;
@@ -98,7 +99,7 @@ public class Server implements Runnable {
         }
         new Thread(this).start();
 
-        final Physics2D physics = new Physics2D(this.players);
+        final Physics2D physics = new Physics2D(objectTable);
         this.mapClass = new MapClass();
 
         try {
@@ -124,6 +125,7 @@ public class Server implements Runnable {
             this.updateRoundState();
 
             this.updatePlayers();
+            this.updateProjectiles();
         }
     }
 
@@ -279,6 +281,7 @@ public class Server implements Runnable {
             p.lives = DEFAULT_LIVES;
             this.incomplete[i] = null;
             this.players[index] = p;
+            objectTable[index] = p;
 
             socketBuffer.beginPacket(Constants.SUCCESS_LOG);
             socketBuffer.writeByte(p.id);
@@ -440,6 +443,39 @@ public class Server implements Runnable {
         }
     }
 
+    private void updateProjectiles() {
+        for (final Player p : this.players) {
+            if(p != null && p.connected && p.projectile != null) {
+                for (final Player plr : this.players) {
+                    if(plr != null && plr.connected) {
+                        plr.notifyNewObject(p.projectile);
+                    }
+                }
+                p.projectile = null;
+            }
+        }
+
+        for(Circle c : objectTable) {
+            if(c instanceof Projectile) {
+               boolean die = this.mapClass.currentPath.contains(c.position.getX(), c.position.getY());
+               if (c.hasMoved()) {
+                   for (final Player player : this.players) {
+                       if (player != null) {
+                           player.handleMove(c);
+                           if(die) {
+                               player.loggedOut(c);
+                           }
+                       }
+                   }
+                }
+                if(die) {
+                    //System.out.println("Projectile " + c.id + " out of bounds");
+                    objectTable[c.id] = null;
+                }
+            }
+        }
+    }
+
     private void notifyVictoryLap(final int time) {
         for (final Player p : this.players) {
             if (p != null) {
@@ -466,6 +502,7 @@ public class Server implements Runnable {
 
             p.connected = false;
             this.players[p.id] = null;
+            objectTable[p.id] = null;
 
             if (this.getNumPlayers() < 2) {
                 this.roundStarted = false;

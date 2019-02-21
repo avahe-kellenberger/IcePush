@@ -16,6 +16,7 @@ public class Constants {
     public static final int NEW_PLAYER = 5;
     public static final int PLAYER_MOVED = 6;
     public static final int KEEP_ALIVE = 7;
+    public static final int NEW_OBJECT = 8;
     public static final int PLAYER_LOGGED_OUT = 11;
     public static final int PLAYER_DIED = 12;
     public static final int NEW_CHAT_MESSAGE = 17;

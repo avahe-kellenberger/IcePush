@@ -5,10 +5,17 @@ import net.threesided.shared.Vector2D;
 public class Circle extends RigidBody {
 
     public final double radius;
+    public int id;
 
     /** @param radius The circle's radius. */
     public Circle(final double radius) {
         this.radius = radius;
+    }
+
+    public Circle(final double radius, final double mass, final Vector2D velocity) {
+        this.radius = radius;
+        this.mass = mass;
+        this.velocity = velocity;
     }
 
     /**
