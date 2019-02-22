@@ -181,7 +181,7 @@ export class GameScene extends Scene {
      * @param event The received event.
      */
     private onPlayerMovedEvent(event: PlayerMovedEvent): void {
-        const player: Entity|undefined|Sprite = this.gameplayLayer.getObject(event.playerID);
+        const player: Entity|undefined= this.gameplayLayer.getObject(event.playerID);
         if (player instanceof Player) {
             const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
             const playerLoc: Vector2D = event.location.addVector(icePlatformTopLeft);
@@ -190,11 +190,6 @@ export class GameScene extends Scene {
             const infoPane: InfoPane = this.infoLayer.getObject(event.playerID) as InfoPane;
             const infoPaneLocation: Vector2D = playerLoc.subtract(0, player.getImage().height);
             infoPane.setLocation(infoPaneLocation);
-        }
-        if(player instanceof Sprite) {
-            const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
-            const playerLoc: Vector2D = event.location.addVector(icePlatformTopLeft);
-            player.setLocation(event.location);
         }
     }
 
