@@ -457,7 +457,7 @@ public class Server implements Runnable {
 
         for(Circle c : objectTable) {
             if(c instanceof Projectile) {
-               boolean die = this.mapClass.currentPath.contains(c.position.getX(), c.position.getY());
+               boolean die = !this.mapClass.currentPath.contains(c.position.getX(), c.position.getY());
                if (c.hasMoved()) {
                    for (final Player player : this.players) {
                        if (player != null) {
