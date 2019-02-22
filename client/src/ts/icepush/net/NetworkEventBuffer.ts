@@ -2,7 +2,7 @@ import {PositionedBuffer} from "../../engine/net/PositionedBuffer";
 import {NetworkEvent} from "./NetworkEvent";
 import {PingEvent} from "./events/PingEvent";
 import {NewPlayerEvent} from "./events/NewPlayerEvent";
-import {PlayerMovedEvent} from "./events/PlayerMovedEvent";
+import {ObjectMovedEvent} from "./events/ObjectMovedEvent";
 import {ChatReceivedEvent} from "./events/ChatEvent";
 import {RoundStartedEvent} from "./events/RoundStartedEvent";
 import {FailureEvent} from "./events/FailureEvent";
@@ -25,7 +25,7 @@ export enum OPCode {
     SUCCESS = 2,
     NEW_OBJECT = 3,
     NEW_PLAYER = 5,
-    PLAYER_MOVED = 6,
+    OBJECT_MOVED = 6,
     MOVE_REQUEST = 8,
     END_MOVE = 9,
     LOGOUT = 10,
@@ -48,7 +48,7 @@ function mapOPCodeEvents(): Map<number, new (...args: any[]) => NetworkEvent> {
         [OPCode.SUCCESS, SuccessEvent],
         [OPCode.NEW_OBJECT, NewObjectEvent],
         [OPCode.NEW_PLAYER, NewPlayerEvent],
-        [OPCode.PLAYER_MOVED, PlayerMovedEvent],
+        [OPCode.OBJECT_MOVED, ObjectMovedEvent],
         [OPCode.PLAYER_LOGGED_OUT, PlayerLoggedOutEvent],
         [OPCode.PLAYER_LIVES_CHANGED, PlayerLivesChangedEvent],
         [OPCode.PROJECTILE_REQUEST, ProjectileRequestEvent],
