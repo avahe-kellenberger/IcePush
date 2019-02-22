@@ -1,6 +1,6 @@
 import {Scene} from "../../../engine/game/Scene";
 import {IcePush} from "../../IcePush";
-import {InputHandler, KeyHandler} from "../../../engine/input/InputHandler";
+import {EventHandler, InputHandler, KeyHandler} from "../../../engine/input/InputHandler";
 import {Player} from "../../entity/Player";
 import {Connection} from "../../net/Connection";
 import {Entity} from "../../../engine/game/entity/Entity";
@@ -22,6 +22,10 @@ import {GameplayLayer} from "./GameplayLayer";
 import {DOMLayer} from "./DOMLayer";
 import {InfoLayer, InfoPane} from "./InfoLayer";
 import {Vector2D} from "../../../engine/math/Vector2D";
+import {NewObjectEvent} from "../../net/events/NewObjectEvent";
+import {Sprite} from "../../../engine/game/entity/Sprite";
+import {Assets} from "../../asset/Assets";
+import {ProjectileRequestEvent} from "../../net/events/ProjectileRequestEvent";
 
 export class GameScene extends Scene {
 
@@ -52,7 +56,7 @@ export class GameScene extends Scene {
         this.gameplayLayer = new GameplayLayer();
         this.addLayer(this.gameplayLayer);
 
-        this.domLayer = new DOMLayer(3);
+        this.domLayer = new DOMLayer(this.game.ctx.canvas, 3);
         this.addLayer(this.domLayer);
 
         const timeRenderLocation: Vector2D = new Vector2D(this.game.ctx.canvas.width * 0.5,
@@ -65,8 +69,11 @@ export class GameScene extends Scene {
 
         // endregion
 
+        this.game.inputHandler.addEventHandler(this.createMouseEventListener());
+
         this.networkEventFunctionMap = new Map();
         this.networkEventFunctionMap.set(OPCode.PING, this.onPingEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.NEW_OBJECT, this.onNewObjectEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.NEW_PLAYER, this.onNewPlayerEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.PLAYER_MOVED, this.onPlayerMovedEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.PLAYER_LIVES_CHANGED, this.onPlayerLivesChangedEvent.bind(this));
@@ -98,6 +105,26 @@ export class GameScene extends Scene {
         }
     }
 
+    /**
+     * Creates the listener used to handle all MouseEvents.
+     */
+    private createMouseEventListener(): EventHandler {
+        return new EventHandler("mousedown", event => this.requestProjectile(event as MouseEvent));
+    }
+
+    /**
+     * Requests a projectile to be added based on the mouse event.
+     * @param event The `MouseEvent`.
+     */
+    private requestProjectile(event: MouseEvent): void {
+        const clickLoc: Vector2D = InputHandler.translateMouseEventLocationToCanvas(event as MouseEvent, this.game.ctx.canvas);
+        const clickedElement: HTMLElement|null = this.domLayer.findClickedDOMElement(clickLoc);
+        if (clickedElement == null) {
+            // No DOM elements contain the click location - send the event.
+            this.connection.enqueueEvent(new ProjectileRequestEvent(clickLoc.x, clickLoc.y));
+        }
+    }
+
     // region Player Event Receivers
 
     /**
@@ -109,11 +136,20 @@ export class GameScene extends Scene {
     }
 
     /**
+     * Invoked when a `NewObjectEvent` is received.
+     * @param event The received event.
+     */
+    private onNewObjectEvent(event: NewObjectEvent): void {
+        const obj: Sprite = new Sprite(event.id, Assets.getImageByID(event.type), event.location);
+        this.gameplayLayer.setObject(event.id, obj);
+    }
+
+    /**
      * Invoked when a `NewPlayerEvent` is received.
      * @param event The received event.
      */
     private onNewPlayerEvent(event: NewPlayerEvent): void {
-        const player: Player = new Player(event.playerID, event.username, event.type, event.lives);
+        const player: Player = new Player(event.playerID, event.username, Assets.getImageByID(event.type), event.lives);
         this.gameplayLayer.setObject(event.playerID, player);
 
         const isLocalPlayer: boolean = event.playerID === this.playerID;
@@ -152,7 +188,7 @@ export class GameScene extends Scene {
             player.setLocation(playerLoc);
 
             const infoPane: InfoPane = this.infoLayer.getObject(event.playerID) as InfoPane;
-            const infoPaneLocation: Vector2D = playerLoc.subtract(0,  player.getSprite().height);
+            const infoPaneLocation: Vector2D = playerLoc.subtract(0, player.getImage().height);
             infoPane.setLocation(infoPaneLocation);
         }
     }

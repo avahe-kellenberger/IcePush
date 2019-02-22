@@ -1,5 +1,4 @@
 import {NetworkEvent} from "../NetworkEvent";
-import {Player} from "../../entity/Player";
 import {PositionedBuffer} from "../../../engine/net/PositionedBuffer";
 import {OPCode} from "../NetworkEventBuffer";
 
@@ -11,42 +10,20 @@ export class NewPlayerEvent extends NetworkEvent {
     private readonly BINARY_SIZE: number;
 
     public readonly playerID: number;
-    public readonly type: Player.Type;
+    public readonly type: number;
     public readonly username: string;
     public readonly lives: number;
-
-    /**
-     * Creates an event from the given player and playerID.
-     *
-     * @param playerID The player's ID.
-     * @param player The player object.
-     */
-    constructor(playerID: number, player: Player);
 
     /**
      * Reads the new player's data from the buffer.
      * @param buffer The buffer to read from.
      */
-    constructor(buffer: PositionedBuffer);
-
-    /**
-     * Overload constructor.
-     */
-    constructor(bufferOrID: PositionedBuffer|number, player?: Player) {
+    constructor(buffer: PositionedBuffer) {
         super();
-        if (bufferOrID instanceof PositionedBuffer) {
-            this.playerID = bufferOrID.readInt16BE();
-            this.type = bufferOrID.readInt8();
-            this.username = bufferOrID.readString();
-            this.lives = bufferOrID.readUInt8();
-        } else if (player !== undefined) {
-            this.playerID = bufferOrID;
-            this.type = player.getType();
-            this.username = player.getName();
-            this.lives = player.getLives();
-        } else {
-            throw new Error(`Malformed constructor:\n${bufferOrID}\n${player}`);
-        }
+        this.playerID = buffer.readInt16BE();
+        this.type = buffer.readInt8();
+        this.username = buffer.readString();
+        this.lives = buffer.readUInt8();
         this.BINARY_SIZE = 4 + PositionedBuffer.getStringWriteSize(this.username);
     }
 
@@ -67,11 +44,6 @@ export class NewPlayerEvent extends NetworkEvent {
     /**
      * @override
      */
-    public write(buffer: PositionedBuffer): void {
-        buffer.writeUInt16BE(this.playerID);
-        buffer.writeUInt8(this.type);
-        buffer.writeString(this.username);
-        buffer.writeUInt8(this.lives);
-    }
+    public write(buffer: PositionedBuffer): void {}
 
 }

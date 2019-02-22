@@ -105,8 +105,8 @@ export class PositionedBuffer {
      * @see Buffer.writeInt16BE
      */
     public writeInt16BE(value: number): number {
-        this.writeInt8(value);
-        return this.writeInt8(value >> 8);
+        this.writeUInt8(value & 0xff);
+        return this.writeUInt8((value >> 8) & 0xff);
     }
 
     /**

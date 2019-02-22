@@ -11,6 +11,8 @@ import {PlayerLoggedOutEvent} from "./events/PlayerLoggedOutEvent";
 import {PlayerLivesChangedEvent} from "./events/PlayerLivedChangedEvent";
 import {RoundWinnersEvent} from "./events/RoundWinnersEvent";
 import {RoundStartCountdownEvent} from "./events/RoundStartCountdownEvent";
+import {NewObjectEvent} from "./events/NewObjectEvent";
+import {ProjectileRequestEvent} from "./events/ProjectileRequestEvent";
 
 /**
  * Network events OPCodes.
@@ -21,6 +23,7 @@ export enum OPCode {
     LOGIN = 0,
     FAILURE = 1,
     SUCCESS = 2,
+    NEW_OBJECT = 3,
     NEW_PLAYER = 5,
     PLAYER_MOVED = 6,
     MOVE_REQUEST = 8,
@@ -28,6 +31,7 @@ export enum OPCode {
     LOGOUT = 10,
     PLAYER_LOGGED_OUT = 11,
     PLAYER_LIVES_CHANGED = 12,
+    PROJECTILE_REQUEST = 15,
     CHAT_SEND = 16,
     CHAT_RECEIVED = 17,
     ROUND_WINNERS = 20,
@@ -42,10 +46,12 @@ function mapOPCodeEvents(): Map<number, new (...args: any[]) => NetworkEvent> {
         [OPCode.PING, PingEvent],
         [OPCode.FAILURE, FailureEvent],
         [OPCode.SUCCESS, SuccessEvent],
+        [OPCode.NEW_OBJECT, NewObjectEvent],
         [OPCode.NEW_PLAYER, NewPlayerEvent],
         [OPCode.PLAYER_MOVED, PlayerMovedEvent],
         [OPCode.PLAYER_LOGGED_OUT, PlayerLoggedOutEvent],
         [OPCode.PLAYER_LIVES_CHANGED, PlayerLivesChangedEvent],
+        [OPCode.PROJECTILE_REQUEST, ProjectileRequestEvent],
         [OPCode.CHAT_RECEIVED, ChatReceivedEvent],
         [OPCode.ROUND_WINNERS, RoundWinnersEvent],
         [OPCode.ROUND_STARTED, RoundStartedEvent],

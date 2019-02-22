@@ -1,13 +1,14 @@
 import {Updatable} from "./entity/Updatable";
 import {Renderable} from "./ui/Renderable";
 import {ZOrder} from "./entity/ZOrder";
+import {Entity} from "./entity/Entity";
 
 /**
  *
  */
 export abstract class Layer implements ZOrder, Updatable, Renderable {
 
-    private readonly objects: Map<number, Updatable&Renderable>;
+    private readonly objects: Map<number, Entity>;
     private zOrder: number;
 
     /**
@@ -42,7 +43,7 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
      * @param id The object's ID.
      * @return The object associated with the ID, or `undefined` if it does not exist.
      */
-    public getObject(id: number): Updatable&Renderable|undefined {
+    public getObject(id: number): Entity|undefined {
         return this.objects.get(id);
     }
 
@@ -61,7 +62,7 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
      * @param object The object to add.
      * @return If the object was added successfully.
      */
-    public setObject(id: number, object: Updatable&Renderable): boolean {
+    public setObject(id: number, object: Entity): boolean {
         return this.objects.size !== this.objects.set(id, object).size;
     }
 
@@ -85,7 +86,7 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
      * Invokes a callback on each object in the scene.
      * @param callback The callback to invoke.
      */
-    public forEachEntity(callback: (e?: Updatable&Renderable) => void): void {
+    public forEachEntity(callback: (e?: Entity) => void): void {
         this.objects.forEach(callback);
     }
 
@@ -96,9 +97,9 @@ export abstract class Layer implements ZOrder, Updatable, Renderable {
      * @param callback:thisArg The value to use as `this` when invoking the callback.
      * @return If the callback function returns a true for any object in the scene.
      */
-    public someEntity(callback: (e: Updatable&Renderable, id?: number, thisArg?: this) => boolean): boolean {
-        const objectIterator: IterableIterator<[number, Updatable&Renderable]> = this.objects.entries();
-        let e: IteratorResult<[number, Updatable&Renderable]>;
+    public someEntity(callback: (e: Entity, id?: number, thisArg?: this) => boolean): boolean {
+        const objectIterator: IterableIterator<[number, Entity]> = this.objects.entries();
+        let e: IteratorResult<[number, Entity]>;
         while ((e = objectIterator.next()) && !e.done) {
             if (callback(e.value[1], e.value[0])) {
                 return true;
