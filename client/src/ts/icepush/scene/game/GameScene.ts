@@ -119,9 +119,8 @@ export class GameScene extends Scene {
      */
     private requestProjectile(event: MouseEvent): void {
         const clickLoc: Vector2D = InputHandler.translateMouseEventLocationToCanvas(event as MouseEvent, this.game.ctx.canvas);
-        const clickedElement: HTMLElement|null = this.domLayer.findClickedDOMElement(clickLoc);
-        if (clickedElement == null) {
-            // No DOM elements contain the click location - send the event.
+        if (this.domLayer.findClickedDOMElementNotChatRelated(clickLoc).length == 0) {
+            // No DOM elements (non-chat) contain the click location - send the event.
             this.connection.enqueueEvent(new ProjectileRequestEvent(clickLoc.x, clickLoc.y));
         }
     }
