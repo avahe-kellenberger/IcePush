@@ -76,7 +76,7 @@ export class GameScene extends Scene {
         this.networkEventFunctionMap.set(OPCode.PING, this.onPingEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.NEW_OBJECT, this.onNewObjectEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.NEW_PLAYER, this.onNewPlayerEvent.bind(this));
-        this.networkEventFunctionMap.set(OPCode.OBJECT_MOVED, this.onPlayerMovedEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.OBJECT_MOVED, this.onObjectMovedEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.PLAYER_LIVES_CHANGED, this.onPlayerLivesChangedEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.PLAYER_LOGGED_OUT, this.onPlayerLoggedOutEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.CHAT_RECEIVED, this.onChatReceivedEvent.bind(this));
@@ -180,7 +180,7 @@ export class GameScene extends Scene {
      * Invoked when a `ObjectMovedEvent` is received.
      * @param event The received event.
      */
-    private onPlayerMovedEvent(event: ObjectMovedEvent): void {
+    private onObjectMovedEvent(event: ObjectMovedEvent): void {
         let object: (Entity&Locatable)|undefined = this.gameplayLayer.getObject(event.id) as (Entity&Locatable)|undefined;
         if (object !== undefined) {
             const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
