@@ -14,7 +14,7 @@ import {EndMoveEvent} from "../../net/events/EndMoveEvent";
 import {OPCode} from "../../net/NetworkEventBuffer";
 import {NetworkEvent} from "../../net/NetworkEvent";
 import {PlayerLoggedOutEvent} from "../../net/events/PlayerLoggedOutEvent";
-import {PlayerMovedEvent} from "../../net/events/PlayerMovedEvent";
+import {ObjectMovedEvent} from "../../net/events/ObjectMovedEvent";
 import {PlayerLivesChangedEvent} from "../../net/events/PlayerLivedChangedEvent";
 import {RoundWinnersEvent} from "../../net/events/RoundWinnersEvent";
 import {RoundStartCountdownEvent} from "../../net/events/RoundStartCountdownEvent";
@@ -22,7 +22,11 @@ import {GameplayLayer} from "./GameplayLayer";
 import {DOMLayer} from "./DOMLayer";
 import {InfoLayer, InfoPane} from "./InfoLayer";
 import {Vector2D} from "../../../engine/math/Vector2D";
+import {NewObjectEvent} from "../../net/events/NewObjectEvent";
+import {Sprite} from "../../../engine/game/entity/Sprite";
+import {Assets} from "../../asset/Assets";
 import {ProjectileRequestEvent} from "../../net/events/ProjectileRequestEvent";
+import {Locatable} from "../../../engine/game/entity/Locatable";
 
 export class GameScene extends Scene {
 
@@ -70,8 +74,9 @@ export class GameScene extends Scene {
 
         this.networkEventFunctionMap = new Map();
         this.networkEventFunctionMap.set(OPCode.PING, this.onPingEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.NEW_OBJECT, this.onNewObjectEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.NEW_PLAYER, this.onNewPlayerEvent.bind(this));
-        this.networkEventFunctionMap.set(OPCode.PLAYER_MOVED, this.onPlayerMovedEvent.bind(this));
+        this.networkEventFunctionMap.set(OPCode.OBJECT_MOVED, this.onObjectMovedEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.PLAYER_LIVES_CHANGED, this.onPlayerLivesChangedEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.PLAYER_LOGGED_OUT, this.onPlayerLoggedOutEvent.bind(this));
         this.networkEventFunctionMap.set(OPCode.CHAT_RECEIVED, this.onChatReceivedEvent.bind(this));
@@ -114,9 +119,8 @@ export class GameScene extends Scene {
      */
     private requestProjectile(event: MouseEvent): void {
         const clickLoc: Vector2D = InputHandler.translateMouseEventLocationToCanvas(event as MouseEvent, this.game.ctx.canvas);
-        const clickedElement: HTMLElement|null = this.domLayer.findClickedDOMElement(clickLoc);
-        if (clickedElement == null) {
-            // No DOM elements contain the click location - send the event.
+        if (this.domLayer.findClickedDOMElementNotChatRelated(clickLoc).length == 0) {
+            // No DOM elements (non-chat) contain the click location - send the event.
             this.connection.enqueueEvent(new ProjectileRequestEvent(clickLoc.x, clickLoc.y));
         }
     }
@@ -132,11 +136,20 @@ export class GameScene extends Scene {
     }
 
     /**
+     * Invoked when a `NewObjectEvent` is received.
+     * @param event The received event.
+     */
+    private onNewObjectEvent(event: NewObjectEvent): void {
+        const obj: Sprite = new Sprite(event.id, Assets.getImageByID(event.type), event.location);
+        this.gameplayLayer.setObject(event.id, obj);
+    }
+
+    /**
      * Invoked when a `NewPlayerEvent` is received.
      * @param event The received event.
      */
     private onNewPlayerEvent(event: NewPlayerEvent): void {
-        const player: Player = new Player(event.playerID, event.username, event.type, event.lives);
+        const player: Player = new Player(event.playerID, event.username, Assets.getImageByID(event.type), event.lives);
         this.gameplayLayer.setObject(event.playerID, player);
 
         const isLocalPlayer: boolean = event.playerID === this.playerID;
@@ -164,20 +177,30 @@ export class GameScene extends Scene {
     }
 
     /**
-     * Invoked when a `PlayerMovedEvent` is received.
+     * Invoked when a `ObjectMovedEvent` is received.
      * @param event The received event.
      */
-    private onPlayerMovedEvent(event: PlayerMovedEvent): void {
-        const player: Entity|undefined = this.gameplayLayer.getObject(event.playerID);
-        if (player instanceof Player) {
+    private onObjectMovedEvent(event: ObjectMovedEvent): void {
+        let object: (Entity&Locatable)|undefined = this.gameplayLayer.getObject(event.id) as (Entity&Locatable)|undefined;
+        if (object !== undefined) {
             const icePlatformTopLeft: Vector2D = this.gameplayLayer.getIcePlatformBounds().getTopLeft();
             const playerLoc: Vector2D = event.location.addVector(icePlatformTopLeft);
-            player.setLocation(playerLoc);
+            object.setLocation(playerLoc);
 
-            const infoPane: InfoPane = this.infoLayer.getObject(event.playerID) as InfoPane;
-            const infoPaneLocation: Vector2D = playerLoc.subtract(0,  player.getSprite().height);
-            infoPane.setLocation(infoPaneLocation);
+            if (object instanceof Player) {
+                this.updatePlayerInfoPane(object);
+            }
         }
+    }
+
+    /**
+     * Updates the InfoPane associated with the player.
+     * @param player The player which owns the InfoPane.
+     */
+    private updatePlayerInfoPane(player: Player): void {
+        const infoPane: InfoPane = this.infoLayer.getObject(player.getUID()) as InfoPane;
+        const infoPaneLocation: Vector2D = player.getLocation().subtract(0, player.getImage().height);
+        infoPane.setLocation(infoPaneLocation);
     }
 
     /**

@@ -20,9 +20,9 @@ public class PacketMapper {
     /* c2s == client to server. s2c == server to client. We should evaluate/standardize usage of this convention at some point */
 
     private static final String[] c2sPacketNames =
-            new String[] {"MOVE_REQUEST", "END_MOVE", "LOGOUT", "PING", "CHAT_REQUEST"};
+            new String[] {"MOVE_REQUEST", "END_MOVE", "LOGOUT", "PING", "CHAT_REQUEST", "PROJECTILE_REQUEST"};
 
-    private static int[] opcodes = new int[] {MOVE_REQUEST, END_MOVE, LOGOUT, PING, CHAT_REQUEST};
+    private static int[] opcodes = new int[] {MOVE_REQUEST, END_MOVE, LOGOUT, PING, CHAT_REQUEST, PROJECTILE_REQUEST};
 
     private static Hashtable<Integer, MethodHandle> methodTable =
             new Hashtable<Integer, MethodHandle>();
@@ -56,7 +56,8 @@ public class PacketMapper {
                 {}, // END_MOVE
                 {}, // LOGOUT
                 {}, // PING
-                {STRING} // CHAT_REQUEST
+                {STRING}, // CHAT_REQUEST
+                { SHORT, SHORT }		// PROJECTILE_REQUEST
             };
 
     public static void handlePackets(PacketBuffer pbuf, Object target) {

@@ -81,7 +81,7 @@ export class InputHandler {
          */
         this.document.addEventListener('blur', () => {
             this.keyMap.forEach((isDown, key) => {
-               this.keyMap.set(key, false);
+                this.keyMap.set(key, false);
             });
 
             // TODO: Focus listeners.

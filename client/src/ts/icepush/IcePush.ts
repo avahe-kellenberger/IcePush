@@ -11,7 +11,7 @@ import {NetworkEvent} from "./net/NetworkEvent";
 
 export class IcePush extends Game {
 
-    public static readonly CLIENT_VERSION: number = 109;
+    public static readonly CLIENT_VERSION: number = 110;
     private static readonly LOGIN_TIMEOUT: number = 3000;
 
     private static readonly runLocal = location.protocol === 'file:';

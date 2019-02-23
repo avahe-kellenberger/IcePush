@@ -5,11 +5,12 @@ import static net.threesided.shared.Constants.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import net.threesided.server.physics2d.Circle;
+import net.threesided.server.physics2d.Projectile;
 import net.threesided.shared.PacketBuffer;
+import net.threesided.shared.Vector2D;
 
 public class Player extends Circle {
 
-    public int id;
     public int lives;
     public int type;
     public String username;
@@ -20,9 +21,12 @@ public class Player extends Circle {
     public int timeDead = 0;
 
     PacketBuffer pbuf;
+    public Projectile projectile = null;
 
     public boolean logOut;
     String chatMessage;
+    private long lastProjectile;
+    private long PR_DELAY = 250;
 
     // Length of arrays can be adjusted for more precision
     public static final float[] sines = new float[256];
@@ -53,8 +57,16 @@ public class Player extends Circle {
         pbuf.endPacket();
     }
 
+    public void notifyNewObject(Projectile proj) {
+        pbuf.beginPacket(NEW_OBJECT);
+        pbuf.writeShort(proj.id);
+        pbuf.writeByte(2); // objtype 2 = present sprite
+        pbuf.writeShort((int)proj.position.getX());
+        pbuf.writeShort((int)proj.position.getY());
+    }
+
     // Notifies this player that player p has moved
-    public void handleMove(Player p) {
+    public void handleMove(Circle p) {
         pbuf.beginPacket(PLAYER_MOVED);
         pbuf.writeShort(p.id);
         pbuf.writeShort((int) p.position.getX());
@@ -157,6 +169,42 @@ public class Player extends Circle {
         // System.currentTimeMillis());
     }
 
+    public void PROJECTILE_REQUEST(int x, int y) {
+        //System.out.println("Received projectile request from " + username + ": x=" + x + ", y=" + y);
+        long now = System.currentTimeMillis();
+        if(now - lastProjectile < PR_DELAY) {
+            return;
+        } else {
+            lastProjectile = now;
+        }
+
+        double dx = x - (radius + this.position.getX());
+        double dy = y - (radius + this.position.getY());
+        double R = dx*dx + dy*dy;
+        if(R == 0) return;
+        R = Math.sqrt(R);
+        Vector2D velocity = new Vector2D();
+        velocity.set(6*dx/R, 6*dy/R);
+        Projectile bomb = new Projectile(12, 25, velocity);
+        bomb.position = new Vector2D();
+        bomb.position.set(x, y);
+
+        int index = Server.objectTable.length - 1;
+        while(index >= 0) {
+            Circle c = Server.objectTable[index];
+            if(c == null) {
+                break;
+            } else if(c instanceof Player) {
+                return;
+            }
+            index--;
+        }
+        bomb.id = index;
+        Server.objectTable[index] = bomb;
+        //System.out.println("projectile index = " + index);
+	this.projectile = bomb;
+    }
+
     public void LOGOUT() {
         logOut = true;
     }
@@ -170,7 +218,7 @@ public class Player extends Circle {
         pbuf.endPacket();
     }
 
-    public void loggedOut(Player p) { // Tell this player that player p logged out
+    public void loggedOut(Circle p) { // Tell this player that player p logged out
         pbuf.beginPacket(PLAYER_LOGGED_OUT);
         pbuf.writeShort(p.id);
         pbuf.endPacket();
