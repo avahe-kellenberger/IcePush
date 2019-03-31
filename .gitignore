@@ -1,5 +1,4 @@
-client/src/dist/*
-client/node_modules/*
+dist/*
+node_modules/*
 .idea/*
-src/out/*
-IcePush.iml
+js/*
