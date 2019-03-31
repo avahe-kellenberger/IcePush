@@ -1,5 +1,0 @@
-bind-port:2345
-irc-server:irc.rizon.net
-irc-channel:#icepush
-irc-port:6697
-irc-nick:TestServer

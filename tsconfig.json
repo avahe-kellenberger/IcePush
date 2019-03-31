@@ -1,0 +1,17 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./js",
+    "baseUrl": "./node_modules",
+    "target": "es2017",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictFunctionTypes": false,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "strict": true,
+  },
+  "include": [
+    "ts/**/*"
+  ]
+}
