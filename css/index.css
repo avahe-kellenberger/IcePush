@@ -66,7 +66,7 @@ body {
 .on-canvas {
     color: black;
     position: absolute;
-    border: 1px solid #aaaaaa;
+    border: 1px solid rgba(170, 170, 170, 0.5);
     background: #eeeeee;
     padding: 4px 16px 4px 16px;
     tab-index: -1;
@@ -78,4 +78,8 @@ body {
     -ms-user-select: none;
     -webkit-touch-callout: none;
     -moz-user-select: none;
+}
+.button {
+  background-color: #808080;
+  color: white;
 }
