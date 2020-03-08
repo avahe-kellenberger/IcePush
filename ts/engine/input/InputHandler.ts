@@ -2,7 +2,7 @@
  * @author Avahe
  * Handles events fired from the DOM.
  */
-import {Vector2D} from "../math/Vector2D";
+import {Vector2D} from '../math/Vector2D'
 
 export class EventHandler {
 
@@ -14,8 +14,8 @@ export class EventHandler {
      * @param listener The function which handles the event.
      */
     constructor(type: keyof GlobalEventHandlersEventMap, listener: EventListener) {
-        this.type = type;
-        this.listener = listener;
+      this.type = type
+      this.listener = listener
     }
 
 }
@@ -37,9 +37,9 @@ export class KeyHandler {
      *                  If false, the handler will only be notified when the state changes (down to up, or up to down).
      */
     constructor(callback: (key: string, isDown: boolean) => void, filter?: ((key: string, isDown: boolean) => boolean), notifyAll: boolean = false) {
-        this.callback = callback;
-        this.filter = filter;
-        this.notifyAll = notifyAll;
+      this.callback = callback
+      this.filter = filter
+      this.notifyAll = notifyAll
     }
 
 }
@@ -58,45 +58,43 @@ export class InputHandler {
      * @param document The document on which to listen for input events.
      */
     constructor(document: HTMLDocument) {
-        this.document = document;
-        this.keyMap = new Map();
-        this.keyHandlers = new Set();
+      this.document = document
+      this.keyMap = new Map()
+      this.keyHandlers = new Set()
 
-        /*
+      /*
          * Attach `keydown` and `keyup` handlers to the canvas.
          */
-        this.document.addEventListener('keydown', e => {
-            const changed: boolean = !this.isKeyDown(e.key);
-            this.keyMap.set(e.key, true);
-            this.notifyKeyHandlers(e.key, true, changed);
-        });
-        this.document.addEventListener('keyup', e => {
-            const changed: boolean = this.isKeyDown(e.key);
-            this.keyMap.set(e.key, false);
-            this.notifyKeyHandlers(e.key, false, changed);
-        });
+      this.document.addEventListener('keydown', e => {
+        const changed: boolean = !this.isKeyDown(e.key)
+        this.keyMap.set(e.key, true)
+        this.notifyKeyHandlers(e.key, true, changed)
+      })
+      this.document.addEventListener('keyup', e => {
+        const changed: boolean = this.isKeyDown(e.key)
+        this.keyMap.set(e.key, false)
+        this.notifyKeyHandlers(e.key, false, changed)
+      })
 
-        /*
+      /*
          * If the canvas loses focus, it is the same as no keys being down on the canvas.
          * This prevents bugs such as players getting stuck moving in a direction when focus is lost.
          */
-        this.document.addEventListener('blur', () => {
-            this.keyMap.forEach((isDown, key) => {
-                this.keyMap.set(key, false);
-            });
+      this.document.addEventListener('blur', () => {
+        this.keyMap.forEach((_, key) => {
+          this.keyMap.set(key, false)
+        })
 
-            // TODO: Focus listeners.
-        });
+        // TODO: Focus listeners.
+      })
     }
-
-    // region EventHandlers
 
     /**
      * Adds an `EventHandler` to the DOM.
      * @param handler The event handler.
      */
     public addEventHandler(handler: EventHandler): void {
-        this.document.addEventListener(handler.type, handler.listener);
+      this.document.addEventListener(handler.type, handler.listener)
     }
 
     /**
@@ -104,12 +102,8 @@ export class InputHandler {
      * @param handler The event handler.
      */
     public removeEventHandler(handler: EventHandler): void {
-        this.document.removeEventListener(handler.type, handler.listener);
+      this.document.removeEventListener(handler.type, handler.listener)
     }
-
-    // endregion
-
-    // region KeyHandlers
 
     /**
      * Notifies all KeyHandlers of key events.
@@ -118,13 +112,13 @@ export class InputHandler {
      * @param changed If the state of the key changed.
      */
     private notifyKeyHandlers(key: string, isDown: boolean, changed: boolean): void {
-        this.keyHandlers.forEach(handler => {
-            if (handler.filter === undefined || handler.filter(key, isDown)) {
-                if (handler.notifyAll || changed) {
-                    handler.callback(key, isDown);
-                }
-            }
-        });
+      this.keyHandlers.forEach(handler => {
+        if (handler.filter === undefined || handler.filter(key, isDown)) {
+          if (handler.notifyAll || changed) {
+            handler.callback(key, isDown)
+          }
+        }
+      })
     }
 
     /**
@@ -132,8 +126,8 @@ export class InputHandler {
      * @param key The key to check.
      */
     public isKeyDown(key: string): boolean {
-        const isDown: boolean|undefined = this.keyMap.get(key);
-        return isDown !== undefined && isDown;
+      const isDown: boolean|undefined = this.keyMap.get(key)
+      return isDown !== undefined && isDown
     }
 
     /**
@@ -141,7 +135,7 @@ export class InputHandler {
      * @return If the handler was added.
      */
     public addKeyHandler(handler: KeyHandler): boolean {
-        return this.keyHandlers.size !== this.keyHandlers.add(handler).size;
+      return this.keyHandlers.size !== this.keyHandlers.add(handler).size
     }
 
     /**
@@ -149,12 +143,8 @@ export class InputHandler {
      * @return If the handler was removed.
      */
     public removeKeyHandler(handler: KeyHandler): boolean {
-        return this.keyHandlers === undefined || this.keyHandlers.delete(handler);
+      return this.keyHandlers === undefined || this.keyHandlers.delete(handler)
     }
-
-    // endregion
-
-    // region Static Methods
 
     /**
      * Translates the location of the `MouseEvent` to be relative to the `canvas`' bounding client rect.
@@ -163,10 +153,8 @@ export class InputHandler {
      * @see HTMLCanvasElement.getBoundingClientRect
      */
     public static translateMouseEventLocationToCanvas(event: MouseEvent, canvas: HTMLCanvasElement): Vector2D {
-        const boundingRect: ClientRect|DOMRect = canvas.getBoundingClientRect();
-        return new Vector2D(event.clientX - boundingRect.left, event.clientY - boundingRect.top);
+      const boundingRect: ClientRect|DOMRect = canvas.getBoundingClientRect()
+      return new Vector2D(event.clientX - boundingRect.left, event.clientY - boundingRect.top)
     }
-
-    // endregion
 
 }

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "./js",
     "baseUrl": "./node_modules",
+    "module": "CommonJS",
     "target": "es2017",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,

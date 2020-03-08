@@ -12,15 +12,15 @@ export class PositionedBuffer {
      * @param position The position from within the buffer to begin reading.
      */
     constructor(buffer: Buffer, position?: number) {
-        this.buffer = buffer;
-        this.pos = BufferPosition.create(position);
+      this.buffer = buffer
+      this.pos = BufferPosition.create(position)
     }
 
     /**
      * @return The current position in the buffer.
      */
     public getPosition(): number {
-        return this.pos();
+      return this.pos()
     }
 
     /**
@@ -28,29 +28,29 @@ export class PositionedBuffer {
      * @param position The buffers new position.
      */
     public setPosition(position: number): void {
-        this.pos(position, true);
+      this.pos(position, true)
     }
 
     /**
      * @return The length of the buffer.
      */
     public getLength(): number {
-        return this.buffer.byteLength;
+      return this.buffer.byteLength
     }
 
     /**
      * @return The underlying buffer.
      */
     public getBuffer(): Buffer {
-        return this.buffer;
+      return this.buffer
     }
 
     /**
      * Reads a `utf8` string from the buffer.
      */
     public readString(): string {
-        const length: number = this.readInt16BE();
-        return this.buffer.toString(PositionedBuffer.STRING_ENCODING, this.pos(length), this.pos());
+      const length: number = this.readInt16BE()
+      return this.buffer.toString(PositionedBuffer.STRING_ENCODING, this.pos(length), this.pos())
     }
 
     /**
@@ -59,103 +59,99 @@ export class PositionedBuffer {
      * @return The position in the buffer after writing.
      */
     public writeString(s: string): number {
-        this.writeInt16BE(s.length);
-        for (let i = 0; i < s.length; i++) {
-            this.writeInt8(s.charCodeAt(i));
-        }
-        return this.pos();
+      this.writeInt16BE(s.length)
+      for (let i = 0; i < s.length; i++) {
+        this.writeInt8(s.charCodeAt(i))
+      }
+      return this.pos()
     }
 
     /**
      * @see Buffer.readInt8
      */
     public readInt8(): number {
-        return this.buffer.readInt8(this.pos(1));
+      return this.buffer.readInt8(this.pos(1))
     }
 
     /**
      * @see Buffer.readUInt8
      */
     public readUInt8(): number {
-        return this.buffer.readUInt8(this.pos(1));
+      return this.buffer.readUInt8(this.pos(1))
     }
 
     /**
      * @see Buffer.writeInt8
      */
     public writeInt8(value: number): number {
-        return this.buffer.writeInt8(value, this.pos(1));
+      return this.buffer.writeInt8(value, this.pos(1))
     }
 
     /**
      * @see Buffer.writeUInt8
      */
     public writeUInt8(value: number): number {
-        return this.buffer.writeUInt8(value, this.pos(1));
+      return this.buffer.writeUInt8(value, this.pos(1))
     }
 
     /**
      * @see Buffer.readInt16BE
      */
     public readInt16BE(): number {
-        return (0xff & (this.readInt8())) + (this.readInt8() << 8);
+      return (0xff & (this.readInt8())) + (this.readInt8() << 8)
     }
 
     /**
      * @see Buffer.writeInt16BE
      */
     public writeInt16BE(value: number): number {
-        this.writeUInt8(value & 0xff);
-        return this.writeUInt8((value >> 8) & 0xff);
+      this.writeUInt8(value & 0xff)
+      return this.writeUInt8((value >> 8) & 0xff)
     }
 
     /**
      * @see Buffer.readUInt16BE
      */
     public readUInt16BE(): number {
-        return (0xff & (this.readUInt8())) + (this.readUInt8() << 8);
+      return (0xff & (this.readUInt8())) + (this.readUInt8() << 8)
     }
 
     /**
      * @see Buffer.writeUInt16BE
      */
     public writeUInt16BE(value: number): number {
-        this.writeUInt8(value);
-        return this.writeUInt8(value >> 8);
+      this.writeUInt8(value)
+      return this.writeUInt8(value >> 8)
     }
 
     /**
      * @see Buffer.readInt32BE
      */
     public readInt32BE(): number {
-        return (0xff & this.readInt8())
+      return (0xff & this.readInt8())
             + ((0xff & this.readInt8()) << 8)
             + ((0xff & this.readInt8()) << 16)
-            + ((0xff & this.readInt8()) << 24);
+            + ((0xff & this.readInt8()) << 24)
     }
 
     /**
      * @see Buffer.writeInt32BE
      */
     public writeInt32BE(value: number): number {
-        this.writeInt8(value & 0xff);
-        this.writeInt8(value >> 8);
-        this.writeInt8(value >> 16);
-        return this.writeInt8(value >> 24);
+      this.writeInt8(value & 0xff)
+      this.writeInt8(value >> 8)
+      this.writeInt8(value >> 16)
+      return this.writeInt8(value >> 24)
     }
-
-    // region Static Methods
 
     /**
      * @param s The string to write.
      * @return The number of bytes used to write the string to the buffer.
      */
     public static getStringWriteSize(s: string): number {
-        // + 2 for the two bytes used to prefix the string with its size in bytes.
-        return s.length + 2;
+      // + 2 for the two bytes used to prefix the string with its size in bytes.
+      return s.length + 2
     }
-
-    // endregion
 
 }
 
@@ -193,13 +189,13 @@ export namespace BufferPosition {
      * @returns A position counter for a buffer.
      */
     export function create(initialPosition: number = 0): BufferPosition {
-        return (relativeOrAbsolute?: number, absolute?: boolean) => {
-            const oldPosition = initialPosition;
-            if (relativeOrAbsolute != null) {
-                initialPosition = absolute ? relativeOrAbsolute : initialPosition + relativeOrAbsolute;
-            }
-            return oldPosition;
-        };
+      return (relativeOrAbsolute?: number, absolute?: boolean) => {
+        const oldPosition = initialPosition
+        if (relativeOrAbsolute != null) {
+          initialPosition = absolute ? relativeOrAbsolute : initialPosition + relativeOrAbsolute
+        }
+        return oldPosition
+      }
     }
 
 }
